@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import './Login.css'; // Import your CSS file
 import { Link } from 'react-router-dom'; 
-import PasswordToggle from '../PasswordToggle/PasswordToggle.jsx'; // Import the PasswordToggle component
 
 const Login = () => {
   const [formData, setFormData] = useState({
