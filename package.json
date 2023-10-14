@@ -1,5 +1,5 @@
 {
-  "name": "furqan-app",
+  "name": "water-bottle-distribution-company-tracking-app",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -39,5 +39,17 @@
   },
   "devDependencies": {
     "@babel/plugin-transform-private-property-in-object": "^7.22.11"
-  }
+  },
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/linarawwas/furqan-frontend.git"
+  },
+  "author": "Lina Rawas",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/linarawwas/furqan-frontend/issues"
+  },
+  "homepage": "https://github.com/linarawwas/furqan-frontend#readme"
 }
