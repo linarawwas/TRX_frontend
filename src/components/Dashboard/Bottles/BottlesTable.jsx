@@ -1,5 +1,6 @@
 // BottlesTable.jsx
 import React, { useState, useEffect } from 'react';
+import './BottlesTable.css'; // Import your CSS file
 
 const BottlesTable = () => {
   const [bottles, setBottles] = useState([]);
@@ -20,28 +21,26 @@ const BottlesTable = () => {
   }, []);
 
   return (
-    <div>
-      <h2>Bottles Table</h2>
+    <div className='bottlesBody'>
+      <h2 className='bottlesTitle'>Customer Orders</h2>
       {loading ? (
         <p>Loading...</p>
       ) : (
-        <table>
+        <table className="bottles-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Needed</th>
+              <th>Customer</th>
+              <th>Delivered</th>
               <th>Returned</th>
-              <th>Customer ID</th>
               <th>Timestamp</th>
             </tr>
           </thead>
           <tbody>
             {bottles.map((bottle) => (
               <tr key={bottle._id}>
-                <td>{bottle._id}</td>
+                <td>{bottle.customerid.name}</td>
                 <td>{bottle.needed}</td>
                 <td>{bottle.returned}</td>
-                <td>{bottle.customerid}</td>
                 <td>{bottle.timestamp}</td>
               </tr>
             ))}
