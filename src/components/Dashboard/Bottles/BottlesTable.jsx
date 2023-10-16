@@ -39,7 +39,7 @@ const BottlesTable = () => {
             {bottles.map((bottle) => (
               <tr key={bottle._id}>
                 <td>{bottle.customerid.name}</td>
-                <td>{bottle.needed}</td>
+                <td>{bottle.delivered}</td>
                 <td>{bottle.returned}</td>
                 <td>{bottle.timestamp}</td>
               </tr>
