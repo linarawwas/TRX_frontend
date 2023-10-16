@@ -1,0 +1,68 @@
+form {
+    max-width: 300px;
+    /* Adjust the maximum width as needed */
+    margin: 10% auto;
+    /* Center the form horizontally */
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+label {
+    display: block;
+    margin: 5%;
+    padding: 5%;
+    font-weight: bold;
+}
+
+input[type="number"],
+input[type="text"] {
+    width: 100%;
+    margin: 5%;
+    padding: 5%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+}
+
+button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff;
+    /* Adjust the button color */
+    color: #fff;
+    /* Text color for the button */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+    /* Adjust the button color on hover */
+}
+
+/* You can add additional styles as needed */
+
+/* Optional: Style form elements for number input type */
+input[type="number"] {
+    width: 50px;
+    /* Adjust the width of the number input */
+    text-align: center;
+}
+
+/* Optional: Larger increment and decrement buttons for number input */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    height: 40px;
+    /* Adjust the button height */
+    width: 40px;
+    /* Adjust the button width */
+    display: block;
+}
+
+.customerID {
+    width: 70%;
+}

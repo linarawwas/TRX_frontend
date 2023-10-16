@@ -32,7 +32,7 @@ const BottlesTable = () => {
               <th>Customer</th>
               <th>Delivered</th>
               <th>Returned</th>
-              <th>Timestamp</th>
+              <th>date of delivery</th>
             </tr>
           </thead>
           <tbody>
