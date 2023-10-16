@@ -1,7 +1,7 @@
 form {
     max-width: 300px;
     /* Adjust the maximum width as needed */
-    margin: 10% auto;
+    margin: 5% auto;
     /* Center the form horizontally */
     padding: 20px;
     border: 1px solid #ccc;
@@ -15,7 +15,15 @@ label {
     padding: 5%;
     font-weight: bold;
 }
+.area{
+    font-size: 20px;
+    margin:10px;
+}
+.areaName{
+    font-size: 20px;
+    margin:10px;
 
+}
 input[type="number"],
 input[type="text"] {
     width: 100%;

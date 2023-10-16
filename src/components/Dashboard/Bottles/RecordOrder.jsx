@@ -1,11 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './RecordOrder.css';
+
 const RecordOrder = () => {
     const [orderData, setOrderData] = useState({
         delivered: '',
         returned: '',
         customerid: '',
+        areaId: '', // Use a single state for the selected area
     });
+
+    const [areas, setAreas] = useState([]);
+    const [customers, setCustomers] = useState([]);
+
+    useEffect(() => {
+        // Fetch areas from the endpoint (http://localhost:5000/api/areas)
+        fetch('http://localhost:5000/api/areas')
+            .then((response) => response.json())
+            .then((data) => {
+                setAreas(data);
+            })
+            .catch((error) => {
+                console.error('Error fetching areas:', error);
+            });
+    }, []);
+
+    useEffect(() => {
+        // Fetch customers based on the selected area
+        if (orderData.areaId) {
+            fetch(`http://localhost:5000/api/customers/area/${orderData.areaId}`)
+                .then((response) => response.json())
+                .then((data) => {
+                    setCustomers(data);
+                })
+                .catch((error) => {
+                    console.error('Error fetching customers:', error);
+                });
+        }
+    }, [orderData.areaId]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -14,7 +45,6 @@ const RecordOrder = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         // Send a POST request with the orderData to the specified route (http://localhost:5000/api/bottles)
         try {
             const response = await fetch('http://localhost:5000/api/bottles', {
@@ -58,16 +88,33 @@ const RecordOrder = () => {
                     onChange={handleChange}
                 />
             </label>
-            <label className='customerID'
-            >
-                Customer ID:
-                <input
-                    type="text"
+            <label className='area'>
+                Area:
+                <select className='areaName' name="areaId" value={orderData.areaId} onChange={handleChange}>
+                    <option className='areaName' value="">Select an area</option>
+                    {areas.map((area) => (
+                        <option className='areaName' key={area._id} value={area._id}>
+                            {area.name}
+                        </option>
+                    ))}
+                </select>
+            </label>
+            <label>
+                Customer:
+                <select
                     name="customerid"
                     value={orderData.customerid}
                     onChange={handleChange}
-                />
+                >
+                    <option value="">Select a customer</option>
+                    {customers.map((customer) => (
+                        <option key={customer._id} value={customer._id}>
+                            {customer.name}
+                        </option>
+                    ))}
+                </select>
             </label>
+
             <button type="submit">Record Order</button>
         </form>
     );
