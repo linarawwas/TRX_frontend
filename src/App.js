@@ -4,6 +4,8 @@ import Register from './components/Auth/Register'; // Import the Register compon
 import Dashboard from './components/Dashboard/Dashboard';
 import BottlesTable from './components/Dashboard/Bottles/BottlesTable';
 import RecordOrder from './components/Dashboard/Bottles/RecordOrder';
+import Days from './components/Dashboard/Days/Days';
+import AreasForDay from './components/Dashboard/Days/AreasForDay';
 function App() {
   return (
     <div className="App">
@@ -14,6 +16,8 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/viewOrders" element={<BottlesTable />} />
           <Route path="/recordOrder" element={<RecordOrder />} />
+          <Route path="/days" element={<Days />} />
+          <Route path="/areas/:dayId" element={<AreasForDay/>} />
         </Routes>
       </Router>
     </div>
