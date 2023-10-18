@@ -17,10 +17,10 @@ const Dashboard = () => {
             <Link to="/days">Days</Link>
           </li>
           <li>
-            <Link to="/area">Area</Link>
+            <Link to="/areas">Areas</Link>
           </li>
           <li>
-            <Link to="/customer">Customer</Link>
+            <Link to="/customers">Customer</Link>
           </li>
         </ul>
       </aside>

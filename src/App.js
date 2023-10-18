@@ -4,9 +4,12 @@ import Register from './components/Auth/Register'; // Import the Register compon
 import Dashboard from './components/Dashboard/Dashboard';
 import BottlesTable from './components/Dashboard/Bottles/BottlesTable';
 import RecordOrder from './components/Dashboard/Bottles/RecordOrder';
-import Days from './components/Dashboard/Days/Days';
-import AreasForDay from './components/Dashboard/Days/AreasForDay';
-import CustomersForArea from './components/Dashboard/Days/CustomersForArea';
+import Days from './components/Dashboard/OtherTables/Days';
+import AreasForDay from './components/Dashboard/OtherTables/AreasForDay';
+import CustomersForArea from './components/Dashboard/OtherTables/CustomersForArea';
+import Areas from './components/Dashboard/OtherTables/Areas';
+import Addresses from './components/Dashboard/OtherTables/Addresses';
+import Customers from './components/Dashboard/OtherTables/Customers';
 function App() {
   return (
     <div className="App">
@@ -18,6 +21,9 @@ function App() {
           <Route path="/viewOrders" element={<BottlesTable />} />
           <Route path="/recordOrder" element={<RecordOrder />} />
           <Route path="/days" element={<Days />} />
+          <Route path="/areas" element={<Areas />} />
+          <Route path="/customers" element={<Customers />} />
+          <Route path="/addresses/:areaId" element={<Addresses />} />
           <Route path="/areas/:dayId" element={<AreasForDay/>} />
           <Route path="/customers/:areaId" element={<CustomersForArea/>} />
         </Routes>
