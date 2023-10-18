@@ -8,7 +8,7 @@ const Dashboard = () => {
       <aside className="sidebar">
         <ul>
           <li>
-            <Link to="/viewOrders">Bottles</Link>
+            <Link to="/viewOrders">Orders</Link>
           </li>          
           <li>
             <Link to="/recordOrder">Record Order</Link>

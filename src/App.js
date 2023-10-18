@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'; // Import Router, Route, and Routes
 import Login from './components/Auth/Login';
+import React,{useState, useEffect} from 'react';
 import Register from './components/Auth/Register'; // Import the Register component
 import Dashboard from './components/Dashboard/Dashboard';
 import BottlesTable from './components/Dashboard/Bottles/BottlesTable';
@@ -11,13 +12,21 @@ import Areas from './components/Dashboard/OtherTables/Areas';
 import Addresses from './components/Dashboard/OtherTables/Addresses';
 import Customers from './components/Dashboard/OtherTables/Customers';
 function App() {
+const [isLoggedIn,setIsLoggedIn]=useState(false);
+useEffect(() => {
+  // Check if the user is authenticated here, e.g., by inspecting the authentication header
+  const token = localStorage.getItem('token'); // You should replace this with your authentication method
+  if (token) {
+    setIsLoggedIn(true);
+  }
+}, [isLoggedIn]);
   return (
     <div className="App">
       <Router>
         <Routes>
           <Route path="/register" element={<Register />} />
           <Route path="/" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Login/>} />
           <Route path="/viewOrders" element={<BottlesTable />} />
           <Route path="/recordOrder" element={<RecordOrder />} />
           <Route path="/days" element={<Days />} />

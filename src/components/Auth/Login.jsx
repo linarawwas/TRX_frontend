@@ -39,7 +39,7 @@ const Login = () => {
         // Retrieve the user's isAdmin status from the response or your authentication system
         const data = await response.json();
         const isAdmin = data.isAdmin;
-        console.log(isAdmin);
+        // console.log(isAdmin);
 
         // Redirect the user based on isAdmin status
         if (isAdmin) {
