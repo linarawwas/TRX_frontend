@@ -46,7 +46,7 @@ export default function AreasForDay({ match }) {
                 {areas.map((area) => (
                     <tr key={area._id}>
                         <td>
-                            <Link to={`/areas/${area._id}`}>{area.name}</Link>
+                            <Link to={`/customers/${area._id}`}>{area.name}</Link>
                         </td>
                     </tr>
                 ))}

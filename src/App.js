@@ -6,6 +6,7 @@ import BottlesTable from './components/Dashboard/Bottles/BottlesTable';
 import RecordOrder from './components/Dashboard/Bottles/RecordOrder';
 import Days from './components/Dashboard/Days/Days';
 import AreasForDay from './components/Dashboard/Days/AreasForDay';
+import CustomersForArea from './components/Dashboard/Days/CustomersForArea';
 function App() {
   return (
     <div className="App">
@@ -18,6 +19,7 @@ function App() {
           <Route path="/recordOrder" element={<RecordOrder />} />
           <Route path="/days" element={<Days />} />
           <Route path="/areas/:dayId" element={<AreasForDay/>} />
+          <Route path="/customers/:areaId" element={<CustomersForArea/>} />
         </Routes>
       </Router>
     </div>
