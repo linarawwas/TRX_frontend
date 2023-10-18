@@ -1,5 +1,5 @@
 import './Login.css'; // Import your CSS file
-import { Link, useNavigate } from 'react-router-dom';
+import {  useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
 const Login = () => {
   const navigate = useNavigate(); // Get the navigate function
@@ -89,10 +89,10 @@ const Login = () => {
         />
         <button type="submit">Login</button>
       </form>
-      <p>
+      {/* <p>
         Don't have an account?
         <Link to="/register">Register here</Link>
-      </p>
+      </p> */}
     </div>
   );
 };
