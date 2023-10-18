@@ -27,14 +27,14 @@ useEffect(() => {
           <Route path="/register" element={<Register />} />
           <Route path="/" element={<Login />} />
           <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Login/>} />
-          <Route path="/viewOrders" element={<BottlesTable />} />
-          <Route path="/recordOrder" element={<RecordOrder />} />
-          <Route path="/days" element={<Days />} />
-          <Route path="/areas" element={<Areas />} />
-          <Route path="/customers" element={<Customers />} />
-          <Route path="/addresses/:areaId" element={<Addresses />} />
-          <Route path="/areas/:dayId" element={<AreasForDay/>} />
-          <Route path="/customers/:areaId" element={<CustomersForArea/>} />
+          <Route path="/viewOrders" element={isLoggedIn ? <BottlesTable /> : <Login/>} />
+          <Route path="/recordOrder" element={isLoggedIn ? <RecordOrder /> : <Login/>} />
+          <Route path="/days" element={isLoggedIn ? <Days /> : <Login/>} />
+          <Route path="/areas" element={isLoggedIn ? <Areas /> : <Login/>} />
+          <Route path="/customers" element={isLoggedIn ? <Customers /> : <Login/>} />
+          <Route path="/addresses/:areaId" element={isLoggedIn ? <Addresses /> : <Login/>} />
+          <Route path="/areas/:dayId" element={isLoggedIn ? <AreasForDay /> : <Login/>} />
+          <Route path="/customers/:areaId" element={isLoggedIn ? <CustomersForArea /> : <Login/>} />
         </Routes>
       </Router>
     </div>

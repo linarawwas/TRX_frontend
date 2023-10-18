@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
 import './Login.css'; // Import your CSS file
 import { Link, useNavigate } from 'react-router-dom';
-
+import React, { useState } from 'react';
 const Login = () => {
   const navigate = useNavigate(); // Get the navigate function
   const [formData, setFormData] = useState({
@@ -13,6 +12,13 @@ const Login = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleLoginSuccess = (token) => {
+    // Save the token in local storage
+    localStorage.setItem('token', token);
+      // Refresh the browser to trigger navigation
+  window.location.reload();
   };
 
   const handleSubmit = async (e) => {
@@ -39,8 +45,6 @@ const Login = () => {
         // Retrieve the user's isAdmin status from the response or your authentication system
         const data = await response.json();
         const isAdmin = data.isAdmin;
-        // console.log(isAdmin);
-
         // Redirect the user based on isAdmin status
         if (isAdmin) {
           // If the user is an admin, navigate to the Dashboard
@@ -49,6 +53,11 @@ const Login = () => {
           // If the user is not an admin, navigate to Home or another component
           navigate('/home');
         }
+        const token = data.token;
+
+        // Save the token and navigate the user
+        handleLoginSuccess(token);
+
       } else {
         // Authentication failed; you can handle this by displaying an error message to the user
         console.error('Login failed');
