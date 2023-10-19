@@ -1,44 +1,47 @@
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'; // Import Router, Route, and Routes
-import Login from './components/Auth/Login';
-import React, { useState, useEffect } from 'react';
-import Register from './components/Auth/Register'; // Import the Register component
-import Dashboard from './components/Dashboard/Dashboard';
-import BottlesTable from './components/Dashboard/Bottles/BottlesTable';
-import RecordOrder from './components/Dashboard/Bottles/RecordOrder';
-import Days from './components/Dashboard/OtherTables/Days';
-import AreasForDay from './components/Dashboard/OtherTables/AreasForDay';
-import CustomersForArea from './components/Dashboard/OtherTables/CustomersForArea';
-import Areas from './components/Dashboard/OtherTables/Areas';
-import Addresses from './components/Dashboard/OtherTables/Addresses';
-import Customers from './components/Dashboard/OtherTables/Customers';
-import AddArea from './components/Dashboard/Areas/AddArea';
+import React, { useState, useEffect } from "react";
+import EmployeeLayout from "./Layout/UserLayout";
+import AdminLayout from "./Layout/AdminLayout";
+import Layout from "./Layout/Layout";
+import "./App.css";
+
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
   useEffect(() => {
-    // Check if the user is authenticated here, e.g., by inspecting the authentication header
-    const token = localStorage.getItem('token'); // You should replace this with your authentication method
+    // Check for token in session storage
+    const token = sessionStorage.getItem("token");
+    console.log("Token from session storage:", token);
+  
     if (token) {
+      // Token exists in session storage
       setIsLoggedIn(true);
+  
+      // Check if token is admin token
+      if (token === "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTJmYTFlNTg2NDUyODIwOGMyMjNlOWQiLCJpYXQiOjE2OTc3MTE5MTZ9.LW8T2NSAiMFZBSEn4Y0dHRNPJ4vzQloprmR8yYaLXdw") { // replace "your_admin_token_here" with your actual admin token
+        setIsAdmin(true);
+        console.log("User is an admin");
+      }
     }
-  }, [isLoggedIn]);
+  }, []); 
+
+
+  const handleLogin = () => {
+    // perform login logic, set token in session storage, and set isLoggedIn to true
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem("token");
+    setIsLoggedIn(false);
+    setIsAdmin(false); 
+  };
+
   return (
-    <div className="App">
-      <Router>
-        <Routes>
-          <Route path="/register" element={<Register />} />
-          <Route path="/" element={<Login />} />
-          <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Login />} />
-          <Route path="/viewOrders" element={isLoggedIn ? <BottlesTable /> : <Login />} />
-          <Route path="/recordOrder" element={isLoggedIn ? <RecordOrder /> : <Login />} />
-          <Route path="/days" element={isLoggedIn ? <Days /> : <Login />} />
-          <Route path="/areas" element={isLoggedIn ? <Areas /> : <Login />} />
-          <Route path="/customers" element={isLoggedIn ? <Customers /> : <Login />} />
-          <Route path="/addresses/:areaId" element={isLoggedIn ? <Addresses /> : <Login />} />
-          <Route path="/areas/:dayId" element={isLoggedIn ? <AreasForDay /> : <Login />} />
-          <Route path="/customers/:areaId" element={isLoggedIn ? <CustomersForArea /> : <Login />} />
-          <Route path="/areas/add" element={isLoggedIn ? <AddArea /> : <Login />} />
-        </Routes>
-      </Router>
+    <div>
+      {isAdmin && isLoggedIn && <AdminLayout onLogout={handleLogout} />}
+      {/* {!isAdmin && isLoggedIn && <EmployeeLayout onLogout={handleLogout} />} */}
+      {!isLoggedIn && <Login />}
     </div>
   );
 }
