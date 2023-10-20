@@ -11,7 +11,6 @@ import AreasForDay from '../components/Areas/AreasForDay';
 import CustomersForArea from '../components/Customers/CustomersForArea';
 import AddArea from '../components/Areas/AddArea';
 import Login from '../components/Auth/Login';
-import Layout from '../Layout/Layout';
 
 function UserRouter() {
   return (
@@ -27,7 +26,6 @@ function UserRouter() {
       <Route path="/customers/:areaId" element={<CustomersForArea />} />
       <Route path="/areas/add" element={<AddArea />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/" element={<Layout />} />
     </Routes>
   );
 }

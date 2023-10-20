@@ -1,8 +1,6 @@
 import './Login.css'; // Import your CSS file
-import {  useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
 function Login () {
-  const navigate = useNavigate(); // Get the navigate function
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -44,7 +42,6 @@ function Login () {
         // Authentication succeeded
         // Retrieve the user's isAdmin status from the response or your authentication system
         const data = await response.json();    
-        navigate('/');
         const token = data.token;
         // Save the token and navigate the user
         handleLoginSuccess(token);

@@ -22,10 +22,10 @@ function App() {
       <Routes>
         <Route
           path="/login"
-          element={<Login/>}
+          element={isAuthenticated ? <Navigate to="/*" /> : <Login /> }
         />
         <Route
-          path="*"
+          path="/*"
           element={isAuthenticated ? <Layout /> : <Navigate to="/login" />}
         />
       </Routes>
