@@ -40,6 +40,9 @@ function AsideMenu() {
             <Link to="/areas">Areas</Link>
           </li>
           <li>
+            <Link to="/register">Register</Link>
+          </li>
+          <li>
             <Link to="/areas/add">Add Area</Link>
           </li>
           <li>

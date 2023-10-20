@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import './Register.css'; // Import your CSS file
-import { Link } from 'react-router-dom'; 
+import { Link } from 'react-router-dom';
 
-function Register ()  {
+function Register() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -18,7 +18,7 @@ function Register ()  {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
       const response = await fetch('http://localhost:5000/api/auth/register', {
         method: 'POST',
@@ -27,7 +27,7 @@ function Register ()  {
         },
         body: JSON.stringify(formData), // Send the form data as JSON
       });
-  
+
       if (response.ok) {
         // Registration was successful
         console.log('User registered successfully');
@@ -41,12 +41,13 @@ function Register ()  {
       console.error('Registration error:', error);
     }
   };
-  
+
   return (
     <div className="register-container">
       <h2>Register</h2>
       <form onSubmit={handleSubmit}>
         <input
+          className='text-input'
           type="text"
           placeholder="Name"
           name="name"
@@ -55,6 +56,8 @@ function Register ()  {
           required
         />
         <input
+          className='text-input'
+
           type="email"
           placeholder="Email"
           name="email"
@@ -63,6 +66,8 @@ function Register ()  {
           required
         />
         <input
+          className='text-input'
+
           type="password"
           placeholder="Password"
           name="password"
@@ -71,6 +76,8 @@ function Register ()  {
           required
         />
         <input
+          className='text-input'
+
           type="password"
           placeholder="Confirm Password"
           name="confirmPassword"
