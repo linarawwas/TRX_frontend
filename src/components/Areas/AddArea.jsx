@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import './AddArea.css';
 
-function AddArea () {
+function AddArea() {
   const [name, setName] = useState('');
   const [dayId, setDayId] = useState('');
   const [days, setDays] = useState([]);
-  
+
   // Fetch the list of days from your API
   useEffect(() => {
     fetch('http://localhost:5000/api/days')
@@ -63,9 +63,9 @@ function AddArea () {
       <h2 className='title'>Add New Area</h2>
       <form onSubmit={handleSubmit}>
         <div className="input-group">
-          <label htmlFor="name">Area Name:</label>
+          <label htmlFor="name" className="input-label">Area Name:</label>
           <input
-          className='area-name-input'
+            className='area-name-input input-field'
             type="text"
             id="name"
             name="name"
@@ -75,13 +75,14 @@ function AddArea () {
           />
         </div>
         <div className="input-group">
-          <label htmlFor="day">Select a Day:</label>
+          <label htmlFor="day" className="input-label">Select a Day:</label>
           <select
             id="day"
             name="dayId"
             value={dayId}
             onChange={handleDayChange}
             required
+            className="input-field"
           >
             <option value="">Select a Day</option>
             {days.map((day) => (
@@ -91,10 +92,10 @@ function AddArea () {
             ))}
           </select>
         </div>
-        <button type="submit">Add Area</button>
+        <button type="submit" className="submit-button">Add Area</button>
       </form>
     </div>
   );
-};
+}
 
 export default AddArea;
