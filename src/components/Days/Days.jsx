@@ -22,7 +22,7 @@ export default function Days() {
 
   return (
     <div className="daysBody">
-      <h2 className="daysTitle">Customer Orders</h2>
+      <h2 className="daysTitle">Distribution Days</h2>
       {loading ? (
         <p>Loading...</p>
       ) : (

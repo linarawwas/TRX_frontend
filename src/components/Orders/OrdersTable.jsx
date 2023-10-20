@@ -1,9 +1,9 @@
-// BottlesTable.jsx
+// OrdersTable.jsx
 import React, { useState, useEffect } from 'react';
-import './BottlesTable.css'; // Import your CSS file
+import './OrdersTable.css'; // Import your CSS file
 
-function BottlesTable() {
-  const [bottles, setBottles] = useState([]);
+function OrdersTable() {
+  const [bottles, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -11,7 +11,7 @@ function BottlesTable() {
     fetch('http://localhost:5000/api/bottles')
       .then((response) => response.json())
       .then((data) => {
-        setBottles(data);
+        setOrders(data);
         setLoading(false);
       })
       .catch((error) => {
@@ -51,4 +51,4 @@ function BottlesTable() {
   );
 };
 
-export default BottlesTable;
+export default OrdersTable;

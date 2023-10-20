@@ -1,8 +1,8 @@
 import { Route, Routes } from 'react-router-dom';
 import React from 'react';
 import Register from '../components/Auth/Register';
-import BottlesTable from '../components/Bottles/BottlesTable';
-import RecordOrder from '../components/Bottles/RecordOrder.jsx';
+import OrdersTable from '../components/Orders/OrdersTable';
+import RecordOrder from '../components/Orders/RecordOrder.jsx';
 import Days from '../components/Days/Days.jsx';
 import Areas from '../components/Areas/Areas';
 import Customers from '../components/Customers/Customers';
@@ -16,7 +16,7 @@ function UserRouter() {
   return (
     <Routes>
       <Route path="/register" element={<Register />} />
-      <Route path="/viewOrders" element={<BottlesTable />} />
+      <Route path="/viewOrders" element={<OrdersTable />} />
       <Route path="/recordOrder" element={<RecordOrder />} />
       <Route path="/days" element={<Days />} />
       <Route path="/areas" element={<Areas />} />
