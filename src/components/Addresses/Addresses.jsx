@@ -24,7 +24,7 @@ export default function Addresses() {
         <div className="daysBody">
             <h2 className="daysTitle">Distribution Addresses</h2>
             {loading ? (
-                <p>Loading...</p>
+                <p className="loading">Loading...</p>
             ) : (
                 <table className="days-table">
                     <thead>

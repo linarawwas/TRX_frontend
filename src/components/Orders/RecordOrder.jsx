@@ -70,25 +70,28 @@ function RecordOrder() {
 
     return (
         <form onSubmit={handleSubmit}>
-          <label>
+          <label className='order-label'>
             Delivered:
             <input
+            className='order-input'
               type="number"
               name="delivered"
               value={orderData.delivered}
               onChange={handleChange}
             />
           </label>
-          <label>
+          <label className='order-label'>
             Returned:
             <input
+                        className='order-input'
+
               type="number"
               name="returned"
               value={orderData.returned}
               onChange={handleChange}
             />
           </label>
-          <label className='area'>
+          <label  className='order-label'>
             Area:
             <select className='areaName' name="areaId" value={orderData.areaId} onChange={handleChange}>
               <option className='areaName' value="">Select an area</option>
@@ -99,7 +102,7 @@ function RecordOrder() {
               ))}
             </select>
           </label>
-          <label>
+          <label className='order-label'>
             Customer:
             <select name="customerid" value={orderData.customerid} onChange={handleChange}>
               <option value="">Select a customer</option>

@@ -3,6 +3,9 @@
     margin: 0;
     width:100%;
 }
+.loading{
+text-align: center;
+}
 .days-table {
 text-align: center;    width: 70%;
     border-collapse: collapse;
