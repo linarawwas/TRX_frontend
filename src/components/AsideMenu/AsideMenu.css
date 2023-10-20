@@ -1,0 +1,62 @@
+/* Dashboard.css */
+.dashboard {
+  display: flex;
+  height: 100%;
+}
+
+.sidebar {
+  background-color: #f0ebe3;
+  color: #fff;
+  width: 250px;
+  height: 100%;
+  position: fixed;
+  transition: transform 0.3s;
+  border-radius: 0 60px 0 0;
+}
+
+.menu-toggle {
+  z-index:100;
+  background: #9493b7;
+width:40px;
+margin:10px 20px;
+  border: none;
+  color: #ece6e6;
+  padding: 10px;
+  cursor: pointer;
+  display: block;
+  font-size: 16px;
+  margin-bottom: 5%;
+}
+
+.menu-open .sidebar {
+  transform: translateX(0);
+}
+
+.menu-closed .sidebar {
+  transform: translateX(-250px);
+}
+
+.menu-closed .menu-toggle {
+  left: 10px;
+}
+
+.sidebar ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.sidebar ul li {
+  padding: 15px;
+  font-size: 18px;
+}
+
+.content {
+  flex-grow: 1;
+  padding: 20px;
+  margin-left: 250px;
+  transition: margin 0.3s;
+}
+
+.menu-closed .content {
+  margin-left: 0;
+}

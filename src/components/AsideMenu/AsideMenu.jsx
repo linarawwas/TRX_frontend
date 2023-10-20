@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import './Dashboard.css';
+import './AsideMenu.css';
+import { FaBars, FaTimes } from 'react-icons/fa'; // Import icons from react-icons
 
-function Dashboard() {
+function AsideMenu() {
   const [isMenuOpen, setIsMenuOpen] = useState(true);
 
   const handleLogout = () => {
@@ -17,12 +18,14 @@ function Dashboard() {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  return (
-    <div className={`dashboard ${isMenuOpen ? 'menu-open' : 'menu-closed'}`}>
-      <aside className="sidebar">
-        <button className="menu-toggle" onClick={toggleMenu}>
-          {isMenuOpen ? 'Close Menu' : 'Open Menu'}
+  return (<div>
+            <button className="menu-toggle" onClick={toggleMenu}>
+          {isMenuOpen ? <FaTimes /> : <FaBars />} {/* Use icons for the toggle button */}
         </button>
+        <div className={`dashboard ${isMenuOpen ? 'menu-open' : 'menu-closed'}`}>
+      
+      <aside className="sidebar">
+
         <ul>
           <li>
             <Link to="/viewOrders">Orders</Link>
@@ -47,11 +50,10 @@ function Dashboard() {
           </li>
         </ul>
       </aside>
-      <main className="content">
-        {/* Content for the selected model goes here */}
-      </main>
     </div>
+  </div>
+   
   );
-};
+}
 
-export default Dashboard;
+export default AsideMenu;

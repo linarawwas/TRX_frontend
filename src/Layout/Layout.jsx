@@ -1,10 +1,10 @@
 import React, { Fragment } from "react";
-import Dashboard from "../components/Dashboard/Dashboard";
+import AsideMenu from "../components/AsideMenu/AsideMenu";
 import UserRouter from '../Router/UserRouter'
 function Layout () {
   return (
     <Fragment>
-        <Dashboard/>
+        <AsideMenu/>
         <UserRouter/>
     </Fragment>
   );
