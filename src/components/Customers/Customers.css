@@ -1,0 +1,9 @@
+.customers-body h2 {
+    text-align: center;
+}
+.customers-body{
+margin-top:0;
+margin-bottom: 100px;}
+.customers-body table td{
+    padding: 20px 0;
+}

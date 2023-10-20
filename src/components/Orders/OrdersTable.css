@@ -1,7 +1,8 @@
 /* OrdersTable.css */
 .bottlesBody {
-  margin: 0;
+  margin:10px auto;
   width: 100%;
+
 }
 
 .bottlesTitle {
@@ -12,7 +13,8 @@
 .bottles-table {
   width: 50%; /* Use the full width on mobile devices */
   border-collapse: collapse;
-  margin: auto auto;
+  margin: auto;
+  border-radius: 30px;
 }
 
 .bottles-table th,

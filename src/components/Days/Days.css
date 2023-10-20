@@ -1,40 +1,45 @@
 /* daysTable.css */
-.daysBody{
-    margin: 0;
-    width:100%;
+.daysBody {
+  margin: 0;
+  width: 100%;
 }
-.loading{
-text-align: center;
-}
-.days-table {
-text-align: center;    width: 70%;
-    border-collapse: collapse;
-    margin: 10px auto;;
-  }
-  .daysTitle{
-    /* width: 100%; */
-    text-align: center ;
 
-  }
-  .days-table th,
-  .days-table td {
-    border: 1px solid #e0e0e0;
-    padding: 5px;
-    text-align: center;
-  }
-  
-  .days-table th {
-    background-color: #f0f0f0;
-    font-weight: bold;
-  }
-  
-  .days-table tbody tr:nth-child(even) {
-    background-color: #f8f8f8;
-  }
-  
-  .days-table tbody tr:nth-child(odd) {
-    background-color: #ffffff;
-  }
-  
-  /* Add more styles as needed to achieve your desired minimalist design. */
-  
+.loading {
+  text-align: center;
+}
+
+.days-table {
+  text-align: center;
+  width: 70%;
+  border-collapse: collapse;
+  margin: 10px auto;
+  ;
+}
+
+.daysTitle {
+  /* width: 100%; */
+  text-align: center;
+
+}
+
+.days-table th,
+.days-table td {
+  border: 1px solid #e0e0e0;
+  padding: 15px 5px;
+  text-align: center;
+}
+
+.days-table th {
+  background-color: #f0f0f0;
+  font-weight: bold;
+}
+
+.days-table tbody tr:nth-child(even) {
+  background-color: #f8f8f8;
+}
+
+.days-table tbody tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+/* Add more styles as needed to achieve your desired minimalist design. */
