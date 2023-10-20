@@ -1,7 +1,7 @@
 import './Login.css'; // Import your CSS file
 import {  useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
-const Login = () => {
+function Login () {
   const navigate = useNavigate(); // Get the navigate function
   const [formData, setFormData] = useState({
     email: '',
@@ -43,21 +43,11 @@ const Login = () => {
       if (response.ok) {
         // Authentication succeeded
         // Retrieve the user's isAdmin status from the response or your authentication system
-        const data = await response.json();
-        const isAdmin = data.isAdmin;
-        // Redirect the user based on isAdmin status
-        if (isAdmin) {
-          // If the user is an admin, navigate to the Dashboard
-          navigate('/dashboard');
-        } else {
-          // If the user is not an admin, navigate to Home or another component
-          navigate('/home');
-        }
+        const data = await response.json();    
+        navigate('/');
         const token = data.token;
-
         // Save the token and navigate the user
         handleLoginSuccess(token);
-
       } else {
         // Authentication failed; you can handle this by displaying an error message to the user
         console.error('Login failed');
@@ -89,10 +79,6 @@ const Login = () => {
         />
         <button type="submit">Login</button>
       </form>
-      {/* <p>
-        Don't have an account?
-        <Link to="/register">Register here</Link>
-      </p> */}
     </div>
   );
 };

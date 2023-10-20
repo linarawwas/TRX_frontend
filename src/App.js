@@ -1,48 +1,35 @@
 import React, { useState, useEffect } from "react";
-import EmployeeLayout from "./Layout/UserLayout";
-import AdminLayout from "./Layout/AdminLayout";
+import Login from "./components/Auth/Login";
 import Layout from "./Layout/Layout";
-import "./App.css";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  // Define a state variable to track whether the user is authenticated
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // Check for token in session storage
-    const token = sessionStorage.getItem("token");
-    console.log("Token from session storage:", token);
-  
+    // Check if the user is authenticated by inspecting the local storage
+    const token = localStorage.getItem("token");
+
     if (token) {
-      // Token exists in session storage
-      setIsLoggedIn(true);
-  
-      // Check if token is admin token
-      if (token === "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTJmYTFlNTg2NDUyODIwOGMyMjNlOWQiLCJpYXQiOjE2OTc3MTE5MTZ9.LW8T2NSAiMFZBSEn4Y0dHRNPJ4vzQloprmR8yYaLXdw") { // replace "your_admin_token_here" with your actual admin token
-        setIsAdmin(true);
-        console.log("User is an admin");
-      }
+      // If a token is found, the user is authenticated
+      setIsAuthenticated(true);
     }
-  }, []); 
-
-
-  const handleLogin = () => {
-    // perform login logic, set token in session storage, and set isLoggedIn to true
-    setIsLoggedIn(true);
-  };
-
-  const handleLogout = () => {
-    sessionStorage.removeItem("token");
-    setIsLoggedIn(false);
-    setIsAdmin(false); 
-  };
+  }, []);
 
   return (
-    <div>
-      {isAdmin && isLoggedIn && <AdminLayout onLogout={handleLogout} />}
-      {/* {!isAdmin && isLoggedIn && <EmployeeLayout onLogout={handleLogout} />} */}
-      {!isLoggedIn && <Login />}
-    </div>
+    <Router>
+      <Routes>
+        <Route
+          path="/login"
+          element={<Login/>}
+        />
+        <Route
+          path="*"
+          element={isAuthenticated ? <Layout /> : <Navigate to="/login" />}
+        />
+      </Routes>
+    </Router>
   );
 }
 

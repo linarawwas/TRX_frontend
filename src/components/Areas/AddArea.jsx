@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './AddArea.css';
 
-const AddArea = () => {
+function AddArea () {
   const [name, setName] = useState('');
   const [dayId, setDayId] = useState('');
   const [days, setDays] = useState([]);

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Dashboard.css';
 
-const Dashboard = () => {
+function Dashboard() {
   const [isMenuOpen, setIsMenuOpen] = useState(true);
 
   const handleLogout = () => {

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './Register.css'; // Import your CSS file
 import { Link } from 'react-router-dom'; 
 
-const Register = () => {
+function Register ()  {
   const [formData, setFormData] = useState({
     name: '',
     email: '',

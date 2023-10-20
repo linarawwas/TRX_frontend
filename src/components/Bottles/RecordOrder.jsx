@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './RecordOrder.css';
 
-const RecordOrder = () => {
+function RecordOrder() {
     const [orderData, setOrderData] = useState({
         delivered: '',
         returned: '',

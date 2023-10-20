@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import './BottlesTable.css'; // Import your CSS file
 
-const BottlesTable = () => {
+function BottlesTable() {
   const [bottles, setBottles] = useState([]);
   const [loading, setLoading] = useState(true);
 

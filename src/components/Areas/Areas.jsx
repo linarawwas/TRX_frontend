@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import "./Days.css";
+import "../Days/Days.css";
 
 export default function Areas() {
   const [areas, setAreas] = useState([]);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {  useParams } from "react-router-dom";
-import "./Days.css";
+import "../Days/Days.css";
 
 export default function Addresses() {
     const [customers, setCustomers] = useState([]);
