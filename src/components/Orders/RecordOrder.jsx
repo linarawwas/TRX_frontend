@@ -70,54 +70,50 @@ function RecordOrder() {
 
     return (
         <form onSubmit={handleSubmit}>
-            <label>
-                Delivered:
-                <input
-                    type="number"
-                    name="delivered"
-                    value={orderData.delivered}
-                    onChange={handleChange}
-                />
-            </label>
-            <label>
-                Returned:
-                <input
-                    type="number"
-                    name="returned"
-                    value={orderData.returned}
-                    onChange={handleChange}
-                />
-            </label>
-            <label className='area'>
-                Area:
-                <select className='areaName' name="areaId" value={orderData.areaId} onChange={handleChange}>
-                    <option className='areaName' value="">Select an area</option>
-                    {areas.map((area) => (
-                        <option className='areaName' key={area._id} value={area._id}>
-                            {area.name}
-                        </option>
-                    ))}
-                </select>
-            </label>
-            <label>
-                Customer:
-                <select
-                    name="customerid"
-                    value={orderData.customerid}
-                    onChange={handleChange}
-                >
-                    <option value="">Select a customer</option>
-                    {customers.map((customer) => (
-                        <option key={customer._id} value={customer._id}>
-                            {customer.name}
-                        </option>
-                    ))}
-                </select>
-            </label>
-
-            <button type="submit">Record Order</button>
+          <label>
+            Delivered:
+            <input
+              type="number"
+              name="delivered"
+              value={orderData.delivered}
+              onChange={handleChange}
+            />
+          </label>
+          <label>
+            Returned:
+            <input
+              type="number"
+              name="returned"
+              value={orderData.returned}
+              onChange={handleChange}
+            />
+          </label>
+          <label className='area'>
+            Area:
+            <select className='areaName' name="areaId" value={orderData.areaId} onChange={handleChange}>
+              <option className='areaName' value="">Select an area</option>
+              {areas.map((area) => (
+                <option className='areaName' key={area._id} value={area._id}>
+                  {area.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Customer:
+            <select name="customerid" value={orderData.customerid} onChange={handleChange}>
+              <option value="">Select a customer</option>
+              {customers.map((customer) => (
+                <option key={customer._id} value={customer._id}>
+                  {customer.name}
+                </option>
+              ))}
+            </select>
+          </label>
+    
+          <button type="submit">Record Order</button>
         </form>
-    );
-};
-
-export default RecordOrder;
+      );
+    };
+    
+    export default RecordOrder;
