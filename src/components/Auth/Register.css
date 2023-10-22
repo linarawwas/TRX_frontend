@@ -5,28 +5,25 @@
   padding: 20px;
   border-radius: 5px;
   background-color: #fff;
-  /* box-shadow: none; */
+  border: 1px solid black;
 }
-
-.register-container .register-title {
-  margin-bottom: 20px;
+ .register-form {
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+}
+.register-title{
   text-align: center;
 }
-
-.register-container .register-form {
-  display: flex;
-  flex-direction: column;
-  box-shadow: none;
-}
-
-.register-container .register-input
+.register-input
  {
+  margin:10px;
   padding: 10px;
   border-radius: 5px;
   width:90%;
 }
-
-.register-container .register-button {
+.register-button {
   padding: 10px;
   background-color: #007bff;
   color: #fff;
@@ -35,15 +32,10 @@
   cursor: pointer;
 }
 
-.register-container .register-button:hover {
-  background-color: #0056b3;
-}
-
 /* Responsive Styles for Mobile */
 @media (max-width: 600px) {
   .register-container {
-    max-width: 70%;
-    margin: 20px auto;
+    max-width: 60%;
   }
 
   .register-container .register-input {

@@ -1,4 +1,4 @@
-.customers-body .customer-title {
+.customers-body .customers-title {
     text-align: center;
 }
 
@@ -7,7 +7,7 @@
     margin-bottom: 100px;
 }
 
-.customers-body .customer-table td {
+.customers-body .customers-table td {
     padding: 20px 0;
 }
 
@@ -34,3 +34,42 @@
     border:1px solid black;
     
 }
+/* daysTable.css */
+.customers-body {
+    margin: 0;
+    width: 100%;
+  }
+  
+  .loading {
+    text-align: center;
+  }
+  
+  .customers-table {
+    text-align: center;
+    width: 70%;
+    border-collapse: collapse;
+    margin: 10px auto;
+    ;
+  }
+
+  .customers-table th,
+  .customers-table td {
+    border: 1px solid #e0e0e0;
+    padding: 15px 5px;
+    text-align: center;
+  }
+  
+  .customers-table th {
+    background-color: #f0f0f0;
+    font-weight: bold;
+  }
+  
+  .customers-table tbody tr:nth-child(even) {
+    background-color: #f8f8f8;
+  }
+  
+  .customers-table tbody tr:nth-child(odd) {
+    background-color: #ffffff;
+  }
+  
+  /* Add more styles as needed to achieve your desired minimalist design. */
