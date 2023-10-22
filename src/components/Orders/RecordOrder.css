@@ -60,3 +60,9 @@
   width: 40px;
   display: block;
 }
+@media (max-width: 600px) {
+  .record-order-container {
+    max-width: 70%;
+    margin:0 auto;
+  }
+}
