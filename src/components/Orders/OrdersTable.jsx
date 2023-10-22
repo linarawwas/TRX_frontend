@@ -1,6 +1,5 @@
-// OrdersTable.jsx
 import React, { useState, useEffect } from 'react';
-import './OrdersTable.css'; // Import your CSS file
+import './OrdersTable.css';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 
@@ -8,6 +7,7 @@ function OrdersTable() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
+  const [selectedItem, setSelectedItem] = useState(0);
 
   useEffect(() => {
     // Fetch orders data from your API
@@ -22,6 +22,7 @@ function OrdersTable() {
         setLoading(false);
       });
   }, []);
+
   // Number of records to display on each page
   const recordsPerPage = 7;
 
@@ -30,6 +31,7 @@ function OrdersTable() {
 
   // Function to handle page change
   const handlePageChange = (newPage) => {
+    setSelectedItem(newPage);
     setCurrentPage(newPage);
   };
 
@@ -47,7 +49,7 @@ function OrdersTable() {
     }
   };
 
-  // Get the customers for the current page
+  // Get the orders for the current page
   const ordersForPage = orders.slice(
     currentPage * recordsPerPage,
     (currentPage + 1) * recordsPerPage
@@ -55,52 +57,60 @@ function OrdersTable() {
 
   return (
     <div className='ordersBody'>
-      <h2 className='ordersTitle'>Customer Orders</h2>
+      <h2 className='ordersTitle'> Orders</h2>
       {loading ? (
         <p>Loading...</p>
       ) : (
         <>
-        <table className="orders-table">
-          <thead>
-            <tr>
-              <th>Customer</th>
-              <th>Delivered</th>
-              <th>Returned</th>
-              <th>date of delivery</th>
-            </tr>
-          </thead>
-          <tbody>
-            {ordersForPage.map((order) => (
-              <tr key={order._id}>
-                <td>{order.customerid.name}</td>
-                <td>{order.delivered}</td>
-                <td>{order.returned}</td>
-                <td>{order.timestamp}</td>
+          <table className="orders-table">
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Delivered</th>
+                <th>Returned</th>
+                <th>date of delivery</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-                {totalPages > 1 && (
-                  <div className="pagination">
-                    <div className="nav-arrow left" onClick={goToPreviousPage}>
-                      &lt;
-                    </div>
-                    <Carousel showStatus={false} showArrows={false} showThumbs={false}>
-                      {Array.from({ length: totalPages }, (_, i) => (
-                        <div key={i} onClick={() => handlePageChange(i)}>
-                          Page {currentPage + 1 }
-                        </div>
-                      ))}
-                    </Carousel>
-                    <div className="nav-arrow right" onClick={goToNextPage}>
-                      &gt;
-                    </div>
+            </thead>
+            <tbody>
+              {ordersForPage.map((order) => (
+                <tr key={order._id}>
+                  <td>{order.customerid.name}</td>
+                  <td>{order.delivered}</td>
+                  <td>{order.returned}</td>
+                  <td>{order.timestamp}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {totalPages > 1 && (
+            <div className="pagination">
+              <div className="nav-arrow left" onClick={goToPreviousPage}>
+                &lt;
+              </div>
+              <Carousel
+                showStatus={false}
+                showArrows={false}
+                showThumbs={false}
+                selectedItem={selectedItem}
+              >
+                {Array.from({ length: totalPages }, (_, i) => (
+                  <div
+                    key={i}
+                    // onClick={() => handlePageChange(i)}
+                  >
+                    Page {i + 1}
                   </div>
-                )}
-                </>
+                ))}
+              </Carousel>
+              <div className="nav-arrow right" onClick={goToNextPage}>
+                &gt;
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
-};
+}
 
 export default OrdersTable;

@@ -7,6 +7,7 @@ export default function Customers({ match }) {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
+  const [selectedItem, setSelectedItem] = useState(0);
 
   useEffect(() => {
     // Fetch customers data
@@ -29,6 +30,7 @@ export default function Customers({ match }) {
 
   // Function to handle page change
   const handlePageChange = (newPage) => {
+    setSelectedItem(newPage);
     setCurrentPage(newPage);
   };
 
@@ -54,7 +56,7 @@ export default function Customers({ match }) {
 
   return (
     <div className='ordersBody'>
-      <h2 className='ordersTitle'>Customer Orders</h2>
+      <h2 className='ordersTitle'>Customers</h2>
       {loading ? (
         <p>Loading...</p>
       ) : (
@@ -82,10 +84,15 @@ export default function Customers({ match }) {
               <div className="nav-arrow left" onClick={goToPreviousPage}>
                 &lt;
               </div>
-              <Carousel className='pagenb' showStatus={false} showArrows={false} showThumbs={false}>
+              <Carousel
+                showStatus={false}
+                showArrows={false}
+                showThumbs={false}
+                selectedItem={selectedItem}
+              >
                 {Array.from({ length: totalPages }, (_, i) => (
                   <div key={i} onClick={() => handlePageChange(i)}>
-                    Page {currentPage + 1}
+                    Page {i + 1}
                   </div>
                 ))}
               </Carousel>
