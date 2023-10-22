@@ -69,11 +69,13 @@ function RecordOrder() {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+      <div className='record-order-container'>
+        <h1 className='record-order-title'> Record an Order</h1>
+<form className='record-order-form' onSubmit={handleSubmit}>
           <label className='order-label'>
             Delivered:
             <input
-            className='order-input'
+            className='order-input order-input-nested order-input-number'
               type="number"
               name="delivered"
               value={orderData.delivered}
@@ -83,7 +85,7 @@ function RecordOrder() {
           <label className='order-label'>
             Returned:
             <input
-                        className='order-input'
+                        className='order-input order-input-nested order-input-number '
 
               type="number"
               name="returned"
@@ -93,7 +95,7 @@ function RecordOrder() {
           </label>
           <label  className='order-label'>
             Area:
-            <select className='areaName' name="areaId" value={orderData.areaId} onChange={handleChange}>
+            <select className='areaName order-select-element' name="areaId" value={orderData.areaId} onChange={handleChange}>
               <option className='areaName' value="">Select an area</option>
               {areas.map((area) => (
                 <option className='areaName' key={area._id} value={area._id}>
@@ -104,7 +106,7 @@ function RecordOrder() {
           </label>
           <label className='order-label'>
             Customer:
-            <select name="customerid" value={orderData.customerid} onChange={handleChange}>
+            <select name="customerid" className='order-select-element' value={orderData.customerid} onChange={handleChange}>
               <option value="">Select a customer</option>
               {customers.map((customer) => (
                 <option key={customer._id} value={customer._id}>
@@ -114,8 +116,10 @@ function RecordOrder() {
             </select>
           </label>
     
-          <button type="submit">Record Order</button>
+          <button className='record-order-button' type="submit">Record Order</button>
         </form>
+      </div>
+        
       );
     };
     

@@ -60,3 +60,13 @@ margin:10px 20px;
 .menu-closed .content {
   margin-left: 0;
 }
+.logout-button{
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 10px;
+  
+  
+}

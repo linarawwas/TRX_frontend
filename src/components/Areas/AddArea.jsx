@@ -61,7 +61,7 @@ function AddArea() {
   return (
     <div className="add-area-container">
       <h2 className='title'>Add New Area</h2>
-      <form onSubmit={handleSubmit}>
+      <form className='add-area-form' onSubmit={handleSubmit}>
         <div className="input-group">
           <label htmlFor="name" className="input-label">Area Name:</label>
           <input

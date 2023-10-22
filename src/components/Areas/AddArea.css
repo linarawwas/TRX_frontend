@@ -7,7 +7,17 @@
   box-shadow:none;
   text-align: center;
 }
-
+.add-area-form{
+  margin: auto auto;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
 .add-area-container h2 {
   margin-bottom: 20px;
   color: #0f1011;

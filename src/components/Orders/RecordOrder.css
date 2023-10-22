@@ -1,56 +1,62 @@
-/* RecordOrder.css */
-form {
-    max-width: 70%;
-    margin: auto auto;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-    background-color: #fff;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-  
-  .order-label {
-    font-weight: bold;
-    margin: 5% 20px ;
-    font-size: 20px;
-  }
+.record-order-container {
+  max-width: 400px;
+  margin: auto;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: none;
+  text-align: center;
+}
 
- .order-input, select {
-    margin: 5% 10px;
-    padding: 5%;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    outline: none;
-    width: 100%;
-  }
-  
-  button {
-    padding: 12px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 5%;
-  }
-  
-  button:hover {
-    background-color: #0056b3;
-  }
-  
-  /* Optional: Style form elements for number input type */
-  input[type="number"] {
-    text-align: center;
-    width: 50px;
-  }
-  
-  /* Optional: Larger increment and decrement buttons for number input */
-  input[type="number"]::-webkit-inner-spin-button,
-  input[type="number"]::-webkit-outer-spin-button {
-    height: 40px;
-    width: 40px;
-    display: block;
-  }
+.record-order-form {
+  margin: auto auto;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.order-label {
+  font-weight: bold;
+  margin: 5% 20px;
+  font-size: 15px;
+}
+
+.order-input,
+.order-select-element {
+  margin: 2px auto;
+  padding: 5%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  outline: none;
+  width: 100%;
+}
+
+.record-order-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 5px auto 10px auto;
+  padding: 10px;
+}
+
+.record-order-button:hover {
+  background-color: #0056b3;
+}
+
+/* Optional: Style form elements for number input type */
+.order-input-number {
+  text-align: center;
+  width: 50px;
+}
+
+/* Optional: Larger increment and decrement buttons for number input */
+.order-input-number::-webkit-inner-spin-button {
+  height: 40px;
+  width: 40px;
+  display: block;
+}
