@@ -45,9 +45,9 @@ function RecordOrder() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // Send a POST request with the orderData to the specified route (http://localhost:5000/api/bottles)
+        // Send a POST request with the orderData to the specified route (http://localhost:5000/api/orders)
         try {
-            const response = await fetch('http://localhost:5000/api/bottles', {
+            const response = await fetch('http://localhost:5000/api/orders', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

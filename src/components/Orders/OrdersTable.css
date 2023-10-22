@@ -1,50 +1,50 @@
 /* OrdersTable.css */
-.bottlesBody {
+.ordersBody {
   margin:10px auto;
   width: 100%;
 
 }
 
-.bottlesTitle {
+.ordersTitle {
   width: 100%;
   text-align: center;
 }
 
-.bottles-table {
+.orders-table {
   width: 50%; /* Use the full width on mobile devices */
   border-collapse: collapse;
   margin: auto;
   border-radius: 30px;
 }
 
-.bottles-table th,
-.bottles-table td {
+.orders-table th,
+.orders-table td {
   border: 1px solid #e0e0e0;
   padding: 10px; /* Increase padding for better touch interaction on mobile */
   text-align: center;
 }
 
-.bottles-table th {
+.orders-table th {
   background-color: #f0f0f0;
   font-weight: bold;
 }
 
-.bottles-table tbody tr:nth-child(even) {
+.orders-table tbody tr:nth-child(even) {
   background-color: #f8f8f8;
 }
 
-.bottles-table tbody tr:nth-child(odd) {
+.orders-table tbody tr:nth-child(odd) {
   background-color: #ffffff;
 }
 
 /* Responsive Styles for Mobile */
 @media (max-width: 600px) {
-  .bottles-table {
+  .orders-table {
     font-size: 14px; /* Decrease font size on smaller screens */
   }
 
-  .bottles-table th,
-  .bottles-table td {
+  .orders-table th,
+  .orders-table td {
     padding: 8px; /* Adjust padding for better spacing on mobile */
   }
 }

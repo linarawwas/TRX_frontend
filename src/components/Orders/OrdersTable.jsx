@@ -1,32 +1,66 @@
 // OrdersTable.jsx
 import React, { useState, useEffect } from 'react';
 import './OrdersTable.css'; // Import your CSS file
+import { Carousel } from 'react-responsive-carousel';
+import 'react-responsive-carousel/lib/styles/carousel.min.css';
 
 function OrdersTable() {
-  const [bottles, setOrders] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(0);
 
   useEffect(() => {
-    // Fetch bottles data from your API
-    fetch('http://localhost:5000/api/bottles')
+    // Fetch orders data from your API
+    fetch('http://localhost:5000/api/orders')
       .then((response) => response.json())
       .then((data) => {
         setOrders(data);
         setLoading(false);
       })
       .catch((error) => {
-        console.error('Error fetching bottles:', error);
+        console.error('Error fetching orders:', error);
         setLoading(false);
       });
   }, []);
+  // Number of records to display on each page
+  const recordsPerPage = 7;
+
+  // Calculate the total number of pages
+  const totalPages = Math.ceil(orders.length / recordsPerPage);
+
+  // Function to handle page change
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+
+  // Function to go to the previous page
+  const goToPreviousPage = () => {
+    if (currentPage > 0) {
+      handlePageChange(currentPage - 1);
+    }
+  };
+
+  // Function to go to the next page
+  const goToNextPage = () => {
+    if (currentPage < totalPages - 1) {
+      handlePageChange(currentPage + 1);
+    }
+  };
+
+  // Get the customers for the current page
+  const ordersForPage = orders.slice(
+    currentPage * recordsPerPage,
+    (currentPage + 1) * recordsPerPage
+  );
 
   return (
-    <div className='bottlesBody'>
-      <h2 className='bottlesTitle'>Customer Orders</h2>
+    <div className='ordersBody'>
+      <h2 className='ordersTitle'>Customer Orders</h2>
       {loading ? (
         <p>Loading...</p>
       ) : (
-        <table className="bottles-table">
+        <>
+        <table className="orders-table">
           <thead>
             <tr>
               <th>Customer</th>
@@ -36,16 +70,34 @@ function OrdersTable() {
             </tr>
           </thead>
           <tbody>
-            {bottles.map((bottle) => (
-              <tr key={bottle._id}>
-                <td>{bottle.customerid.name}</td>
-                <td>{bottle.delivered}</td>
-                <td>{bottle.returned}</td>
-                <td>{bottle.timestamp}</td>
+            {ordersForPage.map((order) => (
+              <tr key={order._id}>
+                <td>{order.customerid.name}</td>
+                <td>{order.delivered}</td>
+                <td>{order.returned}</td>
+                <td>{order.timestamp}</td>
               </tr>
             ))}
           </tbody>
         </table>
+                {totalPages > 1 && (
+                  <div className="pagination">
+                    <div className="nav-arrow left" onClick={goToPreviousPage}>
+                      &lt;
+                    </div>
+                    <Carousel showStatus={false} showArrows={false} showThumbs={false}>
+                      {Array.from({ length: totalPages }, (_, i) => (
+                        <div key={i} onClick={() => handlePageChange(i)}>
+                          Page {currentPage + 1 }
+                        </div>
+                      ))}
+                    </Carousel>
+                    <div className="nav-arrow right" onClick={goToNextPage}>
+                      &gt;
+                    </div>
+                  </div>
+                )}
+                </>
       )}
     </div>
   );

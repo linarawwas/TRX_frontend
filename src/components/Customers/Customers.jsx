@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import '../Orders/OrdersTable.css'; // Import your CSS file
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
-import './Customers.css';
-
+import './Customers.css'
 export default function Customers({ match }) {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,7 +21,6 @@ export default function Customers({ match }) {
         setLoading(false);
       });
   }, []);
-
   // Number of records to display on each page
   const recordsPerPage = 7;
 
@@ -54,13 +53,13 @@ export default function Customers({ match }) {
   );
 
   return (
-    <div className="customers-body">
-      <h2>Customers</h2>
+    <div className='ordersBody'>
+      <h2 className='ordersTitle'>Customer Orders</h2>
       {loading ? (
         <p>Loading...</p>
       ) : (
         <>
-          <table className="days-table">
+          <table className="orders-table">
             <thead>
               <tr>
                 <th>Name</th>
@@ -83,10 +82,10 @@ export default function Customers({ match }) {
               <div className="nav-arrow left" onClick={goToPreviousPage}>
                 &lt;
               </div>
-              <Carousel showStatus={false} showArrows={false} showThumbs={false}>
+              <Carousel className='pagenb' showStatus={false} showArrows={false} showThumbs={false}>
                 {Array.from({ length: totalPages }, (_, i) => (
                   <div key={i} onClick={() => handlePageChange(i)}>
-                    Page {i + 1}
+                    Page {currentPage + 1}
                   </div>
                 ))}
               </Carousel>
@@ -99,4 +98,4 @@ export default function Customers({ match }) {
       )}
     </div>
   );
-}
+};
