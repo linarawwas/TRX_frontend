@@ -60,12 +60,12 @@ function AddArea() {
 
   return (
     <div className="add-area-container">
-      <h2 className='title'>Add New Area</h2>
+      <h2 className='add-area-title'>Add New Area</h2>
       <form className='add-area-form' onSubmit={handleSubmit}>
-        <div className="input-group">
-          <label htmlFor="name" className="input-label">Area Name:</label>
+        <div className="add-area-input-group">
+          <label htmlFor="name" className="add-area-input-label">Area Name:</label>
           <input
-            className='area-name-input input-field'
+            className='area-name-input add-area-input-field'
             type="text"
             id="name"
             name="name"
@@ -74,15 +74,15 @@ function AddArea() {
             required
           />
         </div>
-        <div className="input-group">
-          <label htmlFor="day" className="input-label">Select a Day:</label>
+        <div className="add-area-input-group">
+          <label htmlFor="day" className="add-area-input-label">Select a Day:</label>
           <select
             id="day"
             name="dayId"
             value={dayId}
             onChange={handleDayChange}
             required
-            className="input-field"
+            className="add-area-input-field"
           >
             <option value="">Select a Day</option>
             {days.map((day) => (
@@ -92,7 +92,7 @@ function AddArea() {
             ))}
           </select>
         </div>
-        <button type="submit" className="submit-button">Add Area</button>
+        <button type="submit" className="add-area-submit-button">Add Area</button>
       </form>
     </div>
   );

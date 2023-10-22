@@ -21,12 +21,12 @@ export default function Addresses() {
     }, [areaId]);
 
     return (
-        <div className="daysBody">
-            <h2 className="daysTitle">Distribution Addresses</h2>
+        <div className="address-body">
+            <h2 className="address-title">Distribution Addresses</h2>
             {loading ? (
                 <p className="loading">Loading...</p>
             ) : (
-                <table className="days-table">
+                <table className="address-table">
                     <thead>
                         <tr>
                             <th>Address</th>
