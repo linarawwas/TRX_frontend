@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import $ from 'jquery';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './AsideMenu.css';
 import { FaBars, FaTimes } from 'react-icons/fa'; // Import icons from react-icons
@@ -6,6 +7,17 @@ import { FaBars, FaTimes } from 'react-icons/fa'; // Import icons from react-ico
 function AsideMenu() {
   const [isMenuOpen, setIsMenuOpen] = useState(true);
 
+  useEffect(() => {
+    // Add a click event listener to links with the class 'sidebar-link'
+    $('.sidebar-link').on('click', () => {
+      closeSidebar();
+    });
+
+    return () => {
+      // Clean up the event listener when the component unmounts
+      $('.sidebar-link').off('click');
+    };
+  }, []);
   const handleLogout = () => {
     // Delete the token from local storage
     localStorage.removeItem('token');
@@ -17,7 +29,9 @@ function AsideMenu() {
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
-
+  const closeSidebar = () => {
+    setIsMenuOpen(false);
+  };
   return (<div>
             <button className="menu-toggle" onClick={toggleMenu}>
           {isMenuOpen ? <FaTimes /> : <FaBars />} {/* Use icons for the toggle button */}
@@ -27,26 +41,26 @@ function AsideMenu() {
       <aside className="sidebar">
 
         <ul>
-          <li>
-            <Link to="/viewOrders">Orders</Link>
+          <li >
+            <Link to="/viewOrders" className='sidebar-link'>Orders</Link>
           </li>
           <li>
-            <Link to="/recordOrder">Record Order</Link>
+            <Link to="/recordOrder" className='sidebar-link'>Record Order</Link>
           </li>
           <li>
-            <Link to="/days">Days</Link>
+            <Link to="/days" className='sidebar-link'>Days</Link>
           </li>
           <li>
-            <Link to="/areas">Areas</Link>
+            <Link to="/areas" className='sidebar-link'>Areas</Link>
           </li>
           <li>
-            <Link to="/register">Register</Link>
+            <Link to="/register" className='sidebar-link'>Register</Link>
           </li>
           <li>
-            <Link to="/areas/add">Add Area</Link>
+            <Link to="/areas/add" className='sidebar-link'>Add Area</Link>
           </li>
           <li>
-            <Link to="/customers">Customer</Link>
+            <Link to="/customers" className='sidebar-link'>Customer</Link>
           </li>
           <li>
             <button className='logout-button' onClick={handleLogout}>Logout</button>
