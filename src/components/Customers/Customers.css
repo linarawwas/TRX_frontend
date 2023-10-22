@@ -1,4 +1,4 @@
-.customers-body h2 {
+.customers-body .customer-title {
     text-align: center;
 }
 
@@ -7,7 +7,7 @@
     margin-bottom: 100px;
 }
 
-.customers-body table td {
+.customers-body .customer-table td {
     padding: 20px 0;
 }
 

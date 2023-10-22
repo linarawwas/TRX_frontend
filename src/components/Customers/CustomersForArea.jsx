@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom"; // Import useParams from react-router-dom
-import './CustomersForArea.css';
+
 export default function CustomersForArea({ match }) {
     const { areaId } = useParams();
     const [customers, setCustomers] = useState([]);

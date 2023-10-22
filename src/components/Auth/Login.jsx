@@ -56,8 +56,8 @@ function Login () {
 
   return (
     <div className="login-container">
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
+      <h2 className='login-title' >Login</h2>
+      <form className='login-form' onSubmit={handleSubmit}>
         <input
           type="email"
           placeholder="Email"
@@ -65,6 +65,7 @@ function Login () {
           value={email}
           onChange={handleChange}
           required
+          className='login-input'
         />
         <input
           type="password"
@@ -73,8 +74,10 @@ function Login () {
           value={password}
           onChange={handleChange}
           required
+          className='login-input'
+
         />
-        <button type="submit">Login</button>
+        <button className='login-button' type="submit">Login</button>
       </form>
     </div>
   );

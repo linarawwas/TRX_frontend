@@ -43,7 +43,7 @@ function Register() {
 
   return (
     <div className="register-container">
-      <h2>Register A New User</h2>
+      <h2 className='register-title' >Register A New User</h2>
       <form onSubmit={handleSubmit}>
         <input
           className='register-input'
@@ -82,7 +82,7 @@ function Register() {
           onChange={handleChange}
           required
         />
-        <button type="submit">Register</button>
+        <button className='register-button' type="submit">Register</button>
       </form>
     </div>
   );

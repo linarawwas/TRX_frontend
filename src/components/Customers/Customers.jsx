@@ -55,13 +55,13 @@ export default function Customers({ match }) {
   );
 
   return (
-    <div className='ordersBody'>
-      <h2 className='ordersTitle'>Customers</h2>
+    <div className='customer-body'>
+      <h2 className='customer-title'>Customers</h2>
       {loading ? (
         <p>Loading...</p>
       ) : (
         <>
-          <table className="orders-table">
+          <table className="customer-table">
             <thead>
               <tr>
                 <th>Name</th>

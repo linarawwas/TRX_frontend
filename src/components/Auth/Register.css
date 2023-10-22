@@ -8,12 +8,12 @@
   /* box-shadow: none; */
 }
 
-.register-container h2 {
+.register-container .register-title {
   margin-bottom: 20px;
   text-align: center;
 }
 
-.register-container form {
+.register-container .register-form {
   display: flex;
   flex-direction: column;
   box-shadow: none;
@@ -26,7 +26,7 @@
   width:90%;
 }
 
-.register-container button {
+.register-container .register-button {
   padding: 10px;
   background-color: #007bff;
   color: #fff;
@@ -35,7 +35,7 @@
   cursor: pointer;
 }
 
-.register-container button:hover {
+.register-container .register-button:hover {
   background-color: #0056b3;
 }
 
@@ -46,7 +46,7 @@
     margin: 20px auto;
   }
 
-  .register-container input {
+  .register-container .register-input {
     padding: 8px;
     margin-bottom: 8px;
   }
