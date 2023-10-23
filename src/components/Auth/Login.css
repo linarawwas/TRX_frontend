@@ -1,18 +1,25 @@
 .login-container {
-    max-width: 400px;
+    max-width: 50%;
     margin: 100px auto;
     padding: 20px;
     border: 1px solid #ccc;
     border-radius: 5px;
     background-color: #fff;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
   }
   .login-form{
     border:0;
     box-shadow: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
   }
-  .login-container .login-title {
-text-align: center;  }
   
   .login-container .login-form {
     display: flex;
