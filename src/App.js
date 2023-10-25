@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Login from "./components/Auth/Login";
 import Layout from "./Layout/Layout";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
-
+import "react-toastify/dist/ReactToastify.css";
 function App() {
   // Define a state variable to track whether the user is authenticated
   const [isAuthenticated, setIsAuthenticated] = useState(false);
