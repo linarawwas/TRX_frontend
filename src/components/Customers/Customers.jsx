@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../Orders/OrdersTable.css'; // Import your CSS file
+import '../Orders/OrdersTable/OrdersTable.jsx'; // Import your CSS file
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import './Customers.css'

@@ -1,8 +1,8 @@
 import { Route, Routes } from 'react-router-dom';
 import React from 'react';
 import Register from '../components/Auth/Register';
-import OrdersTable from '../components/Orders/OrdersTable';
-import RecordOrder from '../components/Orders/RecordOrder.jsx';
+import OrdersTable from '../components/Orders/OrdersTable/OrdersTable';
+import RecordOrder from '../components/Orders/RecordOrder/RecordOrder.jsx';
 import Days from '../components/Days/Days.jsx';
 import Areas from '../components/Areas/Areas';
 import Customers from '../components/Customers/Customers';
