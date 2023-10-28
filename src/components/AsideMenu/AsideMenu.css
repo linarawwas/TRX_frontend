@@ -29,7 +29,7 @@
   justify-content: space-between;
   align-items: center;
   width: 100vw;
-}
+position: fixed;}
 .menu-toggle {
   background: #9493b7;
   width: 40px;
@@ -42,6 +42,8 @@
   font-size: 16px;
   margin-bottom: 5%;
   z-index: 100;
+  box-shadow: 1px 1px 10px 5px #ece6e6;
+
 }
 .go-to-home-button{
   font-size: 20px;
@@ -50,6 +52,7 @@
 margin-right:40px;  padding:10%;
 background: #9493b7;
 cursor: pointer;
+box-shadow: 1px 1px 10px 5px #ece6e6;
 
 }
 .menu-open .sidebar {

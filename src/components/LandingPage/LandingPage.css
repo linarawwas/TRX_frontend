@@ -1,38 +1,86 @@
 /* LandingPage.css */
+
 .landing-page {
-    margin-top:0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    /* height: 100vh; */
-    text-align: center;
-  }
-  
-  .landing-header {
-    margin-bottom: 1rem;
-  }
-  
-  .landing-header h1 {
-    font-size: 2.5rem;
-    margin: 0;
-  }
-  
-  .landing-header p {
-    color: #666;
-  }
-  
+  background: linear-gradient(rgba(78, 84, 184, 0.6), rgba(0, 0, 0, 0.6));  background-size: cover;
+  background-position: center;
+  color: #fff;
+  text-align: center;
+  padding: 100px 20px;
+}
+
+.landing-header h1 {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.landing-header p {
+  font-size: 1.2rem;
+}
+
+.landing-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  text-align: left;
+}
+
+.landing-content p {
+  font-size: 1.2rem;
+  line-height: 1.5;
+}
+
+.landing-content ul {
+  list-style: inside;
+  margin: 20px 0;
+}
+
+.landing-content ul li {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+
+.landing-footer {
+  margin-top: 40px;
+  font-size: 1rem;
+}
+
+/* Button Styling */
+button {
+  background: #007BFF;
+  color: #fff;
+  font-size: 1.2rem;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background: #0056b3;
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
   .landing-content {
-    max-width: 800px;
-    padding: 1rem;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    padding: 10px;
   }
-  
-  .landing-footer {
-    margin-top: 1rem;
+  .landing-header h1 {
+    font-size: 2rem;
   }
-  
-  /* You can add more styling as needed. Customize colors, fonts, and layout to match your app's design. */
-  
+  .landing-header p {
+    font-size: 1rem;
+  }
+  .landing-content p {
+    font-size: 1rem;
+  }
+  .landing-content ul li {
+    font-size: 1rem;
+  }
+}
+
+/* Add any other responsiveness styles as needed */
