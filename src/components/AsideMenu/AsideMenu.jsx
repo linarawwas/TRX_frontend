@@ -36,6 +36,10 @@ function AsideMenu() {
             <button className="menu-toggle" onClick={toggleMenu}>
           {isMenuOpen ? <FaTimes /> : <FaBars />} {/* Use icons for the toggle button */}
         </button>
+        <Link to='/'>
+        <button className='go-to-home-button' >Home</button>
+
+        </Link>
         <div className={`dashboard ${isMenuOpen ? 'menu-open' : 'menu-closed'}`}>
       
       <aside className="sidebar">
