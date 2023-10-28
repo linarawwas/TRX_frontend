@@ -13,6 +13,7 @@
   transition: transform 0.3s;
   border-radius: 0 60px 0 0;
   opacity: 1;
+  margin-top:100px;
 }
 .sidebar-link{
   color: #ece6e6;
@@ -21,6 +22,13 @@
 .sidebar-link:active{
   text-decoration: underline;
   color:red;
+}
+
+.button-div{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100vw;
 }
 .menu-toggle {
   background: #9493b7;
@@ -35,7 +43,15 @@
   margin-bottom: 5%;
   z-index: 100;
 }
+.go-to-home-button{
+  font-size: 20px;
+  border-radius: 20%;
+  color: white;
+margin-right:40px;  padding:10%;
+background: #9493b7;
+cursor: pointer;
 
+}
 .menu-open .sidebar {
   transform: translateX(0);
   opacity: 0.8; /* Set the opacity to 1 when the menu is open */

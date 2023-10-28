@@ -45,7 +45,6 @@ function RecordOrder() {
     const { name, value } = e.target;
     setOrderData({ ...orderData, [name]: value });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -56,17 +55,18 @@ function RecordOrder() {
         },
         body: JSON.stringify(orderData),
       });
-
+  
       if (response.ok) {
         console.log('Order successfully recorded.');
       } else {
-        console.error('Error recording order.');
+        const errorData = await response.json(); // Parse the error response
+        console.error('Error recording order:', errorData.error); // Log the error message from the server
       }
     } catch (error) {
       console.error('Network error:', error);
     }
   };
-
+  
   return (
     <div className="record-order-container">
       <h1 className="record-order-title">Record an Order</h1>

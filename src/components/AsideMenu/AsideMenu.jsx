@@ -1,23 +1,11 @@
-import $ from 'jquery';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './AsideMenu.css';
-import { FaBars, FaTimes } from 'react-icons/fa'; // Import icons from react-icons
+import { FaBars, FaTimes } from 'react-icons/fa';
 
 function AsideMenu() {
-  const [isMenuOpen, setIsMenuOpen] = useState(true);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  useEffect(() => {
-    // Add a click event listener to links with the class 'sidebar-link'
-    $('.sidebar-link').on('click', () => {
-      closeSidebar();
-    });
-
-    return () => {
-      // Clean up the event listener when the component unmounts
-      $('.sidebar-link').off('click');
-    };
-  }, []);
   const handleLogout = () => {
     // Delete the token from local storage
     localStorage.removeItem('token');
@@ -29,42 +17,41 @@ function AsideMenu() {
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
-  const closeSidebar = () => {
-    setIsMenuOpen(false);
-  };
-  return (<div>
-            <button className="menu-toggle" onClick={toggleMenu}>
-          {isMenuOpen ? <FaTimes /> : <FaBars />} {/* Use icons for the toggle button */}
+
+  return (
+ <div className={`dashboard ${isMenuOpen ? 'menu-open' : 'menu-closed'}`}>
+         <div className='aside-Menu'>
+ <div className='button-div'>
+        <button className="menu-toggle" onClick={toggleMenu}>
+          {isMenuOpen ? <FaTimes /> : <FaBars />}
         </button>
         <Link to='/'>
-        <button className='go-to-home-button' >Home</button>
-
+          <button className='go-to-home-button'>Home</button>
         </Link>
-        <div className={`dashboard ${isMenuOpen ? 'menu-open' : 'menu-closed'}`}>
-      
-      <aside className="sidebar">
+      </div>
 
+      <aside className="sidebar">
         <ul>
-          <li >
-            <Link to="/viewOrders" className='sidebar-link'>Orders</Link>
+          <li>
+            <Link to="/viewOrders" className='sidebar-link' onClick={toggleMenu} >Orders</Link>
           </li>
           <li>
-            <Link to="/recordOrder" className='sidebar-link'>Record Order</Link>
+            <Link to="/recordOrder" className='sidebar-link' onClick={toggleMenu}>Record Order</Link>
           </li>
           <li>
-            <Link to="/days" className='sidebar-link'>Days</Link>
+            <Link to="/days" className='sidebar-link' onClick={toggleMenu}>Days</Link>
           </li>
           <li>
-            <Link to="/areas" className='sidebar-link'>Areas</Link>
+            <Link to="/areas" className='sidebar-link' onClick={toggleMenu}>Areas</Link>
           </li>
           <li>
-            <Link to="/register" className='sidebar-link'>Register</Link>
+            <Link to="/register" className='sidebar-link' onClick={toggleMenu}>Register</Link>
           </li>
           <li>
-            <Link to="/areas/add" className='sidebar-link'>Add Area</Link>
+            <Link to="/areas/add" className='sidebar-link' onClick={toggleMenu}>Add Area</Link>
           </li>
           <li>
-            <Link to="/customers" className='sidebar-link'>Customer</Link>
+            <Link to="/customers" className='sidebar-link' onClick={toggleMenu}>Customer</Link>
           </li>
           <li>
             <button className='logout-button' onClick={handleLogout}>Logout</button>
@@ -72,7 +59,7 @@ function AsideMenu() {
         </ul>
       </aside>
     </div>
-  </div>
+    </div>
    
   );
 }
