@@ -67,9 +67,9 @@ function OrdersTable() {
               <tr>
                 <th>Customer</th>
                 <th>Product Type</th>                
-                <th>Delivered</th>
-                <th>Checkout</th>
-                <th>Paid</th>
+                {/* <th>Delivered</th> */}
+                {/* <th>Checkout</th> */}
+                {/* <th>Paid</th> */}
                 <th>Total Checkout</th>
                 {/* <th>date of delivery</th> */}
                 <th>See More...</th>
@@ -80,9 +80,9 @@ function OrdersTable() {
                 <tr key={order._id}>
                   <td>{order.customer.name}</td>
                   <td>{order.product.type}</td>
-                  <td>{order.delivered}</td>
-                  <td>{order.checkout}</td>
-                  <td>{order.paid}</td>
+                  {/* <td>{order.delivered}</td> */}
+                  {/* <td>{order.checkout}</td> */}
+                  {/* <td>{order.paid}</td> */}
                   <td>{order.total}</td>
                   {/* <td>{order.timestamp}</td> */}
                   <td>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './Register.css'; // Import your CSS file
-
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 function Register() {
   const [formData, setFormData] = useState({
     name: '',
@@ -29,20 +30,21 @@ function Register() {
 
       if (response.ok) {
         // Registration was successful
-        console.log('User registered successfully');
+        toast.success('User registered successfully');
         // You can redirect to the login page or handle it as needed
       } else {
         // Registration failed
         const data = await response.json();
-        console.error('Registration failed:', data.error);
+        toast.error('Registration failed:', data.error);
       }
     } catch (error) {
-      console.error('Registration error:', error);
+      toast.error('Registration error:', error);
     }
   };
 
   return (
     <div className="register-container">
+      <ToastContainer position="top-right" autoClose={3000} />
       <h2 className='register-title' >Register A New User</h2>
       <form className='register-form' onSubmit={handleSubmit}>
         <input
@@ -65,7 +67,7 @@ function Register() {
           required
         />
         <input
-                  className='register-input'
+          className='register-input'
           type="password"
           placeholder="Password"
           name="password"

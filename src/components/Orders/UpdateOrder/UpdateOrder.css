@@ -2,12 +2,30 @@
 
 /* Style for the main container */
 .update-order-container {
-    padding: 20px;
+    padding: 10vh 20px;
     background-color: #f5f5f5;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
-  
+  .update-order-header{
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+  }
+  /* Add this to your UpdateOrder.css */
+.delete-button {
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background-color: darkred;
+}
+
   /* Style for the main title */
   .update-order-title {
     font-size: 24px;

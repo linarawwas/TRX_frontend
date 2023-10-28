@@ -2,12 +2,16 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './AsideMenu.css';
 import { FaBars, FaTimes } from 'react-icons/fa';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function AsideMenu() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = () => {
+    toast.success('Logged Out Successfully')
     // Delete the token from local storage
+
     localStorage.removeItem('token');
 
     // Refresh the browser to clear the token and potentially navigate to a login page
@@ -21,6 +25,8 @@ function AsideMenu() {
   return (
  <div className={`dashboard ${isMenuOpen ? 'menu-open' : 'menu-closed'}`}>
          <div className='aside-Menu'>
+         <ToastContainer position="top-right" autoClose={3000}  />
+
  <div className='button-div'>
         <button className="menu-toggle" onClick={toggleMenu}>
           {isMenuOpen ? <FaTimes /> : <FaBars />}

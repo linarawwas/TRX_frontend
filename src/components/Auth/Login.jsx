@@ -1,8 +1,7 @@
 import './Login.css'; // Import your CSS file
 import React, { useState } from 'react';
-import "react-toastify/dist/ReactToastify.css";
-import { ToastContainer, toast } from "react-toastify";
-
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 function Login() {
   const [formData, setFormData] = useState({
     email: '',
@@ -16,6 +15,7 @@ function Login() {
   };
 
   const handleLoginSuccess = (token) => {
+
     // Save the token in local storage
     localStorage.setItem('token', token);
     // Refresh the browser to trigger navigation
@@ -42,33 +42,32 @@ function Login() {
       });
 
       if (response.ok) {
+        toast.success('Logged In Successfully')
         // Authentication succeeded
         // Retrieve the user's isAdmin status from the response or your authentication system
         const data = await response.json();
         const token = data.token;
+
         // Save the token and navigate the user
         handleLoginSuccess(token);
-        toast.success("Logged in", { autoClose: 2000 });
 
       } else {
         // Authentication failed; you can handle this by displaying an error message to the user
         console.error('Login failed');
-        toast.error("Invalid email or password", { autoClose: 2000 });
+        toast.error("Invalid email or password");
 
       }
     } catch (error) {
-      toast.error("An error occurred. Please try again later.", {
-        autoClose: 2000,
-      });
+      toast.error("An error occurred. Please try again later.");
       console.error('Login error:', error);
     }
   };
 
   return (
     <div className="login-container">
+      <ToastContainer position="top-right" autoClose={3000}  />
 
       <h2 className='login-title' >Login</h2>
-      <ToastContainer />
 
       <form className='login-form' onSubmit={handleSubmit}>
         <input

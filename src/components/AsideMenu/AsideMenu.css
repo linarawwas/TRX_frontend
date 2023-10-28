@@ -26,10 +26,13 @@
 
 .button-div{
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: row;
+   justify-content: space-between;
+   align-items: center;
   width: 100vw;
-position: fixed;}
+  position: fixed;
+  margin-top:1vh;
+}
 .menu-toggle {
   background: #9493b7;
   width: 40px;
@@ -40,16 +43,16 @@ position: fixed;}
   cursor: pointer;
   display: block;
   font-size: 16px;
-  margin-bottom: 5%;
   z-index: 100;
   box-shadow: 1px 1px 10px 5px #ece6e6;
 
 }
 .go-to-home-button{
+  margin-right:2vw;
   font-size: 20px;
   border-radius: 20%;
   color: white;
-margin-right:40px;  padding:10%;
+ padding:1.1vh 1vw;
 background: #9493b7;
 cursor: pointer;
 box-shadow: 1px 1px 10px 5px #ece6e6;

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './AddArea.css';
 
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 function AddArea() {
   const [name, setName] = useState('');
   const [dayId, setDayId] = useState('');
@@ -14,7 +16,7 @@ function AddArea() {
         setDays(data);
       })
       .catch((error) => {
-        console.error('Error fetching days:', error);
+        toast.error('Error fetching days:', error);
       });
   }, []);
 
@@ -47,19 +49,21 @@ function AddArea() {
 
       if (response.ok) {
         // Area creation succeeded
-        console.log('Area created successfully');
+        toast.success('Area created successfully');
         // Optionally, you can redirect to a different page after creation
       } else {
         // Area creation failed; handle the error
-        console.error('Area creation failed');
+        toast.error('Area creation failed');
       }
     } catch (error) {
-      console.error('Area creation error:', error);
+      toast.error('Area creation error:', error);
     }
   };
 
   return (
     <div className="add-area-container">
+      <ToastContainer position="top-right" autoClose={3000} />
+
       <h2 className='add-area-title'>Add New Area</h2>
       <form className='add-area-form' onSubmit={handleSubmit}>
         <div className="add-area-input-group">

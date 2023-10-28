@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import './RecordOrder.css';
 import SelectInput from '../../UI reusables/SelectInput/SelectInput';
 import NumberInput from '../../UI reusables/NumberInput/NumberInput';
-
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 function RecordOrder() {
   const [orderData, setOrderData] = useState({
     delivered: 0,
@@ -12,7 +13,7 @@ function RecordOrder() {
     paid: 0,
     productId: '',
     paymentCurrency: '',
-    exchangeRate: '',
+    exchangeRate: '6537789b6ed59ef09c18213d',
   });
 
   const [exchangeRates, setExchangeRates] = useState([]);
@@ -28,10 +29,10 @@ function RecordOrder() {
           const data = await response.json();
           setData(data);
         } else {
-          console.error(errorMessage);
+          toast.error(errorMessage);
         }
       } catch (error) {
-        console.error('Network error:', error);
+        toast.error('Network error:', error);
       }
     };
 
@@ -55,20 +56,22 @@ function RecordOrder() {
         },
         body: JSON.stringify(orderData),
       });
-  
+
       if (response.ok) {
-        console.log('Order successfully recorded.');
+
+        toast.success('Order successfully recorded.');
       } else {
         const errorData = await response.json(); // Parse the error response
-        console.error('Error recording order:', errorData.error); // Log the error message from the server
+        toast.error('Error recording order:', errorData.error); // Log the error message from the server
       }
     } catch (error) {
-      console.error('Network error:', error);
+      toast.error('Network error:', error);
     }
   };
-  
+
   return (
     <div className="record-order-container">
+      <ToastContainer position="top-right" autoClose={3000} />
       <h1 className="record-order-title">Record an Order</h1>
       <form className="record-order-form" onSubmit={handleSubmit}>
         <SelectInput
