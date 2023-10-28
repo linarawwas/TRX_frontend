@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './OrdersTable.css';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
-
+import { Link } from 'react-router-dom';
 function OrdersTable() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -66,18 +66,31 @@ function OrdersTable() {
             <thead>
               <tr>
                 <th>Customer</th>
+                <th>Product Type</th>                
                 <th>Delivered</th>
-                <th>Returned</th>
-                <th>date of delivery</th>
+                <th>Checkout</th>
+                <th>Paid</th>
+                <th>Total Checkout</th>
+                {/* <th>date of delivery</th> */}
+                <th>See More...</th>
               </tr>
             </thead>
             <tbody>
               {ordersForPage.map((order) => (
                 <tr key={order._id}>
-                  <td>{order.customerid.name}</td>
+                  <td>{order.customer.name}</td>
+                  <td>{order.product.type}</td>
                   <td>{order.delivered}</td>
-                  <td>{order.returned}</td>
-                  <td>{order.timestamp}</td>
+                  <td>{order.checkout}</td>
+                  <td>{order.paid}</td>
+                  <td>{order.total}</td>
+                  {/* <td>{order.timestamp}</td> */}
+                  <td>
+                    {/* Create a Link for the action button */}
+                    <Link to={`/updateOrder/${order._id}`}>
+                      Edit Order
+                    </Link>
+                  </td>
                 </tr>
               ))}
             </tbody>

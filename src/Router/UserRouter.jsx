@@ -12,6 +12,7 @@ import CustomersForArea from '../components/Customers/CustomersForArea';
 import AddArea from '../components/Areas/AddArea';
 import Login from '../components/Auth/Login';
 import LandingPage from '../components/LandingPage/LandingPage';
+import UpdateOrder from '../components/Orders/UpdateOrder/UpdateOrder';
 
 function UserRouter() {
   return (
@@ -30,6 +31,7 @@ function UserRouter() {
           <Route path="/areas/add" element={<AddArea />} />
           <Route path="/login" element={<Login />} />
           <Route index element={<LandingPage />} />
+          <Route path="/updateOrder/:orderId" element={<UpdateOrder />} />
         </Routes>
       </div>
     </>
