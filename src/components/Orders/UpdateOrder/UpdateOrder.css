@@ -49,4 +49,57 @@
     font-family: monospace;
     white-space: pre;
   }
-  
+  /* Styling for the Add Payment form container */
+.payment-form {
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Styling for the heading */
+.payment-heading {
+  font-size: 20px;
+  margin-bottom: 15px;
+}
+
+/* Styling for form labels */
+.form-label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+/* Styling for form input and select elements */
+.form-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  font-size: 16px;
+  transition: border 0.3s;
+}
+
+.form-input:focus {
+  border: 1px solid #007bff; /* Highlight border on focus */
+  outline: none;
+}
+
+/* Styling for the Add Payment button */
+.add-payment-button {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.3s;
+}
+
+.add-payment-button:hover {
+  background: #0056b3; /* Darker shade on hover */
+}
+
+/* Optional: Add more styles to make it comfortable for the eyes */
