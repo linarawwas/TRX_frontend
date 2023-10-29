@@ -5,14 +5,79 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import './UpdateCustomer.css';
+
 function UpdateCustomer() {
   const navigate = useNavigate();
 
   const { customerId } = useParams();
   const [customerData, setCustomerData] = useState(null);
   const [loading, setLoading] = useState(true);
- 
- 
+  const [updatedInfo, setUpdatedInfo] = useState({
+    name: '',
+    phone: '',
+    address: '',
+  });
+  const [originalData, setOriginalData] = useState(null); // Store original customer data
+
+  const [formVisible, setFormVisible] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === 'phone' && !/^\d*$/.test(value)) {
+      toast.error('Enter only numeric values for phone number.');
+    }
+    setUpdatedInfo({ ...updatedInfo, [name]: value });
+  };
+
+  const handleFormToggle = () => {
+    setFormVisible(!formVisible);
+  };
+
+  useEffect(() => {
+    fetch(`http://localhost:5000/api/customers/${customerId}`)
+      .then((response) => response.json())
+      .then((data) => {
+        setCustomerData(data);
+        setOriginalData(data); // Store the original customer data
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error('Error fetching customer details:', error);
+        setLoading(false);
+      });
+  }, [customerId]);
+
+  const handleSubmitUpdate = async () => {
+    try {
+      // Create an object to represent the updated data
+      const updatedData = {
+        name: updatedInfo.name,
+        phone: updatedInfo.phone,
+        areaId: updatedInfo.areaId,
+        address: updatedInfo.address,
+      };
+
+      // Send a PUT request with the updated data combined with the original data
+      const response = await fetch(`http://localhost:5000/api/customers/${customerId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...originalData, ...updatedData }),
+      });
+
+      if (response.ok) {
+        toast.success('Customer Updated successfully');
+      } else {
+        toast.error('Error updating customer');
+      }
+    } catch (error) {
+      toast.error('Error updating customer');
+      console.error('Error updating customer:', error);
+    }
+  };
+
   const handleDeleteCustomer = async () => {
     try {
       const response = await fetch(`http://localhost:5000/api/customers/${customerId}`, {
@@ -22,40 +87,23 @@ function UpdateCustomer() {
       if (response.ok) {
         toast.success('Customer deleted successfully');
         setTimeout(() => {
-          navigate('/viewCustomers'); // Navigate to the desired route after 3 seconds
+          navigate('/customers');
         }, 1500);
       } else {
         toast.error('Error deleting customer');
-
-        // Handle errors here
         console.error('Error deleting customer');
       }
     } catch (error) {
       toast.error('Error deleting customer');
-
       console.error('Error deleting customer:', error);
     }
   };
-
-  useEffect(() => {
-    // Fetch the customer details based on customerId
-    fetch(`http://localhost:5000/api/customers/${customerId}`)
-      .then((response) => response.json())
-      .then((data) => {
-        setCustomerData(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error('Error fetching customer details:', error);
-        setLoading(false);
-      });
-  }, [customerId]);
 
   return (
     <div className="update-container">
       <ToastContainer position="top-right" autoClose={1000} />
 
-      <div className='update-header'>
+      <div className="update-header">
         <h1 className="update-title">Customer Information:</h1>
         <button
           type="button"
@@ -87,11 +135,39 @@ function UpdateCustomer() {
               ))}
             </tbody>
           </table>
+          <h1 className="update-title edit-button" onClick={handleFormToggle}>
+            Edit Customer
+          </h1>
+          {formVisible && (
+            <form className="update-customer-form" onSubmit={handleSubmitUpdate}>
+              <input
+                type="text"
+                name="name"
+                value={updatedInfo.name}
+                placeholder="New Name"
+                onChange={handleChange}
+              ></input>
+              <input
+                type="text"
+                name="phone"
+                value={updatedInfo.phone}
+                placeholder="New Phone"
+                onChange={handleChange}
+              ></input>
+              <input
+                type="text"
+                name="address"
+                value={updatedInfo.address}
+                placeholder="New address"
+                onChange={handleChange}
+              ></input>
+              <button type="submit">Update Customer</button>
+            </form>
+          )}
         </div>
       ) : (
         <p>Customer not found</p>
       )}
-
     </div>
   );
 }
