@@ -5,14 +5,15 @@ import OrdersTable from '../components/Orders/OrdersTable/OrdersTable';
 import RecordOrder from '../components/Orders/RecordOrder/RecordOrder.jsx';
 import Days from '../components/Days/Days.jsx';
 import Areas from '../components/Areas/Areas';
-import Customers from '../components/Customers/Customers';
+import Customers from '../components/Customers/viewCustomers/Customers';
 import Addresses from '../components/Addresses/Addresses';
 import AreasForDay from '../components/Areas/AreasForDay';
-import CustomersForArea from '../components/Customers/CustomersForArea';
+import CustomersForArea from '../components/Customers/CustomersForArea/CustomersForArea';
 import AddArea from '../components/Areas/AddArea';
 import Login from '../components/Auth/Login';
 import LandingPage from '../components/LandingPage/LandingPage';
 import UpdateOrder from '../components/Orders/UpdateOrder/UpdateOrder';
+import UpdateCustomer from '../components/Customers/UpdateCustomer/UpdateCustomer';
 
 function UserRouter() {
   return (
@@ -32,6 +33,7 @@ function UserRouter() {
           <Route path="/login" element={<Login />} />
           <Route index element={<LandingPage />} />
           <Route path="/updateOrder/:orderId" element={<UpdateOrder />} />
+          <Route path="/updateCustomer/:customerId" element={<UpdateCustomer/>} />
         </Routes>
       </div>
     </>

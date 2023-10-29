@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './UpdateOrder.css'; // Import your CSS file for this component
+import '../../UI reusables/UpdateSingleRecord/UpdateSingleRecord.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
 function UpdateOrder() {
   const navigate = useNavigate();
 
@@ -100,11 +102,11 @@ function UpdateOrder() {
   }, [orderId]);
 
   return (
-    <div className="update-order-container">
+    <div className="update-container">
       <ToastContainer position="top-right" autoClose={1000} />
 
-      <div className='update-order-header'>
-        <h1 className="update-order-title">Billing Information:</h1>
+      <div className='update-header'>
+        <h1 className="update-title">Billing Information:</h1>
         <button
           type="button"
           onClick={handleDeleteOrder}
@@ -119,7 +121,7 @@ function UpdateOrder() {
         <p>Loading...</p>
       ) : orderData ? (
         <div>
-          <table className="order-details-table">
+          <table className="details-table">
             <thead>
               <tr>
                 <th>Field</th>

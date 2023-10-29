@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import '../Orders/OrdersTable/OrdersTable.jsx'; // Import your CSS file
+import '../../Orders/OrdersTable/OrdersTable.jsx'; // Import your CSS file
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
+import {Link} from 'react-router-dom';
 import './Customers.css'
 export default function Customers({ match }) {
   const [customers, setCustomers] = useState([]);
@@ -67,6 +68,7 @@ export default function Customers({ match }) {
                 <th>Name</th>
                 <th>Phone</th>
                 <th>Address</th>
+                <th>Details</th>
               </tr>
             </thead>
             <tbody>
@@ -75,7 +77,12 @@ export default function Customers({ match }) {
                   <td>{customer.name}</td>
                   <td>{customer.phone}</td>
                   <td>{customer.address}</td>
-                </tr>
+                  <td>
+                    {/* Create a Link for the action button */}
+                    <Link to={`/updateCustomer/${customer._id}`}>
+                      Edit Customer
+                    </Link>
+                  </td>                </tr>
               ))}
             </tbody>
           </table>
