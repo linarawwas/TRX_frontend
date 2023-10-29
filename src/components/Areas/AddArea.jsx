@@ -62,7 +62,7 @@ function AddArea() {
 
   return (
     <div className="add-area-container">
-      <ToastContainer position="top-right" autoClose={3000} />
+      <ToastContainer position="top-right" autoClose={1000} />
 
       <h2 className='add-area-title'>Add New Area</h2>
       <form className='add-area-form' onSubmit={handleSubmit}>

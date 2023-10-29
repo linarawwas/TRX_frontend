@@ -44,7 +44,7 @@ function Register() {
 
   return (
     <div className="register-container">
-      <ToastContainer position="top-right" autoClose={3000} />
+      <ToastContainer position="top-right" autoClose={1000} />
       <h2 className='register-title' >Register A New User</h2>
       <form className='register-form' onSubmit={handleSubmit}>
         <input

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import './UpdateOrder.css'; // Import your CSS file for this component
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 function UpdateOrder() {
+  const navigate = useNavigate();
+
   const { orderId } = useParams();
   const [orderData, setOrderData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -30,9 +32,9 @@ function UpdateOrder() {
 
       if (response.ok) {
         toast.success('Order deleted successfully');
-
-        // Handle success (e.g., redirect to another page)
-        console.log('Order deleted successfully');
+        setTimeout(() => {
+          navigate('/viewOrders'); // Navigate to the desired route after 3 seconds
+        }, 1500);
       } else {
         toast.error('Error deleting order');
 
@@ -99,18 +101,18 @@ function UpdateOrder() {
 
   return (
     <div className="update-order-container">
-      <ToastContainer position="top-right" autoClose={3000}  />
+      <ToastContainer position="top-right" autoClose={1000} />
 
       <div className='update-order-header'>
-      <h1 className="update-order-title">Billing Information:</h1>
-      <button
-        type="button"
-        onClick={handleDeleteOrder}
-        className="delete-button"
-      >
-        <FontAwesomeIcon icon={faTrash} />
-        Delete Order
-      </button>
+        <h1 className="update-order-title">Billing Information:</h1>
+        <button
+          type="button"
+          onClick={handleDeleteOrder}
+          className="delete-button"
+        >
+          <FontAwesomeIcon icon={faTrash} />
+          Delete Order
+        </button>
       </div>
 
       {loading ? (

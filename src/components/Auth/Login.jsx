@@ -19,7 +19,9 @@ function Login() {
     // Save the token in local storage
     localStorage.setItem('token', token);
     // Refresh the browser to trigger navigation
-    window.location.reload();
+    setTimeout(() => {
+      window.location.reload();
+    }, 1500);
   };
 
   const handleSubmit = async (e) => {
@@ -65,7 +67,7 @@ function Login() {
 
   return (
     <div className="login-container">
-      <ToastContainer position="top-right" autoClose={3000}  />
+      <ToastContainer position="top-right" autoClose={1000}  />
 
       <h2 className='login-title' >Login</h2>
 

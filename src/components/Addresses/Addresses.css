@@ -1,0 +1,45 @@
+/* addressTable.css */
+.addressBody {
+    margin: 0;
+    width: 100%;
+  }
+  
+  .loading {
+    text-align: center;
+  }
+  
+  .address-table {
+    text-align: center;
+    width: 70%;
+    border-collapse: collapse;
+    margin: 10px auto;
+    ;
+  }
+  
+  .address-title {
+    /* width: 100%; */
+    text-align: center;
+  
+  }
+  
+  .address-table th,
+  .address-table td {
+    border: 1px solid #e0e0e0;
+    padding: 15px 5px;
+    text-align: center;
+  }
+  
+  .address-table th {
+    background-color: #f0f0f0;
+    font-weight: bold;
+  }
+  
+  .address-table tbody tr:nth-child(even) {
+    background-color: #f8f8f8;
+  }
+  
+  .address-table tbody tr:nth-child(odd) {
+    background-color: #ffffff;
+  }
+  
+  /* Add more styles as needed to achieve your desired minimalist design. */
