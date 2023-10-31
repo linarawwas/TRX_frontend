@@ -52,21 +52,20 @@ function UpdateCustomer() {
     try {
       // Create an object to represent the updated data
       const updatedData = {
-        name: updatedInfo.name,
-        phone: updatedInfo.phone,
-        areaId: updatedInfo.areaId,
-        address: updatedInfo.address,
+        name: updatedInfo.name !== "" ? updatedInfo.name : originalData.name,
+        phone: updatedInfo.phone !== "" ? updatedInfo.phone : originalData.phone,
+        address: updatedInfo.address !== "" ? updatedInfo.address : originalData.address,
       };
-
-      // Send a PUT request with the updated data combined with the original data
+  
+      // Send a PUT request with the updated data
       const response = await fetch(`http://localhost:5000/api/customers/${customerId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ...originalData, ...updatedData }),
+        body: JSON.stringify(updatedData),
       });
-
+  
       if (response.ok) {
         toast.success('Customer Updated successfully');
       } else {
