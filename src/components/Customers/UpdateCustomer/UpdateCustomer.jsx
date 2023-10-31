@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../../UI reusables/UpdateSingleRecord/UpdateSingleRecord.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -33,31 +33,39 @@ function UpdateCustomer() {
   const handleFormToggle = () => {
     setFormVisible(!formVisible);
   };
-
-  useEffect(() => {
-    fetch(`http://localhost:5000/api/customers/${customerId}`)
-      .then((response) => response.json())
-      .then((data) => {
+  
+  const fetchData = useCallback(async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/customers/${customerId}`);
+      if (response.ok) {
+        const data = await response.json();
         setCustomerData(data);
-        setOriginalData(data); // Store the original customer data
+        setOriginalData(data);
         setLoading(false);
-      })
-      .catch((error) => {
-        console.error('Error fetching customer details:', error);
+      } else {
+        console.error('Error fetching customer details:', response.status);
         setLoading(false);
-      });
+      }
+    } catch (error) {
+      console.error('Error fetching customer details:', error);
+      setLoading(false);
+    }
   }, [customerId]);
 
-  const handleSubmitUpdate = async () => {
+  useEffect(() => {
+    fetchData(); // Fetch data when the component mounts
+  }, [fetchData]);
+
+  
+  const handleSubmitUpdate = async (e) => {
+    e.preventDefault();
     try {
-      // Create an object to represent the updated data
       const updatedData = {
         name: updatedInfo.name !== "" ? updatedInfo.name : originalData.name,
         phone: updatedInfo.phone !== "" ? updatedInfo.phone : originalData.phone,
         address: updatedInfo.address !== "" ? updatedInfo.address : originalData.address,
       };
-
-      // Send a PUT request with the updated data
+  
       const response = await fetch(`http://localhost:5000/api/customers/${customerId}`, {
         method: 'PUT',
         headers: {
@@ -65,13 +73,10 @@ function UpdateCustomer() {
         },
         body: JSON.stringify(updatedData),
       });
-
+  
       if (response.ok) {
         toast.success('Customer Updated successfully');
-        setCustomerData((prevData) => ({
-          ...prevData,
-          ...updatedData,
-        }));
+        fetchData(); // Refetch the customer data to display the updated information
       } else {
         toast.error('Error updating customer');
       }

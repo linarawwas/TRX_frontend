@@ -35,7 +35,7 @@ function UpdateOrder() {
       if (response.ok) {
         toast.success('Order deleted successfully');
         setTimeout(() => {
-          navigate('/viewOrders'); // Navigate to the desired route after 3 seconds
+          navigate('/viewOrders');
         }, 1500);
       } else {
         toast.error('Error deleting order');
