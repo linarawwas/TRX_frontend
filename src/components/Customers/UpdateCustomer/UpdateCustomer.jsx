@@ -56,7 +56,7 @@ function UpdateCustomer() {
         phone: updatedInfo.phone !== "" ? updatedInfo.phone : originalData.phone,
         address: updatedInfo.address !== "" ? updatedInfo.address : originalData.address,
       };
-  
+
       // Send a PUT request with the updated data
       const response = await fetch(`http://localhost:5000/api/customers/${customerId}`, {
         method: 'PUT',
@@ -65,9 +65,13 @@ function UpdateCustomer() {
         },
         body: JSON.stringify(updatedData),
       });
-  
+
       if (response.ok) {
         toast.success('Customer Updated successfully');
+        setCustomerData((prevData) => ({
+          ...prevData,
+          ...updatedData,
+        }));
       } else {
         toast.error('Error updating customer');
       }
