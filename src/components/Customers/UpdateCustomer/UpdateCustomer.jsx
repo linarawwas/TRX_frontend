@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../../UI reusables/UpdateSingleRecord/UpdateSingleRecord.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -6,10 +6,10 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './UpdateCustomer.css';
-
+import SelectInput from '../../UI reusables/SelectInput/SelectInput.js';
 function UpdateCustomer() {
   const navigate = useNavigate();
-
+  const [areas, setAreas] = useState([]);
   const { customerId } = useParams();
   const [customerData, setCustomerData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,11 +17,24 @@ function UpdateCustomer() {
     name: '',
     phone: '',
     address: '',
+    areaId: '',
   });
   const [originalData, setOriginalData] = useState(null); // Store original customer data
 
   const [formVisible, setFormVisible] = useState(false);
-
+  useEffect(() => {
+    // Fetch days data from your API
+    fetch("http://localhost:5000/api/areas")
+      .then((response) => response.json())
+      .then((data) => {
+        setAreas(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching days:", error);
+        setLoading(false);
+      });
+  }, []);
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === 'phone' && !/^\d*$/.test(value)) {
@@ -33,7 +46,7 @@ function UpdateCustomer() {
   const handleFormToggle = () => {
     setFormVisible(!formVisible);
   };
-  
+
   const fetchData = useCallback(async () => {
     try {
       const response = await fetch(`http://localhost:5000/api/customers/${customerId}`);
@@ -56,7 +69,7 @@ function UpdateCustomer() {
     fetchData(); // Fetch data when the component mounts
   }, [fetchData]);
 
-  
+
   const handleSubmitUpdate = async (e) => {
     e.preventDefault();
     try {
@@ -64,8 +77,9 @@ function UpdateCustomer() {
         name: updatedInfo.name !== "" ? updatedInfo.name : originalData.name,
         phone: updatedInfo.phone !== "" ? updatedInfo.phone : originalData.phone,
         address: updatedInfo.address !== "" ? updatedInfo.address : originalData.address,
+        areaId: updatedInfo.areaId !== "" ? updatedInfo.areaId : originalData.areaId,
       };
-  
+
       const response = await fetch(`http://localhost:5000/api/customers/${customerId}`, {
         method: 'PUT',
         headers: {
@@ -73,10 +87,12 @@ function UpdateCustomer() {
         },
         body: JSON.stringify(updatedData),
       });
-  
+
       if (response.ok) {
         toast.success('Customer Updated successfully');
-        fetchData(); // Refetch the customer data to display the updated information
+        fetchData();
+        console.log('new data fetched');
+        toast.success('fetched updated data')
       } else {
         toast.error('Error updating customer');
       }
@@ -169,6 +185,13 @@ function UpdateCustomer() {
                 placeholder="New address"
                 onChange={handleChange}
               ></input>
+              <SelectInput
+                label="Area:"
+                name="areaId"
+                value={updatedInfo.areaId}
+                options={areas.map((area) => ({ value: area._id, label: area.name }))}
+                onChange={handleChange}
+              />
               <button type="submit">Update Customer</button>
             </form>
           )}
