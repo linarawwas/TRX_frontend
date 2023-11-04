@@ -42,4 +42,10 @@
     background-color: #ffffff;
   }
   
-  /* Add more styles as needed to achieve your desired minimalist design. */
+.address-header{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  
+}

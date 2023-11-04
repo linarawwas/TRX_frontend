@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from "react";
-import {  useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "./Addresses.css";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Addresses() {
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
     const { areaId } = useParams();
+    const navigate = useNavigate();
     useEffect(() => {
         // Fetch days data from your API
         fetch(`http://localhost:5000/api/customers/area/${areaId}`)
@@ -19,11 +24,44 @@ export default function Addresses() {
                 setLoading(false);
             });
     }, [areaId]);
+    const handleDeleteArea = async () => {
+        try {
+            const response = await fetch(`http://localhost:5000/api/areas/${areaId}`, {
+                method: 'DELETE',
+            });
 
+            if (response.ok) {
+                toast.success('Area deleted successfully');
+                setTimeout(() => {
+                    navigate('/areas');
+                }, 1500);
+            } else {
+                toast.error('Error deleting Area');
+
+                // Handle errors here
+                console.error('Error deleting Area');
+            }
+        } catch (error) {
+            toast.error('Error deleting Area');
+
+            console.error('Error deleting Area:', error);
+        }
+    };
     return (
         <div className="address-body">
-            <h2 className="address-title">Distribution Addresses</h2>
-            {loading ? (
+            <ToastContainer position="top-right" autoClose={1000} />
+
+            <div className='address-header'>
+                <h1 className="address-title">Addresses Information:</h1>
+                <button
+                    type="button"
+                    onClick={handleDeleteArea}
+                    className="delete-button"
+                >
+                    <FontAwesomeIcon icon={faTrash} />
+                    Delete Area
+                </button>
+            </div>            {loading ? (
                 <p className="loading">Loading...</p>
             ) : (
                 <table className="address-table">

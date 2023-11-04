@@ -12,15 +12,15 @@ function LandingPage() {
         <p>
           OrdrTrkr is your all-in-one platform for streamlining order management, tracking deliveries, and ensuring a seamless customer experience. With OrdrTrkr, you can easily manage orders, monitor deliveries in real-time, and delight your customers.
         </p>
-        <p>
-          Key Features:
+<div>
+Key Features:
           <ul>
             <li>Effortless Order Management</li>
             <li>Real-time Delivery Tracking</li>
             <li>Customer-Focused Approach</li>
             <li>Easy Payment Integration</li>
           </ul>
-        </p>
+</div>
         <p>
           Join us on a journey to simplify your business operations and elevate your customer satisfaction. Experience the future of order and delivery management with OrdrTrkr!
         </p>

@@ -91,8 +91,6 @@ function UpdateCustomer() {
       if (response.ok) {
         toast.success('Customer Updated successfully');
         fetchData();
-        console.log('new data fetched');
-        toast.success('fetched updated data')
       } else {
         toast.error('Error updating customer');
       }
