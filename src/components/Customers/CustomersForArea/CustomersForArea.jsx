@@ -7,7 +7,11 @@ export default function CustomersForArea({ match }) {
     const [loading, setLoading] = useState(true);
     useEffect(() => {
         // Fetch areas data for the specified day
-        fetch(`http://localhost:5000/api/customers/area/${areaId}`)
+        fetch(`http://localhost:5000/api/customers/area/${areaId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        })
             .then((response) => response.json())
             .then((data) => {
                 setCustomers(data);
@@ -16,6 +20,10 @@ export default function CustomersForArea({ match }) {
             .catch((error) => {
                 console.error('Error fetching areas:', error);
                 setLoading(false);
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             });
     }, [areaId]);
 
@@ -25,9 +33,9 @@ export default function CustomersForArea({ match }) {
                 <tr>
                     <th className="table-title">Customers of This Area</th>
                 </tr>                <tr>
-                <th> name</th>
-                <th> Address</th>
-                <th> Phone Number</th>
+                    <th> name</th>
+                    <th> Address</th>
+                    <th> Phone Number</th>
                 </tr>
             </thead>
             {loading ? (

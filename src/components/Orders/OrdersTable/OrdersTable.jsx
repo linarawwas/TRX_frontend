@@ -8,10 +8,12 @@ function OrdersTable() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedItem, setSelectedItem] = useState(0);
-
+const token = localStorage.getItem('token');
   useEffect(() => {
     // Fetch orders data from your API
-    fetch('http://localhost:5000/api/orders')
+    fetch('http://localhost:5000/api/orders',{        headers: {
+      Authorization: `Bearer ${token}`,
+    }})
       .then((response) => response.json())
       .then((data) => {
         setOrders(data);

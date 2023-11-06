@@ -22,9 +22,13 @@ function UpdateCustomer() {
   const [originalData, setOriginalData] = useState(null); // Store original customer data
 
   const [formVisible, setFormVisible] = useState(false);
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
     // Fetch days data from your API
-    fetch("http://localhost:5000/api/areas")
+    fetch("http://localhost:5000/api/areas", {
+      headers: { Authorization: `Bearer ${token}` }
+    })
       .then((response) => response.json())
       .then((data) => {
         setAreas(data);
@@ -34,7 +38,7 @@ function UpdateCustomer() {
         console.error("Error fetching days:", error);
         setLoading(false);
       });
-  }, []);
+  }, [token]);
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === 'phone' && !/^\d*$/.test(value)) {
@@ -49,7 +53,11 @@ function UpdateCustomer() {
 
   const fetchData = useCallback(async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/customers/${customerId}`);
+      const response = await fetch(`http://localhost:5000/api/customers/${customerId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      });
       if (response.ok) {
         const data = await response.json();
         setCustomerData(data);
@@ -83,6 +91,8 @@ function UpdateCustomer() {
       const response = await fetch(`http://localhost:5000/api/customers/${customerId}`, {
         method: 'PUT',
         headers: {
+          Authorization: `Bearer ${token}`,
+
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(updatedData),
@@ -104,6 +114,10 @@ function UpdateCustomer() {
     try {
       const response = await fetch(`http://localhost:5000/api/customers/${customerId}`, {
         method: 'DELETE',
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (response.ok) {

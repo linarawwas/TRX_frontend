@@ -46,6 +46,7 @@ function RecordOrder() {
     const { name, value } = e.target;
     setOrderData({ ...orderData, [name]: value });
   };
+  const token=localStorage.getItem('token');
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -53,6 +54,7 @@ function RecordOrder() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Include the token in the headers
         },
         body: JSON.stringify(orderData),
       });

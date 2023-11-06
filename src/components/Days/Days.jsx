@@ -5,10 +5,12 @@ import "./Days.css";
 export default function Days() {
   const [days, setDays] = useState([]);
   const [loading, setLoading] = useState(true);
-
+const token = localStorage.getItem('token');
   useEffect(() => {
     // Fetch days data from your API
-    fetch("http://localhost:5000/api/days")
+    fetch("http://localhost:5000/api/days",{        headers: {
+      Authorization: `Bearer ${token}`,
+    }})
       .then((response) => response.json())
       .then((data) => {
         setDays(data);
