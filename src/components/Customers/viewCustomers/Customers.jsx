@@ -4,15 +4,25 @@ import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Link } from 'react-router-dom';
 import './Customers.css'
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 export default function Customers({ match }) {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedItem, setSelectedItem] = useState(0);
 
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
+    console.log(`Sending request with token: ${token}`);
     // Fetch customers data
-    fetch('http://localhost:5000/api/customers')
+    fetch('http://localhost:5000/api/customers', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((response) => response.json())
       .then((data) => {
         setCustomers(data);
@@ -22,7 +32,8 @@ export default function Customers({ match }) {
         console.error('Error fetching customers:', error);
         setLoading(false);
       });
-  }, []);
+  }, [token]);
+  
   // Number of records to display on each page
   const recordsPerPage = 7;
 
@@ -57,6 +68,8 @@ export default function Customers({ match }) {
 
   return (
     <div className='customers-body'>
+            <ToastContainer position="top-right" autoClose={1000} />
+
       <h2 className='customers-title'>Customers</h2>
       {loading ? (
         <p>Loading...</p>
