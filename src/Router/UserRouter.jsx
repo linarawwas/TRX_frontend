@@ -20,7 +20,7 @@ function UserRouter(props) {
     <>
       <div className="userRouter">
         <Routes>
-          <Route path="/register" element={<Register />} />
+          <Route path="/register" element={<Register token={props.token} companyId={props.companyId} />} />
           <Route path="/viewOrders" element={<OrdersTable token={props.token} companyId={props.companyId} />} />
           <Route path="/recordOrder" element={<RecordOrder companyId={props.companyId} token={props.token} />} />
           <Route path="/days" element={<Days companyId={props.companyId} token={props.token}/>} />
