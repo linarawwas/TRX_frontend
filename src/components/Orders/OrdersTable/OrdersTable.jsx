@@ -3,16 +3,15 @@ import './OrdersTable.css';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Link } from 'react-router-dom';
-function OrdersTable() {
+function OrdersTable(props) {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedItem, setSelectedItem] = useState(0);
-const token = localStorage.getItem('token');
   useEffect(() => {
     // Fetch orders data from your API
-    fetch('http://localhost:5000/api/orders',{        headers: {
-      Authorization: `Bearer ${token}`,
+    fetch(`http://localhost:5000/api/orders/company/${props.companyId}`,{        headers: {
+      Authorization: `Bearer ${props.token}`,
     }})
       .then((response) => response.json())
       .then((data) => {
@@ -23,7 +22,7 @@ const token = localStorage.getItem('token');
         console.error('Error fetching orders:', error);
         setLoading(false);
       });
-  }, []);
+  }, [props.token,props.companyId]);
 
   // Number of records to display on each page
   const recordsPerPage = 7;

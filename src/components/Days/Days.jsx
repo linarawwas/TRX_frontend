@@ -20,7 +20,7 @@ const token = localStorage.getItem('token');
         console.error("Error fetching days:", error);
         setLoading(false);
       });
-  }, []);
+  }, [token]);
 
   return (
     <div className="daysBody">

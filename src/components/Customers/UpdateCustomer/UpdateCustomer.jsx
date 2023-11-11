@@ -71,11 +71,11 @@ function UpdateCustomer() {
       console.error('Error fetching customer details:', error);
       setLoading(false);
     }
-  }, [customerId]);
+  }, [customerId,token]);
 
   useEffect(() => {
     fetchData(); // Fetch data when the component mounts
-  }, [fetchData]);
+  }, [fetchData,token]);
 
 
   const handleSubmitUpdate = async (e) => {

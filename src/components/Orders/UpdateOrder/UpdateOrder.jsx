@@ -7,7 +7,7 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-function UpdateOrder() {
+function UpdateOrder(props) {
   const navigate = useNavigate();
 
   const { orderId } = useParams();
@@ -29,7 +29,9 @@ function UpdateOrder() {
   const handleDeleteOrder = async () => {
     try {
       const response = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
-        method: 'DELETE',
+        method: 'DELETE', headers: {
+          Authorization: `Bearer ${props.token}`,
+        }
       });
 
       if (response.ok) {
@@ -56,7 +58,8 @@ function UpdateOrder() {
       const response = await fetch(`http://localhost:5000/api/orders/addPayment/${orderId}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json', Authorization: `Bearer ${props.token}`,
+
         },
         body: JSON.stringify(paymentData),
       });
@@ -90,7 +93,12 @@ function UpdateOrder() {
   };
   useEffect(() => {
     // Fetch the order details based on orderId
-    fetch(`http://localhost:5000/api/orders/${orderId}`)
+    fetch(`http://localhost:5000/api/orders/${orderId}`, {
+      headers: {
+        'Content-Type': 'application/json', Authorization: `Bearer ${props.token}`,
+
+      }
+    })
       .then((response) => response.json())
       .then((data) => {
         setOrderData(data);
@@ -100,7 +108,7 @@ function UpdateOrder() {
         console.error('Error fetching order details:', error);
         setLoading(false);
       });
-  }, [orderId]);
+  }, [orderId,props.token]);
 
   return (
     <div className="update-container">

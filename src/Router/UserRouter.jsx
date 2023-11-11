@@ -15,13 +15,13 @@ import LandingPage from '../components/LandingPage/LandingPage';
 import UpdateOrder from '../components/Orders/UpdateOrder/UpdateOrder';
 import UpdateCustomer from '../components/Customers/UpdateCustomer/UpdateCustomer';
 
-function UserRouter() {
+function UserRouter(props) {
   return (
     <>
       <div className="userRouter">
         <Routes>
           <Route path="/register" element={<Register />} />
-          <Route path="/viewOrders" element={<OrdersTable />} />
+          <Route path="/viewOrders" element={<OrdersTable token={props.token} companyId={props.companyId} />} />
           <Route path="/recordOrder" element={<RecordOrder />} />
           <Route path="/days" element={<Days />} />
           <Route path="/areas" element={<Areas />} />
@@ -32,7 +32,7 @@ function UserRouter() {
           <Route path="/areas/add" element={<AddArea />} />
           <Route path="/login" element={<Login />} />
           <Route index element={<LandingPage />} />
-          <Route path="/updateOrder/:orderId" element={<UpdateOrder />} />
+          <Route path="/updateOrder/:orderId" element={<UpdateOrder token={props.token} companyId={props.companyId}  />} />
           <Route path="/updateCustomer/:customerId" element={<UpdateCustomer/>} />
         </Routes>
       </div>

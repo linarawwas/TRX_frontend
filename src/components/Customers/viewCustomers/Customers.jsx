@@ -3,9 +3,7 @@ import '../../Orders/OrdersTable/OrdersTable.jsx'; // Import your CSS file
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Link } from 'react-router-dom';
-import './Customers.css'
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import './Customers.css';
 
 export default function Customers({ match }) {
   const [customers, setCustomers] = useState([]);
@@ -68,8 +66,6 @@ export default function Customers({ match }) {
 
   return (
     <div className='customers-body'>
-            <ToastContainer position="top-right" autoClose={1000} />
-
       <h2 className='customers-title'>Customers</h2>
       {loading ? (
         <p>Loading...</p>

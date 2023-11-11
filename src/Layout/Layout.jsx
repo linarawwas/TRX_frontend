@@ -1,11 +1,11 @@
 import React, { Fragment } from "react";
 import AsideMenu from "../components/AsideMenu/AsideMenu";
 import UserRouter from '../Router/UserRouter'
-function Layout () {
+function Layout (props) {
   return (
     <Fragment>
         <AsideMenu/>
-        <UserRouter/>
+        <UserRouter companyId={props.companyId} token={props.token} />
     </Fragment>
   );
 }; 

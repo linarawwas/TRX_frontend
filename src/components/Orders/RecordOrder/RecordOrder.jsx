@@ -15,6 +15,7 @@ function RecordOrder() {
     paymentCurrency: '',
     exchangeRate: '6537789b6ed59ef09c18213d',
   });
+  const token = localStorage.getItem('token');
 
   const [exchangeRates, setExchangeRates] = useState([]);
   const [areas, setAreas] = useState([]);
@@ -24,7 +25,7 @@ function RecordOrder() {
   useEffect(() => {
     const fetchData = async (url, setData, errorMessage) => {
       try {
-        const response = await fetch(url);
+        const response = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } });
         if (response.ok) {
           const data = await response.json();
           setData(data);
@@ -40,13 +41,12 @@ function RecordOrder() {
     fetchData('http://localhost:5000/api/customers', setCustomers, 'Error fetching customers');
     fetchData('http://localhost:5000/api/exchangeRates', setExchangeRates, 'Error fetching exchange rates');
     fetchData('http://localhost:5000/api/products', setProducts, 'Error fetching products');
-  }, []);
+  }, [token]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setOrderData({ ...orderData, [name]: value });
   };
-  const token=localStorage.getItem('token');
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {

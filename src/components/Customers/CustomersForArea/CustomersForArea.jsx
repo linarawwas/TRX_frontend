@@ -5,6 +5,8 @@ export default function CustomersForArea({ match }) {
     const { areaId } = useParams();
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const token=localStorage.getItem('token');
+
     useEffect(() => {
         // Fetch areas data for the specified day
         fetch(`http://localhost:5000/api/customers/area/${areaId}`, {
@@ -25,7 +27,7 @@ export default function CustomersForArea({ match }) {
                     Authorization: `Bearer ${token}`,
                 },
             });
-    }, [areaId]);
+    }, [areaId,token]);
 
     return (
         <table className="days-table">

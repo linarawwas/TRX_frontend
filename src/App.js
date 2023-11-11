@@ -6,16 +6,31 @@ import "react-toastify/dist/ReactToastify.css";
 function App() {
   // Define a state variable to track whether the user is authenticated
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [companyId, setCompanyId] = useState(null); // State to store companyId
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    // Check if the user is authenticated by inspecting the local storage
-    const token = localStorage.getItem("token");
+
 
     if (token) {
-      // If a token is found, the user is authenticated
-      setIsAuthenticated(true);
+      // Fetch user data to get companyId
+      fetch('http://localhost:5000/api/users/me', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(response => response.json())
+      .then(userData => {
+        setCompanyId(userData.companyId); // Extract companyId from user data
+        setIsAuthenticated(true);
+      })
+      .catch(error => {
+        console.error('Error fetching user data:', error);
+        setIsAuthenticated(false);
+      });
     }
-  }, []);
+  }, [token]);
 
   return (
     <Router>
@@ -24,7 +39,9 @@ function App() {
           path="/login"
           element={isAuthenticated ? <Navigate to="/" /> : <Login />}
         />
-        <Route path="/*" element={isAuthenticated ? <Layout /> : <Navigate to="/login" />} />
+        <Route path="/*" element={isAuthenticated 
+          ?              <Layout companyId={companyId} token={token}/>
+          : <Navigate to="/login" />} />
 
       </Routes>
     </Router>
