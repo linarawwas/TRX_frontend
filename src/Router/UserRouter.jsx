@@ -23,17 +23,17 @@ function UserRouter(props) {
           <Route path="/register" element={<Register token={props.token} companyId={props.companyId} />} />
           <Route path="/viewOrders" element={<OrdersTable token={props.token} companyId={props.companyId} />} />
           <Route path="/recordOrder" element={<RecordOrder companyId={props.companyId} token={props.token} />} />
-          <Route path="/days" element={<Days companyId={props.companyId} token={props.token}/>} />
-          <Route path="/areas" element={<Areas token={props.token} companyId={props.companyId}/>} />
-          <Route path="/customers" element={<Customers />} />
-          <Route path="/addresses/:areaId" element={<Addresses token={props.token} companyId={props.companyId}  />} />
+          <Route path="/days" element={<Days companyId={props.companyId} token={props.token} />} />
+          <Route path="/areas" element={<Areas token={props.token} companyId={props.companyId} />} />
+          <Route path="/customers" element={<Customers token={props.token} companyId={props.companyId} />} />
+          <Route path="/addresses/:areaId" element={<Addresses token={props.token} companyId={props.companyId} />} />
           <Route path="/areas/:dayId" element={<AreasForDay token={props.token} companyId={props.companyId} />} />
           <Route path="/customers/:areaId" element={<CustomersForArea />} />
-          <Route path="/areas/add" element={<AddArea />} />
+          <Route path="/areas/add" element={<AddArea token={props.token} companyId={props.companyId} />} />
           <Route path="/login" element={<Login />} />
           <Route index element={<LandingPage />} />
-          <Route path="/updateOrder/:orderId" element={<UpdateOrder token={props.token} companyId={props.companyId}  />} />
-          <Route path="/updateCustomer/:customerId" element={<UpdateCustomer/>} />
+          <Route path="/updateOrder/:orderId" element={<UpdateOrder token={props.token} companyId={props.companyId} />} />
+          <Route path="/updateCustomer/:customerId" element={<UpdateCustomer />} />
         </Routes>
       </div>
     </>

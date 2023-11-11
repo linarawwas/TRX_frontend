@@ -11,14 +11,12 @@ export default function Customers(props) {
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedItem, setSelectedItem] = useState(0);
 
-  const token = localStorage.getItem("token");
-
   useEffect(() => {
-    console.log(`Sending request with token: ${token}`);
+    console.log(`Sending request with props.token: ${props.token}`);
     // Fetch customers data
-    fetch('http://localhost:5000/api/customers', {
+    fetch(`http://localhost:5000/api/customers/company/${props.companyId}`, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${props.token}`,
       },
     })
       .then((response) => response.json())
@@ -30,8 +28,8 @@ export default function Customers(props) {
         console.error('Error fetching customers:', error);
         setLoading(false);
       });
-  }, [token]);
-  
+  }, [props.token,props.companyId]);
+
   // Number of records to display on each page
   const recordsPerPage = 7;
 
