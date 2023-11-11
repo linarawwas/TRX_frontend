@@ -4,7 +4,7 @@ import "./Areas.css";
 import { Carousel } from "react-responsive-carousel";
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 
-export default function Areas() {
+export default function Areas(props) {
   const [areas, setAreas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState(0)
@@ -12,17 +12,21 @@ export default function Areas() {
 
   useEffect(() => {
     // Fetch days data from your API
-    fetch("http://localhost:5000/api/areas")
+    fetch("http://localhost:5000/api/areas",{
+      headers: {
+          Authorization: `Bearer ${props.token}`,
+      }
+  })
       .then((response) => response.json())
       .then((data) => {
         setAreas(data);
         setLoading(false);
       })
       .catch((error) => {
-        console.error("Error fetching days:", error);
+        console.error("Error fetching areas:", error);
         setLoading(false);
       });
-  }, []);
+  }, [props.token]);
   const handlePageChange=(newPage)=>{
     setSelectedItem(newPage);
     setCurrentPage(newPage);

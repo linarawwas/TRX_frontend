@@ -2,15 +2,16 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./Days.css";
 
-export default function Days() {
+export default function Days(props) {
   const [days, setDays] = useState([]);
   const [loading, setLoading] = useState(true);
-const token = localStorage.getItem('token');
   useEffect(() => {
     // Fetch days data from your API
-    fetch("http://localhost:5000/api/days",{        headers: {
-      Authorization: `Bearer ${token}`,
-    }})
+    fetch(`http://localhost:5000/api/days/company/${props.companyId}`, {
+      headers: {
+        Authorization: `Bearer ${props.token}`,
+      }
+    })
       .then((response) => response.json())
       .then((data) => {
         setDays(data);
@@ -20,7 +21,7 @@ const token = localStorage.getItem('token');
         console.error("Error fetching days:", error);
         setLoading(false);
       });
-  }, [token]);
+  }, [props.token, props.companyId]);
 
   return (
     <div className="daysBody">
@@ -28,22 +29,22 @@ const token = localStorage.getItem('token');
       {loading ? (
         <p>Loading...</p>
       ) : (
-          <table className="days-table">
-            <thead>
-              <tr>
-                <th>Day</th>
+        <table className="days-table">
+          <thead>
+            <tr>
+              <th>Day</th>
+            </tr>
+          </thead>
+          <tbody>
+            {days.map((day) => (
+              <tr key={day._id}>
+                <td>
+                  <Link to={`/areas/${day._id}`}>{day.name}</Link>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {days.map((day) => (
-                <tr key={day._id}>
-                  <td>
-                    <Link to={`/areas/${day._id}`}>{day.name}</Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );

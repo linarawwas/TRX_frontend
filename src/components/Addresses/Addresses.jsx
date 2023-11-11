@@ -6,14 +6,19 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-export default function Addresses() {
+export default function Addresses(props) {
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
     const { areaId } = useParams();
     const navigate = useNavigate();
     useEffect(() => {
         // Fetch days data from your API
-        fetch(`http://localhost:5000/api/customers/area/${areaId}`)
+        fetch(`http://localhost:5000/api/customers/area/${areaId}`, {
+            headers: {
+                Authorization: `Bearer ${props.token}`,
+            }
+        }
+        )
             .then((response) => response.json())
             .then((data) => {
                 setCustomers(data);
@@ -23,11 +28,13 @@ export default function Addresses() {
                 console.error("Error fetching days:", error);
                 setLoading(false);
             });
-    }, [areaId]);
+    }, [areaId,props.token]);
     const handleDeleteArea = async () => {
         try {
             const response = await fetch(`http://localhost:5000/api/areas/${areaId}`, {
-                method: 'DELETE',
+                method: 'DELETE', headers: {
+                    Authorization: `Bearer ${props.token}`,
+                }
             });
 
             if (response.ok) {

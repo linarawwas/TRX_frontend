@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { useParams ,Link} from "react-router-dom"; // Import useParams from react-router-dom
+import { useParams, Link } from "react-router-dom"; // Import useParams from react-router-dom
 
-export default function AreasForDay({ match }) {
+export default function AreasForDay(props) {
     const { dayId } = useParams();
     const [areas, setAreas] = useState([]);
     const [loading, setLoading] = useState(true);
     const [dayName, setDayName] = useState('')
     useEffect(() => {
         // Fetch areas data for the specified day
-        fetch(`http://localhost:5000/api/areas/${dayId}`)
+        fetch(`http://localhost:5000/api/areas/days/${dayId}`, {
+            headers: {
+                Authorization: `Bearer ${props.token}`,
+            }
+        })
             .then((response) => response.json())
             .then((data) => {
                 setAreas(data);
@@ -18,10 +22,14 @@ export default function AreasForDay({ match }) {
                 console.error('Error fetching areas:', error);
                 setLoading(false);
             });
-    }, [dayId]);
+    }, [dayId, props.token]);
     useEffect(() => {
         // Fetch name of the the specified day
-        fetch(`http://localhost:5000/api/days/${dayId}`)
+        fetch(`http://localhost:5000/api/days/${dayId}`, {
+            headers: {
+                Authorization: `Bearer ${props.token}`,
+            }
+        })
             .then((response) => response.json())
             .then((data) => {
                 setDayName(data.name);
@@ -31,7 +39,7 @@ export default function AreasForDay({ match }) {
                 console.error('Error fetching areas:', error);
                 setLoading(false);
             });
-    }, [dayId]);
+    }, [dayId, props.token]);
 
     return (
         <table className="days-table">
@@ -40,9 +48,9 @@ export default function AreasForDay({ match }) {
                     <th>Areas for {dayName}</th>
                 </tr>
             </thead>
-            {loading? (
+            {loading ? (
                 <p>Loading ...</p>
-            ):(<tbody>
+            ) : (<tbody>
                 {areas.map((area) => (
                     <tr key={area._id}>
                         <td>
