@@ -4,7 +4,7 @@ import SelectInput from '../../UI reusables/SelectInput/SelectInput';
 import NumberInput from '../../UI reusables/NumberInput/NumberInput';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-function RecordOrder() {
+function RecordOrder(props) {
   const [orderData, setOrderData] = useState({
     delivered: 0,
     returned: 0,
@@ -13,9 +13,8 @@ function RecordOrder() {
     paid: 0,
     productId: '',
     paymentCurrency: '',
-    exchangeRate: '6537789b6ed59ef09c18213d',
+    exchangeRate: '6537789b6ed59ef09c18213d',companyId:props.companyId
   });
-  const token = localStorage.getItem('token');
 
   const [exchangeRates, setExchangeRates] = useState([]);
   const [areas, setAreas] = useState([]);
@@ -25,7 +24,7 @@ function RecordOrder() {
   useEffect(() => {
     const fetchData = async (url, setData, errorMessage) => {
       try {
-        const response = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } });
+        const response = await fetch(url, { headers: { "Authorization": `Bearer ${props.token}` } });
         if (response.ok) {
           const data = await response.json();
           setData(data);
@@ -37,11 +36,23 @@ function RecordOrder() {
       }
     };
 
-    fetchData('http://localhost:5000/api/areas', setAreas, 'Error fetching areas');
-    fetchData('http://localhost:5000/api/customers', setCustomers, 'Error fetching customers');
-    fetchData('http://localhost:5000/api/exchangeRates', setExchangeRates, 'Error fetching exchange rates');
-    fetchData('http://localhost:5000/api/products', setProducts, 'Error fetching products');
-  }, [token]);
+    // Fetch areas
+    fetchData(`http://localhost:5000/api/areas/company/${props.companyId}`, setAreas, 'Error fetching areas');
+
+    // Fetch exchange rates
+    fetchData(`http://localhost:5000/api/exchangeRates/company/${props.companyId}`, setExchangeRates, 'Error fetching exchange rates');
+
+    // Fetch products
+    fetchData(`http://localhost:5000/api/products/company/${props.companyId}`, setProducts, 'Error fetching products');
+
+    // Fetch customers only when areaId is selected
+    if (orderData.areaId) {
+      fetchData(`http://localhost:5000/api/customers/area/${orderData.areaId}`, setCustomers, 'Error fetching customers');
+    } else {
+      // Clear customers when areaId is not selected
+      setCustomers([]);
+    }
+  }, [props.token, props.companyId, orderData.areaId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,7 +65,7 @@ function RecordOrder() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Include the token in the headers
+          'Authorization': `Bearer ${props.token}`, // Include the props.token in the headers
         },
         body: JSON.stringify(orderData),
       });

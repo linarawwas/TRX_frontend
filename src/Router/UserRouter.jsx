@@ -22,7 +22,7 @@ function UserRouter(props) {
         <Routes>
           <Route path="/register" element={<Register />} />
           <Route path="/viewOrders" element={<OrdersTable token={props.token} companyId={props.companyId} />} />
-          <Route path="/recordOrder" element={<RecordOrder />} />
+          <Route path="/recordOrder" element={<RecordOrder companyId={props.companyId} token={props.token} />} />
           <Route path="/days" element={<Days />} />
           <Route path="/areas" element={<Areas />} />
           <Route path="/customers" element={<Customers />} />
