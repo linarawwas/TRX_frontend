@@ -68,7 +68,13 @@ function UpdateOrder(props) {
         toast.success('Payment added successfully');
 
         // Payment added successfully, fetch the updated order data
-        const updatedOrderResponse = await fetch(`http://localhost:5000/api/orders/${orderId}`);
+        const updatedOrderResponse = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
+          headers:
+          {
+            Authorization: `Bearer ${props.token}`,
+
+          }
+        });
         if (updatedOrderResponse.ok) {
           const updatedOrderData = await updatedOrderResponse.json();
           setOrderData(updatedOrderData);
@@ -108,7 +114,7 @@ function UpdateOrder(props) {
         console.error('Error fetching order details:', error);
         setLoading(false);
       });
-  }, [orderId,props.token]);
+  }, [orderId, props.token]);
 
   return (
     <div className="update-container">
