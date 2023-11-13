@@ -4,7 +4,13 @@ import SelectInput from '../../UI reusables/SelectInput/SelectInput';
 import NumberInput from '../../UI reusables/NumberInput/NumberInput';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-function RecordOrder(props) {
+import { useSelector } from 'react-redux';
+function RecordOrder() {
+  const companyId = useSelector(state => state.companyId);
+  const token = useSelector(state => state.token);
+  const [areas, setAreas] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [customers, setCustomers] = useState([]);
   const [orderData, setOrderData] = useState({
     delivered: 0,
     returned: 0,
@@ -13,18 +19,14 @@ function RecordOrder(props) {
     paid: 0,
     productId: '',
     paymentCurrency: '',
-    exchangeRate: '6537789b6ed59ef09c18213d',companyId:props.companyId
+    exchangeRate: '6537789b6ed59ef09c18213d',
+    companyId: companyId,
   });
-
-  const [exchangeRates, setExchangeRates] = useState([]);
-  const [areas, setAreas] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [customers, setCustomers] = useState([]);
 
   useEffect(() => {
     const fetchData = async (url, setData, errorMessage) => {
       try {
-        const response = await fetch(url, { headers: { "Authorization": `Bearer ${props.token}` } });
+        const response = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } });
         if (response.ok) {
           const data = await response.json();
           setData(data);
@@ -36,24 +38,23 @@ function RecordOrder(props) {
       }
     };
 
-    // Fetch areas
-    fetchData(`http://localhost:5000/api/areas/company/${props.companyId}`, setAreas, 'Error fetching areas');
+    // Fetch data only if companyId is available
+    if (companyId) {
+      // Fetch areas
+      fetchData(`http://localhost:5000/api/areas/company/${companyId}`, setAreas, 'Error fetching areas');
 
-    // Fetch exchange rates
-    fetchData(`http://localhost:5000/api/exchangeRates/company/${props.companyId}`, setExchangeRates, 'Error fetching exchange rates');
+      // Fetch products
+      fetchData(`http://localhost:5000/api/products/company/${companyId}`, setProducts, 'Error fetching products');
 
-    // Fetch products
-    fetchData(`http://localhost:5000/api/products/company/${props.companyId}`, setProducts, 'Error fetching products');
-
-    // Fetch customers only when areaId is selected
-    if (orderData.areaId) {
-      fetchData(`http://localhost:5000/api/customers/area/${orderData.areaId}`, setCustomers, 'Error fetching customers');
-    } else {
-      // Clear customers when areaId is not selected
-      setCustomers([]);
+      // Fetch customers only when areaId is selected
+      if (orderData.areaId) {
+        fetchData(`http://localhost:5000/api/customers/area/${orderData.areaId}`, setCustomers, 'Error fetching customers');
+      } else {
+        // Clear customers when areaId is not selected
+        setCustomers([]);
+      }
     }
-  }, [props.token, props.companyId, orderData.areaId]);
-
+  }, [token, companyId, orderData.areaId]);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setOrderData({ ...orderData, [name]: value });
@@ -65,7 +66,7 @@ function RecordOrder(props) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${props.token}`, // Include the props.token in the headers
+          'Authorization': `Bearer ${token}`, // Include the  token in the headers
         },
         body: JSON.stringify(orderData),
       });
@@ -103,13 +104,6 @@ function RecordOrder(props) {
             { value: 'USD', label: 'USD' },
             { value: 'LBP', label: 'LBP' },
           ]}
-          onChange={handleChange}
-        />
-        <SelectInput
-          label="Exchange Rate:"
-          name="exchangeRate"
-          value={orderData.exchangeRate}
-          options={exchangeRates.map((rate) => ({ value: rate._id, label: rate.exchangeRateInLBP }))}
           onChange={handleChange}
         />
         <NumberInput

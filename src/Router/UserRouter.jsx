@@ -1,4 +1,4 @@
-import {Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import React from 'react';
 import Register from '../components/Auth/Register';
 import OrdersTable from '../components/Orders/OrdersTable/OrdersTable';
@@ -14,28 +14,25 @@ import Login from '../components/Auth/Login';
 import LandingPage from '../components/LandingPage/LandingPage';
 import UpdateOrder from '../components/Orders/UpdateOrder/UpdateOrder';
 import UpdateCustomer from '../components/Customers/UpdateCustomer/UpdateCustomer';
-import { useSelector } from 'react-redux';
 function UserRouter() {
-  const companyId = useSelector(state => state.companyId);
-  const token = useSelector(state => state.token);
   return (
     <>
       <div className="userRouter">
         <Routes>
-          <Route index element={<LandingPage token={token} companyId={companyId} />} />
+          <Route index element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register token={token} companyId={companyId} />} />
-          <Route path="/viewOrders" element={<OrdersTable token={token} companyId={companyId} />} />
-          <Route path="/recordOrder" element={<RecordOrder companyId={companyId} token={token} />} />
-          <Route path="/days" element={<Days companyId={companyId} token={token} />} />
-          <Route path="/areas" element={<Areas token={token} companyId={companyId} />} />
-          <Route path="/customers" element={<Customers token={token} companyId={companyId} />} />
-          <Route path="/addresses/:areaId" element={<Addresses token={token} companyId={companyId} />} />
-          <Route path="/areas/:dayId" element={<AreasForDay token={token} companyId={companyId} />} />
-          <Route path="/customers/:areaId" element={<CustomersForArea token={token} companyId={companyId} />} />
-          <Route path="/areas/add" element={<AddArea token={token} companyId={companyId} />} />
-          <Route path="/updateOrder/:orderId" element={<UpdateOrder token={token} companyId={companyId} />} />
-          <Route path="/updateCustomer/:customerId" element={<UpdateCustomer token={token} companyId={companyId} />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/viewOrders" element={<OrdersTable />} />
+          <Route path="/recordOrder" element={<RecordOrder />} />
+          <Route path="/days" element={<Days />} />
+          <Route path="/areas" element={<Areas />} />
+          <Route path="/customers" element={<Customers />} />
+          <Route path="/addresses/:areaId" element={<Addresses />} />
+          <Route path="/areas/:dayId" element={<AreasForDay />} />
+          <Route path="/customers/:areaId" element={<CustomersForArea />} />
+          <Route path="/areas/add" element={<AddArea />} />
+          <Route path="/updateOrder/:orderId" element={<UpdateOrder />} />
+          <Route path="/updateCustomer/:customerId" element={<UpdateCustomer />} />
         </Routes>
       </div>
     </>
