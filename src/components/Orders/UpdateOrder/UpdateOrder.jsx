@@ -6,8 +6,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-function UpdateOrder(props) {
+import { useSelector } from 'react-redux';
+function UpdateOrder() {
+  const token = useSelector(state => state.token);
+  const companyId = useSelector(state => state.companyId)
   const navigate = useNavigate();
 
   const { orderId } = useParams();
@@ -30,7 +32,7 @@ function UpdateOrder(props) {
     try {
       const response = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
         method: 'DELETE', headers: {
-          Authorization: `Bearer ${props.token}`,
+          Authorization: `Bearer ${ token}`,
         }
       });
 
@@ -58,7 +60,7 @@ function UpdateOrder(props) {
       const response = await fetch(`http://localhost:5000/api/orders/addPayment/${orderId}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json', Authorization: `Bearer ${props.token}`,
+          'Content-Type': 'application/json', Authorization: `Bearer ${ token}`,
 
         },
         body: JSON.stringify(paymentData),
@@ -71,7 +73,7 @@ function UpdateOrder(props) {
         const updatedOrderResponse = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
           headers:
           {
-            Authorization: `Bearer ${props.token}`,
+            Authorization: `Bearer ${ token}`,
 
           }
         });
@@ -101,7 +103,7 @@ function UpdateOrder(props) {
     // Fetch the order details based on orderId
     fetch(`http://localhost:5000/api/orders/${orderId}`, {
       headers: {
-        'Content-Type': 'application/json', Authorization: `Bearer ${props.token}`,
+        'Content-Type': 'application/json', Authorization: `Bearer ${ token}`,
 
       }
     })
@@ -114,7 +116,7 @@ function UpdateOrder(props) {
         console.error('Error fetching order details:', error);
         setLoading(false);
       });
-  }, [orderId, props.token]);
+  }, [orderId,  token]);
 
   return (
     <div className="update-container">
