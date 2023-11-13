@@ -3,16 +3,19 @@ import './AddArea.css';
 
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-function AddArea(props) {
+import { useSelector } from 'react-redux';
+function AddArea() {
+  const token = useSelector(state => state.token);
+  const companyId = useSelector(state => state.companyId);
   const [name, setName] = useState('');
   const [dayId, setDayId] = useState('');
   const [days, setDays] = useState([]);
 
   // Fetch the list of days from your API
   useEffect(() => {
-    fetch(`http://localhost:5000/api/days/company/${props.companyId}`, {
+    fetch(`http://localhost:5000/api/days/company/${ companyId}`, {
       headers: {
-        Authorization: `Bearer ${props.token}`,
+        Authorization: `Bearer ${ token}`,
       }
     })
       .then((response) => response.json())
@@ -22,7 +25,7 @@ function AddArea(props) {
       .catch((error) => {
         toast.error('Error fetching days:', error);
       });
-  }, [props.token,props.companyId]);
+  }, [ token, companyId]);
 
   const handleNameChange = (e) => {
     setName(e.target.value);
@@ -38,7 +41,7 @@ function AddArea(props) {
     // Create an object with the area details
     const newArea = {
       name,
-      dayId, companyId: props.companyId
+      dayId, companyId:  companyId
     };
 
     try {
@@ -46,7 +49,7 @@ function AddArea(props) {
       const response = await fetch('http://localhost:5000/api/areas', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json', Authorization: `Bearer ${props.token}`,
+          'Content-Type': 'application/json', Authorization: `Bearer ${ token}`,
 
         },
         body: JSON.stringify(newArea),
