@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom"; // Import useParams from react-router-dom
-
-export default function AreasForDay(props) {
+import { useSelector } from "react-redux";
+export default function AreasForDay() {
+    const token = useSelector(state => state.token);
+    const companyId = useSelector(state => state.companyId);
     const { dayId } = useParams();
     const [areas, setAreas] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -10,7 +12,7 @@ export default function AreasForDay(props) {
         // Fetch areas data for the specified day
         fetch(`http://localhost:5000/api/areas/days/${dayId}`, {
             headers: {
-                Authorization: `Bearer ${props.token}`,
+                Authorization: `Bearer ${ token}`,
             }
         })
             .then((response) => response.json())
@@ -22,12 +24,12 @@ export default function AreasForDay(props) {
                 console.error('Error fetching areas:', error);
                 setLoading(false);
             });
-    }, [dayId, props.token]);
+    }, [dayId,  token]);
     useEffect(() => {
         // Fetch name of the the specified day
         fetch(`http://localhost:5000/api/days/${dayId}`, {
             headers: {
-                Authorization: `Bearer ${props.token}`,
+                Authorization: `Bearer ${ token}`,
             }
         })
             .then((response) => response.json())
@@ -39,7 +41,7 @@ export default function AreasForDay(props) {
                 console.error('Error fetching areas:', error);
                 setLoading(false);
             });
-    }, [dayId, props.token]);
+    }, [dayId,  token]);
 
     return (
         <table className="days-table">
