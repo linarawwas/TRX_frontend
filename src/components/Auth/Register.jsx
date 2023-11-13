@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import './Register.css'; // Import your CSS file
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-function Register(props) {
+import { useSelector } from 'react-redux';
+function Register() {
+  const token = useSelector(state => state.token);
+  const companyId = useSelector(state => state.companyId);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    confirmPassword: '', companyId: props.companyId
+    confirmPassword: '', companyId:  companyId
   });
 
   const { name, email, password, confirmPassword } = formData;
@@ -24,7 +27,7 @@ function Register(props) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${props.token}`
+          Authorization: `Bearer ${ token}`
       },
         body: JSON.stringify(formData), // Send the form data as JSON
       });
