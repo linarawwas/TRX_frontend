@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from 'react-redux';
+import { setToken, setCompanyId } from './redux/action.js';
 import Login from "./components/Auth/Login";
 import Layout from "./Layout/Layout";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 function App() {
   // Define a state variable to track whether the user is authenticated
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const dispatch = useDispatch();
+  const isAuthenticated = useSelector(state => state.token !== null);
   const [companyId, setCompanyId] = useState(null); // State to store companyId
-  const token = localStorage.getItem("token");
 
   useEffect(() => {
-
+    const token = localStorage.getItem("token");
 
     if (token) {
       // Fetch user data to get companyId
@@ -20,17 +22,16 @@ function App() {
           Authorization: `Bearer ${token}`,
         },
       })
-      .then(response => response.json())
-      .then(userData => {
-        setCompanyId(userData.companyId); // Extract companyId from user data
-        setIsAuthenticated(true);
-      })
-      .catch(error => {
-        console.error('Error fetching user data:', error);
-        setIsAuthenticated(false);
-      });
+        .then(response => response.json())
+        .then(userData => {
+          dispatch(setToken(token));
+          dispatch(setCompanyId(userData.companyId));
+        })
+        .catch(error => {
+          console.error('Error fetching user data:', error);
+        });
     }
-  }, [token]);
+  }, [dispatch]);
 
   return (
     <Router>
@@ -39,8 +40,8 @@ function App() {
           path="/login"
           element={isAuthenticated ? <Navigate to="/" /> : <Login />}
         />
-        <Route path="/*" element={isAuthenticated 
-          ?              <Layout companyId={companyId} token={token}/>
+        <Route path="/*" element={isAuthenticated
+          ? <Layout />
           : <Navigate to="/login" />} />
 
       </Routes>
