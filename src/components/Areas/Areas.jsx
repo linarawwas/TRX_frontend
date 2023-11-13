@@ -3,8 +3,10 @@ import { Link } from "react-router-dom";
 import "./Areas.css";
 import { Carousel } from "react-responsive-carousel";
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
-
-export default function Areas(props) {
+import { useSelector } from "react-redux";
+export default function Areas() {
+  const token = useSelector(state => state.token);
+  const companyId = useSelector(state => state.companyId);
   const [areas, setAreas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState(0)
@@ -14,7 +16,7 @@ export default function Areas(props) {
     // Fetch days data from your API
     fetch("http://localhost:5000/api/areas",{
       headers: {
-          Authorization: `Bearer ${props.token}`,
+          Authorization: `Bearer ${ token}`,
       }
   })
       .then((response) => response.json())
@@ -26,7 +28,7 @@ export default function Areas(props) {
         console.error("Error fetching areas:", error);
         setLoading(false);
       });
-  }, [props.token]);
+  }, [ token]);
   const handlePageChange=(newPage)=>{
     setSelectedItem(newPage);
     setCurrentPage(newPage);
