@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./Days.css";
-
-export default function Days(props) {
+import {useSelector} from 'react-redux';
+export default function Days() {
+  const token = useSelector(state => state.token);
+  const companyId = useSelector(state => state.companyId);
   const [days, setDays] = useState([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     // Fetch days data from your API
-    fetch(`http://localhost:5000/api/days/company/${props.companyId}`, {
+    fetch(`http://localhost:5000/api/days/company/${ companyId}`, {
       headers: {
-        Authorization: `Bearer ${props.token}`,
+        Authorization: `Bearer ${ token}`,
       }
     })
       .then((response) => response.json())
@@ -21,7 +23,7 @@ export default function Days(props) {
         console.error("Error fetching days:", error);
         setLoading(false);
       });
-  }, [props.token, props.companyId]);
+  }, [ token,  companyId]);
 
   return (
     <div className="daysBody">
