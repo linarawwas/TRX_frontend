@@ -5,8 +5,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-export default function Addresses(props) {
+import { useSelector } from "react-redux";
+export default function Addresses() {
+    const token = useSelector(state => state.token);
+    const companyId = useSelector(state => state.companyId);
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
     const { areaId } = useParams();
@@ -15,7 +17,7 @@ export default function Addresses(props) {
         // Fetch days data from your API
         fetch(`http://localhost:5000/api/customers/area/${areaId}`, {
             headers: {
-                Authorization: `Bearer ${props.token}`,
+                Authorization: `Bearer ${ token}`,
             }
         }
         )
@@ -28,12 +30,12 @@ export default function Addresses(props) {
                 console.error("Error fetching days:", error);
                 setLoading(false);
             });
-    }, [areaId,props.token]);
+    }, [areaId, token]);
     const handleDeleteArea = async () => {
         try {
             const response = await fetch(`http://localhost:5000/api/areas/${areaId}`, {
                 method: 'DELETE', headers: {
-                    Authorization: `Bearer ${props.token}`,
+                    Authorization: `Bearer ${ token}`,
                 }
             });
 
