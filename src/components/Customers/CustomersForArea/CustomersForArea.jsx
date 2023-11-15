@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom"; // Import useParams from react-router-dom
 import { useSelector, useDispatch } from "react-redux";
-import { recordOrder } from '../../../redux/OrderReducer/action.js';
+import { recordOrder } from '../../../redux/Order/action.js';
 export default function CustomersForArea() {
     const token = useSelector(state => state.token);
     const dispatch = useDispatch();

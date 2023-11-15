@@ -4,7 +4,7 @@ const initialState = {
     companyId: null,
   };
   
-  const rootReducer = (state = initialState, action) => {
+  const userReducer = (state = initialState, action) => {
     switch (action.type) {
       case 'SET_TOKEN':
         return {
@@ -21,5 +21,5 @@ const initialState = {
     }
   };
   
-  export default rootReducer;
+  export default userReducer;
   
