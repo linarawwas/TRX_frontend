@@ -4,7 +4,7 @@ import Layout from "./Layout/Layout";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from 'react-redux';
-import { setToken, setCompanyId } from './redux/action.js';
+import { setToken, setCompanyId } from './redux/UserInfo/action.js';
 
 function App() {
   const dispatch = useDispatch();
