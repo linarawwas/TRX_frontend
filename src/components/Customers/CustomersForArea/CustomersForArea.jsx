@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom"; // Import useParams from react-router-dom
-
-export default function CustomersForArea({ match }) {
+import { useParams, Link, useNavigate } from "react-router-dom"; // Import useParams from react-router-dom
+import { useSelector, useDispatch } from "react-redux";
+import { recordOrder } from '../../../redux/OrderReducer/action.js';
+export default function CustomersForArea() {
+    const token = useSelector(state => state.token);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { areaId } = useParams();
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
-    const token=localStorage.getItem('token');
 
+    const handleRecordOrder = (customerId,areaId) => {
+        dispatch(recordOrder({ customerId, areaId }));
+        navigate('/recordOrder');
+    };
     useEffect(() => {
         // Fetch areas data for the specified day
         fetch(`http://localhost:5000/api/customers/area/${areaId}`, {
@@ -27,7 +34,7 @@ export default function CustomersForArea({ match }) {
                     Authorization: `Bearer ${token}`,
                 },
             });
-    }, [areaId,token]);
+    }, [areaId, token]);
 
     return (
         <table className="days-table">
@@ -38,6 +45,7 @@ export default function CustomersForArea({ match }) {
                     <th> name</th>
                     <th> Address</th>
                     <th> Phone Number</th>
+                    <th>Record Order</th>
                 </tr>
             </thead>
             {loading ? (
@@ -48,6 +56,9 @@ export default function CustomersForArea({ match }) {
                         <td>{customer.name}</td>
                         <td>{customer.address}</td>
                         <td>{customer.phone}</td>
+                        <td>
+                            <button onClick={handleRecordOrder(customer._id,areaId)}> record order</button>
+                        </td>
                     </tr>
                 ))}
             </tbody>)}

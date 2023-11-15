@@ -7,7 +7,10 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './UpdateCustomer.css';
 import SelectInput from '../../UI reusables/SelectInput/SelectInput.js';
-function UpdateCustomer(props) {
+import { useSelector } from 'react-redux';
+function UpdateCustomer() {
+  const token = useSelector(state => state.token);
+  const companyId = useSelector(state => state.companyId);
   const navigate = useNavigate();
   const [areas, setAreas] = useState([]);
   const { customerId } = useParams();
@@ -17,7 +20,7 @@ function UpdateCustomer(props) {
     name: '',
     phone: '',
     address: '',
-    areaId: '', companyId:props.companyId
+    areaId: '', companyId: companyId
   });
   const [originalData, setOriginalData] = useState(null); // Store original customer data
 
@@ -25,8 +28,8 @@ function UpdateCustomer(props) {
 
   useEffect(() => {
     // Fetch days data from your API
-    fetch(`http://localhost:5000/api/areas/company/${props.companyId}`, {
-      headers: { Authorization: `Bearer ${props.token}` }
+    fetch(`http://localhost:5000/api/areas/company/${ companyId}`, {
+      headers: { Authorization: `Bearer ${ token}` }
     })
       .then((response) => response.json())
       .then((data) => {
@@ -37,7 +40,7 @@ function UpdateCustomer(props) {
         console.error("Error fetching days:", error);
         setLoading(false);
       });
-  }, [props.token, props.companyId]);
+  }, [ token,  companyId]);
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === 'phone' && !/^\d*$/.test(value)) {
@@ -54,7 +57,7 @@ function UpdateCustomer(props) {
     try {
       const response = await fetch(`http://localhost:5000/api/customers/${customerId}`, {
         headers: {
-          Authorization: `Bearer ${props.token}`,
+          Authorization: `Bearer ${ token}`,
         }
       });
       if (response.ok) {
@@ -70,11 +73,11 @@ function UpdateCustomer(props) {
       console.error('Error fetching customer details:', error);
       setLoading(false);
     }
-  }, [customerId,props.token]);
+  }, [customerId, token]);
 
   useEffect(() => {
     fetchData(); // Fetch data when the component mounts
-  }, [fetchData,props.token]);
+  }, [fetchData, token]);
 
 
   const handleSubmitUpdate = async (e) => {
@@ -85,13 +88,13 @@ function UpdateCustomer(props) {
         phone: updatedInfo.phone !== "" ? updatedInfo.phone : originalData.phone,
         address: updatedInfo.address !== "" ? updatedInfo.address : originalData.address,
         areaId: updatedInfo.areaId !== "" ? updatedInfo.areaId : originalData.areaId,
-        companyId: props.companyId
+        companyId:  companyId
       };
 
       const response = await fetch(`http://localhost:5000/api/customers/${customerId}`, {
         method: 'PUT',
         headers: {
-          Authorization: `Bearer ${props.token}`,
+          Authorization: `Bearer ${ token}`,
 
           'Content-Type': 'application/json',
         },
@@ -115,7 +118,7 @@ function UpdateCustomer(props) {
       const response = await fetch(`http://localhost:5000/api/customers/${customerId}`, {
         method: 'DELETE',
         headers: {
-          Authorization: `Bearer ${props.token}`,
+          Authorization: `Bearer ${ token}`,
         },
       });
 

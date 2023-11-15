@@ -4,19 +4,21 @@ import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Link } from 'react-router-dom';
 import './Customers.css';
-
-export default function Customers(props) {
+import { useSelector } from 'react-redux';
+export default function Customers() {
+  const token = useSelector(state => state.token);
+  const companyId = useSelector(state => state.companyId);
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedItem, setSelectedItem] = useState(0);
 
   useEffect(() => {
-    console.log(`Sending request with props.token: ${props.token}`);
+    console.log(`Sending request with  token: ${ token}`);
     // Fetch customers data
-    fetch(`http://localhost:5000/api/customers/company/${props.companyId}`, {
+    fetch(`http://localhost:5000/api/customers/company/${ companyId}`, {
       headers: {
-        Authorization: `Bearer ${props.token}`,
+        Authorization: `Bearer ${ token}`,
       },
     })
       .then((response) => response.json())
@@ -28,7 +30,7 @@ export default function Customers(props) {
         console.error('Error fetching customers:', error);
         setLoading(false);
       });
-  }, [props.token,props.companyId]);
+  }, [ token, companyId]);
 
   // Number of records to display on each page
   const recordsPerPage = 7;

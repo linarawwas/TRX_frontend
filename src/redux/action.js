@@ -8,4 +8,3 @@ export const setToken = (token) => ({
     type: 'SET_COMPANY_ID',
     payload: companyId,
   });
-  

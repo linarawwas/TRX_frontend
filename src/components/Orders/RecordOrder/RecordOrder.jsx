@@ -1,60 +1,42 @@
 import React, { useState, useEffect } from 'react';
 import './RecordOrder.css';
 import SelectInput from '../../UI reusables/SelectInput/SelectInput';
-import NumberInput from '../../UI reusables/NumberInput/NumberInput';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from 'react-redux';
-function RecordOrder() {
+import NumberInput from '../../UI reusables/NumberInput/NumberInput.js'
+const RecordOrder = () => {
+  const { customerId, areaId } = useSelector((state) => state.recordOrder);
   const companyId = useSelector(state => state.companyId);
   const token = useSelector(state => state.token);
-  const [areas, setAreas] = useState([]);
   const [products, setProducts] = useState([]);
-  const [customers, setCustomers] = useState([]);
   const [orderData, setOrderData] = useState({
     delivered: 0,
     returned: 0,
-    customerid: '',
-    areaId: '',
+    customerid: customerId,
+    areaId: areaId,
     paid: 0,
     productId: '',
     paymentCurrency: '',
     exchangeRate: '6537789b6ed59ef09c18213d',
     companyId: companyId,
   });
-
   useEffect(() => {
-    const fetchData = async (url, setData, errorMessage) => {
-      try {
-        const response = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } });
-        if (response.ok) {
-          const data = await response.json();
-          setData(data);
-        } else {
-          toast.error(errorMessage);
-        }
-      } catch (error) {
-        toast.error('Network error:', error);
+    // Fetch days data from your API
+    fetch(`http://localhost:5000/api/products/company/${companyId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
       }
-    };
-
-    // Fetch data only if companyId is available
-    if (companyId) {
-      // Fetch areas
-      fetchData(`http://localhost:5000/api/areas/company/${companyId}`, setAreas, 'Error fetching areas');
-
-      // Fetch products
-      fetchData(`http://localhost:5000/api/products/company/${companyId}`, setProducts, 'Error fetching products');
-
-      // Fetch customers only when areaId is selected
-      if (orderData.areaId) {
-        fetchData(`http://localhost:5000/api/customers/area/${orderData.areaId}`, setCustomers, 'Error fetching customers');
-      } else {
-        // Clear customers when areaId is not selected
-        setCustomers([]);
-      }
-    }
-  }, [token, companyId, orderData.areaId]);
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setProducts(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching days:", error);
+      });
+  }, [ token,  companyId]);
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setOrderData({ ...orderData, [name]: value });
@@ -116,20 +98,6 @@ function RecordOrder() {
           label="Returned:"
           name="returned"
           value={orderData.returned}
-          onChange={handleChange}
-        />
-        <SelectInput
-          label="Area:"
-          name="areaId"
-          value={orderData.areaId}
-          options={areas.map((area) => ({ value: area._id, label: area.name }))}
-          onChange={handleChange}
-        />
-        <SelectInput
-          label="Customer:"
-          name="customerid"
-          value={orderData.customerid}
-          options={customers.map((customer) => ({ value: customer._id, label: customer.name }))}
           onChange={handleChange}
         />
         <NumberInput
