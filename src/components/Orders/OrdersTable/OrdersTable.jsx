@@ -8,15 +8,18 @@ function OrdersTable() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
-  const [selectedItem, setSelectedItem] = useState(0);  
+  const [selectedItem, setSelectedItem] = useState(0);
+  
   const companyId = useSelector(state => state.companyId);
   const token = useSelector(state => state.token);
-useEffect(() => {
 
+  useEffect(() => {
     // Fetch orders data from your API
-    fetch(`http://localhost:5000/api/orders/company/${ companyId}`,{        headers: {
-      Authorization: `Bearer ${ token}`,
-    }})
+    fetch(`http://localhost:5000/api/orders/company/${companyId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    })
       .then((response) => response.json())
       .then((data) => {
         setOrders(data);
@@ -26,13 +29,10 @@ useEffect(() => {
         console.error('Error fetching orders:', error);
         setLoading(false);
       });
-  }, [ token, companyId]);
+  }, [token, companyId]);
 
   // Number of records to display on each page
   const recordsPerPage = 7;
-
-  // Calculate the total number of pages
-  const totalPages = Math.ceil(orders.length / recordsPerPage);
 
   // Function to handle page change
   const handlePageChange = (newPage) => {
@@ -54,8 +54,11 @@ useEffect(() => {
     }
   };
 
+  // Calculate the total number of pages
+  const totalPages = Math.ceil(orders.length / recordsPerPage);
+
   // Get the orders for the current page
-  const ordersForPage = orders.slice(
+  const ordersForPage = orders?.slice(
     currentPage * recordsPerPage,
     (currentPage + 1) * recordsPerPage
   );
@@ -71,7 +74,7 @@ useEffect(() => {
             <thead>
               <tr>
                 <th>Customer</th>
-                <th>Product Type</th>     
+                <th>Product Type</th>
                 <th>Total Checkout</th>
                 <th>See More...</th>
               </tr>
@@ -106,7 +109,7 @@ useEffect(() => {
                 {Array.from({ length: totalPages }, (_, i) => (
                   <div
                     key={i}
-                    // onClick={() => handlePageChange(i)}
+                  // onClick={() => handlePageChange(i)}
                   >
                     Page {i + 1}
                   </div>

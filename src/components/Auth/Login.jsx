@@ -2,7 +2,10 @@ import './Login.css'; // Import your CSS file
 import React, { useState } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { setToken } from '../../redux/UserInfo/action';
+import { useDispatch } from 'react-redux';
 function Login() {
+const dispatch=useDispatch();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -13,14 +16,15 @@ function Login() {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
   const handleLoginSuccess = (token) => {
-
+    // Dispatch the setToken action to save the token in the Redux store
+    dispatch(setToken(token));
+    console.log(token);
     // Save the token in local storage
     localStorage.setItem('token', token);
-    // Refresh the browser to trigger navigation
+    // // Refresh the browser to trigger navigation
     setTimeout(() => {
-      window.location.reload();
+    window.location.reload();
     }, 1500);
   };
 
@@ -49,7 +53,6 @@ function Login() {
         // Retrieve the user's isAdmin status from the response or your authentication system
         const data = await response.json();
         const token = data.token;
-
         // Save the token and navigate the user
         handleLoginSuccess(token);
 
@@ -67,7 +70,7 @@ function Login() {
 
   return (
     <div className="login-container">
-      <ToastContainer position="top-right" autoClose={1000}  />
+      <ToastContainer position="top-right" autoClose={1000} />
 
       <h2 className='login-title' >Login</h2>
 

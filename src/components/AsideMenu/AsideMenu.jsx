@@ -15,14 +15,13 @@ function AsideMenu() {
   const handleLogout = () => {
     toast.success('Logged Out Successfully')
     // Delete the token from local storage
-
     localStorage.removeItem('token');
+    setTimeout(() => {
+      window.location.reload();
+      }, 1500);
     // Dispatch actions to clear token and companyId in the Redux store
     dispatch(clearToken());
     dispatch(clearCompanyId());
-    setTimeout(() => {
-      window.location.reload();
-    }, 1500);
   };
 
   const toggleMenu = () => {
