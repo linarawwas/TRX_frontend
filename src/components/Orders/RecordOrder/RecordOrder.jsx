@@ -5,8 +5,11 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from 'react-redux';
 import NumberInput from '../../UI reusables/NumberInput/NumberInput.js'
+
 const RecordOrder = () => {
-  const { customerId, areaId } = useSelector((state) => state.recordOrder);
+
+  const customerId = useSelector(state => state.order.customer_Id);
+  const areaId = useSelector(state => state.order.area_Id);
   const companyId = useSelector(state => state.user.companyId);
   const token = useSelector(state => state.user.token);
   const [products, setProducts] = useState([]);
@@ -35,8 +38,8 @@ const RecordOrder = () => {
       .catch((error) => {
         console.error("Error fetching days:", error);
       });
-  }, [ token,  companyId]);
-  
+  }, [token, companyId]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setOrderData({ ...orderData, [name]: value });

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { recordOrder } from "../../../redux/Order/action.js";
+import { setAreaId,setCustomerId } from "../../../redux/Order/action.js";
 
 export default function CustomersForArea() {
 
@@ -34,8 +34,9 @@ export default function CustomersForArea() {
                 },
             });
     }, [areaId, token]);
-    const handleRecordOrder = (customerId, areaId) => {
-        dispatch(recordOrder({ customerId, areaId }));
+    const handleOrderState = (customerId, areaId) => {
+        dispatch(setCustomerId(customerId));
+        dispatch(setAreaId(areaId));
         navigate('/recordOrder');
     };
     return (
@@ -59,7 +60,7 @@ export default function CustomersForArea() {
                         <td>{customer.address}</td>
                         <td>{customer.phone}</td>
                         <td>
-                        <button onClick={() => handleRecordOrder(customer._id, areaId)}>record order</button>
+                            <button onClick={() => handleOrderState(customer._id, areaId)}>record order</button>
                         </td>
                     </tr>
                 ))}

@@ -1,10 +1,10 @@
 import { combineReducers } from 'redux';
 import userReducer from './UserInfo/reducer.js';
-import recordOrderReducer from './Order/reducer.js';
+import orderReducer from './Order/reducer.js';
 
 const rootReducer = combineReducers({
     user: userReducer,
-    order: recordOrderReducer
+    order: orderReducer
 });
 
 export default rootReducer;
