@@ -1,13 +1,15 @@
 // Layout.js
 import React, { Fragment } from "react";
 import AsideMenu from "../components/AsideMenu/AsideMenu";
-import UserRouter from '../Router/UserRouter';
-
+import AdminRouter from '../Router/AdminRouter';
+import { useSelector } from "react-redux";
+import EmployeeRouter from "../Router/EmployeeRouter";
 function Layout() {
+  const isAdmin = useSelector(state=>state.user.isAdmin);
   return (
     <Fragment>
       <AsideMenu />
-      <UserRouter />
+      {isAdmin ? <AdminRouter /> : <EmployeeRouter/>}
     </Fragment>
   );
 }

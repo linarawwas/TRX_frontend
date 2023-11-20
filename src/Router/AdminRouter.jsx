@@ -1,20 +1,20 @@
 import { Route, Routes } from 'react-router-dom';
 import React from 'react';
-import Register from '../components/Auth/Register';
-import OrdersTable from '../components/Orders/OrdersTable/OrdersTable';
+import Register from '../components/Auth/Register.jsx';
+import OrdersTable from '../components/Orders/OrdersTable/OrdersTable.jsx';
 import RecordOrder from '../components/Orders/RecordOrder/RecordOrder.jsx';
 import Days from '../components/Days/Days.jsx';
-import Areas from '../components/Areas/Areas';
-import Customers from '../components/Customers/viewCustomers/Customers';
-import Addresses from '../components/Addresses/Addresses';
-import AreasForDay from '../components/Areas/AreasForDay';
-import CustomersForArea from '../components/Customers/CustomersForArea/CustomersForArea';
-import AddArea from '../components/Areas/AddArea';
-import Login from '../components/Auth/Login';
-import LandingPage from '../components/LandingPage/LandingPage';
-import UpdateOrder from '../components/Orders/UpdateOrder/UpdateOrder';
-import UpdateCustomer from '../components/Customers/UpdateCustomer/UpdateCustomer';
-function UserRouter() {
+import Areas from '../components/Areas/Areas.jsx';
+import Customers from '../components/Customers/viewCustomers/Customers.jsx';
+import Addresses from '../components/Addresses/Addresses.jsx';
+import AreasForDay from '../components/Areas/AreasForDay.jsx';
+import CustomersForArea from '../components/Customers/CustomersForArea/CustomersForArea.jsx';
+import AddArea from '../components/Areas/AddArea.jsx';
+import Login from '../components/Auth/Login.jsx';
+import LandingPage from '../components/LandingPage/LandingPage.jsx';
+import UpdateOrder from '../components/Orders/UpdateOrder/UpdateOrder.jsx';
+import UpdateCustomer from '../components/Customers/UpdateCustomer/UpdateCustomer.jsx';
+function AdminRouter() {
   return (
     <>
       <div className="userRouter">
@@ -39,4 +39,4 @@ function UserRouter() {
   );
 }
 
-export default UserRouter;
+export default AdminRouter;
