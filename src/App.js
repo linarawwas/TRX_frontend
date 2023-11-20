@@ -4,7 +4,7 @@ import Layout from "./Layout/Layout";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch } from 'react-redux';
-import { setCompanyId, setIsAdmin, setToken } from './redux/UserInfo/action.js';
+import { setCompanyId, setIsAdmin, setToken, setUsername } from './redux/UserInfo/action.js';
 
 function App() {
   const dispatch = useDispatch();
@@ -24,6 +24,7 @@ function App() {
         .then(userData => {
           dispatch(setCompanyId(userData.companyId));
           dispatch(setIsAdmin(userData.isAdmin));
+          dispatch(setUsername(userData.name))
         })
         .catch(error => {
           console.error('Error fetching user data:', error);

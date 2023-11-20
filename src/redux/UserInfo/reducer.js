@@ -1,9 +1,10 @@
-import { CLEAR_TOKEN, CLEAR_COMPANY_ID, CLEAR_IS_ADMIN } from './actionTypes.js'; // Adjust the import path
+import { CLEAR_TOKEN, CLEAR_COMPANY_ID, CLEAR_IS_ADMIN, CLEAR_USERNAME } from './actionTypes.js'; // Adjust the import path
 
 const initialState = {
   token: null,
   companyId: null,
   isAdmin: false,
+  username:'',
 };
 
 const userReducer = (state = initialState, action) => {
@@ -13,6 +14,11 @@ const userReducer = (state = initialState, action) => {
         ...state,
         token: action.payload,
       };
+      case 'SET_USERNAME':
+        return {
+          ...state,
+          token: action.payload,
+        };
     case 'SET_IS_ADMIN':
       return {
         ...state,
@@ -38,6 +44,11 @@ const userReducer = (state = initialState, action) => {
         ...state,
         companyId: null,
       };
+      case CLEAR_USERNAME:
+        return {
+          ...state,
+          companyId: null,
+        };
     default:
       return state;
   }
