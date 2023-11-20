@@ -48,9 +48,6 @@ function AsideMenu() {
               <Link to="/viewOrders" className='sidebar-link' onClick={toggleMenu} >Orders</Link>
             </li>
             <li>
-              <Link to="/recordOrder" className='sidebar-link' onClick={toggleMenu}>Record Order</Link>
-            </li>
-            <li>
               <Link to="/days" className='sidebar-link' onClick={toggleMenu}>Days</Link>
             </li>
             <li>

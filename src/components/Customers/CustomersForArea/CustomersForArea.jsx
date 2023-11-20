@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom"; // Import useParams from react-router-dom
+import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { recordOrder } from "../../../redux/Order/action.js";
+
 export default function CustomersForArea() {
+
     const token = useSelector(state => state.user.token);
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -10,10 +12,7 @@ export default function CustomersForArea() {
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const handleRecordOrder = (customerId,areaId) => {
-        dispatch(recordOrder({ customerId, areaId }));
-        navigate('/recordOrder');
-    };
+
     useEffect(() => {
         // Fetch areas data for the specified day
         fetch(`http://localhost:5000/api/customers/area/${areaId}`, {
@@ -35,7 +34,10 @@ export default function CustomersForArea() {
                 },
             });
     }, [areaId, token]);
-
+    const handleRecordOrder = (customerId, areaId) => {
+        dispatch(recordOrder({ customerId, areaId }));
+        navigate('/recordOrder');
+    };
     return (
         <table className="days-table">
             <thead>
@@ -52,12 +54,12 @@ export default function CustomersForArea() {
                 <p>Loading ...</p>
             ) : (<tbody>
                 {customers.map((customer) => (
-                    <tr key={customer._id}>
+                    <tr key={customer._id} >
                         <td>{customer.name}</td>
                         <td>{customer.address}</td>
                         <td>{customer.phone}</td>
                         <td>
-                            <button onClick={handleRecordOrder(customer._id,areaId)}> record order</button>
+                        <button onClick={() => handleRecordOrder(customer._id, areaId)}>record order</button>
                         </td>
                     </tr>
                 ))}
