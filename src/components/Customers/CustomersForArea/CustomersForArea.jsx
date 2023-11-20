@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { clearCustomerId, setAreaId, setCustomerId } from "../../../redux/Order/action.js";
+import { clearCustomerId, setCustomerId } from "../../../redux/Order/action.js";
 
 export default function CustomersForArea() {
 
@@ -15,6 +15,7 @@ export default function CustomersForArea() {
 
     useEffect(() => {
         dispatch(clearCustomerId())
+
         // Fetch areas data for the specified day
         fetch(`http://localhost:5000/api/customers/area/${areaId}`, {
             headers: {
@@ -34,10 +35,9 @@ export default function CustomersForArea() {
                     Authorization: `Bearer ${token}`,
                 },
             });
-    }, [areaId, token,dispatch]);
-    const handleOrderState = (customerId, areaId) => {
+    }, [areaId, token, dispatch]);
+    const handleOrderState = (customerId) => {
         dispatch(setCustomerId(customerId));
-        dispatch(setAreaId(areaId));
         navigate('/recordOrder');
     };
     return (
@@ -61,7 +61,7 @@ export default function CustomersForArea() {
                         <td>{customer.address}</td>
                         <td>{customer.phone}</td>
                         <td>
-                            <button onClick={() => handleOrderState(customer._id, areaId)}>record order</button>
+                            <button onClick={() => handleOrderState(customer._id)}>record order</button>
                         </td>
                     </tr>
                 ))}

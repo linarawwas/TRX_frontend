@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom"; // Import useParams from react-router-dom
-import { useSelector ,useDispatch} from "react-redux";
-import { clearAreaId } from "../../redux/Order/action";
+import { useSelector, useDispatch } from "react-redux";
+import { clearAreaId, setAreaId } from "../../redux/Order/action";
 export default function AreasForDay() {
-    const dispatch=useDispatch();
+    const dispatch = useDispatch();
     const token = useSelector(state => state.user.token);
     // const companyId = useSelector(state => state.user.companyId);
     const { dayId } = useParams();
@@ -27,7 +27,7 @@ export default function AreasForDay() {
                 console.error('Error fetching areas:', error);
                 setLoading(false);
             });
-    }, [dayId, dispatch,token]);
+    }, [dayId, dispatch, token]);
     useEffect(() => {
         // Fetch name of the the specified day
         fetch(`http://localhost:5000/api/days/${dayId}`, {
@@ -59,7 +59,10 @@ export default function AreasForDay() {
                 {areas.map((area) => (
                     <tr key={area._id}>
                         <td>
-                            <Link to={`/customers/${area._id}`}>{area.name}</Link>
+                            <Link to={`/customers/${area._id}`}>
+                                <button onClick={() => { dispatch(setAreaId(area._id)) }}>
+                                {area.name} </button>
+                                </Link>
                         </td>
                     </tr>
                 ))}
