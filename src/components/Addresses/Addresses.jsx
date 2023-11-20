@@ -7,8 +7,8 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from "react-redux";
 export default function Addresses() {
-    const token = useSelector(state => state.token);
-    const companyId = useSelector(state => state.companyId);
+    const token = useSelector(state => state.user.token);
+    // const companyId = useSelector(state => state.user.companyId);
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
     const { areaId } = useParams();

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom"; // Import useParams f
 import { useSelector, useDispatch } from "react-redux";
 import { recordOrder } from "../../../redux/Order/action.js";
 export default function CustomersForArea() {
-    const token = useSelector(state => state.token);
+    const token = useSelector(state => state.user.token);
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { areaId } = useParams();

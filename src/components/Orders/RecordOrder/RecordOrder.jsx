@@ -7,8 +7,8 @@ import { useSelector } from 'react-redux';
 import NumberInput from '../../UI reusables/NumberInput/NumberInput.js'
 const RecordOrder = () => {
   const { customerId, areaId } = useSelector((state) => state.recordOrder);
-  const companyId = useSelector(state => state.companyId);
-  const token = useSelector(state => state.token);
+  const companyId = useSelector(state => state.user.companyId);
+  const token = useSelector(state => state.user.token);
   const [products, setProducts] = useState([]);
   const [orderData, setOrderData] = useState({
     delivered: 0,

@@ -9,26 +9,28 @@ function OrdersTable() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedItem, setSelectedItem] = useState(0);
-  
-  const companyId = useSelector(state => state.companyId);
-  const token = useSelector(state => state.token);
 
+  const companyId = useSelector(state => state.user.companyId);
+  const token = useSelector(state => state.user.token);
+  console.log(companyId)
+  console.log(token)
   useEffect(() => {
-    // Fetch orders data from your API
-    fetch(`http://localhost:5000/api/orders/company/${companyId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      }
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setOrders(data);
-        setLoading(false);
+    if (companyId) {
+      fetch(`http://localhost:5000/api/orders/company/${companyId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
       })
-      .catch((error) => {
-        console.error('Error fetching orders:', error);
-        setLoading(false);
-      });
+        .then((response) => response.json())
+        .then((data) => {
+          setOrders(data);
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error('Error fetching orders:', error);
+          setLoading(false);
+        });
+    }
   }, [token, companyId]);
 
   // Number of records to display on each page

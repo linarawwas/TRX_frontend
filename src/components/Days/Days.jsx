@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import "./Days.css";
 import {useSelector} from 'react-redux';
 export default function Days() {
-  const token = useSelector(state => state.token);
-  const companyId = useSelector(state => state.companyId);
+  const token = useSelector(state => state.user.token);
+  const companyId = useSelector(state => state.user.companyId);
   const [days, setDays] = useState([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {

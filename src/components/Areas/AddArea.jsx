@@ -5,8 +5,8 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from 'react-redux';
 function AddArea() {
-  const token = useSelector(state => state.token);
-  const companyId = useSelector(state => state.companyId);
+  const token = useSelector(state => state.user.token);
+  const companyId = useSelector(state => state.user.companyId);
   const [name, setName] = useState('');
   const [dayId, setDayId] = useState('');
   const [days, setDays] = useState([]);

@@ -6,8 +6,8 @@ import { Link } from 'react-router-dom';
 import './Customers.css';
 import { useSelector } from 'react-redux';
 export default function Customers() {
-  const token = useSelector(state => state.token);
-  const companyId = useSelector(state => state.companyId);
+  const token = useSelector(state => state.user.token);
+  const companyId = useSelector(state => state.user.companyId);
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);

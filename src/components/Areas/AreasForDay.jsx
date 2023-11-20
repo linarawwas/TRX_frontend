@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom"; // Import useParams from react-router-dom
 import { useSelector } from "react-redux";
 export default function AreasForDay() {
-    const token = useSelector(state => state.token);
-    const companyId = useSelector(state => state.companyId);
+    const token = useSelector(state => state.user.token);
+    // const companyId = useSelector(state => state.user.companyId);
     const { dayId } = useParams();
     const [areas, setAreas] = useState([]);
     const [loading, setLoading] = useState(true);

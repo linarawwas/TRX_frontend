@@ -9,8 +9,8 @@ import './UpdateCustomer.css';
 import SelectInput from '../../UI reusables/SelectInput/SelectInput.js';
 import { useSelector } from 'react-redux';
 function UpdateCustomer() {
-  const token = useSelector(state => state.token);
-  const companyId = useSelector(state => state.companyId);
+  const token = useSelector(state => state.user.token);
+  const companyId = useSelector(state => state.user.companyId);
   const navigate = useNavigate();
   const [areas, setAreas] = useState([]);
   const { customerId } = useParams();

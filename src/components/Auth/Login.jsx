@@ -19,7 +19,6 @@ const dispatch=useDispatch();
   const handleLoginSuccess = (token) => {
     // Dispatch the setToken action to save the token in the Redux store
     dispatch(setToken(token));
-    console.log(token);
     // Save the token in local storage
     localStorage.setItem('token', token);
     // // Refresh the browser to trigger navigation

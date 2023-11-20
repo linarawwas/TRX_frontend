@@ -5,8 +5,8 @@ import { Carousel } from "react-responsive-carousel";
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { useSelector } from "react-redux";
 export default function Areas() {
-  const token = useSelector(state => state.token);
-  const companyId = useSelector(state => state.companyId);
+  const token = useSelector(state => state.user.token);
+  // const companyId = useSelector(state => state.companyId);
   const [areas, setAreas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState(0)
