@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { setAreaId,setCustomerId } from "../../../redux/Order/action.js";
+import { clearCustomerId, setAreaId, setCustomerId } from "../../../redux/Order/action.js";
 
 export default function CustomersForArea() {
 
@@ -14,6 +14,7 @@ export default function CustomersForArea() {
 
 
     useEffect(() => {
+        dispatch(clearCustomerId())
         // Fetch areas data for the specified day
         fetch(`http://localhost:5000/api/customers/area/${areaId}`, {
             headers: {
@@ -33,7 +34,7 @@ export default function CustomersForArea() {
                     Authorization: `Bearer ${token}`,
                 },
             });
-    }, [areaId, token]);
+    }, [areaId, token,dispatch]);
     const handleOrderState = (customerId, areaId) => {
         dispatch(setCustomerId(customerId));
         dispatch(setAreaId(areaId));

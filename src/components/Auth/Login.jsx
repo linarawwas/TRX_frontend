@@ -2,10 +2,7 @@ import './Login.css'; // Import your CSS file
 import React, { useState } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { setToken } from '../../redux/UserInfo/action';
-import { useDispatch } from 'react-redux';
 function Login() {
-const dispatch=useDispatch();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -17,8 +14,6 @@ const dispatch=useDispatch();
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
   const handleLoginSuccess = (token) => {
-    // Dispatch the setToken action to save the token in the Redux store
-    dispatch(setToken(token));
     // Save the token in local storage
     localStorage.setItem('token', token);
     // // Refresh the browser to trigger navigation

@@ -4,12 +4,12 @@ import './AsideMenu.css';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useDispatch } from 'react-redux';
-import { clearCompanyId, clearToken } from '../../redux/UserInfo/action';
+import { useDispatch, useSelector } from 'react-redux';
+import { clearCompanyId, clearToken, clearIsAdmin } from '../../redux/UserInfo/action';
 
 function AsideMenu() {
   const dispatch = useDispatch();
-
+  const isAdmin = useSelector(state => state.user.isAdmin);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = () => {
@@ -18,10 +18,11 @@ function AsideMenu() {
     localStorage.removeItem('token');
     setTimeout(() => {
       window.location.reload();
-      }, 1500);
+    }, 1500);
     // Dispatch actions to clear token and companyId in the Redux store
     dispatch(clearToken());
     dispatch(clearCompanyId());
+    dispatch(clearIsAdmin());
   };
 
   const toggleMenu = () => {
@@ -45,23 +46,26 @@ function AsideMenu() {
         <aside className="sidebar">
           <ul>
             <li>
-              <Link to="/viewOrders" className='sidebar-link' onClick={toggleMenu} >Orders</Link>
+              <Link to="/days" className='sidebar-link' onClick={toggleMenu}>Delivery Pathway for Each Day</Link>
             </li>
-            <li>
-              <Link to="/days" className='sidebar-link' onClick={toggleMenu}>Days</Link>
-            </li>
-            <li>
-              <Link to="/areas" className='sidebar-link' onClick={toggleMenu}>Areas</Link>
-            </li>
-            <li>
-              <Link to="/register" className='sidebar-link' onClick={toggleMenu}>Register</Link>
-            </li>
-            <li>
-              <Link to="/areas/add" className='sidebar-link' onClick={toggleMenu}>Add Area</Link>
-            </li>
-            <li>
-              <Link to="/customers" className='sidebar-link' onClick={toggleMenu}>Customer</Link>
-            </li>
+            {isAdmin && (
+              <>
+                <li>
+                  <Link to="/areas" className='sidebar-link' onClick={toggleMenu}>Areas</Link>
+                </li>
+                <li>
+                  <Link to="/register" className='sidebar-link' onClick={toggleMenu}>Register</Link>
+                </li>
+                <li>
+                  <Link to="/areas/add" className='sidebar-link' onClick={toggleMenu}>Add Area</Link>
+                </li>
+                <li>
+                  <Link to="/customers" className='sidebar-link' onClick={toggleMenu}>Customer</Link>
+                </li>
+                <li>
+                  <Link to="/viewOrders" className='sidebar-link' onClick={toggleMenu} >Orders</Link>
+                </li> </>
+            )}
             <li>
               <button className='logout-button' onClick={handleLogout}>Logout</button>
             </li>
