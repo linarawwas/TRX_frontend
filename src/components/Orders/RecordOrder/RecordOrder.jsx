@@ -23,6 +23,8 @@ const RecordOrder = () => {
     paymentCurrency: '',
     exchangeRate: '6537789b6ed59ef09c18213d',
     companyId: companyId,
+    shipmentId: "65536ddcec35fe6d1aa84f3f"
+
   });
   useEffect(() => {
     // Fetch days data from your API

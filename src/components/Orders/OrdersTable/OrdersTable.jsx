@@ -12,8 +12,6 @@ function OrdersTable() {
 
   const companyId = useSelector(state => state.user.companyId);
   const token = useSelector(state => state.user.token);
-  console.log(companyId)
-  console.log(token)
   useEffect(() => {
     if (companyId) {
       fetch(`http://localhost:5000/api/orders/company/${companyId}`, {
