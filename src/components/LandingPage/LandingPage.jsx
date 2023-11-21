@@ -1,11 +1,12 @@
 import React from 'react';
 import './LandingPage.css';
-
+import { useSelector } from 'react-redux';
 function LandingPage() {
+  const name = useSelector(state=> state.user.username)
   return (
     <div className="landing-page">
       <header className="landing-header">
-        <h1>Welcome to OrdrTrkr</h1>
+        <h1>Hello {name}, welcome to OrdrTrkr!!</h1>
         <p>Your Order Management and Delivery Tracking Solution</p>
       </header>
       <section className="landing-content">

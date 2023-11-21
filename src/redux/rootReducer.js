@@ -1,10 +1,12 @@
 import { combineReducers } from 'redux';
 import userReducer from './UserInfo/reducer.js';
 import orderReducer from './Order/reducer.js';
+import shipmentReducer from './Shipment/reducer.js';
 
 const rootReducer = combineReducers({
     user: userReducer,
-    order: orderReducer
+    order: orderReducer,
+    shipment: shipmentReducer, 
 });
 
 export default rootReducer;
