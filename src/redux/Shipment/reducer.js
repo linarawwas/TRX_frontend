@@ -1,11 +1,12 @@
-import { SET_DAY_ID, SET_DATE_DAY, SET_DATE_MONTH, SET_DATE_YEAR, CLEAR_DAY_ID, CLEAR_DATE_DAY, CLEAR_DATE_MONTH, CLEAR_DATE_YEAR, SET_ID } from "./actionTypes";
+import { SET_DAY_ID, SET_DATE_DAY, SET_DATE_MONTH, SET_DATE_YEAR, CLEAR_DAY_ID, CLEAR_DATE_DAY, CLEAR_DATE_MONTH, CLEAR_DATE_YEAR, SET_ID, CLEAR_SHIPMENT_INFO, SET_TARGET } from "./actionTypes";
 
 const initialState = {
-  _id:'',
+  _id: '',
   dayId: '',
   year: null,
   month: null,
   day: null,
+  target:null,
 };
 
 const shipmentReducer = (state = initialState, action) => {
@@ -14,12 +15,17 @@ const shipmentReducer = (state = initialState, action) => {
       return {
         ...state,
         dayId: action.payload,
-      };;
+      };
     case SET_ID:
-      return{
+      return {
         ...state,
-        _id:action.payload,
-      }
+        _id: action.payload,
+      };
+      case SET_TARGET:
+        return {
+          ...state,
+          target: action.payload,
+        }
     case SET_DATE_DAY:
       return {
         ...state,
@@ -55,6 +61,9 @@ const shipmentReducer = (state = initialState, action) => {
         ...state,
         day: null,
       };
+    case CLEAR_SHIPMENT_INFO:
+      return initialState; // Resetting the state to initial state
+
     default:
       return state;
   }

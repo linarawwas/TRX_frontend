@@ -6,6 +6,8 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearCompanyId, clearToken, clearIsAdmin } from '../../redux/UserInfo/action';
+import { TargetButton } from './TargetButton/TargetButton';
+import { DeliveredButton } from './DeliveredButton/DeliveredButton';
 
 function AsideMenu() {
   const dispatch = useDispatch();
@@ -41,6 +43,8 @@ function AsideMenu() {
           <Link to='/'>
             <button className='go-to-home-button'>Home</button>
           </Link>
+          <TargetButton />
+ <DeliveredButton />
         </div>
 
         <aside className="sidebar">

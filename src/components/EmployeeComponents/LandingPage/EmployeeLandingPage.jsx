@@ -3,7 +3,6 @@ import './EmployeeLandingPage.css'
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 function EmployeeLandingPage() {
-
     const name = useSelector(state => state.user.username)
     return (
         <div className="employee-landing-page">

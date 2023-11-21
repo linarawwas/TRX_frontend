@@ -5,10 +5,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import NumberInput from '../../UI reusables/NumberInput/NumberInput.js'
 import React, { useState } from 'react';
 import DateSelector from './DateSelector/DateSelector.jsx';
-import { setShipmentId } from '../../../redux/Shipment/action.js';
+import { setShipmentId, setShipmentTarget } from '../../../redux/Shipment/action.js';
 
 const StartShipment = () => {
-  const dispatch=useDispatch();
+  const dispatch = useDispatch();
   const token = useSelector(state => state.user.token);
   const companyId = useSelector(state => state.user.companyId);
   const [shipmentData, setShipmentData] = useState({
@@ -47,9 +47,10 @@ const StartShipment = () => {
       if (response.ok) {
         const shipmentData = await response.json();
         dispatch(setShipmentId(shipmentData._id))
+        dispatch(setShipmentTarget(shipmentData.carryingForDelivery))
         toast.success('Shipment successfully recorded.');
       } else {
-        
+
         toast.error('Error recording Shipment');
       }
     } catch (error) {
