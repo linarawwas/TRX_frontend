@@ -14,7 +14,7 @@ const StartShipment = () => {
     day: null,
     month: null,
     year: null,
-    companyId: companyId,
+    companyId: '',
     carryingForDelivery: 0
   }
   );
@@ -23,6 +23,7 @@ const StartShipment = () => {
   const updateShipmentData = (data) => {
     setShipmentData({
       ...shipmentData,
+      companyId: companyId,
       dayId: data.dayId,
       day: data.day,
       month: data.month,
@@ -31,7 +32,6 @@ const StartShipment = () => {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const response = await fetch('http://localhost:5000/api/shipments', {
         method: 'POST',

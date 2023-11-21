@@ -11,10 +11,15 @@ const DateSelector = ({ updateShipmentData }) => {
   const token = useSelector(state => state.user.token);
   const handleDateChange = async (date) => {
     setSelectedDate(date);
-    const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
-    const month = selectedDate.getMonth() + 1; // Months are zero-indexed, so add 1
-    const day = selectedDate.getDate();
-    const year = selectedDate.getFullYear();
+
+    const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+    console.log(dayName)
+    const month = date.getMonth() + 1; // Months are zero-indexed, so add 1
+    console.log(month)
+    const day = date.getDate();
+    console.log(day)
+    const year = date.getFullYear();
+    console.log(year)
 
     // Fetching dayId based on dayName
     const response = await fetch(`http://localhost:5000/api/days/name/${dayName}`, {
@@ -32,7 +37,7 @@ const DateSelector = ({ updateShipmentData }) => {
     }
 
     const dayId = dayData[0]._id;
-
+    console.log(dayId)
     // Creating shipment data
     const shipmentData = {
       dayId,
