@@ -11,7 +11,7 @@ function AsideMenu() {
   const dispatch = useDispatch();
   const isAdmin = useSelector(state => state.user.isAdmin);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
+  const dayId = useSelector(state => state.shipment.dayId);
   const handleLogout = () => {
     toast.success('Logged Out Successfully')
     // Delete the token from local storage
@@ -46,7 +46,7 @@ function AsideMenu() {
         <aside className="sidebar">
           <ul>
             <li>
-              <Link to="/days" className='sidebar-link' onClick={toggleMenu}>Delivery Pathway for Each Day</Link>
+              <Link to={`/areas/${dayId}`} className='sidebar-link' onClick={toggleMenu}>Delivery Pathway</Link>
             </li>
             {isAdmin && (
               <>

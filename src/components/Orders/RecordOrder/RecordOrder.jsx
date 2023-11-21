@@ -11,6 +11,7 @@ const RecordOrder = () => {
   const customerId = useSelector(state => state.order.customer_Id);
   const areaId = useSelector(state => state.order.area_Id);
   const companyId = useSelector(state => state.user.companyId);
+  const shipmentId = useSelector(state => state.shipment._id);
   const token = useSelector(state => state.user.token);
   const [products, setProducts] = useState([]);
   const [orderData, setOrderData] = useState({
@@ -23,7 +24,7 @@ const RecordOrder = () => {
     paymentCurrency: '',
     exchangeRate: '6537789b6ed59ef09c18213d',
     companyId: companyId,
-    shipmentId: "65536ddcec35fe6d1aa84f3f"
+    shipmentId: shipmentId
 
   });
   useEffect(() => {
