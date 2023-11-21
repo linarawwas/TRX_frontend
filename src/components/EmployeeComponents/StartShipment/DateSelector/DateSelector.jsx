@@ -2,33 +2,58 @@ import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './date-selector.css';
-const DateSelector = () => {
-    const [selectedDate, setSelectedDate] = useState(null);
-  
-    const handleDateChange = (date) => {
-      setSelectedDate(date);
+import { useDispatch, useSelector } from 'react-redux';
+import { setDateDay, setDateMonth, setDateYear, setDayId } from '../../../../redux/Shipment/action';
+const DateSelector = ({ updateShipmentData }) => {
+
+  const dispatch = useDispatch();
+  const [selectedDate, setSelectedDate] = useState(null);
+  const token = useSelector(state => state.user.token);
+  const handleDateChange = async (date) => {
+    setSelectedDate(date);
+    const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
+    const month = selectedDate.getMonth() + 1; // Months are zero-indexed, so add 1
+    const day = selectedDate.getDate();
+    const year = selectedDate.getFullYear();
+
+    // Fetching dayId based on dayName
+    const response = await fetch(`http://localhost:5000/api/days/name/${dayName}`, {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch day information');
+    }
+
+    const dayData = await response.json();
+    if (dayData.length === 0) {
+      throw new Error('Day information not found');
+    }
+
+    const dayId = dayData[0]._id;
+
+    // Creating shipment data
+    const shipmentData = {
+      dayId,
+      month: `${month}`, // Convert month to a string with leading zero if needed
+      day,
+      year,
     };
-  
-    const handleAddShipment = () => {
-      // Get day name, month, day, and year from the selected date
-      const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
-      const month = selectedDate.toLocaleDateString('en-US', { month: 'long' });
-      const day = selectedDate.getDate();
-      const year = selectedDate.getFullYear();
-  
-      // Use the extracted values for further processing (e.g., save to state, send to API, etc.)
-      // ...
-      console.log(dayName, month, day, year);
-    };
-  
-    return (
-      <div className='date-selector'>
-        <h2>Select a Date</h2>
-        <DatePicker selected={selectedDate} onChange={handleDateChange} />
-        <button className='save-button' onClick={handleAddShipment}>save</button>
-      </div>
-    );
+    dispatch(setDayId(shipmentData.dayId))
+    dispatch(setDateMonth(shipmentData.month))
+    dispatch(setDateDay(shipmentData.day))
+    dispatch(setDateYear(shipmentData.year))
+    updateShipmentData(shipmentData);
+
   };
-  
-  export default DateSelector;
-  
+
+  return (
+    <div className='date-selector'>
+      <h2>Select a Date</h2>
+      <DatePicker selected={selectedDate} onChange={handleDateChange} />
+    </div>
+  );
+};
+
+export default DateSelector;

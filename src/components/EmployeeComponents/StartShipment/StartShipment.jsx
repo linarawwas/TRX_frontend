@@ -7,36 +7,47 @@ import React, { useState } from 'react';
 import DateSelector from './DateSelector/DateSelector.jsx';
 
 const StartShipment = () => {
-    const token = useSelector(state => state.user.token);
-    const companyId = useSelector(state => state.user.companyId);
-    const [shipmentData, setShipmentData] = useState({
-    dayName: '', 
+  const token = useSelector(state => state.user.token);
+  const companyId = useSelector(state => state.user.companyId);
+  const [shipmentData, setShipmentData] = useState({
+    dayId: '',
     day: null,
     month: null,
     year: null,
-    companyId:companyId,
-    carryingForDelivery:0
+    companyId: companyId,
+    carryingForDelivery: 0
   }
   );
 
+  // Function to update shipmentData with data from DateSelector
+  const updateShipmentData = (data) => {
+    setShipmentData({
+      ...shipmentData,
+      dayId: data.dayId,
+      day: data.day,
+      month: data.month,
+      year: data.year
+    });
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       const response = await fetch('http://localhost:5000/api/shipments', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Include the  token in the headers
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(shipmentData),
       });
 
       if (response.ok) {
-
-        toast.success('Order successfully recorded.');
+        toast.success('Shipment successfully recorded.');
       } else {
-        const shipmentData = await response.json(); // Parse the error response
-        toast.error('Error recording order:', shipmentData.error); // Log the error message from the server
+        const shipmentData = await response.json();
+        
+        toast.error('Error recording Shipment:', shipmentData.error);
       }
     } catch (error) {
       toast.error('Network error:', error);
@@ -51,15 +62,15 @@ const StartShipment = () => {
       <ToastContainer position="top-right" autoClose={3000} />
       <h1 className="record-order-title">Enter Shipment Info</h1>
       <form className="record-order-form" onSubmit={handleSubmit}>
-       
+
         <NumberInput
           label="Carrying For Delivery:"
           name="carryingForDelivery"
           value={shipmentData.carryingForDelivery}
           onChange={handleChange}
         />
-        <DateSelector/>
-        
+        <DateSelector updateShipmentData={updateShipmentData} />
+
         <button className="record-order-button" type="submit">
           StartShipment
         </button>

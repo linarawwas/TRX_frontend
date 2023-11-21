@@ -1,10 +1,10 @@
 // action.js
 
-import { SET_DAY_NAME, SET_DATE_DAY, SET_DATE_MONTH, SET_DATE_YEAR, CLEAR_DAY_NAME, CLEAR_DATE_DAY, CLEAR_DATE_MONTH, CLEAR_DATE_YEAR } from "./actionTypes";
+import { SET_DAY_ID, SET_DATE_DAY, SET_DATE_MONTH, SET_DATE_YEAR, CLEAR_DAY_ID, CLEAR_DATE_DAY, CLEAR_DATE_MONTH, CLEAR_DATE_YEAR } from "./actionTypes";
 
-export const setDayName = (dayName) => ({
-  type: SET_DAY_NAME,
-  payload: dayName,
+export const setDayId = (dayId) => ({
+  type: SET_DAY_ID,
+  payload: dayId,
 });
 
 export const setDateDay = (day) => ({
@@ -22,7 +22,7 @@ export const setDateYear = (year) => ({
 });
 
 export const clearDayName = () => ({
-  type: CLEAR_DAY_NAME,
+  type: CLEAR_DAY_ID,
 });
 
 export const clearDateDay = () => ({
