@@ -6,10 +6,10 @@ const initialState = {
   year: null,
   month: null,
   day: null,
-  target:null,
-  delivered:null,
-  returned:null,
-  payments:null,
+  target:0,
+  delivered:0,
+  returned:0,
+  payments:0,
 
 };
 
