@@ -5,7 +5,7 @@ export const TargetButton = ()=>{
     const target=useSelector(state=>state.shipment.target)
 return (
     <>
-    <button className='go-to-home-button'>Target: {target}</button>
+    <div className='go-to-home-button'>Target: {target}</div>
     </>
 )
 }

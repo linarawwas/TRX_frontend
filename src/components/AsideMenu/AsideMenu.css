@@ -27,11 +27,10 @@
 .button-div{
   display: flex;
   flex-direction: row;
-   justify-content: space-evenly;
+   justify-content: space-between;
    align-items: center;
   width: 100vw;
   position: fixed;
-  margin-top:1vh;
 }
 .menu-toggle {
   background: #9493b7;
@@ -49,13 +48,12 @@
 }
 .go-to-home-button{
   margin-right:2vw;
-  font-size: 20px;
   border-radius: 20%;
-  color: white;
+  color: black;
  padding:1.1vh 1vw;
-background: #9493b7;
-cursor: pointer;
-box-shadow: 1px 1px 10px 5px #ece6e6;
+ font-size: 17px;
+ font-weight: 800;
+ font-family: 'Courier New', Courier, monospace;
 
 }
 .menu-open .sidebar {

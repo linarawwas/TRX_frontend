@@ -3,11 +3,11 @@ import './RecordOrder.css';
 import SelectInput from '../../UI reusables/SelectInput/SelectInput';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useSelector , useDispatch} from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import NumberInput from '../../UI reusables/NumberInput/NumberInput.js'
-import {setShipmentDelivered} from '../../../redux/Shipment/action.js'
+import { setShipmentDelivered, setShipmentPayments, setShipmentReturned } from '../../../redux/Shipment/action.js'
 const RecordOrder = () => {
-const dispatch=useDispatch();
+  const dispatch = useDispatch();
   const customerId = useSelector(state => state.order.customer_Id);
   const areaId = useSelector(state => state.order.area_Id);
   const companyId = useSelector(state => state.user.companyId);
@@ -27,7 +27,9 @@ const dispatch=useDispatch();
     shipmentId: shipmentId
 
   });
-  let deliveredInShipment=useSelector(state=>state.shipment.delivered);
+  let deliveredInShipment = useSelector(state => state.shipment.delivered);
+  let returnedInShipment = useSelector(state => state.shipment.returned);
+  let paymentsInshipment = useSelector(state => state.shipment.payments)
   useEffect(() => {
     // Fetch days data from your API
     fetch(`http://localhost:5000/api/products/company/${companyId}`, {
@@ -61,9 +63,15 @@ const dispatch=useDispatch();
       });
 
       if (response.ok) {
-      
-        deliveredInShipment+=parseInt(orderData.delivered);
+
+        deliveredInShipment += parseInt(orderData.delivered);
+        returnedInShipment+= parseInt(orderData.returned);
+        paymentsInshipment+= parseInt(orderData.paid);
         dispatch(setShipmentDelivered(deliveredInShipment))
+        dispatch(setShipmentReturned(returnedInShipment))
+        dispatch(setShipmentPayments(paymentsInshipment))
+
+
         toast.success('Order successfully recorded.');
       } else {
         const errorData = await response.json(); // Parse the error response

@@ -8,6 +8,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { clearCompanyId, clearToken, clearIsAdmin } from '../../redux/UserInfo/action';
 import { TargetButton } from './TargetButton/TargetButton';
 import { DeliveredButton } from './DeliveredButton/DeliveredButton';
+import { ReturnedButton } from './ReturnedButton/ReturnedButton';
+import { PaymentsButton } from './PaymentsButton/PaymentsButton';
 
 function AsideMenu() {
   const dispatch = useDispatch();
@@ -40,11 +42,13 @@ function AsideMenu() {
           <button className="menu-toggle" onClick={toggleMenu}>
             {isMenuOpen ? <FaTimes /> : <FaBars />}
           </button>
-          <Link to='/'>
-            <button className='go-to-home-button'>Home</button>
-          </Link>
           <TargetButton />
- <DeliveredButton />
+          <DeliveredButton />
+          <ReturnedButton />
+          <PaymentsButton />
+          <Link to='/'>
+            <div className='go-to-home-button'>Home</div>
+          </Link>
         </div>
 
         <aside className="sidebar">

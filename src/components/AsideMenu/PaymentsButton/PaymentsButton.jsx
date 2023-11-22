@@ -5,7 +5,7 @@ export const PaymentsButton = ()=>{
     const payments=useSelector(state=>state.shipment.payments)
 return (
     <>
-    <button className='go-to-home-button'>Payments: {payments}</button>
+    <div className='go-to-home-button'>Payments: {payments}</div>
     </>
 )
 }
