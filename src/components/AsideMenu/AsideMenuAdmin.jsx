@@ -9,11 +9,9 @@ import { clearCompanyId, clearToken, clearIsAdmin } from '../../redux/UserInfo/a
 import { TargetButton } from './TargetButton/TargetButton';
 import { DeliveredButton } from './DeliveredButton/DeliveredButton';
 import { ReturnedButton } from './ReturnedButton/ReturnedButton';
-import { PaymentsButton } from './PaymentsButton/PaymentsButton';
-
-function AsideMenu() {
+function AsideMenuAdmin() {
+  const shipmentId = useSelector(state => state.shipment._id)
   const dispatch = useDispatch();
-  const isAdmin = useSelector(state => state.user.isAdmin);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const dayId = useSelector(state => state.shipment.dayId);
   const handleLogout = () => {
@@ -42,21 +40,9 @@ function AsideMenu() {
           <button className="menu-toggle" onClick={toggleMenu}>
             {isMenuOpen ? <FaTimes /> : <FaBars />}
           </button>
-          <TargetButton />
-          <DeliveredButton />
-          <ReturnedButton />
-          {/* <PaymentsButton /> */}
-          <Link to='/'>
-            <div className='go-to-home-button'>Home</div>
-          </Link>
-        </div>
-
+</div>
         <aside className="sidebar">
           <ul>
-            <li>
-              <Link to={`/areas/${dayId}`} className='sidebar-link' onClick={toggleMenu}>Delivery Pathway</Link>
-            </li>
-            {isAdmin && (
               <>
                 <li>
                   <Link to="/areas" className='sidebar-link' onClick={toggleMenu}>Areas</Link>
@@ -73,7 +59,6 @@ function AsideMenu() {
                 <li>
                   <Link to="/viewOrders" className='sidebar-link' onClick={toggleMenu} >Orders</Link>
                 </li> </>
-            )}
             <li>
               <button className='logout-button' onClick={handleLogout}>Logout</button>
             </li>
@@ -85,4 +70,4 @@ function AsideMenu() {
   );
 }
 
-export default AsideMenu;
+export default AsideMenuAdmin;
