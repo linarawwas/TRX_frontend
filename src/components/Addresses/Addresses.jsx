@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import "./Addresses.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -17,7 +17,7 @@ export default function Addresses() {
         // Fetch days data from your API
         fetch(`http://localhost:5000/api/customers/area/${areaId}`, {
             headers: {
-                Authorization: `Bearer ${ token}`,
+                Authorization: `Bearer ${token}`,
             }
         }
         )
@@ -35,7 +35,7 @@ export default function Addresses() {
         try {
             const response = await fetch(`http://localhost:5000/api/areas/${areaId}`, {
                 method: 'DELETE', headers: {
-                    Authorization: `Bearer ${ token}`,
+                    Authorization: `Bearer ${token}`,
                 }
             });
 
@@ -79,6 +79,7 @@ export default function Addresses() {
                             <th>Address</th>
                             <th> Name</th>
                             <th>Phone</th>
+                            <th>More</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -91,6 +92,9 @@ export default function Addresses() {
                                 </td>                                <td>
                                     {customer.phone}
                                 </td>
+                                <Link to={`/updateCustomer/${customer._id}`}>
+                                    <td>Edit</td>
+                                </Link>
                             </tr>
                         ))}
                     </tbody>

@@ -46,9 +46,6 @@ function AsideMenuAdmin() {
                   <Link to="/register" className='sidebar-link' onClick={toggleMenu}>Register</Link>
                 </li>
                 <li>
-                  <Link to="/areas/add" className='sidebar-link' onClick={toggleMenu}>Add Area</Link>
-                </li>
-                <li>
                   <Link to="/customers" className='sidebar-link' onClick={toggleMenu}>Customer</Link>
                 </li>
                 <li>
