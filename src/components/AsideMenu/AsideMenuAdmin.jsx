@@ -4,16 +4,11 @@ import './AsideMenu.css';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { clearCompanyId, clearToken, clearIsAdmin } from '../../redux/UserInfo/action';
-import { TargetButton } from './TargetButton/TargetButton';
-import { DeliveredButton } from './DeliveredButton/DeliveredButton';
-import { ReturnedButton } from './ReturnedButton/ReturnedButton';
 function AsideMenuAdmin() {
-  const shipmentId = useSelector(state => state.shipment._id)
   const dispatch = useDispatch();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const dayId = useSelector(state => state.shipment.dayId);
   const handleLogout = () => {
     toast.success('Logged Out Successfully')
     // Delete the token from local storage

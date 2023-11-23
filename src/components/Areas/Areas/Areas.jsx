@@ -4,6 +4,7 @@ import "./Areas.css";
 import { Carousel } from "react-responsive-carousel";
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { useSelector } from "react-redux";
+import AddArea from "../AddArea/AddArea";
 export default function Areas() {
   const token = useSelector(state => state.user.token);
   // const companyId = useSelector(state => state.companyId);
@@ -11,14 +12,17 @@ export default function Areas() {
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState(0)
   const [currentPage, setCurrentPage] = useState(0)
-
+  const [formVisible, setFormVisible] = useState(false);
+  const handleFormtoggle = () => {
+    setFormVisible(!formVisible);
+  }
   useEffect(() => {
     // Fetch days data from your API
-    fetch("http://localhost:5000/api/areas",{
+    fetch("http://localhost:5000/api/areas", {
       headers: {
-          Authorization: `Bearer ${ token}`,
+        Authorization: `Bearer ${token}`,
       }
-  })
+    })
       .then((response) => response.json())
       .then((data) => {
         setAreas(data);
@@ -28,8 +32,8 @@ export default function Areas() {
         console.error("Error fetching areas:", error);
         setLoading(false);
       });
-  }, [ token]);
-  const handlePageChange=(newPage)=>{
+  }, [token]);
+  const handlePageChange = (newPage) => {
     setSelectedItem(newPage);
     setCurrentPage(newPage);
   }
@@ -47,60 +51,66 @@ export default function Areas() {
     }
   };
 
- // Number of areas to display on each page
+  // Number of areas to display on each page
   const areasPerPage = 7;
   // Calculate the total number of pages
   const totalPages = Math.ceil(areas.length / areasPerPage);
-    // Get the areas for the current page
+  // Get the areas for the current page
 
-  const areasForPage = areas.slice(currentPage * areasPerPage, (currentPage + 1)*areasPerPage)
+  const areasForPage = areas.slice(currentPage * areasPerPage, (currentPage + 1) * areasPerPage)
   return (
     <div className="areas-body">
-      <h2 className="areas-title">Distribution Areas</h2>
+      <div className="areas-header">  <h2 className="areas-title">Distribution Areas</h2>
+      <button onClick={() => { handleFormtoggle() }}>Add A new Area? </button>
+</div>
+    
       {loading ? (
         <p>Loading...</p>
-      ) : (<>          
-      <table className="areas-table">
-        <thead>
-          <tr>
-            <th>Area</th>
-          </tr>
-        </thead>
-        <tbody>
-          {areasForPage.map((area) => (
-            <tr key={area._id}>
-              <td>
-                <Link to={`/addresses/${area._id}`}>{area.name}</Link>
-              </td>
+      ) : (<>
+        <table className="areas-table">
+          <thead>
+            <tr>
+              <th>Area</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      {totalPages > 1 && (
-            <div className="pagination">
-              <div className="nav-arrow left" onClick={goToPreviousPage}>
-                &lt;
-              </div>
-              <Carousel
-                showStatus={false}
-                showArrows={false}
-                showThumbs={false}
-                selectedItem={selectedItem}
-              >
-                {Array.from({ length: totalPages }, (_, i) => (
-                  <div
-                    key={i}
-                    onClick={() => handlePageChange(i)}
-                  >
-                    Page {i + 1}
-                  </div>
-                ))}
-              </Carousel>
-              <div className="nav-arrow right" onClick={goToNextPage}>
-                &gt;
-              </div>
+          </thead>
+          <tbody>
+            {areasForPage.map((area) => (
+              <tr key={area._id}>
+                <td>
+                  <Link to={`/addresses/${area._id}`}>{area.name}</Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {totalPages > 1 && (
+          <div className="pagination">
+            <div className="nav-arrow left" onClick={goToPreviousPage}>
+              &lt;
             </div>
-          )}
+            <Carousel
+              showStatus={false}
+              showArrows={false}
+              showThumbs={false}
+              selectedItem={selectedItem}
+            >
+              {Array.from({ length: totalPages }, (_, i) => (
+                <div
+                  key={i}
+                  onClick={() => handlePageChange(i)}
+                >
+                  Page {i + 1}
+                </div>
+              ))}
+            </Carousel>
+            <div className="nav-arrow right" onClick={goToNextPage}>
+              &gt;
+            </div>
+          </div>
+
+        )}
+        <div className="add-area-div">        {formVisible && <AddArea />}
+        </div>
       </>
 
       )}
