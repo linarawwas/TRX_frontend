@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import NumberInput from '../../UI reusables/NumberInput/NumberInput.js'
 import React, { useState } from 'react';
 import DateSelector from './DateSelector/DateSelector.jsx';
-import { setShipmentDelivered, setShipmentId, setShipmentPayments, setShipmentReturned, setShipmentTarget } from '../../../redux/Shipment/action.js';
+import {setShipmentDelivered, setShipmentId, setShipmentPayments, setShipmentReturned, setShipmentTarget } from '../../../redux/Shipment/action.js';
 
 const StartShipment = () => {
   const dispatch = useDispatch();

@@ -5,7 +5,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector, useDispatch } from 'react-redux';
 import NumberInput from '../../UI reusables/NumberInput/NumberInput.js'
-import { setShipmentDelivered, setShipmentPayments, setShipmentReturned } from '../../../redux/Shipment/action.js'
+import { setShipmentDelivered, setShipmentReturned } from '../../../redux/Shipment/action.js'
 const RecordOrder = () => {
   const dispatch = useDispatch();
   const customerId = useSelector(state => state.order.customer_Id);
@@ -29,7 +29,6 @@ const RecordOrder = () => {
   });
   let deliveredInShipment = useSelector(state => state.shipment.delivered);
   let returnedInShipment = useSelector(state => state.shipment.returned);
-  let paymentsInshipment = useSelector(state => state.shipment.payments)
   useEffect(() => {
     // Fetch days data from your API
     fetch(`http://localhost:5000/api/products/company/${companyId}`, {
@@ -63,13 +62,11 @@ const RecordOrder = () => {
       });
 
       if (response.ok) {
-
+        // const responseData = await response.json(); // Parse the JSON response data
         deliveredInShipment += parseInt(orderData.delivered);
-        returnedInShipment+= parseInt(orderData.returned);
-        paymentsInshipment+= parseInt(orderData.paid);
+        returnedInShipment += parseInt(orderData.returned);
         dispatch(setShipmentDelivered(deliveredInShipment))
         dispatch(setShipmentReturned(returnedInShipment))
-        dispatch(setShipmentPayments(paymentsInshipment))
 
 
         toast.success('Order successfully recorded.');

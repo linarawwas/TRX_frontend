@@ -45,7 +45,7 @@ function AsideMenu() {
           <TargetButton />
           <DeliveredButton />
           <ReturnedButton />
-          <PaymentsButton />
+          {/* <PaymentsButton /> */}
           <Link to='/'>
             <div className='go-to-home-button'>Home</div>
           </Link>

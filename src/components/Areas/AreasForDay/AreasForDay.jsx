@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom"; // Import useParams from react-router-dom
 import { useSelector, useDispatch } from "react-redux";
-import { clearAreaId, setAreaId } from "../../redux/Order/action";
+import { clearAreaId, setAreaId } from "../../../redux/Order/action";
+import './AreasForDay.css'
 export default function AreasForDay() {
     const dispatch = useDispatch();
     const token = useSelector(state => state.user.token);
