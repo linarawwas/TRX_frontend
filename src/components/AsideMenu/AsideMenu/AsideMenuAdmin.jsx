@@ -4,17 +4,11 @@ import './AsideMenu.css';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useDispatch, useSelector } from 'react-redux';
-import { clearCompanyId, clearToken, clearIsAdmin } from '../../redux/UserInfo/action';
-import { TargetButton } from './TargetButton/TargetButton';
-import { DeliveredButton } from './DeliveredButton/DeliveredButton';
-import { ReturnedButton } from './ReturnedButton/ReturnedButton';
-function AsideMenuEmployee() {
-  const shipmentId = useSelector(state => state.shipment._id)
-  const shipmentDefined = shipmentId !== null && shipmentId !== undefined && shipmentId !== '';
+import { useDispatch } from 'react-redux';
+import { clearCompanyId, clearToken, clearIsAdmin } from '../../../redux/UserInfo/action';
+function AsideMenuAdmin() {
   const dispatch = useDispatch();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const dayId = useSelector(state => state.shipment.dayId);
   const handleLogout = () => {
     toast.success('Logged Out Successfully')
     // Delete the token from local storage
@@ -41,21 +35,27 @@ function AsideMenuEmployee() {
           <button className="menu-toggle" onClick={toggleMenu}>
             {isMenuOpen ? <FaTimes /> : <FaBars />}
           </button>
-          <TargetButton />
-          <DeliveredButton />
-          <ReturnedButton />
-          <Link to='/'>
-            <div className='go-to-home-button'>End Shipment? </div>
-          </Link>
         </div>
-
         <aside className="sidebar">
           <ul>
-           { shipmentDefined ? (<li>
-              <Link to={`/areas/${dayId}`} className='sidebar-link' onClick={toggleMenu}>Delivery Pathway</Link>
+            <li>
+              <Link to="/areas" className='sidebar-link' onClick={toggleMenu}>Areas</Link>
             </li>
-            ) : (<li>Please Start Shipment </li>)}
-
+            <li>
+              <Link to="/register" className='sidebar-link' onClick={toggleMenu}>Register</Link>
+            </li>
+            <li>
+              <Link to="/customers" className='sidebar-link' onClick={toggleMenu}>Customer</Link>
+            </li>
+            <li>
+              <Link to="/viewOrders" className='sidebar-link' onClick={toggleMenu} >Orders</Link>
+            </li>
+            <li>
+              <Link to="/addExpenses" className='sidebar-link' onClick={toggleMenu}>Add Expenses</Link>
+            </li>
+            <li>
+              <Link to="/addProfits" className='sidebar-link' onClick={toggleMenu}>Add Profits</Link>
+            </li>
             <li>
               <button className='logout-button' onClick={handleLogout}>Logout</button>
             </li>
@@ -67,4 +67,4 @@ function AsideMenuEmployee() {
   );
 }
 
-export default AsideMenuEmployee;
+export default AsideMenuAdmin;

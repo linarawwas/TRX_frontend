@@ -4,8 +4,8 @@ import React, { Fragment } from "react";
 import AdminRouter from '../Router/AdminRouter';
 import { useSelector } from "react-redux";
 import EmployeeRouter from "../Router/EmployeeRouter";
-import AsideMenuAdmin from "../components/AsideMenu/AsideMenuAdmin";
-import AsideMenuEmployee from "../components/AsideMenu/AsideMenuEmployee";
+import AsideMenuAdmin from "../components/AsideMenu/AsideMenu/AsideMenuAdmin";
+import AsideMenuEmployee from "../components/AsideMenu/AsideMenu/AsideMenuEmployee";
 function Layout() {
   const isAdmin = useSelector(state => state.user.isAdmin);
   return (

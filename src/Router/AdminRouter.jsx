@@ -14,6 +14,8 @@ import Login from '../components/Auth/Login.jsx';
 import LandingPage from '../components/LandingPage/LandingPage.jsx';
 import UpdateOrder from '../components/Orders/UpdateOrder/UpdateOrder.jsx';
 import UpdateCustomer from '../components/Customers/UpdateCustomer/UpdateCustomer.jsx';
+import AddExpenses from '../components/Expenses/AddExpenses/AddExpenses.jsx';
+import AddProfits from '../components/Profits/AddProfits/AddProfits.jsx';
 function AdminRouter() {
   return (
     <>
@@ -33,6 +35,8 @@ function AdminRouter() {
           <Route path="/areas/add" element={<AddArea />} />
           <Route path="/updateOrder/:orderId" element={<UpdateOrder />} />
           <Route path="/updateCustomer/:customerId" element={<UpdateCustomer />} />
+          <Route path="/addExpenses" element={<AddExpenses />} />
+          <Route path="/addProfits" element={<AddProfits />} />
         </Routes>
       </div>
     </>
