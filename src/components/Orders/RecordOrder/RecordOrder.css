@@ -1,4 +1,5 @@
 .record-order-container {
+  margin-top:10%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -14,8 +15,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 60%;
-  padding: 8px;
+  width: 30%;
+  padding: 20px;
   border: 1px solid #ccc;
   background-color: #fff;
   margin-bottom:20px;
