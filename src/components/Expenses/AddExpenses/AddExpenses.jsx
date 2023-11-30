@@ -10,9 +10,8 @@ const AddExpenses = () => {
     const shipmentId = useSelector(state => state.shipment._id);
     const token = useSelector(state => state.user.token);
     const [expenses, setExpenses] = useState({
-        type: "expenses", 
         name: '', 
-        value: null, 
+        value: '', 
         paymentCurrency: '',
         exchangeRate: '6537789b6ed59ef09c18213d',
         companyId: companyId,
@@ -27,7 +26,7 @@ const AddExpenses = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:5000/api/nonDeliveries', {
+            const response = await fetch('http://localhost:5000/api/expenses', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
