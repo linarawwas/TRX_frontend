@@ -55,15 +55,18 @@ export default function AreasForDay() {
                 </tr>
             </thead>
             {loading ? (
-                <div>Loading ...</div>
+                <tbody>
+                    <tr>
+                        <td colSpan="2">Loading...</td>
+                    </tr></tbody>
             ) : (<tbody>
                 {areas.map((area) => (
                     <tr key={area._id}>
                         <td>
                             <Link to={`/customers/${area._id}`}>
                                 <button onClick={() => { dispatch(setAreaId(area._id)) }}>
-                                {area.name} </button>
-                                </Link>
+                                    {area.name} </button>
+                            </Link>
                         </td>
                     </tr>
                 ))}
