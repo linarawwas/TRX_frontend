@@ -1,6 +1,6 @@
 // action.js
 
-import { SET_DAY_ID, SET_PAYMENTS,SET_RETURNED,SET_DELIVERED,  SET_ID, SET_DATE_DAY, SET_DATE_MONTH, SET_DATE_YEAR, CLEAR_DAY_ID, CLEAR_DATE_DAY, CLEAR_DATE_MONTH, CLEAR_DATE_YEAR, CLEAR_ID, CLEAR_SHIPMENT_INFO, SET_TARGET } from "./actionTypes";
+import { SET_DAY_ID, SET_TOTAL_PAYMENTS,SET_RETURNED,SET_DELIVERED,SET_LIRA_PAYMENTS,SET_USD_PAYMENTS,  SET_ID, SET_DATE_DAY, SET_DATE_MONTH, SET_DATE_YEAR, CLEAR_DAY_ID, CLEAR_DATE_DAY, CLEAR_DATE_MONTH, CLEAR_DATE_YEAR, CLEAR_ID, CLEAR_SHIPMENT_INFO, SET_TARGET } from "./actionTypes";
 
 export const setDayId = (dayId) => ({
   type: SET_DAY_ID,
@@ -20,9 +20,19 @@ export const setShipmentReturned = (returned) => ({
   payload: returned,
 });
 export const setShipmentPayments = (payments) => ({
-  type: SET_PAYMENTS,
+  type: SET_TOTAL_PAYMENTS,
   payload: payments,
-})
+});
+export const setShipmentPaymentsInLiras = (liraPayments) => ({
+  type: SET_LIRA_PAYMENTS,
+  payload: liraPayments,
+});
+export const setShipmentPaymentsInDollars = (dollarPayments) => ({
+  type: SET_USD_PAYMENTS,
+  payload: dollarPayments,
+});
+
+
 export const setShipmentId = (_id) => ({
   type: SET_ID,
   payload: _id,

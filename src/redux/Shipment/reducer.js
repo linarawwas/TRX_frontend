@@ -1,4 +1,4 @@
-import { SET_DAY_ID, SET_DATE_DAY, SET_DATE_MONTH, SET_DATE_YEAR, CLEAR_DAY_ID, CLEAR_DATE_DAY, CLEAR_DATE_MONTH, CLEAR_DATE_YEAR, SET_ID, CLEAR_SHIPMENT_INFO, SET_TARGET, SET_RETURNED, SET_PAYMENTS, SET_DELIVERED } from "./actionTypes";
+import { SET_DAY_ID, SET_DATE_DAY, SET_DATE_MONTH, SET_DATE_YEAR, CLEAR_DAY_ID, CLEAR_DATE_DAY, CLEAR_DATE_MONTH, CLEAR_DATE_YEAR, SET_ID, CLEAR_SHIPMENT_INFO, SET_TARGET, SET_RETURNED, SET_DELIVERED, SET_TOTAL_PAYMENTS, SET_USD_PAYMENTS, SET_LIRA_PAYMENTS } from "./actionTypes";
 
 const initialState = {
   _id: '',
@@ -10,7 +10,8 @@ const initialState = {
   delivered:0,
   returned:0,
   payments:0,
-
+dollarPayments:0,
+liraPayments:0
 };
 
 const shipmentReducer = (state = initialState, action) => {
@@ -20,11 +21,21 @@ const shipmentReducer = (state = initialState, action) => {
         ...state,
         dayId: action.payload,
       };    
-      case SET_PAYMENTS:
+      case SET_TOTAL_PAYMENTS:
       return {
         ...state,
         payments: action.payload,
-      };      
+      };
+      case SET_USD_PAYMENTS:
+        return {
+          ...state,
+          dollarPayments: action.payload,
+        };
+        case SET_LIRA_PAYMENTS:
+          return {
+            ...state,
+            liraPayments: action.payload,
+          };  
       case SET_RETURNED:
       return {
         ...state,
