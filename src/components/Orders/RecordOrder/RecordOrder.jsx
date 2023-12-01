@@ -5,7 +5,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector, useDispatch } from 'react-redux';
 import NumberInput from '../../UI reusables/NumberInput/NumberInput.js'
-import { setShipmentDelivered, setShipmentPaymentsInDollars, setShipmentPaymentsInLiras, setShipmentReturned } from '../../../redux/Shipment/action.js'
+import { setShipmentDelivered, setShipmentPayments, setShipmentPaymentsInDollars, setShipmentPaymentsInLiras, setShipmentReturned } from '../../../redux/Shipment/action.js'
 const RecordOrder = () => {
   const dispatch = useDispatch();
   const customerId = useSelector(state => state.order.customer_Id);
@@ -29,8 +29,9 @@ const RecordOrder = () => {
   });
   let deliveredInShipment = useSelector(state => state.shipment.delivered);
   let returnedInShipment = useSelector(state => state.shipment.returned);
-  let shipmentPaymentsInLiras = useSelector(state => state.shipment.PaymentsInLiras);
-  let shipmentPaymentsInDollars = useSelector(state => state.shipment.PaymentsInDollars);
+  let shipmentPaymentsInLiras = useSelector(state => state.shipment.liraPayments);
+  let shipmentPaymentsInDollars = useSelector(state => state.shipment.dollarPayments);
+  let totalPayments = useSelector(state => state.shipment.payments)
   useEffect(() => {
     // Fetch days data from your API
     fetch(`http://localhost:5000/api/products/company/${companyId}`, {
@@ -58,35 +59,34 @@ const RecordOrder = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Include the  token in the headers
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(orderData),
       });
 
       if (response.ok) {
-        const responseData = await response.json(); // Parse the JSON response data
-        deliveredInShipment += parseInt(orderData.delivered);
-        returnedInShipment += parseInt(orderData.returned);
-        shipmentPaymentsInLiras += parseInt(responseData.SumOfPaymentsInLiras);
-        shipmentPaymentsInDollars += parseInt(responseData.SumOfPaymentsInDollars);
-        dispatch(setShipmentDelivered(deliveredInShipment))
-        dispatch(setShipmentReturned(returnedInShipment))
-        dispatch(setShipmentPaymentsInLiras(shipmentPaymentsInLiras))
-        dispatch(setShipmentPaymentsInDollars(shipmentPaymentsInDollars))
+        const responseData = await response.json();
 
+        // Update shipment details based on the order response
+        dispatch(setShipmentDelivered(deliveredInShipment + parseInt(orderData.delivered)));
+        dispatch(setShipmentReturned(returnedInShipment + parseInt(orderData.returned)));
+        dispatch(setShipmentPaymentsInLiras(shipmentPaymentsInLiras + parseInt(responseData.SumOfPaymentsInLiras)));
+        dispatch(setShipmentPaymentsInDollars(shipmentPaymentsInDollars + parseInt(responseData.SumOfPaymentsInDollars)));
+        dispatch(setShipmentPayments(totalPayments + parseInt(responseData.paid)));
         toast.success('Order successfully recorded.');
       } else {
-        const errorData = await response.json(); // Parse the error response
-        toast.error('Error recording order:', errorData.error); // Log the error message from the server
+        const errorData = await response.json();
+        toast.error('Error recording order:', errorData.error);
       }
     } catch (error) {
       toast.error('Network error:', error);
     }
   };
 
+
   return (
     <div className="record-order-container">
-      <ToastContainer position="top-right" autoClose={3000} />
+      <ToastContainer position="top-right" autoClose={2000} />
       <h1 className="record-order-title">Record an Order</h1>
       <form className="record-order-form" onSubmit={handleSubmit}>
         <SelectInput

@@ -9,29 +9,32 @@
   color: #fff;
   width: 250px;
   height: 100%;
-  position:fixed;
+  position: fixed;
   transition: transform 0.3s;
   border-radius: 0 60px 0 0;
   opacity: 1;
-  margin-top:100px;
+  margin-top: 100px;
 }
-.sidebar-link{
+
+.sidebar-link {
   color: #ece6e6;
   text-decoration: none;
 }
-.sidebar-link:active{
+
+.sidebar-link:active {
   text-decoration: underline;
-  color:red;
+  color: red;
 }
 
-.button-div{
+.button-div {
   display: flex;
-  flex-direction: row;
-   justify-content: space-between;
-   align-items: center;
+  flex-flow: row wrap;
+  justify-content: space-between;
+  align-items: center;
   width: 100vw;
   position: fixed;
 }
+
 .menu-toggle {
   background: #9493b7;
   width: 40px;
@@ -46,19 +49,22 @@
   box-shadow: 1px 1px 10px 5px #ece6e6;
 
 }
-.go-to-home-button{
-  margin-right:2vw;
-  border-radius: 20%;
-  color: black;
- padding:1.1vh 1vw;
- font-size: 17px;
- font-weight: 800;
- font-family: 'Courier New', Courier, monospace;
 
+.go-to-home-button {
+  margin-top: 2vh;
+  margin-right: 2vw;
+  border: 1px solid black;
+  border-radius: 30px;
+  color: black;
+  padding: 10px;
+  text-wrap: nowrap;
+  /* font-size: 15px; */
+  font-weight: 800;
+  font-family: 'Courier New', Courier, monospace;
 }
 .menu-open .sidebar {
   transform: translateX(0);
-  opacity: 0.8; /* Set the opacity to 1 when the menu is open */
+  opacity: 0.8;
 }
 
 .menu-closed .sidebar {

@@ -5,7 +5,7 @@ export const DeliveredButton = () => {
     const delivered = useSelector(state => state.shipment.delivered)
     return (
         <>
-            <div className='go-to-home-button'>Delivered: {delivered}</div>
+            <div className='go-to-home-button'>➡️ {delivered}</div>
         </>
     )
 }

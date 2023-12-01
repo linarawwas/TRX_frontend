@@ -5,7 +5,7 @@ export const ReturnedButton = ()=>{
     const returned=useSelector(state=>state.shipment.returned)
 return (
     <>
-    <div className='go-to-home-button'>Returned: {returned}</div>
+    <div className='go-to-home-button'>⬅️ {returned}</div>
     </>
 )
 }

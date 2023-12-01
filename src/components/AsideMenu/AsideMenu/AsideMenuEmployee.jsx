@@ -9,6 +9,8 @@ import { clearCompanyId, clearToken, clearIsAdmin } from '../../../redux/UserInf
 import { TargetButton } from '../TargetButton/TargetButton';
 import { DeliveredButton } from '../DeliveredButton/DeliveredButton';
 import { ReturnedButton } from '../ReturnedButton/ReturnedButton';
+import { PaidInDollars } from '../PaidInDollars/PaidInDollars';
+import { PaidInLira } from '../PaidInLira/PaidInLira';
 function AsideMenuEmployee() {
   const shipmentId = useSelector(state => state.shipment._id)
   const shipmentDefined = shipmentId !== null && shipmentId !== undefined && shipmentId !== '';
@@ -44,8 +46,10 @@ function AsideMenuEmployee() {
           <TargetButton />
           <DeliveredButton />
           <ReturnedButton />
+          <PaidInDollars />
+          <PaidInLira />
           <Link to='/'>
-            <div className='go-to-home-button'>End Shipment? </div>
+            <div className='go-to-home-button .home-btn'>🏁 </div>
           </Link>
         </div>
 
