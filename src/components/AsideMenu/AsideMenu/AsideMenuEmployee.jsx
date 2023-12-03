@@ -64,7 +64,7 @@ function AsideMenuEmployee() {
             </li>
             <li>
               <Link to="/addProfits" className='sidebar-link' onClick={toggleMenu}>Add Profits</Link>
-            </li>
+            </li>        
             <li>
               <button className='logout-button' onClick={handleLogout}>Logout</button>
             </li>

@@ -57,6 +57,9 @@ function AsideMenuAdmin() {
               <Link to="/addProfits" className='sidebar-link' onClick={toggleMenu}>Add Profits</Link>
             </li>
             <li>
+              <Link to="/addCustomers" className='sidebar-link' onClick={toggleMenu}>Add Customers</Link>
+            </li>
+            <li>
               <button className='logout-button' onClick={handleLogout}>Logout</button>
             </li>
           </ul>

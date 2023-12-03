@@ -16,6 +16,7 @@ import UpdateOrder from '../components/Orders/UpdateOrder/UpdateOrder.jsx';
 import UpdateCustomer from '../components/Customers/UpdateCustomer/UpdateCustomer.jsx';
 import AddExpenses from '../components/Expenses/AddExpenses/AddExpenses.jsx';
 import AddProfits from '../components/Profits/AddProfits/AddProfits.jsx';
+import AddCustomers from '../components/Customers/AddCustomers/AddCustomers.jsx';
 function AdminRouter() {
   return (
     <>
@@ -36,6 +37,7 @@ function AdminRouter() {
           <Route path="/updateOrder/:orderId" element={<UpdateOrder />} />
           <Route path="/updateCustomer/:customerId" element={<UpdateCustomer />} />
           <Route path="/addExpenses" element={<AddExpenses />} />
+          <Route path="/addCustomers" element={<AddCustomers />} />
           <Route path="/addProfits" element={<AddProfits />} />
         </Routes>
       </div>

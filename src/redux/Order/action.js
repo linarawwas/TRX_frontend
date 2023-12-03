@@ -1,6 +1,6 @@
 // action.js
 
-import { SET_CUSTOMER_ID, SET_PRODUCT_NAME,SET_AREA_ID,SET_PRODUCT_ID,CLEAR_PRODUCT_ID, CLEAR_CUSTOMER_ID, CLEAR_AREA_ID } from "./actionTypes.js";
+import { SET_CUSTOMER_ID,SET_PRODUCT_PRICE, SET_PRODUCT_NAME,SET_AREA_ID,SET_PRODUCT_ID,CLEAR_PRODUCT_ID, CLEAR_CUSTOMER_ID, CLEAR_AREA_ID } from "./actionTypes.js";
 
 export const setCustomerId = (customer_Id) => ({
   type: SET_CUSTOMER_ID,
@@ -18,6 +18,10 @@ export const setProductId =(product_id)=>({
 export const setProductName =(productName)=>({
   type: SET_PRODUCT_NAME,
   payload:productName,
+})
+export const setProductPrice =(product_price)=>({
+  type: SET_PRODUCT_PRICE,
+  payload:product_price,
 })
 
 export const clearCustomerId = () => ({

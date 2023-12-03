@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import './RecordOrder.css';
-import SelectInput from '../../UI reusables/SelectInput/SelectInput';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector, useDispatch } from 'react-redux';
-import NumberInput from '../../UI reusables/NumberInput/NumberInput.js'
 import { setShipmentDelivered, setShipmentPayments, setShipmentPaymentsInDollars, setShipmentPaymentsInLiras, setShipmentReturned } from '../../../redux/Shipment/action.js'
-import { setProductId, setProductName } from '../../../redux/Order/action';
+import { setProductId, setProductName, setProductPrice } from '../../../redux/Order/action';
 const RecordOrder = () => {
   const dispatch = useDispatch();
 
@@ -38,7 +36,7 @@ const RecordOrder = () => {
           .then((productData) => {
             dispatch(setProductId(productData.id))
             dispatch(setProductName(productData.type))
-
+            dispatch(setProductPrice(productData.priceInDollars))
             // Perform operations with the obtained product _id here if needed
           })
           .catch((error) => {
@@ -52,9 +50,9 @@ const RecordOrder = () => {
   const customerId = useSelector(state => state.order.customer_Id);
   const areaId = useSelector(state => state.order.area_Id);
   const shipmentId = useSelector(state => state.shipment._id);
-  const productname = useSelector(state => state.order.product_name)
+  const productName = useSelector(state => state.order.product_name)
   const productId = useSelector(state => state.order.product_id)
-
+const productPrice=useSelector(state=>state.order.product_price)
   const [orderData, setOrderData] = useState({
     delivered: 0,
     returned: 0,
@@ -72,7 +70,7 @@ const RecordOrder = () => {
   let shipmentPaymentsInLiras = useSelector(state => state.shipment.liraPayments);
   let shipmentPaymentsInDollars = useSelector(state => state.shipment.dollarPayments);
   let totalPayments = useSelector(state => state.shipment.payments)
-
+let checkout=orderData.delivered * productPrice;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -118,10 +116,12 @@ const RecordOrder = () => {
       <ToastContainer position="top-right" autoClose={2000} />
       <h1 className="record-order-title">Record an Order</h1>
       <form className="record-order-form" onSubmit={handleSubmit}>
-        <div className="default-product-name">Your Default Product: {productname}</div>
+        <div className="default-product-name">Your Default Product: {productName}, default price: {productPrice} $</div>
         {/* Number Inputs with Up and Down Arrows */}
         <div className="number-inputs">
+
           <div className="up-down-input">
+          <p>delivered: </p>
 
             <div className="up-down-buttons">
               <button className='arrow'
@@ -152,11 +152,13 @@ const RecordOrder = () => {
                   })
                 }
               >
-              ▼
+                ▼
               </button>
             </div>
           </div>
+          <p>checkout: {checkout} $</p>
           <div className="up-down-input">
+          <p>returned: </p>
 
             <div className="up-down-buttons">
               <button
@@ -192,6 +194,8 @@ const RecordOrder = () => {
               </button>
             </div>
           </div>
+          <p>paid: </p>
+
           <input
             type="number"
             className="number-input free-select"
@@ -203,13 +207,13 @@ const RecordOrder = () => {
         </div>
         {/* Currency Selection Buttons */}
         <div className="currency-buttons">
-          <button   type="button" 
+          <button type="button"
             className={`currency-button ${orderData.paymentCurrency === 'USD' ? 'selected' : ''}`}
             onClick={() => handleCurrencySelection('USD')}
           >
             USD
           </button>
-          <button   type="button" 
+          <button type="button"
             className={`currency-button ${orderData.paymentCurrency === 'LBP' ? 'selected' : ''}`}
             onClick={() => handleCurrencySelection('LBP')}
           >
