@@ -6,47 +6,73 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useSelector, useDispatch } from 'react-redux';
 import NumberInput from '../../UI reusables/NumberInput/NumberInput.js'
 import { setShipmentDelivered, setShipmentPayments, setShipmentPaymentsInDollars, setShipmentPaymentsInLiras, setShipmentReturned } from '../../../redux/Shipment/action.js'
+import { setProductId, setProductName } from '../../../redux/Order/action';
 const RecordOrder = () => {
   const dispatch = useDispatch();
+
+  const token = useSelector(state => state.user.token);
+  const companyId = useSelector(state => state.user.companyId);
+  // const [products, setProducts] = useState([]); since the admin chose to only have one product default, no product array will be mapped
+  useEffect(() => {
+    // Fetch days data from your API
+    fetch("http://localhost:5000/api/adminDeterminedDefaults/defaultProduct", {
+      method: "GET", // Assuming this endpoint uses a GET request method
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        // Send the defaultProduct to another API endpoint to retrieve product _id
+        fetch(`http://localhost:5000/api/products/productType/company/${companyId}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            type: data.value, // Send the value obtained from adminDeterminedDefaults as type
+          }),
+        })
+          .then((response) => response.json())
+          .then((productData) => {
+            dispatch(setProductId(productData.id))
+            dispatch(setProductName(productData.type))
+
+            // Perform operations with the obtained product _id here if needed
+          })
+          .catch((error) => {
+            console.error("Error fetching product:", error);
+          });
+      })
+      .catch((error) => {
+        console.error("Error fetching adminDeterminedDefaults:", error);
+      });
+  }, [token, dispatch, companyId]);
   const customerId = useSelector(state => state.order.customer_Id);
   const areaId = useSelector(state => state.order.area_Id);
-  const companyId = useSelector(state => state.user.companyId);
   const shipmentId = useSelector(state => state.shipment._id);
-  const token = useSelector(state => state.user.token);
-  const [products, setProducts] = useState([]);
+const productname=useSelector(state=>state.order.product_name)
+  const productId = useSelector(state => state.order.product_id)
+
   const [orderData, setOrderData] = useState({
     delivered: 0,
     returned: 0,
     customerid: customerId,
     areaId: areaId,
     paid: 0,
-    productId: '',
+    productId: productId,
     paymentCurrency: '',
     exchangeRate: '6537789b6ed59ef09c18213d',
     companyId: companyId,
     shipmentId: shipmentId
-
   });
   let deliveredInShipment = useSelector(state => state.shipment.delivered);
   let returnedInShipment = useSelector(state => state.shipment.returned);
   let shipmentPaymentsInLiras = useSelector(state => state.shipment.liraPayments);
   let shipmentPaymentsInDollars = useSelector(state => state.shipment.dollarPayments);
   let totalPayments = useSelector(state => state.shipment.payments)
-  useEffect(() => {
-    // Fetch days data from your API
-    fetch(`http://localhost:5000/api/products/company/${companyId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      }
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setProducts(data);
-      })
-      .catch((error) => {
-        console.error("Error fetching days:", error);
-      });
-  }, [token, companyId]);
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -83,54 +109,153 @@ const RecordOrder = () => {
     }
   };
 
+  const handleCurrencySelection = (currency) => {
+    setOrderData({ ...orderData, paymentCurrency: currency });
+  };
+
+  const handleIncrement = (field) => {
+    setOrderData({
+      ...orderData,
+      [field]: orderData[field] ? parseInt(orderData[field]) + 1 : 1,
+    });
+  };
+
+  const handleDecrement = (field) => {
+    setOrderData({
+      ...orderData,
+      [field]: orderData[field] && orderData[field] > 0 ? parseInt(orderData[field]) - 1 : 0,
+    });
+  };
 
   return (
     <div className="record-order-container">
       <ToastContainer position="top-right" autoClose={2000} />
       <h1 className="record-order-title">Record an Order</h1>
       <form className="record-order-form" onSubmit={handleSubmit}>
-        <SelectInput
-          label="Type of Order:"
-          name="productId"
-          value={orderData.productId}
-          options={products.map((product) => ({ value: product.id, label: product.type }))}
-          onChange={handleChange}
-        />
-        <SelectInput
-          label="Payment Currency:"
-          name="paymentCurrency"
-          value={orderData.paymentCurrency}
-          options={[
-            { value: '', label: 'Select Currency' },
-            { value: 'USD', label: 'USD' },
-            { value: 'LBP', label: 'LBP' },
-          ]}
-          onChange={handleChange}
-        />
-        <NumberInput
-          label="Delivered:"
-          name="delivered"
-          value={orderData.delivered}
-          onChange={handleChange}
-        />
-        <NumberInput
-          label="Returned:"
-          name="returned"
-          value={orderData.returned}
-          onChange={handleChange}
-        />
-        <NumberInput
-          label="Paid:"
-          name="paid"
-          value={orderData.paid}
-          onChange={handleChange}
-        />
+        <div className="default-product-name">Your Default Product: {productname}</div>
+        
+        {/* Currency Selection Buttons */}
+        <div className="currency-buttons">
+          <button
+            className={`currency-button ${orderData.paymentCurrency === 'USD' ? 'selected' : ''}`}
+            onClick={() => handleCurrencySelection('USD')}
+          >
+            USD
+          </button>
+          <button
+            className={`currency-button ${orderData.paymentCurrency === 'LBP' ? 'selected' : ''}`}
+            onClick={() => handleCurrencySelection('LBP')}
+          >
+            LBP
+          </button>
+        </div>
+        
+        {/* Number Inputs */}
+        <div className="number-inputs">
+          {/* <input
+            type="number"
+            className="number-input"
+            placeholder="Delivered"
+            name="delivered"
+            value={orderData.delivered}
+            onChange={handleChange}
+          />
+          <input
+            type="number"
+            className="number-input"
+            placeholder="Returned"
+            name="returned"
+            value={orderData.returned}
+            onChange={handleChange}
+          /> */}
+          {/* Number Inputs with Up and Down Arrows */}
+        <div className="number-inputs">
+          <div className="up-down-input">
+            <input
+              type="number"
+              className="number-input"
+              placeholder="Delivered"
+              name="delivered"
+              value={orderData.delivered}
+              onChange={handleChange}
+            />
+            <div className="up-down-buttons">
+              <button
+                type="button"
+                onClick={() =>
+                  setOrderData({
+                    ...orderData,
+                    delivered: orderData.delivered ? parseInt(orderData.delivered) + 1 : 1,
+                  })
+                }
+              >
+                ▲
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  setOrderData({
+                    ...orderData,
+                    delivered: orderData.delivered && orderData.delivered > 0 ? parseInt(orderData.delivered) - 1 : 0,
+                  })
+                }
+              >
+                ▼
+              </button>
+            </div>
+          </div>
+          <div className="up-down-input">
+            <input
+              type="number"
+              className="number-input"
+              placeholder="Returned"
+              name="returned"
+              value={orderData.returned}
+              onChange={handleChange}
+            />
+            <div className="up-down-buttons">
+              <button
+                type="button"
+                onClick={() =>
+                  setOrderData({
+                    ...orderData,
+                    returned: orderData.returned ? parseInt(orderData.returned) + 1 : 1,
+                  })
+                }
+              >
+                ▲
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  setOrderData({
+                    ...orderData,
+                    returned: orderData.returned && orderData.returned > 0 ? parseInt(orderData.returned) - 1 : 0,
+                  })
+                }
+              >
+                ▼
+              </button>
+            </div>
+          </div>
+        </div>
+          <input
+            type="number"
+            className="number-input"
+            placeholder="Paid"
+            name="paid"
+            value={orderData.paid}
+            onChange={handleChange}
+          />
+        </div>
+        
+        {/* Record Order Button */}
         <button className="record-order-button" type="submit">
           Record Order
         </button>
       </form>
     </div>
   );
-}
+};
 
 export default RecordOrder;
