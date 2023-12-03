@@ -52,7 +52,7 @@ const RecordOrder = () => {
   const customerId = useSelector(state => state.order.customer_Id);
   const areaId = useSelector(state => state.order.area_Id);
   const shipmentId = useSelector(state => state.shipment._id);
-const productname=useSelector(state=>state.order.product_name)
+  const productname = useSelector(state => state.order.product_name)
   const productId = useSelector(state => state.order.product_id)
 
   const [orderData, setOrderData] = useState({
@@ -113,74 +113,19 @@ const productname=useSelector(state=>state.order.product_name)
     setOrderData({ ...orderData, paymentCurrency: currency });
   };
 
-  const handleIncrement = (field) => {
-    setOrderData({
-      ...orderData,
-      [field]: orderData[field] ? parseInt(orderData[field]) + 1 : 1,
-    });
-  };
-
-  const handleDecrement = (field) => {
-    setOrderData({
-      ...orderData,
-      [field]: orderData[field] && orderData[field] > 0 ? parseInt(orderData[field]) - 1 : 0,
-    });
-  };
-
   return (
     <div className="record-order-container">
       <ToastContainer position="top-right" autoClose={2000} />
       <h1 className="record-order-title">Record an Order</h1>
       <form className="record-order-form" onSubmit={handleSubmit}>
         <div className="default-product-name">Your Default Product: {productname}</div>
-        
-        {/* Currency Selection Buttons */}
-        <div className="currency-buttons">
-          <button
-            className={`currency-button ${orderData.paymentCurrency === 'USD' ? 'selected' : ''}`}
-            onClick={() => handleCurrencySelection('USD')}
-          >
-            USD
-          </button>
-          <button
-            className={`currency-button ${orderData.paymentCurrency === 'LBP' ? 'selected' : ''}`}
-            onClick={() => handleCurrencySelection('LBP')}
-          >
-            LBP
-          </button>
-        </div>
-        
-        {/* Number Inputs */}
-        <div className="number-inputs">
-          {/* <input
-            type="number"
-            className="number-input"
-            placeholder="Delivered"
-            name="delivered"
-            value={orderData.delivered}
-            onChange={handleChange}
-          />
-          <input
-            type="number"
-            className="number-input"
-            placeholder="Returned"
-            name="returned"
-            value={orderData.returned}
-            onChange={handleChange}
-          /> */}
-          {/* Number Inputs with Up and Down Arrows */}
+        {/* Number Inputs with Up and Down Arrows */}
         <div className="number-inputs">
           <div className="up-down-input">
-            <input
-              type="number"
-              className="number-input"
-              placeholder="Delivered"
-              name="delivered"
-              value={orderData.delivered}
-              onChange={handleChange}
-            />
+
             <div className="up-down-buttons">
-              <button
+              <button className='arrow'
+
                 type="button"
                 onClick={() =>
                   setOrderData({
@@ -188,11 +133,18 @@ const productname=useSelector(state=>state.order.product_name)
                     delivered: orderData.delivered ? parseInt(orderData.delivered) + 1 : 1,
                   })
                 }
-              >
-                ▲
-              </button>
+              > ▲ </button>
+              <input
+                type="number"
+                className="number-input"
+                placeholder="Delivered"
+                name="delivered"
+                value={orderData.delivered}
+                onChange={handleChange}
+              />
               <button
-                type="button"
+                type="button" className='arrow'
+
                 onClick={() =>
                   setOrderData({
                     ...orderData,
@@ -200,22 +152,16 @@ const productname=useSelector(state=>state.order.product_name)
                   })
                 }
               >
-                ▼
+              ▼
               </button>
             </div>
           </div>
           <div className="up-down-input">
-            <input
-              type="number"
-              className="number-input"
-              placeholder="Returned"
-              name="returned"
-              value={orderData.returned}
-              onChange={handleChange}
-            />
+
             <div className="up-down-buttons">
               <button
                 type="button"
+                className='arrow'
                 onClick={() =>
                   setOrderData({
                     ...orderData,
@@ -224,9 +170,17 @@ const productname=useSelector(state=>state.order.product_name)
                 }
               >
                 ▲
-              </button>
+              </button>  <input
+                type="number"
+                className="number-input"
+                placeholder="Returned"
+                name="returned"
+                value={orderData.returned}
+                onChange={handleChange}
+              />
               <button
-                type="button"
+                type="button" className='arrow'
+
                 onClick={() =>
                   setOrderData({
                     ...orderData,
@@ -238,17 +192,30 @@ const productname=useSelector(state=>state.order.product_name)
               </button>
             </div>
           </div>
-        </div>
           <input
             type="number"
-            className="number-input"
+            className="number-input free-select"
             placeholder="Paid"
             name="paid"
             value={orderData.paid}
             onChange={handleChange}
           />
         </div>
-        
+        {/* Currency Selection Buttons */}
+        <div className="currency-buttons">
+          <button   type="button" 
+            className={`currency-button ${orderData.paymentCurrency === 'USD' ? 'selected' : ''}`}
+            onClick={() => handleCurrencySelection('USD')}
+          >
+            USD
+          </button>
+          <button   type="button" 
+            className={`currency-button ${orderData.paymentCurrency === 'LBP' ? 'selected' : ''}`}
+            onClick={() => handleCurrencySelection('LBP')}
+          >
+            LBP
+          </button>
+        </div>
         {/* Record Order Button */}
         <button className="record-order-button" type="submit">
           Record Order

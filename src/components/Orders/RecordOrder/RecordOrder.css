@@ -19,6 +19,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  justify-items: center;
+  align-content: center;
   width: 30%;
   padding: 20px;
   border: 1px solid #ccc;
@@ -62,3 +65,36 @@
   background-color: #0056b3;
 }
 
+.up-down-buttons{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  justify-items: center;
+  
+}
+.number-input{
+  width:30px;
+  padding:20px;
+  text-align: center;
+}
+.up-down-buttons .arrow {
+  width:30px;
+margin:10px;
+padding:10px 2px;
+text-align: center;
+}
+.currency-button{
+  padding:10px;
+  margin:10px;
+}
+.currency-buttons .selected{
+  background-color: rgb(2, 2, 23);
+}
+.number-inputs .free-select{
+  width: 100%;
+  text-align: center;
+  /* padding: 10px auto; */
+  margin: 10px auto;
+}
