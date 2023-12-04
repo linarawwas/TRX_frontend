@@ -6,11 +6,11 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearCompanyId, clearToken, clearIsAdmin } from '../../../redux/UserInfo/action';
-import { TargetButton } from '../TargetButton/TargetButton';
-import { DeliveredButton } from '../DeliveredButton/DeliveredButton';
-import { ReturnedButton } from '../ReturnedButton/ReturnedButton';
-import { PaidInDollars } from '../PaidInDollars/PaidInDollars';
-import { PaidInLira } from '../PaidInLira/PaidInLira';
+import TargetButton from '../TargetButton/TargetButton'; // Assuming TargetButton has a default export
+import DeliveredButton from '../DeliveredButton/DeliveredButton'; // Assuming DeliveredButton has a default export
+import ReturnedButton from '../ReturnedButton/ReturnedButton'; // Assuming ReturnedButton has a default export
+import PaidInDollars from '../PaidInDollars/PaidInDollars'; // Assuming PaidInDollars has a default export
+import PaidInLira from '../PaidInLira/PaidInLira'; // Assuming PaidInLira has a default export
 
 const AsideMenuEmployee: React.FC = () => {
   const shipmentId: string = useSelector((state: any) => state.shipment._id);
