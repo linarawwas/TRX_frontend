@@ -6,16 +6,20 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch } from 'react-redux';
 import { clearCompanyId, clearToken, clearIsAdmin } from '../../../redux/UserInfo/action';
-function AsideMenuAdmin() {
+
+const AsideMenuAdmin: React.FC = () => {
   const dispatch = useDispatch();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+
   const handleLogout = () => {
-    toast.success('Logged Out Successfully')
+    toast.success('Logged Out Successfully');
+
     // Delete the token from local storage
     localStorage.removeItem('token');
     setTimeout(() => {
       window.location.reload();
     }, 1500);
+
     // Dispatch actions to clear token and companyId in the Redux store
     dispatch(clearToken());
     dispatch(clearCompanyId());
@@ -66,8 +70,7 @@ function AsideMenuAdmin() {
         </aside>
       </div>
     </div>
-
   );
-}
+};
 
 export default AsideMenuAdmin;

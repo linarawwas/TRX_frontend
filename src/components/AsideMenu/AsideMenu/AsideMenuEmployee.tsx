@@ -11,19 +11,23 @@ import { DeliveredButton } from '../DeliveredButton/DeliveredButton';
 import { ReturnedButton } from '../ReturnedButton/ReturnedButton';
 import { PaidInDollars } from '../PaidInDollars/PaidInDollars';
 import { PaidInLira } from '../PaidInLira/PaidInLira';
-function AsideMenuEmployee() {
-  const shipmentId = useSelector(state => state.shipment._id)
-  const shipmentDefined = shipmentId !== null && shipmentId !== undefined && shipmentId !== '';
+
+const AsideMenuEmployee: React.FC = () => {
+  const shipmentId: string = useSelector((state: any) => state.shipment._id);
+  const shipmentDefined: boolean = shipmentId !== null && shipmentId !== undefined && shipmentId !== '';
   const dispatch = useDispatch();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const dayId = useSelector(state => state.shipment.dayId);
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const dayId: string = useSelector((state: any) => state.shipment.dayId);
+
   const handleLogout = () => {
-    toast.success('Logged Out Successfully')
+    toast.success('Logged Out Successfully');
+
     // Delete the token from local storage
     localStorage.removeItem('token');
     setTimeout(() => {
       window.location.reload();
     }, 1500);
+
     // Dispatch actions to clear token and companyId in the Redux store
     dispatch(clearToken());
     dispatch(clearCompanyId());
@@ -55,16 +59,19 @@ function AsideMenuEmployee() {
 
         <aside className="sidebar">
           <ul>
-            {shipmentDefined ? (<li>
-              <Link to={`/areas/${dayId}`} className='sidebar-link' onClick={toggleMenu}>Delivery Pathway</Link>
-            </li>
-            ) : (<li>Please Start Shipment </li>)}
+            {shipmentDefined ? (
+              <li>
+                <Link to={`/areas/${dayId}`} className='sidebar-link' onClick={toggleMenu}>Delivery Pathway</Link>
+              </li>
+            ) : (
+              <li>Please Start Shipment</li>
+            )}
             <li>
               <Link to="/addExpenses" className='sidebar-link' onClick={toggleMenu}>Add Expenses</Link>
             </li>
             <li>
               <Link to="/addProfits" className='sidebar-link' onClick={toggleMenu}>Add Profits</Link>
-            </li>        
+            </li>
             <li>
               <button className='logout-button' onClick={handleLogout}>Logout</button>
             </li>
@@ -72,8 +79,7 @@ function AsideMenuEmployee() {
         </aside>
       </div>
     </div>
-
   );
-}
+};
 
 export default AsideMenuEmployee;
