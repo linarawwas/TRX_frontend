@@ -6,11 +6,17 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from "react-redux";
-export default function Addresses() {
-    const token = useSelector(state => state.user.token);
-    // const companyId = useSelector(state => state.user.companyId);
-    const [customers, setCustomers] = useState([]);
-    const [loading, setLoading] = useState(true);
+
+interface Customer {
+    _id: string;
+    address: string;
+    name: string;
+    phone: string;
+}
+export default function Addresses(): JSX.Element {
+    const token:string = useSelector((state:any) => state.user.token);
+    const [customers, setCustomers] = useState<Customer[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
     const { areaId } = useParams();
     const navigate = useNavigate();
     useEffect(() => {

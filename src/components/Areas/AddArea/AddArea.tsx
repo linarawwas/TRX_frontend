@@ -1,47 +1,53 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import './AddArea.css';
-
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from 'react-redux';
-function AddArea() {
-  const token = useSelector(state => state.user.token);
-  const companyId = useSelector(state => state.user.companyId);
-  const [name, setName] = useState('');
-  const [dayId, setDayId] = useState('');
-  const [days, setDays] = useState([]);
+
+interface Day {
+  _id: string;
+  name: string;
+}
+
+function AddArea(): JSX.Element {
+  const token: string = useSelector((state: any) => state.user.token);
+  const companyId: string = useSelector((state: any) => state.user.companyId);
+  const [name, setName] = useState<string>('');
+  const [dayId, setDayId] = useState<string>('');
+  const [days, setDays] = useState<Day[]>([]);
 
   // Fetch the list of days from your API
   useEffect(() => {
-    fetch(`http://localhost:5000/api/days/company/${ companyId}`, {
+    fetch(`http://localhost:5000/api/days/company/${companyId}`, {
       headers: {
-        Authorization: `Bearer ${ token}`,
+        Authorization: `Bearer ${token}`,
       }
     })
       .then((response) => response.json())
-      .then((data) => {
+      .then((data: Day[]) => {
         setDays(data);
       })
       .catch((error) => {
         toast.error('Error fetching days:', error);
       });
-  }, [ token, companyId]);
+  }, [token, companyId]);
 
-  const handleNameChange = (e) => {
+  const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
   };
 
-  const handleDayChange = (e) => {
+  const handleDayChange = (e: ChangeEvent<HTMLSelectElement>) => {
     setDayId(e.target.value);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // Create an object with the area details
     const newArea = {
       name,
-      dayId, companyId:  companyId
+      dayId,
+      companyId,
     };
 
     try {
@@ -49,8 +55,8 @@ function AddArea() {
       const response = await fetch('http://localhost:5000/api/areas', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json', Authorization: `Bearer ${ token}`,
-
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(newArea),
       });
@@ -63,7 +69,7 @@ function AddArea() {
         // Area creation failed; handle the error
         toast.error('Area creation failed');
       }
-    } catch (error) {
+    } catch (error:any) {
       toast.error('Area creation error:', error);
     }
   };
