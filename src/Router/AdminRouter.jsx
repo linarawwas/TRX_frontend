@@ -4,12 +4,12 @@ import Register from '../components/Auth/Register.jsx';
 import OrdersTable from '../components/Orders/OrdersTable/OrdersTable.jsx';
 import RecordOrder from '../components/Orders/RecordOrder/RecordOrder.jsx';
 import Days from '../components/Days/Days.jsx';
-import Areas from '../components/Areas/Areas/Areas.jsx';
+import Areas from '../components/Areas/Areas/Areas.tsx';
 import Customers from '../components/Customers/viewCustomers/Customers.jsx';
-import Addresses from '../components/Addresses/Addresses.jsx';
-import AreasForDay from '../components/Areas/AreasForDay/AreasForDay.jsx'
+import Addresses from '../components/Addresses/Addresses.tsx';
+import AreasForDay from '../components/Areas/AreasForDay/AreasForDay.tsx'
 import CustomersForArea from '../components/Customers/CustomersForArea/CustomersForArea.jsx';
-import AddArea from '../components/Areas/AddArea/AddArea.jsx';
+import AddArea from '../components/Areas/AddArea/AddArea.tsx';
 import Login from '../components/Auth/Login.jsx';
 import LandingPage from '../components/LandingPage/LandingPage.jsx';
 import UpdateOrder from '../components/Orders/UpdateOrder/UpdateOrder.jsx';

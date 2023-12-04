@@ -2,7 +2,7 @@ import { Route, Routes } from 'react-router-dom';
 import React from 'react';
 import RecordOrder from '../components/Orders/RecordOrder/RecordOrder.jsx';
 import Days from '../components/Days/Days.jsx';
-import AreasForDay from '../components/Areas/AreasForDay/AreasForDay.jsx';
+import AreasForDay from '../components/Areas/AreasForDay/AreasForDay.tsx';
 import CustomersForArea from '../components/Customers/CustomersForArea/CustomersForArea.jsx';
 import Login from '../components/Auth/Login.jsx';
 import EmployeeLandingPage from '../components/EmployeeComponents/LandingPage/EmployeeLandingPage.jsx';
