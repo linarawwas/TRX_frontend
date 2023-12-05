@@ -1,25 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, ChangeEvent, FormEvent } from 'react';
 import './Register.css'; // Import your CSS file
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from 'react-redux';
-function Register() {
-  const token = useSelector(state => state.user.token);
-  const companyId = useSelector(state => state.user.companyId);
+
+const Register: React.FC = () => {
+  const token: string = useSelector((state: any) => state.user.token);
+  const companyId: string = useSelector((state: any) => state.user.companyId);
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    confirmPassword: '', companyId:  companyId
+    confirmPassword: '',
+    companyId: companyId,
   });
 
   const { name, email, password, confirmPassword } = formData;
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
@@ -27,8 +30,8 @@ function Register() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${ token}`
-      },
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(formData), // Send the form data as JSON
       });
 
@@ -39,9 +42,9 @@ function Register() {
       } else {
         // Registration failed
         const data = await response.json();
-        toast.error('Registration failed:', data.error);
+        toast.error(`Registration failed: ${data.error}`);
       }
-    } catch (error) {
+    } catch (error:any) {
       toast.error('Registration error:', error);
     }
   };
@@ -49,7 +52,7 @@ function Register() {
   return (
     <div className="register-container">
       <ToastContainer position="top-right" autoClose={1000} />
-      <h2 className='register-title' >Register A New User</h2>
+      <h2 className='register-title'>Register A New User</h2>
       <form className='register-form' onSubmit={handleSubmit}>
         <input
           className='register-input'
@@ -62,7 +65,6 @@ function Register() {
         />
         <input
           className='register-input'
-
           type="email"
           placeholder="Email"
           name="email"
