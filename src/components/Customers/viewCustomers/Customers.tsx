@@ -1,28 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import '../../Orders/OrdersTable/OrdersTable.jsx'; // Import your CSS file
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Link } from 'react-router-dom';
 import './Customers.css';
 import { useSelector } from 'react-redux';
-export default function Customers() {
-  const token = useSelector(state => state.user.token);
-  const companyId = useSelector(state => state.user.companyId);
-  const [customers, setCustomers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [selectedItem, setSelectedItem] = useState(0);
+
+interface Customer {
+  _id: string;
+  name: string;
+  phone: string;
+  address: string;
+}
+
+const Customers: React.FC = () => {
+  const token: string = useSelector((state: any) => state.user.token);
+  const companyId: string = useSelector((state: any) => state.user.companyId);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [currentPage, setCurrentPage] = useState<number>(0);
+  const [selectedItem, setSelectedItem] = useState<number>(0);
 
   useEffect(() => {
-    console.log(`Sending request with  token: ${ token}`);
-    // Fetch customers data
-    fetch(`http://localhost:5000/api/customers/company/${ companyId}`, {
+    console.log(`Sending request with token: ${token}`);
+    fetch(`http://localhost:5000/api/customers/company/${companyId}`, {
       headers: {
-        Authorization: `Bearer ${ token}`,
+        Authorization: `Bearer ${token}`,
       },
     })
       .then((response) => response.json())
-      .then((data) => {
+      .then((data: Customer[]) => {
         setCustomers(data);
         setLoading(false);
       })
@@ -30,36 +36,29 @@ export default function Customers() {
         console.error('Error fetching customers:', error);
         setLoading(false);
       });
-  }, [ token, companyId]);
+  }, [token, companyId]);
 
-  // Number of records to display on each page
-  const recordsPerPage = 7;
+  const recordsPerPage: number = 7;
+  const totalPages: number = Math.ceil(customers.length / recordsPerPage);
 
-  // Calculate the total number of pages
-  const totalPages = Math.ceil(customers.length / recordsPerPage);
-
-  // Function to handle page change
-  const handlePageChange = (newPage) => {
+  const handlePageChange = (newPage: number): void => {
     setSelectedItem(newPage);
     setCurrentPage(newPage);
   };
 
-  // Function to go to the previous page
-  const goToPreviousPage = () => {
+  const goToPreviousPage = (): void => {
     if (currentPage > 0) {
       handlePageChange(currentPage - 1);
     }
   };
 
-  // Function to go to the next page
-  const goToNextPage = () => {
+  const goToNextPage = (): void => {
     if (currentPage < totalPages - 1) {
       handlePageChange(currentPage + 1);
     }
   };
 
-  // Get the customers for the current page
-  const customersForPage = customers.slice(
+  const customersForPage: Customer[] = customers.slice(
     currentPage * recordsPerPage,
     (currentPage + 1) * recordsPerPage
   );
@@ -87,11 +86,11 @@ export default function Customers() {
                   <td>{customer.phone}</td>
                   <td>{customer.address}</td>
                   <td>
-                    {/* Create a Link for the action button */}
                     <Link to={`/updateCustomer/${customer._id}`}>
                       Edit Customer
                     </Link>
-                  </td></tr>
+                  </td>
+                </tr>
               ))}
             </tbody>
           </table>
@@ -122,3 +121,5 @@ export default function Customers() {
     </div>
   );
 };
+
+export default Customers;
