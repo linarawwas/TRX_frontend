@@ -1,6 +1,15 @@
 import { createStore } from 'redux';
 import rootReducer from './rootReducer';
 
+declare global {
+  interface Window {
+    __REDUX_DEVTOOLS_EXTENSION__?: () => any;
+  }
+}
+
+// Define the type for the state returned by rootReducer
+type RootState = ReturnType<typeof rootReducer>;
+
 // Load the state from localStorage when initializing the Redux store
 const savedState = localStorage.getItem('reduxState');
 const initialState = savedState ? JSON.parse(savedState) : {};
@@ -19,3 +28,6 @@ store.subscribe(() => {
 });
 
 export default store;
+
+// Export RootState for use in useSelector
+export type { RootState };
