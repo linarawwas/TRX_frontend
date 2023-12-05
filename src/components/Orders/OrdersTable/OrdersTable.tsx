@@ -4,17 +4,66 @@ import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { Order, RootState } from '../../../redux/store'; // Update this path with your types/interfaces
-
+import { RootState } from '../../../redux/store'; // Update this path with your types/interfaces
 const OrdersTable: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedItem, setSelectedItem] = useState(0);
-
   const companyId = useSelector((state: RootState) => state.user.companyId);
   const token = useSelector((state: RootState) => state.user.token);
 
+  interface Payment {
+    date: string;
+    amount: number;
+    currency: string;
+    exchangeRate: string;
+    _id: string;
+  }
+  
+  interface Customer {
+    _id: string;
+    name: string;
+    phone: string;
+    areaId: string;
+    address: string;
+    __v: number;
+    companyId: string;
+  }
+  
+  interface Product {
+    _id: string;
+    id: number;
+    type: string;
+    priceInDollars: number;
+    isReturnable: boolean;
+    companyId: string;
+    __v: number;
+  }
+  
+  interface Order {
+    _id: string;
+    recordedBy: string;
+    delivered: number;
+    returned: number;
+    customerId: string;
+    payments: Payment[];
+    productId: number;
+    checkout: number;
+    SumOfPaymentsInLiras: number;
+    SumOfPaymentsInDollars: number;
+    paid: number;
+    paymentCurrency: string;
+    exchangeRate: string;
+    total: number;
+    timestamp: string;
+    companyId: string;
+    shipmentId: string;
+    __v: number;
+    customer: Customer;
+    product: Product;
+  }
+  
   useEffect(() => {
     if (companyId) {
       fetch(`http://localhost:5000/api/orders/company/${companyId}`, {

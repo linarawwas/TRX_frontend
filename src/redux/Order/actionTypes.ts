@@ -1,12 +1,4 @@
-// actionTypes.js
-export interface Order {
-    area_Id: string | null;
-    customer_Id: string | null;
-    product_id: string | null;
-    product_name: string;
-    product_price: number;
-  }
-  
+// actionTypes.js 
 // Action types for setting token and company ID
 export const SET_CUSTOMER_ID = 'SET_CUSTOMER_ID';
 export const SET_AREA_ID = 'SET_AREA_ID';
