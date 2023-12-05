@@ -1,29 +1,35 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import "./Days.css";
-import {useSelector} from 'react-redux';
-export default function Days() {
-  const token = useSelector(state => state.user.token);
-  const companyId = useSelector(state => state.user.companyId);
-  const [days, setDays] = useState([]);
-  const [loading, setLoading] = useState(true);
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import './Days.css';
+import { useSelector } from 'react-redux';
+
+interface Day {
+  _id: string;
+  name: string;
+}
+
+const Days: React.FC = () => {
+  const token: string = useSelector((state: any) => state.user.token);
+  const companyId: string = useSelector((state: any) => state.user.companyId);
+  const [days, setDays] = useState<Day[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
   useEffect(() => {
-    // Fetch days data from your API
-    fetch(`http://localhost:5000/api/days/company/${ companyId}`, {
+    fetch(`http://localhost:5000/api/days/company/${companyId}`, {
       headers: {
-        Authorization: `Bearer ${ token}`,
-      }
+        Authorization: `Bearer ${token}`,
+      },
     })
       .then((response) => response.json())
-      .then((data) => {
+      .then((data: Day[]) => {
         setDays(data);
         setLoading(false);
       })
       .catch((error) => {
-        console.error("Error fetching days:", error);
+        console.error('Error fetching days:', error);
         setLoading(false);
       });
-  }, [ token,  companyId]);
+  }, [token, companyId]);
 
   return (
     <div className="daysBody">
@@ -50,4 +56,6 @@ export default function Days() {
       )}
     </div>
   );
-}
+};
+
+export default Days;
