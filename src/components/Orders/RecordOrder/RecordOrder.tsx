@@ -1,15 +1,61 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import './RecordOrder.css';
+import { RootState } from '../../../redux/store';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { setShipmentDelivered, setShipmentPayments, setShipmentPaymentsInDollars, setShipmentPaymentsInLiras, setShipmentReturned } from '../../../redux/Shipment/action.js'
 import { setProductId, setProductName, setProductPrice } from '../../../redux/Order/action';
 const RecordOrder = () => {
+  // Define the Order interface based on the discussed object structure
+interface Order {
+  area_Id:string;
+  _id: string;
+  recordedBy: string;
+  delivered: number;
+  returned: number;
+  customerid: string;
+  payments: {
+    date: string;
+    amount: number;
+    currency: string;
+    exchangeRate: string;
+    _id: string;
+  }[];
+  productId: number;
+  checkout: number;
+  SumOfPaymentsInLiras: number;
+  SumOfPaymentsInDollars: number;
+  paid: number;
+  paymentCurrency: string;
+  exchangeRate: string;
+  total: number;
+  timestamp: string;
+  companyId: string;
+  shipmentId: string;
+  __v: number;
+  customer: {
+    _id: string;
+    name: string;
+    phone: string;
+    areaId: string;
+    address: string;
+    __v: number;
+    companyId: string;
+  };
+  product: {
+    _id: string;
+    id: number;
+    type: string;
+    priceInDollars: number;
+    isReturnable: boolean;
+    companyId: string;
+    __v: number;
+  };
+}
   const dispatch = useDispatch();
-
-  const token = useSelector(state => state.user.token);
-  const companyId = useSelector(state => state.user.companyId);
+  const token = useSelector((state: RootState) => state.user.token);
+  const companyId = useSelector((state: RootState) => state.user.companyId);
   // const [products, setProducts] = useState([]); since the admin chose to only have one product default, no product array will be mapped
   useEffect(() => {
     // Fetch days data from your API
@@ -47,13 +93,13 @@ const RecordOrder = () => {
         console.error("Error fetching adminDeterminedDefaults:", error);
       });
   }, [token, dispatch, companyId]);
-  const customerId = useSelector(state => state.order.customer_Id);
-  const areaId = useSelector(state => state.order.area_Id);
-  const shipmentId = useSelector(state => state.shipment._id);
-  const productName = useSelector(state => state.order.product_name)
-  const productId = useSelector(state => state.order.product_id)
-const productPrice=useSelector(state=>state.order.product_price)
-  const [orderData, setOrderData] = useState({
+  const customerId = useSelector((state: RootState) => state.order.customer_Id);
+  const areaId = useSelector((state: RootState) => state.order.area_Id);
+  const shipmentId = useSelector((state: RootState) => state.shipment._id);
+  const productName = useSelector((state: RootState) => state.order.product_name)
+  const productId = useSelector((state: RootState) => state.order.product_id)
+const productPrice=useSelector((state: RootState)=>state.order.product_price)
+  const [orderData, setOrderData] = useState<Order>({
     delivered: 0,
     returned: 0,
     customerid: customerId,
@@ -65,18 +111,18 @@ const productPrice=useSelector(state=>state.order.product_price)
     companyId: companyId,
     shipmentId: shipmentId
   });
-  let deliveredInShipment = useSelector(state => state.shipment.delivered);
-  let returnedInShipment = useSelector(state => state.shipment.returned);
-  let shipmentPaymentsInLiras = useSelector(state => state.shipment.liraPayments);
-  let shipmentPaymentsInDollars = useSelector(state => state.shipment.dollarPayments);
-  let totalPayments = useSelector(state => state.shipment.payments)
+  let deliveredInShipment = useSelector((state: RootState) => state.shipment.delivered);
+  let returnedInShipment = useSelector((state: RootState) => state.shipment.returned);
+  let shipmentPaymentsInLiras = useSelector((state: RootState) => state.shipment.liraPayments);
+  let shipmentPaymentsInDollars = useSelector((state: RootState) => state.shipment.dollarPayments);
+  let totalPayments = useSelector((state: RootState) => state.shipment.payments)
 let checkout=orderData.delivered * productPrice;
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setOrderData({ ...orderData, [name]: value });
   };
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       const response = await fetch('http://localhost:5000/api/orders', {
@@ -102,7 +148,7 @@ let checkout=orderData.delivered * productPrice;
         const errorData = await response.json();
         toast.error('Error recording order:', errorData.error);
       }
-    } catch (error) {
+    } catch (error:any) {
       toast.error('Network error:', error);
     }
   };

@@ -8,14 +8,14 @@ declare global {
 }
 
 // Define the type for the state returned by rootReducer
-type RootState = ReturnType<typeof rootReducer>;
+export type RootState = ReturnType<typeof rootReducer>;
 
 // Load the state from localStorage when initializing the Redux store
 const savedState = localStorage.getItem('reduxState');
 const initialState = savedState ? JSON.parse(savedState) : {};
 
 // Reducers usually take the initial state as the second argument
-const store = createStore(
+export const store = createStore(
   rootReducer,
   initialState,
   window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
@@ -27,7 +27,3 @@ store.subscribe(() => {
   localStorage.setItem('reduxState', JSON.stringify(state));
 });
 
-export default store;
-
-// Export RootState for use in useSelector
-export type { RootState };
