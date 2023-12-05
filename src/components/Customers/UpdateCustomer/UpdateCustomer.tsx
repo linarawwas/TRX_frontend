@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, ChangeEvent, FormEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../../UI reusables/UpdateSingleRecord/UpdateSingleRecord.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -8,31 +8,45 @@ import 'react-toastify/dist/ReactToastify.css';
 import './UpdateCustomer.css';
 import SelectInput from '../../UI reusables/SelectInput/SelectInput.js';
 import { useSelector } from 'react-redux';
-function UpdateCustomer() {
-  const token = useSelector(state => state.user.token);
-  const companyId = useSelector(state => state.user.companyId);
+
+interface Area {
+  _id: string;
+  name: string;
+}
+
+interface CustomerData {
+  name: string;
+  phone: string;
+  address: string;
+  areaId: string;
+  companyId: string; 
+}
+
+function UpdateCustomer(): JSX.Element {
+  const token: string = useSelector((state: any) => state.user.token);
+  const companyId: string = useSelector((state: any) => state.user.companyId);
   const navigate = useNavigate();
-  const [areas, setAreas] = useState([]);
+  const [areas, setAreas] = useState<Area[]>([]);
   const { customerId } = useParams();
-  const [customerData, setCustomerData] = useState(null);
+  const [customerData, setCustomerData] = useState<CustomerData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [updatedInfo, setUpdatedInfo] = useState({
+  const [updatedInfo, setUpdatedInfo] = useState<CustomerData>({
     name: '',
     phone: '',
     address: '',
-    areaId: '', companyId: companyId
+    areaId: '',
+    companyId: companyId
   });
-  const [originalData, setOriginalData] = useState(null); // Store original customer data
+  const [originalData, setOriginalData] = useState<CustomerData | null>(null);
 
   const [formVisible, setFormVisible] = useState(false);
 
   useEffect(() => {
-    // Fetch days data from your API
-    fetch(`http://localhost:5000/api/areas/company/${ companyId}`, {
-      headers: { Authorization: `Bearer ${ token}` }
+    fetch(`http://localhost:5000/api/areas/company/${companyId}`, {
+      headers: { Authorization: `Bearer ${token}` }
     })
       .then((response) => response.json())
-      .then((data) => {
+      .then((data: Area[]) => {
         setAreas(data);
         setLoading(false);
       })
@@ -40,8 +54,9 @@ function UpdateCustomer() {
         console.error("Error fetching days:", error);
         setLoading(false);
       });
-  }, [ token,  companyId]);
-  const handleChange = (e) => {
+  }, [token, companyId]);
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     if (name === 'phone' && !/^\d*$/.test(value)) {
       toast.error('Enter only numeric values for phone number.');
@@ -57,11 +72,11 @@ function UpdateCustomer() {
     try {
       const response = await fetch(`http://localhost:5000/api/customers/${customerId}`, {
         headers: {
-          Authorization: `Bearer ${ token}`,
+          Authorization: `Bearer ${token}`,
         }
       });
       if (response.ok) {
-        const data = await response.json();
+        const data: CustomerData = await response.json();
         setCustomerData(data);
         setOriginalData(data);
         setLoading(false);
@@ -76,26 +91,24 @@ function UpdateCustomer() {
   }, [customerId, token]);
 
   useEffect(() => {
-    fetchData(); // Fetch data when the component mounts
+    fetchData();
   }, [fetchData, token]);
 
-
-  const handleSubmitUpdate = async (e) => {
+  const handleSubmitUpdate = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const updatedData = {
-        name: updatedInfo.name !== "" ? updatedInfo.name : originalData.name,
-        phone: updatedInfo.phone !== "" ? updatedInfo.phone : originalData.phone,
-        address: updatedInfo.address !== "" ? updatedInfo.address : originalData.address,
-        areaId: updatedInfo.areaId !== "" ? updatedInfo.areaId : originalData.areaId,
-        companyId:  companyId
+      const updatedData: CustomerData = {
+        name: updatedInfo.name !== "" ? updatedInfo.name : originalData!.name,
+        phone: updatedInfo.phone !== "" ? updatedInfo.phone : originalData!.phone,
+        address: updatedInfo.address !== "" ? updatedInfo.address : originalData!.address,
+        areaId: updatedInfo.areaId !== "" ? updatedInfo.areaId : originalData!.areaId,
+        companyId: companyId
       };
 
       const response = await fetch(`http://localhost:5000/api/customers/${customerId}`, {
         method: 'PUT',
         headers: {
-          Authorization: `Bearer ${ token}`,
-
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(updatedData),
@@ -118,7 +131,7 @@ function UpdateCustomer() {
       const response = await fetch(`http://localhost:5000/api/customers/${customerId}`, {
         method: 'DELETE',
         headers: {
-          Authorization: `Bearer ${ token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
