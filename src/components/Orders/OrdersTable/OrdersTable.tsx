@@ -4,20 +4,23 @@ import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-function OrdersTable() {
-  const [orders, setOrders] = useState([]);
+import { Order, RootState } from '../../../redux/store'; // Update this path with your types/interfaces
+
+const OrdersTable: React.FC = () => {
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedItem, setSelectedItem] = useState(0);
 
-  const companyId = useSelector(state => state.user.companyId);
-  const token = useSelector(state => state.user.token);
+  const companyId = useSelector((state: RootState) => state.user.companyId);
+  const token = useSelector((state: RootState) => state.user.token);
+
   useEffect(() => {
     if (companyId) {
       fetch(`http://localhost:5000/api/orders/company/${companyId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
-        }
+        },
       })
         .then((response) => response.json())
         .then((data) => {
@@ -35,7 +38,7 @@ function OrdersTable() {
   const recordsPerPage = 7;
 
   // Function to handle page change
-  const handlePageChange = (newPage) => {
+  const handlePageChange = (newPage: number) => {
     setSelectedItem(newPage);
     setCurrentPage(newPage);
   };
@@ -109,7 +112,7 @@ function OrdersTable() {
                 {Array.from({ length: totalPages }, (_, i) => (
                   <div
                     key={i}
-                  // onClick={() => handlePageChange(i)}
+                    onClick={() => handlePageChange(i)}
                   >
                     Page {i + 1}
                   </div>
@@ -124,6 +127,6 @@ function OrdersTable() {
       )}
     </div>
   );
-}
+};
 
 export default OrdersTable;
