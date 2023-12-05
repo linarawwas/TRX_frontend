@@ -1,8 +1,10 @@
 import React from 'react';
 import './LandingPage.css';
 import { useSelector } from 'react-redux';
-function LandingPage() {
-  const name = useSelector(state=> state.user.username)
+import { RootState } from '../../redux/store';
+const LandingPage: React.FC = () => {
+  const name = useSelector((state: RootState) => state.user.username);
+
   return (
     <div className="landing-page">
       <header className="landing-header">
@@ -13,15 +15,15 @@ function LandingPage() {
         <p>
           OrdrTrkr is your all-in-one platform for streamlining order management, tracking deliveries, and ensuring a seamless customer experience. With OrdrTrkr, you can easily manage orders, monitor deliveries in real-time, and delight your customers.
         </p>
-<div>
-Key Features:
+        <div>
+          Key Features:
           <ul>
             <li>Effortless Order Management</li>
             <li>Real-time Delivery Tracking</li>
             <li>Customer-Focused Approach</li>
             <li>Easy Payment Integration</li>
           </ul>
-</div>
+        </div>
         <p>
           Join us on a journey to simplify your business operations and elevate your customer satisfaction. Experience the future of order and delivery management with OrdrTrkr!
         </p>
