@@ -1,8 +1,9 @@
 import './Login.css'; // Import your CSS file
-import React, { useState } from 'react';
+import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-function Login() {
+
+export default function Login(): JSX.Element {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -10,19 +11,20 @@ function Login() {
 
   const { email, password } = formData;
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-  const handleLoginSuccess = (token) => {
+
+  const handleLoginSuccess = (token: string) => {
     // Save the token in local storage
     localStorage.setItem('token', token);
     // // Refresh the browser to trigger navigation
     setTimeout(() => {
-    window.location.reload();
+      window.location.reload();
     }, 1500);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // Create an object with the user's email and password
@@ -42,22 +44,20 @@ function Login() {
       });
 
       if (response.ok) {
-        toast.success('Logged In Successfully')
+        toast.success('Logged In Successfully');
         // Authentication succeeded
         // Retrieve the user's isAdmin status from the response or your authentication system
         const data = await response.json();
         const token = data.token;
         // Save the token and navigate the user
         handleLoginSuccess(token);
-
       } else {
         // Authentication failed; you can handle this by displaying an error message to the user
         console.error('Login failed');
-        toast.error("Invalid email or password");
-
+        toast.error('Invalid email or password');
       }
     } catch (error) {
-      toast.error("An error occurred. Please try again later.");
+      toast.error('An error occurred. Please try again later.');
       console.error('Login error:', error);
     }
   };
@@ -66,7 +66,7 @@ function Login() {
     <div className="login-container">
       <ToastContainer position="top-right" autoClose={1000} />
 
-      <h2 className='login-title' >Login</h2>
+      <h2 className='login-title'>Login</h2>
 
       <form className='login-form' onSubmit={handleSubmit}>
         <input
@@ -86,12 +86,9 @@ function Login() {
           onChange={handleChange}
           required
           className='login-input'
-
         />
         <button className='login-button' type="submit">Login</button>
       </form>
     </div>
   );
 };
-
-export default Login;
