@@ -15,7 +15,7 @@ import LandingPage from '../components/LandingPage/LandingPage.tsx';
 import UpdateOrder from '../components/Orders/UpdateOrder/UpdateOrder.tsx';
 import UpdateCustomer from '../components/Customers/UpdateCustomer/UpdateCustomer.tsx';
 import AddExpenses from '../components/Expenses/AddExpenses/AddExpenses.tsx';
-import AddProfits from '../components/Profits/AddProfits/AddProfits.sx';
+import AddProfits from '../components/Profits/AddProfits/AddProfits.tsx';
 import AddCustomers from '../components/Customers/AddCustomers/AddCustomers.tsx';
 function AdminRouter() {
   return (

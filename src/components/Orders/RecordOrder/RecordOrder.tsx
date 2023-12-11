@@ -8,7 +8,12 @@ import { setShipmentDelivered, setShipmentPayments, setShipmentPaymentsInDollars
 import { setProductId, setProductName, setProductPrice } from '../../../redux/Order/action';
 import { RootState } from '../../../redux/store';
 const RecordOrder: React.FC = () => {
-
+  const customerId = useSelector((state: RootState) => state.order.customer_Id);
+  const areaId = useSelector((state: RootState) => state.order.area_Id);
+  const shipmentId = useSelector((state: RootState) => state.shipment._id);
+  const productId = useSelector((state: RootState) => state.order.product_id);
+  const productName = useSelector((state: RootState) => state.order.product_name)
+  const productPrice = useSelector((state: RootState) => state.order.product_price)
   interface Order {
     _id: string;
     recordedBy: string;
@@ -30,8 +35,11 @@ const RecordOrder: React.FC = () => {
     __v: number;
     customer: Customer;
     product: Product;
+    areaId: string; // Add the areaId property here
+
   }
-  
+  const companyId = useSelector((state: RootState) => state.user.companyId);
+
   interface Payment {
     date: string;
     amount: number;
@@ -39,7 +47,7 @@ const RecordOrder: React.FC = () => {
     exchangeRate: string;
     _id: string;
   }
-  
+
   interface Customer {
     _id: string;
     name: string;
@@ -49,7 +57,7 @@ const RecordOrder: React.FC = () => {
     __v: number;
     companyId: string;
   }
-  
+
   interface Product {
     _id: string;
     id: number;
@@ -59,10 +67,9 @@ const RecordOrder: React.FC = () => {
     companyId: string;
     __v: number;
   }
-  
+
   const dispatch = useDispatch();
   const token: string = useSelector((state: RootState) => state.user.token);
-  const companyId: string = useSelector((state: RootState) => state.user.companyId);
   useEffect(() => {
     // Fetch days data from your API
     fetch("http://localhost:5000/api/adminDeterminedDefaults/defaultProduct", {
@@ -99,28 +106,56 @@ const RecordOrder: React.FC = () => {
         console.error("Error fetching adminDeterminedDefaults:", error);
       });
   }, [token, dispatch, companyId]);
-  const customerId = useSelector((state: RootState)=> state.order.customer_Id);
-  const areaId = useSelector((state: RootState)=> state.order.area_Id);
-  const shipmentId = useSelector((state: RootState)=> state.shipment._id);
-  const productName = useSelector((state: RootState)=> state.order.product_name)
-  const productId = useSelector((state: RootState)=> state.order.product_id)
-  const productPrice = useSelector((state: RootState)=> state.order.product_price)
-  const [orderData, setOrderData] = useState<Order>({
+
+
+  const initialOrderData: Order = {
     delivered: 0,
     returned: 0,
-    customerid: customerId,
+    customerid: customerId || '',
     paid: 0,
-    productId: productId,
+    productId: productId || 0,
     paymentCurrency: '',
     exchangeRate: '6537789b6ed59ef09c18213d',
-    companyId: companyId,
-    shipmentId: shipmentId
-  });
-  let deliveredInShipment = useSelector((state: RootState)=> state.shipment.delivered);
-  let returnedInShipment = useSelector((state: RootState)=> state.shipment.returned);
-  let shipmentPaymentsInLiras = useSelector((state: RootState)=> state.shipment.liraPayments);
-  let shipmentPaymentsInDollars = useSelector((state: RootState)=> state.shipment.dollarPayments);
-  let totalPayments = useSelector((state: RootState)=> state.shipment.payments)
+    companyId: companyId || '',
+    shipmentId: shipmentId || '',
+    areaId: areaId || '',
+    _id: '', // Add your default value for _id
+    recordedBy: '', // Add your default value for recordedBy
+
+    payments: [], // Add your default value for payments
+    checkout: 0,
+    SumOfPaymentsInLiras: 0,
+    SumOfPaymentsInDollars: 0,
+    total: 0,
+    timestamp: '',
+    __v: 0,
+    customer: {
+      _id: '',
+      name: '',
+      phone: '',
+      areaId: '',
+      address: '',
+      __v: 0,
+      companyId: ''
+    },
+    product: {
+      _id: '',
+      id: 0,
+      type: '',
+      priceInDollars: 0,
+      isReturnable: false,
+      companyId: '',
+      __v: 0
+    }
+  };
+
+  const [orderData, setOrderData] = useState<Order>(initialOrderData);
+
+  let deliveredInShipment = useSelector((state: RootState) => state.shipment.delivered);
+  let returnedInShipment = useSelector((state: RootState) => state.shipment.returned);
+  let shipmentPaymentsInLiras = useSelector((state: RootState) => state.shipment.liraPayments);
+  let shipmentPaymentsInDollars = useSelector((state: RootState) => state.shipment.dollarPayments);
+  let totalPayments = useSelector((state: RootState) => state.shipment.payments)
   let checkout = orderData.delivered * productPrice;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -153,12 +188,12 @@ const RecordOrder: React.FC = () => {
         const errorData = await response.json();
         toast.error('Error recording order:', errorData.error);
       }
-    } catch (error) {
+    } catch (error: any) {
       toast.error('Network error:', error);
     }
   };
 
-  const handleCurrencySelection = (currency) => {
+  const handleCurrencySelection = (currency: string) => {
     setOrderData({ ...orderData, paymentCurrency: currency });
   };
 
