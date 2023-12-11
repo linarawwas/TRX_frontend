@@ -1,40 +1,46 @@
-import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
+import React, { useState, useEffect } from 'react';
 import './RecordOrder.css';
-import { RootState } from '../../../redux/store';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector, useDispatch } from 'react-redux';
+
 import { setShipmentDelivered, setShipmentPayments, setShipmentPaymentsInDollars, setShipmentPaymentsInLiras, setShipmentReturned } from '../../../redux/Shipment/action.js'
 import { setProductId, setProductName, setProductPrice } from '../../../redux/Order/action';
-const RecordOrder = () => {
-  // Define the Order interface based on the discussed object structure
-interface Order {
-  area_Id:string;
-  _id: string;
-  recordedBy: string;
-  delivered: number;
-  returned: number;
-  customerid: string;
-  payments: {
+import { RootState } from '../../../redux/store';
+const RecordOrder: React.FC = () => {
+
+  interface Order {
+    _id: string;
+    recordedBy: string;
+    delivered: number;
+    returned: number;
+    customerid: string;
+    payments: Payment[];
+    productId: number;
+    checkout: number;
+    SumOfPaymentsInLiras: number;
+    SumOfPaymentsInDollars: number;
+    paid: number;
+    paymentCurrency: string;
+    exchangeRate: string;
+    total: number;
+    timestamp: string;
+    companyId: string;
+    shipmentId: string;
+    __v: number;
+    customer: Customer;
+    product: Product;
+  }
+  
+  interface Payment {
     date: string;
     amount: number;
     currency: string;
     exchangeRate: string;
     _id: string;
-  }[];
-  productId: number;
-  checkout: number;
-  SumOfPaymentsInLiras: number;
-  SumOfPaymentsInDollars: number;
-  paid: number;
-  paymentCurrency: string;
-  exchangeRate: string;
-  total: number;
-  timestamp: string;
-  companyId: string;
-  shipmentId: string;
-  __v: number;
-  customer: {
+  }
+  
+  interface Customer {
     _id: string;
     name: string;
     phone: string;
@@ -42,8 +48,9 @@ interface Order {
     address: string;
     __v: number;
     companyId: string;
-  };
-  product: {
+  }
+  
+  interface Product {
     _id: string;
     id: number;
     type: string;
@@ -51,12 +58,11 @@ interface Order {
     isReturnable: boolean;
     companyId: string;
     __v: number;
-  };
-}
+  }
+  
   const dispatch = useDispatch();
-  const token = useSelector((state: RootState) => state.user.token);
-  const companyId = useSelector((state: RootState) => state.user.companyId);
-  // const [products, setProducts] = useState([]); since the admin chose to only have one product default, no product array will be mapped
+  const token: string = useSelector((state: RootState) => state.user.token);
+  const companyId: string = useSelector((state: RootState) => state.user.companyId);
   useEffect(() => {
     // Fetch days data from your API
     fetch("http://localhost:5000/api/adminDeterminedDefaults/defaultProduct", {
@@ -93,17 +99,16 @@ interface Order {
         console.error("Error fetching adminDeterminedDefaults:", error);
       });
   }, [token, dispatch, companyId]);
-  const customerId = useSelector((state: RootState) => state.order.customer_Id);
-  const areaId = useSelector((state: RootState) => state.order.area_Id);
-  const shipmentId = useSelector((state: RootState) => state.shipment._id);
-  const productName = useSelector((state: RootState) => state.order.product_name)
-  const productId = useSelector((state: RootState) => state.order.product_id)
-const productPrice=useSelector((state: RootState)=>state.order.product_price)
+  const customerId = useSelector((state: RootState)=> state.order.customer_Id);
+  const areaId = useSelector((state: RootState)=> state.order.area_Id);
+  const shipmentId = useSelector((state: RootState)=> state.shipment._id);
+  const productName = useSelector((state: RootState)=> state.order.product_name)
+  const productId = useSelector((state: RootState)=> state.order.product_id)
+  const productPrice = useSelector((state: RootState)=> state.order.product_price)
   const [orderData, setOrderData] = useState<Order>({
     delivered: 0,
     returned: 0,
     customerid: customerId,
-    areaId: areaId,
     paid: 0,
     productId: productId,
     paymentCurrency: '',
@@ -111,18 +116,18 @@ const productPrice=useSelector((state: RootState)=>state.order.product_price)
     companyId: companyId,
     shipmentId: shipmentId
   });
-  let deliveredInShipment = useSelector((state: RootState) => state.shipment.delivered);
-  let returnedInShipment = useSelector((state: RootState) => state.shipment.returned);
-  let shipmentPaymentsInLiras = useSelector((state: RootState) => state.shipment.liraPayments);
-  let shipmentPaymentsInDollars = useSelector((state: RootState) => state.shipment.dollarPayments);
-  let totalPayments = useSelector((state: RootState) => state.shipment.payments)
-let checkout=orderData.delivered * productPrice;
+  let deliveredInShipment = useSelector((state: RootState)=> state.shipment.delivered);
+  let returnedInShipment = useSelector((state: RootState)=> state.shipment.returned);
+  let shipmentPaymentsInLiras = useSelector((state: RootState)=> state.shipment.liraPayments);
+  let shipmentPaymentsInDollars = useSelector((state: RootState)=> state.shipment.dollarPayments);
+  let totalPayments = useSelector((state: RootState)=> state.shipment.payments)
+  let checkout = orderData.delivered * productPrice;
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setOrderData({ ...orderData, [name]: value });
   };
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       const response = await fetch('http://localhost:5000/api/orders', {
@@ -138,8 +143,8 @@ let checkout=orderData.delivered * productPrice;
         const responseData = await response.json();
 
         // Update shipment details based on the order response
-        dispatch(setShipmentDelivered(deliveredInShipment + parseInt(orderData.delivered)));
-        dispatch(setShipmentReturned(returnedInShipment + parseInt(orderData.returned)));
+        dispatch(setShipmentDelivered(deliveredInShipment + orderData.delivered));
+        dispatch(setShipmentReturned(returnedInShipment + orderData.returned));
         dispatch(setShipmentPaymentsInLiras(shipmentPaymentsInLiras + parseInt(responseData.SumOfPaymentsInLiras)));
         dispatch(setShipmentPaymentsInDollars(shipmentPaymentsInDollars + parseInt(responseData.SumOfPaymentsInDollars)));
         dispatch(setShipmentPayments(totalPayments + parseInt(responseData.paid)));
@@ -148,7 +153,7 @@ let checkout=orderData.delivered * productPrice;
         const errorData = await response.json();
         toast.error('Error recording order:', errorData.error);
       }
-    } catch (error:any) {
+    } catch (error) {
       toast.error('Network error:', error);
     }
   };
@@ -167,7 +172,7 @@ let checkout=orderData.delivered * productPrice;
         <div className="number-inputs">
 
           <div className="up-down-input">
-          <p>delivered: </p>
+            <p>delivered: </p>
 
             <div className="up-down-buttons">
               <button className='arrow'
@@ -176,7 +181,7 @@ let checkout=orderData.delivered * productPrice;
                 onClick={() =>
                   setOrderData({
                     ...orderData,
-                    delivered: orderData.delivered ? parseInt(orderData.delivered) + 1 : 1,
+                    delivered: orderData.delivered ? orderData.delivered + 1 : 1,
                   })
                 }
               > ▲ </button>
@@ -194,7 +199,7 @@ let checkout=orderData.delivered * productPrice;
                 onClick={() =>
                   setOrderData({
                     ...orderData,
-                    delivered: orderData.delivered && orderData.delivered > 0 ? parseInt(orderData.delivered) - 1 : 0,
+                    delivered: orderData.delivered && orderData.delivered > 0 ? orderData.delivered - 1 : 0,
                   })
                 }
               >
@@ -204,7 +209,7 @@ let checkout=orderData.delivered * productPrice;
           </div>
           <p>checkout: {checkout} $</p>
           <div className="up-down-input">
-          <p>returned: </p>
+            <p>returned: </p>
 
             <div className="up-down-buttons">
               <button
@@ -213,7 +218,7 @@ let checkout=orderData.delivered * productPrice;
                 onClick={() =>
                   setOrderData({
                     ...orderData,
-                    returned: orderData.returned ? parseInt(orderData.returned) + 1 : 1,
+                    returned: orderData.returned ? orderData.returned + 1 : 1,
                   })
                 }
               >
@@ -232,7 +237,7 @@ let checkout=orderData.delivered * productPrice;
                 onClick={() =>
                   setOrderData({
                     ...orderData,
-                    returned: orderData.returned && orderData.returned > 0 ? parseInt(orderData.returned) - 1 : 0,
+                    returned: orderData.returned && orderData.returned > 0 ? orderData.returned - 1 : 0,
                   })
                 }
               >
@@ -276,3 +281,4 @@ let checkout=orderData.delivered * productPrice;
 };
 
 export default RecordOrder;
+

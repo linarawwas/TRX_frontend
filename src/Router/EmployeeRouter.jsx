@@ -1,14 +1,14 @@
 import { Route, Routes } from 'react-router-dom';
 import React from 'react';
-import RecordOrder from '../components/Orders/RecordOrder/RecordOrder.jsx';
-import Days from '../components/Days/Days.jsx';
+import RecordOrder from '../components/Orders/RecordOrder/RecordOrder.tsx';
+import Days from '../components/Days/Days.tsx';
 import AreasForDay from '../components/Areas/AreasForDay/AreasForDay.tsx';
-import CustomersForArea from '../components/Customers/CustomersForArea/CustomersForArea.jsx';
-import Login from '../components/Auth/Login.jsx';
-import EmployeeLandingPage from '../components/EmployeeComponents/LandingPage/EmployeeLandingPage.jsx';
-import StartShipment from '../components/EmployeeComponents/StartShipment/StartShipment.jsx';
-import AddExpenses from '../components/Expenses/AddExpenses/AddExpenses.jsx';
-import AddProfits from '../components/Profits/AddProfits/AddProfits.jsx';
+import CustomersForArea from '../components/Customers/CustomersForArea/CustomersForArea.tsx';
+import Login from '../components/Auth/Login.tsx';
+import EmployeeLandingPage from '../components/EmployeeComponents/LandingPage/EmployeeLandingPage.tsx';
+import StartShipment from '../components/EmployeeComponents/StartShipment/StartShipment.tsx';
+import AddExpenses from '../components/Expenses/AddExpenses/AddExpenses.tsx';
+import AddProfits from '../components/Profits/AddProfits/AddProfits.tsx';
 function EmployeeRouter() {
     return (
         <div className="userRouter">
