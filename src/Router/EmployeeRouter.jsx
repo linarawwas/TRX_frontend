@@ -1,6 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
 import React from 'react';
-import RecordOrder from '../components/Orders/RecordOrder/RecordOrder.tsx';
+import RecordOrder from '../components/Orders/RecordOrder/RecordOrder.jsx';
 import Days from '../components/Days/Days.tsx';
 import AreasForDay from '../components/Areas/AreasForDay/AreasForDay.tsx';
 import CustomersForArea from '../components/Customers/CustomersForArea/CustomersForArea.tsx';

@@ -2,7 +2,7 @@ import { Route, Routes } from 'react-router-dom';
 import React from 'react';
 import Register from '../components/Auth/Register.tsx';
 import OrdersTable from '../components/Orders/OrdersTable/OrdersTable.tsx';
-import RecordOrder from '../components/Orders/RecordOrder/RecordOrder.tsx';
+import RecordOrder from '../components/Orders/RecordOrder/RecordOrder.jsx';
 import Days from '../components/Days/Days.tsx';
 import Areas from '../components/Areas/Areas/Areas.tsx';
 import Customers from '../components/Customers/viewCustomers/Customers.tsx';
