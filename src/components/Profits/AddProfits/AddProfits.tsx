@@ -12,7 +12,7 @@ const AddProfits: React.FC = () => {
   const token = useSelector((state: any) => state.user.token);
   const [profits, setProfits] = useState({
     name: '',
-    value: '',
+    value: 0,
     paymentCurrency: '',
     exchangeRate: '6537789b6ed59ef09c18213d',
     companyId: companyId,

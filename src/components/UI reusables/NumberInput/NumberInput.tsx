@@ -4,7 +4,7 @@ import './NumberInput.css';
 interface NumberInputProps {
   label: string;
   name: string;
-  value: string;
+  value: number;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 

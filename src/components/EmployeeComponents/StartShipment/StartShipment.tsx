@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import '../../Orders/RecordOrder/RecordOrder.css';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -11,10 +11,19 @@ import {
   setShipmentId,
   setShipmentPayments,
   setShipmentReturned,
-  setShipmentTarget,
+  setShipmentTarget, setDateDay,
+  setDateMonth,
+  setDateYear,
+  setDayId,
 } from '../../../redux/Shipment/action';
-
 const StartShipment: React.FC = () => {
+  interface ShipmentData {
+    dayId: string;
+    month: string;
+    day: number;
+    year: number;
+  }
+
   const dispatch = useDispatch();
   const token = useSelector((state: RootState) => state.user.token);
   const companyId = useSelector((state: RootState) => state.user.companyId);
@@ -61,7 +70,7 @@ const StartShipment: React.FC = () => {
       } else {
         toast.error('Error recording Shipment');
       }
-    } catch (error:any) {
+    } catch (error: any) {
       toast.error('Network error:', error);
     }
   };
@@ -70,6 +79,57 @@ const StartShipment: React.FC = () => {
     const { name, value } = e.target;
     setShipmentData({ ...shipmentData, [name]: value });
   };
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  useEffect(() => {
+    // Fetch and set the initial data when the component mounts
+    const initializeDate = async () => {
+      try {
+        // Get the current date
+        const currentDate = new Date();
+        setSelectedDate(currentDate);
+
+        const dayName = currentDate.toLocaleDateString('en-US', { weekday: 'long' });
+        const month = currentDate.getMonth() + 1;
+        const day = currentDate.getDate();
+        const year = currentDate.getFullYear();
+
+        // Perform your API request and dispatch actions here based on the current date
+        const response = await fetch(`http://localhost:5000/api/days/name/${dayName}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch day information');
+        }
+
+        const dayData = await response.json();
+        if (dayData.length === 0) {
+          throw new Error('Day information not found');
+        }
+
+        const dayId = dayData[0]._id;
+
+        const shipmentData: ShipmentData = {
+          dayId,
+          month: `${month}`, // Convert month to a string with leading zero if needed
+          day,
+          year,
+        };
+
+        dispatch(setDayId(shipmentData.dayId));
+        dispatch(setDateMonth(shipmentData.month));
+        dispatch(setDateDay(shipmentData.day));
+        dispatch(setDateYear(shipmentData.year));
+        updateShipmentData(shipmentData);
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+
+    initializeDate();
+  }, []);
 
   return (
     <div className="record-order-container">
@@ -82,7 +142,7 @@ const StartShipment: React.FC = () => {
           value={shipmentData.carryingForDelivery}
           onChange={handleChange}
         />
-        <DateSelector updateShipmentData={updateShipmentData} />
+        {/* <DateSelector updateShipmentData={updateShipmentData} /> */}
         <button className="record-order-button" type="submit">
           Start Shipment
         </button>
