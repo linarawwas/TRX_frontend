@@ -6,7 +6,7 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './UpdateCustomer.css';
-import SelectInput from '../../UI reusables/SelectInput/SelectInput.js';
+import SelectInput from '../../UI reusables/SelectInput/SelectInput.tsx';
 import { useSelector } from 'react-redux';
 
 interface Area {

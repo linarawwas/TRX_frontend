@@ -1,4 +1,4 @@
-// actionTypes.js 
+// actionTypes.ts 
 // Action types for setting token and company ID
 export const SET_CUSTOMER_ID = 'SET_CUSTOMER_ID';
 export const SET_AREA_ID = 'SET_AREA_ID';

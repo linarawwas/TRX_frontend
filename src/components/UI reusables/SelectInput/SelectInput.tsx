@@ -1,6 +1,15 @@
-import React from 'react';
-import './SelectInput.css'
-function SelectInput({ label, name, value, options, onChange }) {
+import React, { ChangeEvent } from 'react';
+import './SelectInput.css';
+
+interface SelectInputProps {
+  label: string;
+  name: string;
+  value: string;
+  options: { value: string; label: string }[];
+  onChange: (e: ChangeEvent<HTMLSelectElement>) => void;
+}
+
+const SelectInput: React.FC<SelectInputProps> = ({ label, name, value, options, onChange }) => {
   return (
     <label className="order-label">
       {label}
@@ -13,6 +22,6 @@ function SelectInput({ label, name, value, options, onChange }) {
       </select>
     </label>
   );
-}
+};
 
 export default SelectInput;
