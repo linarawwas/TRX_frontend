@@ -4,7 +4,6 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch, useSelector } from 'react-redux';
 import NumberInput from '../../UI reusables/NumberInput/NumberInput';
-import DateSelector from './DateSelector/DateSelector';
 import { RootState } from '../../../redux/store'; // Update this path with your Redux store structure
 import {
   setShipmentDelivered,
@@ -16,6 +15,8 @@ import {
   setDateYear,
   setDayId,
 } from '../../../redux/Shipment/action';
+import { useNavigate } from 'react-router-dom';
+
 const StartShipment: React.FC = () => {
   interface ShipmentData {
     dayId: string;
@@ -23,8 +24,8 @@ const StartShipment: React.FC = () => {
     day: number;
     year: number;
   }
-
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const token = useSelector((state: RootState) => state.user.token);
   const companyId = useSelector((state: RootState) => state.user.companyId);
   const [shipmentData, setShipmentData] = useState({
@@ -45,34 +46,6 @@ const StartShipment: React.FC = () => {
       month: data.month,
       year: data.year,
     });
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    try {
-      const response = await fetch('http://localhost:5000/api/shipments', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(shipmentData),
-      });
-
-      if (response.ok) {
-        const shipmentDataResponse = await response.json();
-        dispatch(setShipmentId(shipmentDataResponse._id));
-        dispatch(setShipmentDelivered(shipmentDataResponse.calculatedDelivered));
-        dispatch(setShipmentReturned(shipmentDataResponse.calculatedReturned));
-        dispatch(setShipmentPayments(shipmentDataResponse.shipmentCalculatedPayments));
-        dispatch(setShipmentTarget(shipmentDataResponse.carryingForDelivery));
-        toast.success('Shipment successfully recorded.');
-      } else {
-        toast.error('Error recording Shipment');
-      }
-    } catch (error: any) {
-      toast.error('Network error:', error);
-    }
   };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -123,6 +96,7 @@ const StartShipment: React.FC = () => {
         dispatch(setDateDay(shipmentData.day));
         dispatch(setDateYear(shipmentData.year));
         updateShipmentData(shipmentData);
+
       } catch (error) {
         console.error('Error:', error);
       }
@@ -130,7 +104,36 @@ const StartShipment: React.FC = () => {
 
     initializeDate();
   }, []);
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('http://localhost:5000/api/shipments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(shipmentData),
+      });
 
+      if (response.ok) {
+
+        const shipmentDataResponse = await response.json();
+        dispatch(setShipmentId(shipmentDataResponse._id));
+        dispatch(setShipmentDelivered(shipmentDataResponse.calculatedDelivered));
+        dispatch(setShipmentReturned(shipmentDataResponse.calculatedReturned));
+        dispatch(setShipmentPayments(shipmentDataResponse.shipmentCalculatedPayments));
+        dispatch(setShipmentTarget(shipmentDataResponse.carryingForDelivery));
+        toast.success('Shipment successfully recorded.');
+        const dayId = shipmentData.dayId
+        navigate(`/areas/${dayId}`)
+      } else {
+        toast.error('Error recording Shipment');
+      }
+    } catch (error: any) {
+      toast.error('Network error:', error);
+    }
+  };
   return (
     <div className="record-order-container">
       <ToastContainer position="top-right" autoClose={3000} />
