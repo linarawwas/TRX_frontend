@@ -7,33 +7,40 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from 'react-redux';
-function UpdateOrder() {
-  const token = useSelector(state => state.user.token);
-  // const companyId = useSelector(state => state.user.companyId)
+interface PaymentData {
+  paymentAmount: string;
+  paymentCurrency: string;
+  exchangeRateId: string;
+}
+
+function UpdateOrder(): JSX.Element {
+  const token = useSelector((state: any) => state.user.token);
   const navigate = useNavigate();
 
   const { orderId } = useParams();
-  const [orderData, setOrderData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  // State to hold payment data
-  const [paymentData, setPaymentData] = useState({
+  const [orderData, setOrderData] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [paymentData, setPaymentData] = useState<PaymentData>({
     paymentAmount: '',
-    paymentCurrency: '', // Default currency, you can change this as needed
-    exchangeRateId: '6537789b6ed59ef09c18213d', // Default exchange rate, change as needed
+    paymentCurrency: '',
+    exchangeRateId: '6537789b6ed59ef09c18213d',
   });
-  const handlePaymentChange = (e) => {
+
+  const handlePaymentChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
     const { name, value } = e.target;
     setPaymentData({
       ...paymentData,
       [name]: value,
     });
   };
-  const handleDeleteOrder = async () => {
+
+  const handleDeleteOrder = async (): Promise<void> => {
     try {
       const response = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
-        method: 'DELETE', headers: {
-          Authorization: `Bearer ${ token}`,
-        }
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (response.ok) {
@@ -43,18 +50,16 @@ function UpdateOrder() {
         }, 1500);
       } else {
         toast.error('Error deleting order');
-
-        // Handle errors here
         console.error('Error deleting order');
       }
     } catch (error) {
       toast.error('Error deleting order');
-
       console.error('Error deleting order:', error);
     }
   };
+  const handleAddPayment = async (e: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
 
-  const handleAddPayment = async (e) => {
+
     e.preventDefault();
     try {
       const response = await fetch(`http://localhost:5000/api/orders/addPayment/${orderId}`, {
