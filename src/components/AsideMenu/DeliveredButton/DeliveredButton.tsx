@@ -7,7 +7,7 @@ const DeliveredButton: React.FC = () => {
 
   return (
     <>
-      <div className='go-to-home-button'>➡️ {delivered} delivered </div>
+      <div className='go-to-home-button'>Delivered: ➡️ {delivered}  </div>
     </>
   );
 };

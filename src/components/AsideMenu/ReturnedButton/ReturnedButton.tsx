@@ -7,7 +7,7 @@ const ReturnedButton: React.FC = () => {
 
   return (
     <>
-      <div className='go-to-home-button'>⬅️ {returned}</div>
+      <div className='go-to-home-button'>Returned: ⬅️ {returned}</div>
     </>
   );
 };

@@ -7,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearCompanyId, clearToken, clearIsAdmin } from '../../../redux/UserInfo/action';
 import RightAsideMenu from './RightAsideMenu';
+import { setShipmentFromPrev } from '../../../redux/Shipment/action';
 
 const AsideMenuEmployee: React.FC = () => {
   const shipmentId: string = useSelector((state: any) => state.shipment._id);
@@ -32,6 +33,9 @@ const AsideMenuEmployee: React.FC = () => {
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+  const handlePrevShipment = () => {
+    dispatch(setShipmentFromPrev());
   };
 
   return (
@@ -66,6 +70,8 @@ const AsideMenuEmployee: React.FC = () => {
             <li>
               <button className='logout-button' onClick={handleLogout}>Logout</button>
             </li>
+            <button className='prev-shipment-btn' onClick={handlePrevShipment}>↩️</button>
+
           </ul>
         </aside>
       </div>

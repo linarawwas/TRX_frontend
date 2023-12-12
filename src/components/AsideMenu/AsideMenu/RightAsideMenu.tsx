@@ -4,9 +4,7 @@ import DeliveredButton from '../DeliveredButton/DeliveredButton';
 import ReturnedButton from '../ReturnedButton/ReturnedButton';
 import PaidInDollars from '../PaidInDollars/PaidInDollars';
 import PaidInLira from '../PaidInLira/PaidInLira';
-import { setShipmentFromPrev } from '../../../redux/Shipment/action';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 import { FaTimes } from 'react-icons/fa';
 import './RightAsideMenu.css';
 
@@ -18,11 +16,6 @@ const RightAsideMenu: React.FC = () => {
   };
 
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-
-  const handlePrevShipment = () => {
-    dispatch(setShipmentFromPrev());
-  };
 
   const handleGoHome = () => {
     navigate('/');
@@ -31,8 +24,7 @@ const RightAsideMenu: React.FC = () => {
   return (
     <aside className={`right-aside-menu ${isRightMenuOpen ? 'open' : ''}`}>
       <div className='buttons-menu-employee right-menu-toggle'>
-        <button className='right-buttons-employee' onClick={handleGoHome}>🏁</button>
-        <button className='right-buttons-employee' onClick={handlePrevShipment}>↩️</button>
+        <button className='right-buttons-employee' onClick={handleGoHome}>🏠</button>
         <button className='right-buttons-employee' onClick={toggleRightMenu}>
           {isRightMenuOpen ? <FaTimes /> : "📊"}
         </button>
@@ -41,6 +33,7 @@ const RightAsideMenu: React.FC = () => {
         <TargetButton />
         <DeliveredButton />
         <ReturnedButton />
+        <div className='go-to-home-button'>Cash Input: </div>
         <PaidInDollars />
         <PaidInLira />
       </div>
