@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { clearCustomerId, setCustomerId } from "../../../redux/Order/action";
-
+import './CustomersForArea.css'
 interface Customer {
   _id: string;
   name: string;
@@ -68,7 +68,7 @@ const CustomersForArea = (): JSX.Element => {
               <td>{customer.address}</td>
               <td>{customer.phone}</td>
               <td>
-                <button onClick={() => handleOrderState(customer._id)}>record order</button>
+                <button className="customer-for-area-record-button" onClick={() => handleOrderState(customer._id)}>➡️</button>
               </td>
             </tr>
           ))

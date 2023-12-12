@@ -98,3 +98,40 @@ text-align: center;
   /* padding: 10px auto; */
   margin: 10px auto;
 }
+@media only screen and (max-width: 600px) {
+  .record-order-container {
+    margin-top:20%;
+  }
+  .default-product-name{
+    border:1px solid black;
+    padding:10px;
+    margin: 10px;
+  }
+  .record-order-form {
+    width: 70%;
+    padding: 10px;
+  }
+  .paid-label{
+    margin-top: 2px;
+  }
+  .record-order-button {
+    font-size: 12px;
+    margin-top: 5px;
+  }
+  .number-input{
+    width:30px;
+    padding:4px;
+  }
+  .up-down-buttons .arrow {
+    width:50px;
+  margin:2px 4px;
+  }
+  .currency-button{
+    padding:10px;
+    margin:10px;
+  }
+  .currency-button {
+font-size: 15px; 
+margin: 5px 20px;
+margin-bottom: 2px; }
+}

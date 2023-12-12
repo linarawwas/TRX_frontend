@@ -47,21 +47,18 @@
 }
 
 .go-to-home-button {
-  margin-top: 2vh;
-  margin-right: 2vw;
-  border: 1px solid black;
-  border-radius: 30px;
-  color: black;
+  color: white;
   padding: 10px;
   text-wrap: nowrap;
-  /* font-size: 15px; */
-  font-weight: 800;
-  font-family: 'Courier New', Courier, monospace;
+  font-size: 18px;
+  text-align: center;
+  border:1px solid white;
+  margin: 10px;
 }
 
 .menu-open .sidebar {
   transform: translateX(0);
-  opacity: 0.8;
+  opacity: 1;
 }
 
 .menu-closed .sidebar {

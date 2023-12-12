@@ -194,19 +194,8 @@ let checkout=orderData.delivered * productPrice;
               </button>
             </div>
           </div>
-          <p>paid: </p>
-
-          <input
-            type="number"
-            className="number-input free-select"
-            placeholder="Paid"
-            name="paid"
-            value={orderData.paid}
-            onChange={handleChange}
-          />
-        </div>
-        {/* Currency Selection Buttons */}
-        <div className="currency-buttons">
+              <div className="currency-buttons">
+              <div className='paid-label'>paid: </div> 
           <button type="button"
             className={`currency-button ${orderData.paymentCurrency === 'USD' ? 'selected' : ''}`}
             onClick={() => handleCurrencySelection('USD')}
@@ -220,9 +209,21 @@ let checkout=orderData.delivered * productPrice;
             LBP
           </button>
         </div>
+
+          <input
+            type="number"
+            className="number-input free-select"
+            placeholder="Paid"
+            name="paid"
+            value={orderData.paid}
+            onChange={handleChange}
+          />
+        </div>
+        {/* Currency Selection Buttons */}
+
         {/* Record Order Button */}
         <button className="record-order-button" type="submit">
-          Record Order
+          Record
         </button>
       </form>
     </div>

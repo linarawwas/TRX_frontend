@@ -30,17 +30,19 @@ const RightAsideMenu: React.FC = () => {
 
   return (
     <aside className={`right-aside-menu ${isRightMenuOpen ? 'open' : ''}`}>
-      <button className="right-menu-toggle" onClick={toggleRightMenu}>
-        {isRightMenuOpen ? <FaTimes /> : "📊"}
-      </button>
+      <div className='buttons-menu-employee right-menu-toggle'>
+        <button className='right-buttons-employee' onClick={handleGoHome}>🏁</button>
+        <button className='right-buttons-employee' onClick={handlePrevShipment}>↩️</button>
+        <button className='right-buttons-employee' onClick={toggleRightMenu}>
+          {isRightMenuOpen ? <FaTimes /> : "📊"}
+        </button>
+      </div>
       <div className='button-div'>
         <TargetButton />
         <DeliveredButton />
         <ReturnedButton />
         <PaidInDollars />
         <PaidInLira />
-        <button className='go-to-home-button' onClick={handleGoHome}>🏁</button>
-        <button className='go-to-home-button' onClick={handlePrevShipment}>↩️</button>
       </div>
     </aside>
   );
