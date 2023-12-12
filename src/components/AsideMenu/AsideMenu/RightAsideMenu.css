@@ -1,0 +1,42 @@
+.right-aside-menu {
+  position: fixed;
+  top: 0;
+  right: -300px; /* Initially off-screen */
+  width: 250px;
+  height: 100%;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  transition: right 0.3s ease-in-out;
+}
+
+.right-aside-menu.open {
+  right: 0; /* Slide in the menu when it's open */
+}
+
+.right-aside-menu .button-div {
+  display: flex;
+  flex-direction: column; /* Align buttons in a column */
+  align-items: flex-start; /* Align buttons at the start */
+  padding: 20px;
+}
+
+.right-menu-toggle {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #000;
+  font-size: 24px;
+}
+
+.right-menu-toggle:focus {
+  outline: none;
+}
+
+/* Additional styles for buttons or elements inside the right aside menu */
+.right-aside-menu button {
+  margin-bottom: 10px;
+  z-index: 100;
+}

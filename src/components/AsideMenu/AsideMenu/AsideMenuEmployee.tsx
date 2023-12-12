@@ -6,12 +6,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearCompanyId, clearToken, clearIsAdmin } from '../../../redux/UserInfo/action';
-import TargetButton from '../TargetButton/TargetButton'; // Assuming TargetButton has a default export
-import DeliveredButton from '../DeliveredButton/DeliveredButton'; // Assuming DeliveredButton has a default export
-import ReturnedButton from '../ReturnedButton/ReturnedButton'; // Assuming ReturnedButton has a default export
-import PaidInDollars from '../PaidInDollars/PaidInDollars'; // Assuming PaidInDollars has a default export
-import PaidInLira from '../PaidInLira/PaidInLira'; // Assuming PaidInLira has a default export
-import { setShipmentFromPrev } from '../../../redux/Shipment/action';
+import RightAsideMenu from './RightAsideMenu';
 
 const AsideMenuEmployee: React.FC = () => {
   const shipmentId: string = useSelector((state: any) => state.shipment._id);
@@ -48,17 +43,9 @@ const AsideMenuEmployee: React.FC = () => {
           <button className="menu-toggle" onClick={toggleMenu}>
             {isMenuOpen ? <FaTimes /> : <FaBars />}
           </button>
-          <TargetButton />
-          <DeliveredButton />
-          <ReturnedButton />
-          <PaidInDollars />
-          <PaidInLira />
-          <Link to='/'>
-            <div className='go-to-home-button .home-btn'>🏁 </div>
-            <div className='go-to-home-button .home-btn' onClick={() => {
-              dispatch(setShipmentFromPrev());
-            }}>↩️ </div>
-          </Link>
+
+          <RightAsideMenu />
+
         </div>
 
         <aside className="sidebar">
