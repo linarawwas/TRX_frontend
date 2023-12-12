@@ -31,7 +31,7 @@ const RightAsideMenu: React.FC = () => {
   return (
     <aside className={`right-aside-menu ${isRightMenuOpen ? 'open' : ''}`}>
       <button className="right-menu-toggle" onClick={toggleRightMenu}>
-        {isRightMenuOpen ? <FaTimes /> : <FaBars />}
+        {isRightMenuOpen ? <FaTimes /> : "📊"}
       </button>
       <div className='button-div'>
         <TargetButton />

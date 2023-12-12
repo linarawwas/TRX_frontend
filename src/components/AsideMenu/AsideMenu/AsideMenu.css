@@ -36,18 +36,14 @@
 }
 
 .menu-toggle {
-  background: #9493b7;
-  width: 40px;
+  background: white;
+  font-size: 20px;
   margin: 10px 20px;
   border: none;
-  color: #ece6e6;
-  padding: 10px;
+  color: black;
   cursor: pointer;
   display: block;
-  font-size: 16px;
   z-index: 100;
-  box-shadow: 1px 1px 10px 5px #ece6e6;
-
 }
 
 .go-to-home-button {
@@ -62,6 +58,7 @@
   font-weight: 800;
   font-family: 'Courier New', Courier, monospace;
 }
+
 .menu-open .sidebar {
   transform: translateX(0);
   opacity: 0.8;
@@ -71,9 +68,6 @@
   transform: translateX(-250px);
 }
 
-.menu-closed .menu-toggle {
-  left: 10px;
-}
 
 .sidebar ul {
   list-style-type: none;
