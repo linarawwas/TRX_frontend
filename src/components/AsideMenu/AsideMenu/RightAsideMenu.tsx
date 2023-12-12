@@ -7,7 +7,7 @@ import PaidInLira from '../PaidInLira/PaidInLira';
 import { setShipmentFromPrev } from '../../../redux/Shipment/action';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { FaBars, FaTimes } from 'react-icons/fa';
+import { FaTimes } from 'react-icons/fa';
 import './RightAsideMenu.css';
 
 const RightAsideMenu: React.FC = () => {
