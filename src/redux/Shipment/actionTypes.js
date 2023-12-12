@@ -11,6 +11,7 @@ export const SET_RETURNED = 'SET_RETURNED';
 export const SET_DELIVERED = 'SET_DELIVERED';
 export const SET_USD_PAYMENTS = 'SET_USD_PAYMENTS';
 export const SET_LIRA_PAYMENTS = 'SET_LIRA_PAYMENTS';
+export const SET_SHIPMENT_FROM_PREV = 'SET_SHIPMENT_FROM_PREV';
 
 // Action types for clearing day and date Info
 export const CLEAR_DAY_ID = 'CLEAR_DAY_ID';
@@ -19,4 +20,4 @@ export const CLEAR_TARGET = 'CLEAR_TARGET';
 export const CLEAR_DATE_DAY = 'CLEAR_DATE_DAY';
 export const CLEAR_DATE_MONTH = 'CLEAR_DATE_MONTH';
 export const CLEAR_DATE_YEAR = 'CLEAR_DATE_YEAR';
-export const CLEAR_SHIPMENT_INFO = 'CLEAR_SHIPMENT_INFO';
+export const CLEAR_ALL_SHIPMENT_INFO = 'CLEAR_ALL_SHIPMENT_INFO';

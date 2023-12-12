@@ -1,11 +1,16 @@
 // action.js
 
-import { SET_DAY_ID, SET_TOTAL_PAYMENTS,SET_RETURNED,SET_DELIVERED,SET_LIRA_PAYMENTS,SET_USD_PAYMENTS,  SET_ID, SET_DATE_DAY, SET_DATE_MONTH, SET_DATE_YEAR, CLEAR_DAY_ID, CLEAR_DATE_DAY, CLEAR_DATE_MONTH, CLEAR_DATE_YEAR, CLEAR_ID, CLEAR_SHIPMENT_INFO, SET_TARGET } from "./actionTypes";
+import { SET_DAY_ID,SET_SHIPMENT_FROM_PREV, SET_TOTAL_PAYMENTS,SET_RETURNED,SET_DELIVERED,SET_LIRA_PAYMENTS,SET_USD_PAYMENTS,  SET_ID, SET_DATE_DAY, SET_DATE_MONTH, SET_DATE_YEAR, CLEAR_DAY_ID, CLEAR_DATE_DAY, CLEAR_DATE_MONTH, CLEAR_DATE_YEAR, CLEAR_ID, SET_TARGET, CLEAR_ALL_SHIPMENT_INFO } from "./actionTypes";
 
 export const setDayId = (dayId) => ({
   type: SET_DAY_ID,
   payload: dayId,
 });
+export const setShipmentFromPrev = () => {
+  return {
+    type: SET_SHIPMENT_FROM_PREV,
+  };
+};
 
 export const setShipmentTarget = (target) => ({
   type: SET_TARGET,
@@ -68,5 +73,5 @@ export const clearShipmentId = () => ({
   type: CLEAR_ID,
 });
 export const clearShipmentInfo = () => ({
-  type: CLEAR_SHIPMENT_INFO,
+  type: CLEAR_ALL_SHIPMENT_INFO,
 });
