@@ -1,87 +1,103 @@
-/* LandingPage.css */
+/* Your landing page styles */
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+background: linear-gradient(to bottom,  #1b3e54 0%,#082338 49%,#19394e 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+}
+/* Dark blue: #0000FF
 
+Orange: #FFA500
+
+White: #FFFFFF */
 .landing-page {
-  background: linear-gradient(rgba(78, 84, 184, 0.6), rgba(0, 0, 0, 0.6));  background-size: cover;
-  background-position: center;
-  color: #fff;
-  text-align: center;
-  padding: 100px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   height: 100vh;
-}
-
-.landing-header h1 {
-  font-size: 3rem;
-  margin-bottom: 20px;
-  font-weight: bold;
-}
-
-.landing-header p {
-  font-size: 1.2rem;
-}
-
-.landing-content {
-  max-width: 800px;
-  margin: 0 auto;
   padding: 20px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  text-align: left;
 }
 
-.landing-content p {
-  font-size: 1.2rem;
-  line-height: 1.5;
+.hero-section {
+  text-align: center;
+  margin-bottom: 50px;
+  animation: fadeInUp 1s ease;
 }
 
-.landing-content ul {
-  list-style: inside;
-  margin: 20px 0;
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.landing-content ul li {
-  font-size: 1.1rem;
+h1 {
+  font-size: 48px;
+  color: #333;
   margin-bottom: 10px;
 }
 
-.landing-footer {
-  margin-top: 40px;
-  font-size: 1rem;
+p {
+  font-size: 18px;
+  color: #666;
+  margin-bottom: 30px;
 }
 
-/* Button Styling */
-button {
-  background: #007BFF;
-  color: #fff;
-  font-size: 1.2rem;
+.get-started-button {
+  padding: 12px 24px;
+  font-size: 18px;
   border: none;
   border-radius: 5px;
-  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: background-color 0.3s ease;
 }
 
-button:hover {
-  background: #0056b3;
+.get-started-button:hover {
+  background-color: #0056b3;
 }
 
-/* Responsiveness */
-@media (max-width: 768px) {
-  .landing-content {
-    padding: 10px;
+.feature-section {
+  text-align: center;
+  margin-bottom: 50px;
+  animation: fadeIn 1s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
   }
-  .landing-header h1 {
-    font-size: 2rem;
-  }
-  .landing-header p {
-    font-size: 1rem;
-  }
-  .landing-content p {
-    font-size: 1rem;
-  }
-  .landing-content ul li {
-    font-size: 1rem;
+  to {
+    opacity: 1;
   }
 }
 
-/* Add any other responsiveness styles as needed */
+h2 {
+  font-size: 32px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  font-size: 18px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.footer {
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+  animation: fadeIn 1s ease;
+}
