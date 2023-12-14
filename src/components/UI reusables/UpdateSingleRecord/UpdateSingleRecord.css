@@ -43,7 +43,7 @@
   
   /* Style for table headers */
   .details-table th {
-    background-color: #007bff;
+    background-color: #FFA500;
     color: white;
     padding: 10px;
   }
@@ -52,7 +52,7 @@
   .details-table td {
     padding: 10px;
     border: 1px solid #ddd;
-    background-color: #fff;
+    background-color: #082338;
   }
   
   /* Style for field names */
@@ -98,6 +98,6 @@
 }
 
 .form-input:focus {
-  border: 1px solid #007bff; /* Highlight border on focus */
+  border: 1px solid #FFA500; /* Highlight border on focus */
   outline: none;
 }

@@ -2,6 +2,7 @@ import './Login.css'; // Import your CSS file
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+// import logo from '../../assets/logo.jpeg';
 
 export default function Login(): JSX.Element {
   const [formData, setFormData] = useState({
@@ -67,7 +68,7 @@ export default function Login(): JSX.Element {
       <ToastContainer position="top-right" autoClose={1000} />
 
       <h2 className='login-title'>Login</h2>
-
+{/* <img className='logo' src={logo}/> */}
       <form className='login-form' onSubmit={handleSubmit}>
         <input
           type="email"

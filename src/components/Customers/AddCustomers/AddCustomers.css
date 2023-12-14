@@ -20,8 +20,8 @@
   .upload-button {
     padding: 10px 20px;
     font-size: 16px;
-    background-color: #007bff;
-    color: #fff;
+    background-color: #FFA500;
+    color: #082338;
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -29,6 +29,6 @@
   }
   
   .upload-button:hover {
-    background-color: #0056b3;
+    background-color: #ff6600;
   }
   

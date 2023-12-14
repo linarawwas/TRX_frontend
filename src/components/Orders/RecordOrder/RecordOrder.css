@@ -25,7 +25,7 @@
   width: 30%;
   padding: 20px;
   border: 1px solid #ccc;
-  background-color: #fff;
+  background-color: #082338;
   margin-bottom:20px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -51,8 +51,8 @@
 }
 
 .record-order-button {
-  background-color: #007bff;
-  color: #fff;
+  background-color: #FFA500;
+  color: #082338;
   border: none;
   border-radius: 4px;
   padding: 10px 20px;
@@ -62,7 +62,7 @@
 }
 
 .record-order-button:hover {
-  background-color: #0056b3;
+  background-color: #ff6600;
 }
 
 .up-down-buttons{

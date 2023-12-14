@@ -6,7 +6,7 @@
 
 .sidebar {
   background: rgb(6, 8, 46);
-  color: #fff;
+  color: #082338;
   width: 250px;
   height: 100%;
   position: fixed;
@@ -88,8 +88,8 @@
 }
 
 .logout-button {
-  background-color: #007bff;
-  color: #fff;
+  background-color: #FFA500;
+  color: #082338;
   border: none;
   border-radius: 5px;
   cursor: pointer;

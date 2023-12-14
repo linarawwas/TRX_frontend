@@ -24,8 +24,8 @@
   .update-customer-form button {
     width: 100%;
     padding: 10px;
-    background-color: #007BFF;
-    color: #fff;
+    background-color: #FFA500;
+    color: #082338;
     border: none;
     border-radius: 5px;
     font-size: 18px;
@@ -33,7 +33,7 @@
   }
   
   .update-customer-form button:hover {
-    background-color: #0056b3;
+    background-color: #ff6600;
   }
   
   .update-customer-form button:disabled {
@@ -50,7 +50,7 @@
   
   .delete-button {
     background-color: #ff5555;
-    color: #fff;
+    color: #082338;
     border: none;
     border-radius: 5px;
     padding: 5px 10px;

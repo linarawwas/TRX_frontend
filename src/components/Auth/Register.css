@@ -4,7 +4,7 @@
   margin: 100px auto;
   padding: 20px;
   border-radius: 5px;
-  background-color: #fff;
+  background-color: #082338;
   border: 1px solid black;
 }
  .register-form {
@@ -25,8 +25,8 @@ align-items: center;
 }
 .register-button {
   padding: 10px;
-  background-color: #007bff;
-  color: #fff;
+  background-color: #FFA500;
+  color: #082338;
   border: none;
   border-radius: 5px;
   cursor: pointer;
