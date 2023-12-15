@@ -39,6 +39,8 @@ function AdminRouter() {
           <Route path="/addExpenses" element={<AddExpenses />} />
           <Route path="/addCustomers" element={<AddCustomers />} />
           <Route path="/addProfits" element={<AddProfits />} />
+          <Route path="/currentShipment" element={<CurrentShipment />} />
+          
         </Routes>
       </div>
     </>

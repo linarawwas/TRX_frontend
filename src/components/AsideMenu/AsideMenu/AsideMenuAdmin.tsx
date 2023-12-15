@@ -64,6 +64,9 @@ const AsideMenuAdmin: React.FC = () => {
               <Link to="/addCustomers" className='sidebar-link' onClick={toggleMenu}>Add Customers</Link>
             </li>
             <li>
+              <Link to="/currentShipment" className='sidebar-link' onClick={toggleMenu}>Current Shipment</Link>
+            </li>
+            <li>
               <button className='logout-button' onClick={handleLogout}>Logout</button>
             </li>
           </ul>
