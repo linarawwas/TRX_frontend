@@ -81,7 +81,26 @@ const ShipmentsList: React.FC = () => {
   };
   return (
     <div className="shipments-container">
-      <div className="date-inputs">
+        <div className="date-inputs">
+        <label htmlFor="fromDate">From Date:</label>
+        <input
+          type="date"
+          name="fromDate"
+          value={`${fromDate.year}-${fromDate.month.toString().padStart(2, '0')}-${fromDate.day.toString().padStart(2, '0')}`}
+          onChange={handleFromDateChange}
+        />
+
+        <label htmlFor="toDate">To Date:</label>
+        <input
+          type="date"
+          name="toDate"
+          value={`${toDate.year}-${toDate.month.toString().padStart(2, '0')}-${toDate.day.toString().padStart(2, '0')}`}
+          onChange={handleToDateChange}
+        />
+
+        <button onClick={fetchShipments}>Fetch Shipments</button>
+      </div>
+      {/* <div className="date-inputs">
         <label htmlFor="fromDate">From Date:</label>
         <input type="number" name="day" value={fromDate.day} onChange={handleFromDateChange} />
         <input type="number" name="month" value={fromDate.month} onChange={handleFromDateChange} />
@@ -93,7 +112,7 @@ const ShipmentsList: React.FC = () => {
         <input type="number" name="year" value={toDate.year} onChange={handleToDateChange} />
 
         <button onClick={fetchShipments}>Fetch Shipments</button>
-      </div>
+      </div> */}
       <div className="shipments-list">
         <h2>Shipments List</h2>
         <ul>
