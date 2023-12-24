@@ -32,6 +32,12 @@ const ShipmentsList: React.FC = () => {
   const [shipments, setShipments] = useState<ShipmentData[]>([]);
   const [fromDate, setFromDate] = useState({ day: 12, month: 22, year: 2023 });
   const [toDate, setToDate] = useState({ day: 1, month: 10, year: 2023 });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [shipmentsPerPage] = useState(3);
+
+  const indexOfLastShipment = currentPage * shipmentsPerPage;
+  const indexOfFirstShipment = indexOfLastShipment - shipmentsPerPage;
+  const currentShipments = shipments.slice(indexOfFirstShipment, indexOfLastShipment);
 
   const fetchShipments = async () => {
     try {
@@ -70,7 +76,9 @@ const ShipmentsList: React.FC = () => {
     const { name, value } = event.target;
     setToDate({ ...toDate, [name]: value });
   };
-
+  const paginate = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
   return (
     <div className="shipments-container">
       <div className="date-inputs">
@@ -86,7 +94,6 @@ const ShipmentsList: React.FC = () => {
 
         <button onClick={fetchShipments}>Fetch Shipments</button>
       </div>
-
       <div className="shipments-list">
         <h2>Shipments List</h2>
         <ul>
@@ -95,8 +102,8 @@ const ShipmentsList: React.FC = () => {
               <progress className="loader" max="100"></progress>
             </div>
           ) : (
-            shipments.map((shipment) => (
-              <li key={shipment._id}>
+            currentShipments.map((shipment) => (
+<li key={shipment._id}>
                 <div>
                   <strong>Shipment ID:</strong> {shipment._id}
                 </div>
@@ -131,7 +138,16 @@ const ShipmentsList: React.FC = () => {
                   <strong>Shipment Calculated USD Payments:</strong> {shipment.shipmentCalculatedUSDPayments}
                 </div>
               </li>
-            )))}
+            ))
+          )}
+        </ul>
+        {/* Pagination */}
+        <ul className="pagination">
+          {Array.from({ length: Math.ceil(shipments.length / shipmentsPerPage) }, (_, index) => (
+            <li key={index} onClick={() => paginate(index + 1)} className="pagination-item">
+              {index + 1}
+            </li>
+          ))}
         </ul>
       </div>
     </div>

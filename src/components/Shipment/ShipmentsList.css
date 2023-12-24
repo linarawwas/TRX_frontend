@@ -2,7 +2,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 20px;
+    background: linear-gradient(to bottom,  #1b3e54 0%,#082338 49%,#19394e 100%) no-repeat ; /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
   }
   
   .date-inputs {
@@ -14,9 +14,9 @@
   
   .shipments-list {
     width: 80%;
-    border: 1px solid #ccc;
-    padding: 10px;
+    padding-bottom: 10px;
     border-radius: 5px;
+    margin-bottom: 100px;
   }
   
   .shipments-list h2 {
@@ -33,7 +33,32 @@
     border-bottom: 1px solid #ccc;
     padding: 10px 0;
   }
-  
+.shipment-item {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+/* Pagination */
+.pagination {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pagination-item {
+  margin: 0 5px;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.pagination-item:hover {
+  background-color: #f0f0f0;
+}
+
   .loader-container {
     width: 100%;
     height: 30px; /* Adjust height as needed */

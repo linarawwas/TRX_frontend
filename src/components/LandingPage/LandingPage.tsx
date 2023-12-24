@@ -9,7 +9,6 @@ const LandingPage: React.FC = () => {
         <div className="hero-section">
           <h1>Welcome to TRX, {name}</h1>
           <p>A powerful inventory management system</p>
-          <button className="get-started-button">Get Started</button>
         </div>
         <div className="feature-section">
           <h2>Key Features</h2>
@@ -20,7 +19,7 @@ const LandingPage: React.FC = () => {
           </ul>
         </div>
         <div className="footer">
-          <p>&copy; 2023 TRX. All Rights Reserved.</p>
+          <p>&copy; 2023 TRX by Lina Rawas. All Rights Reserved.</p>
         </div>
       </div>
     );

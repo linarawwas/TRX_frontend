@@ -17,10 +17,10 @@
 }
 
 .sidebar-link {
-  color: #ece6e6;
+  color: #FFA500;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
   text-decoration: none;
 }
-
 .sidebar-link:active {
   text-decoration: underline;
   color: red;
@@ -36,11 +36,11 @@
 }
 
 .menu-toggle {
-  background: white;
+  background: transparent;
   font-size: 20px;
   margin: 10px 20px;
   border: none;
-  color: black;
+  color: #FFA500;
   cursor: pointer;
   display: block;
   z-index: 100;
