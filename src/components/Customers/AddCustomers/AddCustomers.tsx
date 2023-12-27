@@ -2,11 +2,12 @@ import React, { useState, ChangeEvent } from 'react';
 import * as XLSX from 'xlsx';
 import './AddCustomers.css';
 import { useSelector } from 'react-redux';
+import { ToastContainer,toast } from 'react-toastify';
 
 const AddCustomers = (): JSX.Element => {
   const [file, setFile] = useState<File | null>(null);
   const token: string = useSelector((state: any) => state.user.token);
-
+  const companyId: string = useSelector((state: any) => state.user.companyId);
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const uploadedFile = e.target.files[0];
@@ -49,15 +50,12 @@ const AddCustomers = (): JSX.Element => {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`,
               },
-              body: JSON.stringify({ customerData }), // Convert customerData array to JSON
+              body: JSON.stringify(customerData.map(customer => ({ ...customer, companyId: companyId }))),
             });
 
-            console.log('Customer Data:', customerData);
-
-            const responseData = await response.json();
-            console.log('Response:', responseData);
+            toast.success('Customers Added successfuly');
           } catch (error) {
-            console.error('Error uploading customers:', error);
+            toast.error('Error uploading customers');
           }
         }
       }
@@ -67,6 +65,8 @@ const AddCustomers = (): JSX.Element => {
 
   return (
     <div className="customer-uploader">
+            <ToastContainer position="top-right" autoClose={2000} />
+
       <h2 className="uploader-title">Upload Customer Data</h2>
       <input type="file" onChange={handleFileUpload} accept=".xlsx, .xls" className="file-input" />
       <button onClick={handleUpload} className="upload-button">
