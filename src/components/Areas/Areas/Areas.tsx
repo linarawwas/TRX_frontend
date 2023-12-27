@@ -5,6 +5,7 @@ import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { useSelector } from 'react-redux';
 import AddArea from '../AddArea/AddArea';
+import SpinLoader from '../../UI reusables/SpinLoader/SpinLoader';
 
 interface Area {
   _id: string;
@@ -39,7 +40,7 @@ export default function Areas(): JSX.Element {
         console.error('Error fetching areas:', error);
         setLoading(false);
       });
-  }, [token]);
+  }, [token,formVisible]);
 
   const handlePageChange = (newPage: number) => {
     setSelectedItem(newPage);
@@ -69,14 +70,13 @@ export default function Areas(): JSX.Element {
     <div className="areas-body">
       <div className="areas-header">
         <h2 className="areas-title">Distribution Areas</h2>
-        <button onClick={handleFormToggle}>Add A new Area? </button>
+        <button onClick={handleFormToggle}>{formVisible ? "show areas" : "Add A new Area?"} </button>
       </div>
 
       {loading ? (
-        <p>Loading...</p>
-      ) : (
+<SpinLoader/>      ) : (
         <>
-          <table className="areas-table">
+          {!formVisible && <table className="areas-table">
             <thead>
               <tr>
                 <th>Area</th>
@@ -91,7 +91,7 @@ export default function Areas(): JSX.Element {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table>}
           {totalPages > 1 && (
             <div className="pagination">
               <div className="nav-arrow left" onClick={goToPreviousPage}>

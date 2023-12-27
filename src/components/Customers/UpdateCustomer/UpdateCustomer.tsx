@@ -167,7 +167,7 @@ function UpdateCustomer(): JSX.Element {
       </div>
 
       {loading ? (
-        <p>Loading...</p>
+        <SpinLoader/> 
       ) : customerData ? (
         <div>
           <table className="details-table">

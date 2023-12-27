@@ -25,7 +25,6 @@ const Customers: React.FC = () => {
   const [showInsertBulk, setShowInsertBulk] = useState<boolean>(false);
   const [showInsertOne, setShowInsertOne] = useState<boolean>(false);
   useEffect(() => {
-    console.log(`Sending request with token: ${token}`);
     fetch(`http://localhost:5000/api/customers/company/${companyId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -88,7 +87,7 @@ const Customers: React.FC = () => {
 
 
       {loading ? (
-        <p>Loading...</p>
+        <SpinLoader/> 
       ) : (<div>
         {!showInsertOne && <table className="customers-table">
           <thead>

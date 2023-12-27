@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-d
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch } from 'react-redux';
 import { setCompanyId, setIsAdmin, setToken, setUsername } from './redux/UserInfo/action.js';
-
+import './index.css'
 function App() {
   const dispatch = useDispatch();
   const token = localStorage.getItem("token");

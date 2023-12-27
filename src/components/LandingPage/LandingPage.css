@@ -1,11 +1,5 @@
-/* Your landing page styles */
-body {
-  margin: 0;
-  font-family: 'Arial', sans-serif;
-  height: 100vh;
-background: linear-gradient(to bottom,  #1b3e54 0%,#082338 49%,#19394e 100%) no-repeat ; /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 
-}
+
 .landing-page {
   display: flex;
   flex-direction: column;
@@ -26,6 +20,7 @@ background: linear-gradient(to bottom,  #1b3e54 0%,#082338 49%,#19394e 100%) no-
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -69,6 +64,7 @@ p {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }

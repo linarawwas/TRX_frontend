@@ -119,7 +119,7 @@ const OrdersTable: React.FC = () => {
     <div className='ordersBody'>
       <h2 className='ordersTitle'> Orders</h2>
       {loading ? (
-        <p>Loading...</p>
+        <SpinLoader/> 
       ) : (
         <>
           <table className="orders-table">

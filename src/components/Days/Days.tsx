@@ -35,7 +35,7 @@ const Days: React.FC = () => {
     <div className="daysBody">
       <h2 className="daysTitle">Distribution Days</h2>
       {loading ? (
-        <p>Loading...</p>
+        <SpinLoader/> 
       ) : (
         <table className="days-table">
           <thead>

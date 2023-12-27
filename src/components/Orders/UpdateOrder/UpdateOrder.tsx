@@ -140,7 +140,7 @@ function UpdateOrder(): JSX.Element {
       </div>
 
       {loading ? (
-        <p>Loading...</p>
+        <SpinLoader/> 
       ) : orderData ? (
         <div>
           <table className="details-table">

@@ -1,7 +1,6 @@
 /* daysTable.css */
 .areas-body {
     margin: 1% auto;
-    width: 100%;
   }
   
   .loading {
@@ -43,6 +42,5 @@
   .areas-table tbody tr:nth-child(even) {
     background-color: #f8f8f8;
   }
-  
   
   /* Add more styles as needed to achieve your desired minimalist design. */
