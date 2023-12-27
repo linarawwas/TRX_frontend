@@ -4,6 +4,9 @@ import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Link } from 'react-router-dom';
 import './Customers.css';
 import { useSelector } from 'react-redux';
+import AddCustomers from '../AddCustomers/AddCustomers';
+import AddCustomer from '../AddCustomer/AddCustomer';
+import { ToastContainer } from 'react-toastify';
 
 interface Customer {
   _id: string;
@@ -19,7 +22,8 @@ const Customers: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [selectedItem, setSelectedItem] = useState<number>(0);
-
+  const [showInsertBulk, setShowInsertBulk] = useState<boolean>(false);
+  const [showInsertOne, setShowInsertOne] = useState<boolean>(false);
   useEffect(() => {
     console.log(`Sending request with token: ${token}`);
     fetch(`http://localhost:5000/api/customers/company/${companyId}`, {
@@ -65,12 +69,28 @@ const Customers: React.FC = () => {
 
   return (
     <div className='customers-body'>
-      <h2 className='customers-title'>Customers</h2>
+      <div className='customer-header'>
+        <h2 className='customers-title'>Customers</h2>
+        <div className='customer-adding-options'>
+          <button className='customer-adding-option' onClick={() => {
+            setShowInsertBulk(!showInsertBulk)
+          }}> {showInsertBulk? 'Hide Form': 'Add Many?'} </button>
+          <button className='customer-adding-option'
+            onClick={() => {
+              setShowInsertOne(!showInsertOne)
+            }}> {showInsertOne? 'Show customers': 'Add one?'}  </button>
+          {showInsertBulk &&
+            <AddCustomers />}
+          {showInsertOne &&
+            <AddCustomer />}
+        </div>
+      </div>
+
+
       {loading ? (
         <p>Loading...</p>
-      ) : (
-        <>
-          <table className="customers-table">
+      ) : (<div>
+         { !showInsertOne && <table className="customers-table">
             <thead>
               <tr>
                 <th>Name</th>
@@ -93,7 +113,7 @@ const Customers: React.FC = () => {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table>}
           {totalPages > 1 && (
             <div className="pagination">
               <div className="nav-arrow left" onClick={goToPreviousPage}>
@@ -116,7 +136,7 @@ const Customers: React.FC = () => {
               </div>
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );

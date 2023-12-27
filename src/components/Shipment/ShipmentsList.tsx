@@ -4,6 +4,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { ToastContainer, toast } from 'react-toastify';
+import SpinLoader from '../UI reusables/SpinLoader/SpinLoader';
 
 interface ShipmentData {
   _id: string;
@@ -143,8 +144,7 @@ const ShipmentsList: React.FC = () => {
         </div>
         <ul>
           {isLoading ? (
-            <div className="spinner"></div>
-          ) : (
+            <SpinLoader />) : (
             currentShipments.map((shipment) => (
               <li key={shipment._id}>
                 <div>

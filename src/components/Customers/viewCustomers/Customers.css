@@ -1,18 +1,19 @@
-.customers-body .customers-title {
-    text-align: center;
-}
-
 .customers-body {
     margin-top: 0;
     margin-bottom: 100px;
 }
-
+.customer-header{
+  text-align: center;
+}
+.customer-adding-option{
+  margin: 10px;
+}
 .customers-body .customers-table td {
     padding: 20px 0;
 }
 
 .pagination {
-    margin:10px 0;
+    margin:20px 0;
     display: flex;
     align-items: center;
     align-content:center;
@@ -67,5 +68,5 @@
   .customers-table tbody tr:nth-child(even) {
     background-color: #f8f8f8;
   }
-  
+
   /* Add more styles as needed to achieve your desired minimalist design. */
