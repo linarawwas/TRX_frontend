@@ -40,7 +40,7 @@ const Customers: React.FC = () => {
         console.error('Error fetching customers:', error);
         setLoading(false);
       });
-  }, [token, companyId]);
+  }, [token, companyId, showInsertBulk, showInsertOne]);
 
   const recordsPerPage: number = 4;
   const totalPages: number = Math.ceil(customers.length / recordsPerPage);
