@@ -33,9 +33,6 @@
   background-color: #f8f8f8;
 }
 
-.orders-table tbody tr:nth-child(odd) {
-  background-color: #082338082338;
-}
 
 /* Responsive Styles for Mobile */
 @media (max-width: 600px) {

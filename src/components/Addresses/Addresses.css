@@ -37,11 +37,7 @@
   .address-table tbody tr:nth-child(even) {
     background-color: #f8f8f8;
   }
-  
-  .address-table tbody tr:nth-child(odd) {
-    background-color: #082338082338;
-  }
-  
+
 .address-header{
   display: flex;
   flex-direction: column;

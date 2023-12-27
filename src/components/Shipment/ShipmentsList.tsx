@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import './ShipmentsList.css';
-
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import { useSelector, useDispatch } from 'react-redux';
+import { ToastContainer, toast } from 'react-toastify';
 
 interface ShipmentData {
   _id: string;
@@ -21,17 +23,40 @@ interface ShipmentData {
   shipmentCalculatedLiraPayments: number;
   shipmentCalculatedUSDPayments: number;
 }
+interface DateObject {
+  day: number | null;
+  month: number | null;
+  year: number | null;
+}
 
 const ShipmentsList: React.FC = () => {
-  const dispatch = useDispatch();
+  const notifyError = (errorMessage: string) => {
+    toast.error(errorMessage);
+  };
 
+
+  const [fromDate, setFromDate] = useState<DateObject>({ day: null, month: null, year: null });
+  const [toDate, setToDate] = useState<DateObject>({ day: null, month: null, year: null });
+  
+  const formatDateObject = (dateObject: DateObject): DateObject => {
+    const { day, month, year } = dateObject;
+    return {
+      day: day || null,
+      month: month || null,
+      year: year || null,
+    };
+  };
+  const dateObjectToDate = (dateObj: DateObject): Date | null => {
+    if (dateObj.day && dateObj.month && dateObj.year) {
+      return new Date(dateObj.year, dateObj.month - 1, dateObj.day);
+    }
+    return null;
+  };
   const token = useSelector((state: any) => state.user.token);
   const companyId = useSelector((state: any) => state.user.companyId);
   const [isLoading, setIsLoading] = useState(false);
 
   const [shipments, setShipments] = useState<ShipmentData[]>([]);
-  const [fromDate, setFromDate] = useState({ day: 12, month: 22, year: 2023 });
-  const [toDate, setToDate] = useState({ day: 1, month: 10, year: 2023 });
   const [currentPage, setCurrentPage] = useState(1);
   const [shipmentsPerPage] = useState(3);
 
@@ -40,7 +65,15 @@ const ShipmentsList: React.FC = () => {
   const currentShipments = shipments.slice(indexOfFirstShipment, indexOfLastShipment);
 
   const fetchShipments = async () => {
-    try {
+    const formattedFromDate = formatDateObject(fromDate);
+    const formattedToDate = formatDateObject(toDate);
+
+    if (!formattedFromDate.day || !formattedFromDate.month || !formattedFromDate.year ||
+        !formattedToDate.day || !formattedToDate.month || !formattedToDate.year) {
+      console.error('Please select both From and To dates.');
+      return;
+    }
+ try {
       setIsLoading(true); // Set loading state to true before fetching
 
       const response = await fetch(`http://localhost:5000/api/shipments/range`, {
@@ -49,7 +82,7 @@ const ShipmentsList: React.FC = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ fromDate, toDate }),
+        body: JSON.stringify({ fromDate: formattedFromDate, toDate: formattedToDate }),
       });
 
       if (!response.ok) {
@@ -60,69 +93,62 @@ const ShipmentsList: React.FC = () => {
       setShipments(fetchedShipments);
     } catch (error) {
       console.error('Error fetching shipments:', error);
-    } finally {
+      notifyError('Failed to fetch shipments. Please try again.');
+      } finally {
       setIsLoading(false); // Set loading state to false after fetching (success or error)
     }
-  };
-
-
-
-  const handleFromDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setFromDate({ ...fromDate, [name]: value });
-  };
-
-  const handleToDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setToDate({ ...toDate, [name]: value });
   };
   const paginate = (pageNumber: number) => {
     setCurrentPage(pageNumber);
   };
   return (
     <div className="shipments-container">
-        <div className="date-inputs">
-        <label htmlFor="fromDate">From Date:</label>
-        <input
-          type="date"
-          name="fromDate"
-          value={`${fromDate.year}-${fromDate.month.toString().padStart(2, '0')}-${fromDate.day.toString().padStart(2, '0')}`}
-          onChange={handleFromDateChange}
-        />
 
-        <label htmlFor="toDate">To Date:</label>
-        <input
-          type="date"
-          name="toDate"
-          value={`${toDate.year}-${toDate.month.toString().padStart(2, '0')}-${toDate.day.toString().padStart(2, '0')}`}
-          onChange={handleToDateChange}
-        />
-
-        <button onClick={fetchShipments}>Fetch Shipments</button>
-      </div>
-      {/* <div className="date-inputs">
-        <label htmlFor="fromDate">From Date:</label>
-        <input type="number" name="day" value={fromDate.day} onChange={handleFromDateChange} />
-        <input type="number" name="month" value={fromDate.month} onChange={handleFromDateChange} />
-        <input type="number" name="year" value={fromDate.year} onChange={handleFromDateChange} />
-
-        <label htmlFor="toDate">To Date:</label>
-        <input type="number" name="day" value={toDate.day} onChange={handleToDateChange} />
-        <input type="number" name="month" value={toDate.month} onChange={handleToDateChange} />
-        <input type="number" name="year" value={toDate.year} onChange={handleToDateChange} />
-
-        <button onClick={fetchShipments}>Fetch Shipments</button>
-      </div> */}
       <div className="shipments-list">
         <h2>Shipments List</h2>
-        <ul>
+        <ToastContainer position="top-right" autoClose={3000} />
+             {/* Date Pickers */}
+             <div className="date-pickers">
+          <DatePicker
+            selected={dateObjectToDate(fromDate)}
+            onChange={(date: Date | null) => {
+              if (date) {
+                setFromDate({
+                  day: date.getDate(),
+                  month: date.getMonth() + 1,
+                  year: date.getFullYear(),
+                });
+              } else {
+                setFromDate({ day: null, month: null, year: null });
+              }
+            }}
+            placeholderText="Select From Date"
+          />
+          <DatePicker
+            selected={dateObjectToDate(toDate)}
+            onChange={(date: Date | null) => {
+              if (date) {
+                setToDate({
+                  day: date.getDate(),
+                  month: date.getMonth() + 1,
+                  year: date.getFullYear(),
+                });
+              } else {
+                setToDate({ day: null, month: null, year: null });
+              }
+            }}
+            placeholderText="Select To Date"
+          />
+          <button onClick={fetchShipments}>Fetch Shipments</button>
+        </div>
+ <ul>
           {isLoading ? (
             <div className="loader-container">
               <progress className="loader" max="100"></progress>
             </div>
           ) : (
             currentShipments.map((shipment) => (
-<li key={shipment._id}>
+              <li key={shipment._id}>
                 <div>
                   <strong>Shipment ID:</strong> {shipment._id}
                 </div>
@@ -174,3 +200,4 @@ const ShipmentsList: React.FC = () => {
 };
 
 export default ShipmentsList;
+

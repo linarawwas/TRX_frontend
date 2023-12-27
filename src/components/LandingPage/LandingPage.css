@@ -6,11 +6,6 @@ body {
 background: linear-gradient(to bottom,  #1b3e54 0%,#082338 49%,#19394e 100%) no-repeat ; /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 
 }
-/* Dark blue: #0000FF
-
-Orange: #FFA500
-
-White: #082338082338 */
 .landing-page {
   display: flex;
   flex-direction: column;
