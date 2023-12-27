@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux';
 import AddCustomers from '../AddCustomers/AddCustomers';
 import AddCustomer from '../AddCustomer/AddCustomer';
 import { ToastContainer } from 'react-toastify';
+import SpinLoader from '../../UI reusables/SpinLoader/SpinLoader';
 
 interface Customer {
   _id: string;

@@ -7,6 +7,7 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from 'react-redux';
+import SpinLoader from '../../UI reusables/SpinLoader/SpinLoader';
 interface PaymentData {
   paymentAmount: string;
   paymentCurrency: string;

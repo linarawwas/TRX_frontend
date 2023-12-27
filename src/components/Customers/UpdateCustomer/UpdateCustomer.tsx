@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import './UpdateCustomer.css';
 import { useSelector } from 'react-redux';
 import SelectInput from '../../UI reusables/SelectInput/SelectInput';
+import SpinLoader from '../../UI reusables/SpinLoader/SpinLoader';
 
 interface Area {
   _id: string;

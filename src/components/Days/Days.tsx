@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './Days.css';
 import { useSelector } from 'react-redux';
+import SpinLoader from '../UI reusables/SpinLoader/SpinLoader';
 
 interface Day {
   _id: string;
