@@ -49,8 +49,10 @@
 }
 
 .pagination-item {
-  margin: 0 5px;
-  padding: 5px 10px;
+  width: 5%;
+  text-align: center;
+  margin: 5px;
+  border-radius: 20px;
   border: 1px solid #ccc;
   cursor: pointer;
 }
@@ -77,3 +79,10 @@
   height: 50px;
   animation: spin 1s linear infinite;
 }
+.date-pickers{
+  display: flex;
+flex-flow: row wrap;
+justify-content: space-around;
+padding: 20px;
+margin: 60px auto;
+box-shadow: 1px 1px 10px white;}

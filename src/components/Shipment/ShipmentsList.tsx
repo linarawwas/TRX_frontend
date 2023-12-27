@@ -37,7 +37,7 @@ const ShipmentsList: React.FC = () => {
 
   const [fromDate, setFromDate] = useState<DateObject>({ day: null, month: null, year: null });
   const [toDate, setToDate] = useState<DateObject>({ day: null, month: null, year: null });
-  
+
   const formatDateObject = (dateObject: DateObject): DateObject => {
     const { day, month, year } = dateObject;
     return {
@@ -69,11 +69,11 @@ const ShipmentsList: React.FC = () => {
     const formattedToDate = formatDateObject(toDate);
 
     if (!formattedFromDate.day || !formattedFromDate.month || !formattedFromDate.year ||
-        !formattedToDate.day || !formattedToDate.month || !formattedToDate.year) {
+      !formattedToDate.day || !formattedToDate.month || !formattedToDate.year) {
       console.error('Please select both From and To dates.');
       return;
     }
- try {
+    try {
       setIsLoading(true); // Set loading state to true before fetching
 
       const response = await fetch(`http://localhost:5000/api/shipments/range`, {
@@ -94,7 +94,7 @@ const ShipmentsList: React.FC = () => {
     } catch (error) {
       console.error('Error fetching shipments:', error);
       notifyError('Failed to fetch shipments. Please try again.');
-      } finally {
+    } finally {
       setIsLoading(false); // Set loading state to false after fetching (success or error)
     }
   };
@@ -107,8 +107,8 @@ const ShipmentsList: React.FC = () => {
       <div className="shipments-list">
         <h2>Shipments List</h2>
         <ToastContainer position="top-right" autoClose={3000} />
-             {/* Date Pickers */}
-             <div className="date-pickers">
+        {/* Date Pickers */}
+        <div className="date-pickers">
           <DatePicker
             selected={dateObjectToDate(fromDate)}
             onChange={(date: Date | null) => {
@@ -141,18 +141,12 @@ const ShipmentsList: React.FC = () => {
           />
           <button onClick={fetchShipments}>Fetch Shipments</button>
         </div>
- <ul>
- {isLoading ? (
-          <div className="spinner"></div>
-        ): (
+        <ul>
+          {isLoading ? (
+            <div className="spinner"></div>
+          ) : (
             currentShipments.map((shipment) => (
               <li key={shipment._id}>
-                <div>
-                  <strong>Shipment ID:</strong> {shipment._id}
-                </div>
-                <div>
-                  <strong>Company ID:</strong> {shipment.companyId}
-                </div>
                 <div>
                   <strong>Date:</strong> {shipment.date.day}/{shipment.date.month}/{shipment.date.year}
                 </div>
@@ -166,19 +160,19 @@ const ShipmentsList: React.FC = () => {
                   <strong>Calculated Returned:</strong> {shipment.calculatedReturned}
                 </div>
                 <div>
-                  <strong>Shipment Calculated Payments:</strong> {shipment.shipmentCalculatedPayments}
+                  <strong>Shipment Calculated Lira Payments:</strong> {shipment.shipmentCalculatedLiraPayments}
+                </div>
+                <div>
+                  <strong>Shipment Calculated USD Payments:</strong> {shipment.shipmentCalculatedUSDPayments}
+                </div>
+                <div>
+                  <strong>Shipment Total Payments -usd and liras-  in usd :</strong> {shipment.shipmentCalculatedPayments}
                 </div>
                 <div>
                   <strong>Shipment Total Expenses:</strong> {shipment.shipmentTotalExpenses}
                 </div>
                 <div>
                   <strong>Shipment Calculated Extra Profits:</strong> {shipment.shipmentCalculatedExtraProfits}
-                </div>
-                <div>
-                  <strong>Shipment Calculated Lira Payments:</strong> {shipment.shipmentCalculatedLiraPayments}
-                </div>
-                <div>
-                  <strong>Shipment Calculated USD Payments:</strong> {shipment.shipmentCalculatedUSDPayments}
                 </div>
               </li>
             ))
