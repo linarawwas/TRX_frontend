@@ -42,7 +42,7 @@ const Customers: React.FC = () => {
       });
   }, [token, companyId]);
 
-  const recordsPerPage: number = 7;
+  const recordsPerPage: number = 4;
   const totalPages: number = Math.ceil(customers.length / recordsPerPage);
 
   const handlePageChange = (newPage: number): void => {
