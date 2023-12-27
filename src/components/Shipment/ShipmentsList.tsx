@@ -142,11 +142,9 @@ const ShipmentsList: React.FC = () => {
           <button onClick={fetchShipments}>Fetch Shipments</button>
         </div>
  <ul>
-          {isLoading ? (
-            <div className="loader-container">
-              <progress className="loader" max="100"></progress>
-            </div>
-          ) : (
+ {isLoading ? (
+          <div className="spinner"></div>
+        ): (
             currentShipments.map((shipment) => (
               <li key={shipment._id}>
                 <div>
