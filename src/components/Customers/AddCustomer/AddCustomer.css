@@ -7,21 +7,21 @@
     margin-bottom: 15px;
   }
   
-  label {
+  .customer-input-label {
     display: block;
     margin-bottom: 5px;
   }
   
-  input[type='text'] {
+  .customer-text-input {
     width: 100%;
     padding: 8px;
     border-radius: 4px;
     border: 1px solid #ccc;
   }
   
-  button {
+  .add-customer-button {
     padding: 10px 20px;
-    background-color: #4caf50;
+    background-color: #ff6600;
     color: white;
     border: none;
     border-radius: 4px;
@@ -29,7 +29,7 @@
     transition: background-color 0.3s ease;
   }
   
-  button:hover {
-    background-color: #45a049;
+  .add-customer-button:hover {
+    background-color: #FFA500;
   }
   

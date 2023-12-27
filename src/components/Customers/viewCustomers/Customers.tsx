@@ -74,11 +74,11 @@ const Customers: React.FC = () => {
         <div className='customer-adding-options'>
           <button className='customer-adding-option' onClick={() => {
             setShowInsertBulk(!showInsertBulk)
-          }}> {showInsertBulk? 'Hide Form': 'Add Many?'} </button>
+          }}> {showInsertBulk ? 'Hide Form' : 'Add Many?'} </button>
           <button className='customer-adding-option'
             onClick={() => {
               setShowInsertOne(!showInsertOne)
-            }}> {showInsertOne? 'Show customers': 'Add one?'}  </button>
+            }}> {showInsertOne ? 'Show customers' : 'Add one?'}  </button>
           {showInsertBulk &&
             <AddCustomers />}
           {showInsertOne &&
@@ -90,53 +90,53 @@ const Customers: React.FC = () => {
       {loading ? (
         <p>Loading...</p>
       ) : (<div>
-         { !showInsertOne && <table className="customers-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Phone</th>
-                <th>Address</th>
-                <th>Details</th>
+        {!showInsertOne && <table className="customers-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Address</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            {customersForPage.map((customer) => (
+              <tr key={customer._id}>
+                <td>{customer.name}</td>
+                <td>{customer.phone}</td>
+                <td>{customer.address}</td>
+                <td className='link-to-edit'>
+                  <Link to={`/updateCustomer/${customer._id}`}>
+                    📝
+                  </Link>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {customersForPage.map((customer) => (
-                <tr key={customer._id}>
-                  <td>{customer.name}</td>
-                  <td>{customer.phone}</td>
-                  <td>{customer.address}</td>
-                  <td>
-                    <Link to={`/updateCustomer/${customer._id}`}>
-                      Edit Customer
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>}
-          {totalPages > 1 && (
-            <div className="pagination">
-              <div className="nav-arrow left" onClick={goToPreviousPage}>
-                &lt;
-              </div>
-              <Carousel
-                showStatus={false}
-                showArrows={false}
-                showThumbs={false}
-                selectedItem={selectedItem}
-              >
-                {Array.from({ length: totalPages }, (_, i) => (
-                  <div key={i} onClick={() => handlePageChange(i)}>
-                    Page {i + 1}
-                  </div>
-                ))}
-              </Carousel>
-              <div className="nav-arrow right" onClick={goToNextPage}>
-                &gt;
-              </div>
+            ))}
+          </tbody>
+        </table>}
+        {totalPages > 1 && (
+          <div className="pagination">
+            <div className="nav-arrow left" onClick={goToPreviousPage}>
+              &lt;
             </div>
-          )}
-        </div>
+            <Carousel
+              showStatus={false}
+              showArrows={false}
+              showThumbs={false}
+              selectedItem={selectedItem}
+            >
+              {Array.from({ length: totalPages }, (_, i) => (
+                <div key={i} onClick={() => handlePageChange(i)}>
+                  Page {i + 1}
+                </div>
+              ))}
+            </Carousel>
+            <div className="nav-arrow right" onClick={goToNextPage}>
+              &gt;
+            </div>
+          </div>
+        )}
+      </div>
       )}
     </div>
   );

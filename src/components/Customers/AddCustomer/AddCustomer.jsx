@@ -85,15 +85,15 @@ const AddCustomer = () => {
 
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="name">Name:</label>
-          <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} required />
+          <label htmlFor="name" className='customer-input-label'>Name:</label>
+          <input type="text" className='customer-text-input'id="name" name="name" value={formData.name} onChange={handleChange} required />
         </div>
         <div className="form-group">
-          <label htmlFor="phone">Phone:</label>
-          <input type="text" id="phone" name="phone" value={formData.phone} onChange={handleChange} required />
+          <label htmlFor="phone" className='customer-input-label'>Phone:</label>
+          <input type="text" className='customer-text-input' id="phone" name="phone" value={formData.phone} onChange={handleChange} required />
         </div>
         <div className="form-group">
-          <label htmlFor="areaId">Area:</label>
+          <label htmlFor="areaId" className='customer-input-label'>Area:</label>
           <select id="areaId" name="areaId" value={formData.areaId} onChange={handleAreaChange} required>
             <option value="">Select an area</option>
             {areas.map((area) => (
@@ -104,10 +104,10 @@ const AddCustomer = () => {
           </select>
         </div>
         <div className="form-group">
-          <label htmlFor="address">Address:</label>
-          <input type="text" id="address" name="address" value={formData.address} onChange={handleChange} required />
+          <label className='customer-input-label' htmlFor="address">Address:</label>
+          <input type="text" className='customer-text-input' id="address" name="address" value={formData.address} onChange={handleChange} required />
         </div>
-        <button type="submit">Add Customer</button>
+        <button type="submit" className='add-customer-button'>Add Customer</button>
       </form>
     </div>
   );
