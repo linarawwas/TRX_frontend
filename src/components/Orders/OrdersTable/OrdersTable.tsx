@@ -138,10 +138,10 @@ const OrdersTable: React.FC = () => {
                   <td>{order.customer.name}</td>
                   <td>{order.product.type}</td>
                   <td>{order.total}</td>
-                  <td>
+                  <td className='link-to-edit'>
                     {/* Create a Link for the action button */}
                     <Link to={`/updateOrder/${order._id}`}>
-                      Edit Order
+                    📝
                     </Link>
                   </td>
                 </tr>

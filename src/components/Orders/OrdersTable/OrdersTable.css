@@ -29,7 +29,7 @@
   font-weight: bold;
 }
 
-.orders-table tbody tr:nth-child(even) {
+.orders-table tbody tr {
   background-color: #f8f8f8;
 }
 

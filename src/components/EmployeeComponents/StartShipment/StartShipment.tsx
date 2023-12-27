@@ -103,7 +103,7 @@ const StartShipment: React.FC = () => {
     };
 
     initializeDate();
-  }, []);
+  }, [dispatch, token]);
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {

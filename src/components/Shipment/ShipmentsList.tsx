@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './ShipmentsList.css';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { ToastContainer, toast } from 'react-toastify';
 import SpinLoader from '../UI reusables/SpinLoader/SpinLoader';
 
@@ -54,7 +54,6 @@ const ShipmentsList: React.FC = () => {
     return null;
   };
   const token = useSelector((state: any) => state.user.token);
-  const companyId = useSelector((state: any) => state.user.companyId);
   const [isLoading, setIsLoading] = useState(false);
 
   const [shipments, setShipments] = useState<ShipmentData[]>([]);

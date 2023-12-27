@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './AddCustomer.css';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { ToastContainer, toast } from 'react-toastify';
 
 const AddCustomer = () => {
-  const dispatch = useDispatch();
   const companyId = useSelector(state => state.user.companyId)
   const token = useSelector(state => state.user.token)
   const [formData, setFormData] = useState({

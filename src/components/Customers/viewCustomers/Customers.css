@@ -24,9 +24,6 @@
 
 }
 
-.customers-body .customers-table td {
-  padding: 20px 0;
-}
 
 .pagination {
   margin: 20px 0;
@@ -43,25 +40,11 @@
 
 }
 
-.nav-arrow {
-  flex-basis: 10px;
-  padding: 10px;
-  margin: 0 0;
-  font-size: 20px;
-  cursor: pointer;
-  border-radius: 50%;
-  border: 1px solid black;
-
-}
 
 /* daysTable.css */
 .customers-body {
   margin: 0;
   width: 100%;
-}
-
-.loading {
-  text-align: center;
 }
 
 .customers-table {
@@ -88,6 +71,20 @@
   background-color: #f8f8f8;
 }
 
+.customers-body .customers-table td {
+  padding: 20px 0;
+}
+
+.nav-arrow {
+  flex-basis: 10px;
+  padding: 10px;
+  margin: 0 0;
+  font-size: 20px;
+  cursor: pointer;
+  border-radius: 50%;
+  border: 1px solid black;
+
+}
 .link-to-edit {
   text-shadow: 1px 1px 8px black;
 }
