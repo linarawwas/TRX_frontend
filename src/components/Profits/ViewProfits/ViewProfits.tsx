@@ -5,6 +5,7 @@ import SpinLoader from '../../UI reusables/SpinLoader/SpinLoader';
 import AddProfits from '../AddProfits/AddProfits';
 import '../../Customers/CustomerInvoices/CustomerInvoices.css'
 import './ViewProfits.css'
+import { useActionData } from 'react-router-dom';
 interface ExtraProfit {
     _id: string;
     name: string;
@@ -18,8 +19,8 @@ interface ExtraProfit {
     recordedBy: string;
     __v: number;
 }
-
 const ExtraProfits: React.FC = () => {
+    const [showAddProfits, setShowAddProfits] = useState<Boolean>(false);
     const companyId = useSelector((state: any) => state.user.companyId);
     const [extraProfits, setExtraProfits] = useState<ExtraProfit[]>([]);
     const [loading, setLoading] = useState(true);
@@ -43,11 +44,13 @@ const ExtraProfits: React.FC = () => {
         if (companyId) {
             fetchExtraProfits();
         }
-    }, [companyId, token]);
+    }, [companyId, token,showAddProfits]);
 
     return (
         <div className="extra-profits">
             <h2>Extra Profits</h2>
+            <h3 className='show-add-profits' onClick={() => { setShowAddProfits(!showAddProfits) }}>{showAddProfits ? "hide form?" : "Add new profits?"}</h3>
+            {showAddProfits && <AddProfits />}
             {loading ? (
                 <SpinLoader />
             ) : extraProfits.length > 0 ? (
@@ -83,7 +86,6 @@ const ExtraProfits: React.FC = () => {
                 <p>No extra profits found for this company</p>
             )}
 
-            <AddProfits />
         </div>
     );
 };

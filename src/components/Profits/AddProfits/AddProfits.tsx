@@ -5,7 +5,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from 'react-redux';
 import NumberInput from '../../UI reusables/NumberInput/NumberInput';
-
+import './AddProfits.css'
 const AddProfits: React.FC = () => {
   const companyId = useSelector((state: any) => state.user.companyId);
   const shipmentId = useSelector((state: any) => state.shipment._id);
@@ -48,7 +48,7 @@ const AddProfits: React.FC = () => {
   };
 
   return (
-    <div className="record-order-container">
+    <div className="record-order-container add-profits-container">
       <ToastContainer position="top-right" autoClose={3000} />
       <h1 className="record-order-title">Add Profits</h1>
       <form className="record-order-form" onSubmit={handleSubmit}>

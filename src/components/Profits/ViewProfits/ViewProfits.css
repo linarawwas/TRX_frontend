@@ -1,3 +1,15 @@
+.extra-profits{
+    margin-top: 10%;
+}
+.extra-profits h2{
+    text-align: center;
+
+}
+.show-add-profits{
+    text-align: center;
+    text-decoration: underline;
+    cursor: pointer;
+}
 .receipt-details-container{
     display: flex;
     flex-flow: row wrap;
@@ -5,7 +17,8 @@
 }
 .receipt-details{
     margin:10px 20px;
-    flex:3 1 150px;
+    flex:1 1 150px;
     display: flex;
     flex-direction: column;
+    box-shadow: 2px 2px 10px 1px #FFA500;
 }
