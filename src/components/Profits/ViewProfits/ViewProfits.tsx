@@ -5,7 +5,8 @@ import SpinLoader from '../../UI reusables/SpinLoader/SpinLoader';
 import AddProfits from '../AddProfits/AddProfits';
 import '../../Customers/CustomerInvoices/CustomerInvoices.css'
 import './ViewProfits.css'
-import moment from 'moment-timezone';
+import { ToastContainer, toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 interface ExtraProfit {
     _id: string;
@@ -21,7 +22,7 @@ interface ExtraProfit {
     __v: number;
 }
 const ExtraProfits: React.FC = () => {
-
+    const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(1);
     const [recordsPerPage] = useState(4);
     const [showAddProfits, setShowAddProfits] = useState<Boolean>(false);
@@ -73,22 +74,44 @@ const ExtraProfits: React.FC = () => {
         const date = new Date(timestamp);
         // Adjust the received timestamp by subtracting 2 hours for the Beirut timezone
         date.setHours(date.getHours() - 2);
-      
+
         const options: Intl.DateTimeFormatOptions = {
-          timeZone: 'Asia/Beirut',
-          year: 'numeric',
-          month: 'numeric',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-          second: 'numeric',
-          hour12: true // Set to true for 12-hour format
+            timeZone: 'Asia/Beirut',
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            second: 'numeric',
+            hour12: true // Set to true for 12-hour format
         };
-        
+
         return date.toLocaleString('en-US', options);
-      };
+    };
+    const handleDeleteProfit = async (profitId: string) => {
+        try {
+            const response = await fetch(`http://localhost:5000/api/extraProfits/${profitId}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (response.ok) {
+                toast.success('profit deleted successfully');
+                window.location.reload();
+            } else {
+                toast.error('Error deleting profit');
+            }
+        } catch (error) {
+            toast.error('Error deleting profit');
+            console.error('Error deleting profit:', error);
+        }
+    };
     return (
         <div className="extra-profits">
+            <ToastContainer position="top-right" autoClose={1000} />
+
             <h2>Extra Profits</h2>
             <h3 className='show-add-profits' onClick={() => { setShowAddProfits(!showAddProfits) }}>{showAddProfits ? "hide form?" : "Add new profits?"}</h3>
             {showAddProfits && <AddProfits />}
@@ -98,6 +121,8 @@ const ExtraProfits: React.FC = () => {
                 extraProfits.length > 0 ? (
                     <div className="receipt-details-container">
                         {currentRecords.map((profit) => (<div className='receipt-details' key={profit._id}>
+                            <div className='container-button-div'>
+                                <button className='delete-btn' onClick={() => { handleDeleteProfit(profit._id) }}>delete</button></div>
                             <div className='receipt-detail'>
                                 <p className='detail-name'>Name:</p>
                                 <p className='detail-value'>{profit?.name}</p>
@@ -126,7 +151,7 @@ const ExtraProfits: React.FC = () => {
                 ) : (
                     <p>No extra profits found for this company</p>
                 )}
-                        {renderPagination()}
+            {renderPagination()}
 
         </div>
     );

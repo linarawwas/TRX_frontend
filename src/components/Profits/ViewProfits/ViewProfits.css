@@ -16,14 +16,31 @@
     justify-content: center;
 }
 .receipt-details{
+    background-color: white;
     margin:10px 40px;
-    flex-basis:150px;
+    flex-basis:300px;
     display: flex;
     flex-direction: column;
     box-shadow: 2px 2px 10px 1px #FFA500;
+}
+.receipt-detail p{
+    color:#192D40;
 }
 .timestamp{
     display:flex;
     flex-direction: column;
     text-align: center;
+}
+.container-button-div{
+text-align: end;
+padding-right:10px;
+}
+.container-button-div button{
+    margin: 2px;
+    padding:5px;
+    box-shadow: 1px    1px 10px #ff6600;
+    }
+.delete-btn{
+    background-color: rgb(165, 49, 49);
+    
 }
