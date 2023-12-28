@@ -99,7 +99,9 @@ const ExtraProfits: React.FC = () => {
 
             if (response.ok) {
                 toast.success('profit deleted successfully');
+                setTimeout(() => {
                 window.location.reload();
+            }, 1500);
             } else {
                 toast.error('Error deleting profit');
             }
@@ -141,7 +143,7 @@ const ExtraProfits: React.FC = () => {
                                 <p className='detail-value'>{typeof profit.valueInUSD === 'number' ? profit.valueInUSD.toFixed(2) : profit.valueInUSD}</p>
                             </div>
                             <div className='receipt-detail timestamp'>
-                                <p className='detail-name'>Timestamp:</p>
+                                <p className='detail-name'>Date:</p>
                                 <p className='detail-value'>{formatTimestamp(profit.timestamp)}</p>
                             </div>
 
