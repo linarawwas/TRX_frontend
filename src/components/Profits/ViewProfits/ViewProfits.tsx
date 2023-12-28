@@ -20,6 +20,9 @@ interface ExtraProfit {
     __v: number;
 }
 const ExtraProfits: React.FC = () => {
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const [recordsPerPage] = useState(4);
     const [showAddProfits, setShowAddProfits] = useState<Boolean>(false);
     const companyId = useSelector((state: any) => state.user.companyId);
     const [extraProfits, setExtraProfits] = useState<ExtraProfit[]>([]);
@@ -44,8 +47,27 @@ const ExtraProfits: React.FC = () => {
         if (companyId) {
             fetchExtraProfits();
         }
-    }, [companyId, token,showAddProfits]);
+    }, [companyId, token, showAddProfits]);
 
+    const indexOfLastRecord = currentPage * recordsPerPage;
+    const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+    const currentRecords = extraProfits.slice(indexOfFirstRecord, indexOfLastRecord);
+
+    const paginate = (pageNumber: number) => {
+        setCurrentPage(pageNumber);
+    };
+
+    const renderPagination = () => {
+        return (
+            <ul className="pagination">
+                {Array.from({ length: Math.ceil(extraProfits.length / recordsPerPage) }, (_, index) => (
+                    <li key={index} onClick={() => paginate(index + 1)} className={`pagination-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                        {index + 1}
+                    </li>
+                ))}
+            </ul>
+        );
+    };
     return (
         <div className="extra-profits">
             <h2>Extra Profits</h2>
@@ -53,10 +75,10 @@ const ExtraProfits: React.FC = () => {
             {showAddProfits && <AddProfits />}
             {loading ? (
                 <SpinLoader />
-            ) : extraProfits.length > 0 ? (
-                <div className="receipt-details-container">
-                    {extraProfits.map((profit) => (
-                        <div className='receipt-details' key={profit._id}>
+            ) :
+                extraProfits.length > 0 ? (
+                    <div className="receipt-details-container">
+                        {currentRecords.map((profit) => (<div className='receipt-details' key={profit._id}>
                             <div className='receipt-detail'>
                                 <p className='detail-name'>Name:</p>
                                 <p className='detail-value'>{profit.name}</p>
@@ -80,11 +102,12 @@ const ExtraProfits: React.FC = () => {
                             </div>
 
                         </div>
-                    ))}
-                </div>
-            ) : (
-                <p>No extra profits found for this company</p>
-            )}
+                        ))}
+                    </div>
+                ) : (
+                    <p>No extra profits found for this company</p>
+                )}
+                        {renderPagination()}
 
         </div>
     );
