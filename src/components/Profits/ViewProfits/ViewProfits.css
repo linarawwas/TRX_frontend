@@ -1,0 +1,11 @@
+.receipt-details-container{
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+}
+.receipt-details{
+    margin:10px 20px;
+    flex:3 1 150px;
+    display: flex;
+    flex-direction: column;
+}

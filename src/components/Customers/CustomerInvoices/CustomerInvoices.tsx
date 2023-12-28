@@ -1,67 +1,85 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
-
+import SpinLoader from '../../UI reusables/SpinLoader/SpinLoader';
+import './CustomerInvoices.css'
 interface Sums {
-  deliveredSum: number;
-  returnedSum: number;
-  bottlesLeft: number;
-  checkoutSum: number;
-  paidSum: number;
-  totalSum: number;
+    deliveredSum: number;
+    returnedSum: number;
+    bottlesLeft: number;
+    checkoutSum: number;
+    paidSum: number;
+    totalSum: number;
 }
 
 interface CustomerInvoicesProps {
-  customerId: string;
+    customerId: string;
 }
 
 const CustomerInvoices: React.FC<CustomerInvoicesProps> = ({ customerId }) => {
-  const [sums, setSums] = useState<Sums | null>(null);
-  const [loading, setLoading] = useState(true);
-  const token: string = useSelector((state: any) => state.user.token);
+    const [sums, setSums] = useState<Sums | null>(null);
+    const [loading, setLoading] = useState(true);
+    const token: string = useSelector((state: any) => state.user.token);
 
-  useEffect(() => {
-    const fetchCustomerInvoices = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5000/api/customers/reciept/${customerId}`,
-        {
-            method: 'DELETE',
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const data = response.data;
-        setSums(data.sums);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching customer receipt:', error);
-        setLoading(false);
-      }
-    };
+    useEffect(() => {
+        const fetchCustomerInvoices = async () => {
+            try {
+                const response = await axios.get(`http://localhost:5000/api/customers/reciept/${customerId}`,
+                    {
+                        method: 'DELETE',
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+                const data = response.data;
+                setSums(data.sums);
+                setLoading(false);
+            } catch (error) {
+                console.error('Error fetching customer receipt:', error);
+                setLoading(false);
+            }
+        };
 
-    fetchCustomerInvoices();
-  }, [customerId]);
+        fetchCustomerInvoices();
+    }, [customerId]);
 
-  return (
-    <div className="customer-receipt">
-      <h2>Customer Receipt</h2>
-      {loading ? (
-        <p>Loading...</p>
-      ) : sums ? (
-        <div className="receipt-details">
-          <p>Delivered Sum: {sums.deliveredSum}</p>
-          <p>Returned Sum: {sums.returnedSum}</p>
-          <p>Bottles Left: {sums.bottlesLeft}</p>
-          <p>Checkout Sum: {sums.checkoutSum}</p>
-          <p>Paid Sum: {sums.paidSum}</p>
-          <p>Total Sum: {sums.totalSum}</p>
+    return (
+        <div className="customer-receipt">
+            <h2>Customer Receipt</h2>
+            {loading ? (
+                <SpinLoader />) : sums ? (
+                    <div className="receipt-details">
+                        <div className='receipt-detail'>
+                            <p className='detail-name'>Delivered Sum: </p>
+                            <p className='detail-value'>{sums.deliveredSum}</p>
+                        </div>
+                        <div className='receipt-detail'>
+                            <p className='detail-name'>Returned Sum: </p>
+                            <p className='detail-value'>{sums.returnedSum}</p>
+                        </div>
+                        <div className='receipt-detail'>
+                            <p className='detail-name'>Bottles Left:</p>
+                            <p className='detail-value'> {sums.bottlesLeft}</p>
+                        </div>
+                        <div className='receipt-detail'>
+                            <p className='detail-name'>Checkout Sum: </p>
+                            <p className='detail-value'>{sums.checkoutSum}</p>
+                        </div>
+                        <div className='receipt-detail'>
+                            <p className='detail-name'>Paid Sum: </p>
+                            <p className='detail-value'>{sums.paidSum}</p>
+                        </div>
+                        <div className='receipt-detail'>
+                            <p className='detail-name'>Total Sum: </p>
+                            <p className='detail-value'>{sums.totalSum}</p>
+                        </div>
+                    </div>
+                ) : (
+                <p>No data available for this customer</p>
+            )}
         </div>
-      ) : (
-        <p>No data available for this customer</p>
-      )}
-    </div>
-  );
+    );
 };
 
 export default CustomerInvoices;
