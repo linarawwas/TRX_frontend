@@ -13,12 +13,17 @@
 .receipt-details-container{
     display: flex;
     flex-flow: row wrap;
-    justify-content: space-around;
+    justify-content: center;
 }
 .receipt-details{
-    margin:10px 20px;
-    flex:1 1 150px;
+    margin:10px 40px;
+    flex-basis:150px;
     display: flex;
     flex-direction: column;
     box-shadow: 2px 2px 10px 1px #FFA500;
+}
+.timestamp{
+    display:flex;
+    flex-direction: column;
+    text-align: center;
 }

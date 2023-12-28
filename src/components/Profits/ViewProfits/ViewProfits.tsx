@@ -5,7 +5,8 @@ import SpinLoader from '../../UI reusables/SpinLoader/SpinLoader';
 import AddProfits from '../AddProfits/AddProfits';
 import '../../Customers/CustomerInvoices/CustomerInvoices.css'
 import './ViewProfits.css'
-import { useActionData } from 'react-router-dom';
+import moment from 'moment-timezone';
+
 interface ExtraProfit {
     _id: string;
     name: string;
@@ -68,6 +69,24 @@ const ExtraProfits: React.FC = () => {
             </ul>
         );
     };
+    const formatTimestamp = (timestamp: string) => {
+        const date = new Date(timestamp);
+        // Adjust the received timestamp by subtracting 2 hours for the Beirut timezone
+        date.setHours(date.getHours() - 2);
+      
+        const options: Intl.DateTimeFormatOptions = {
+          timeZone: 'Asia/Beirut',
+          year: 'numeric',
+          month: 'numeric',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
+          second: 'numeric',
+          hour12: true // Set to true for 12-hour format
+        };
+        
+        return date.toLocaleString('en-US', options);
+      };
     return (
         <div className="extra-profits">
             <h2>Extra Profits</h2>
@@ -81,24 +100,24 @@ const ExtraProfits: React.FC = () => {
                         {currentRecords.map((profit) => (<div className='receipt-details' key={profit._id}>
                             <div className='receipt-detail'>
                                 <p className='detail-name'>Name:</p>
-                                <p className='detail-value'>{profit.name}</p>
+                                <p className='detail-value'>{profit?.name}</p>
                             </div>
                             <div className='receipt-detail'>
                                 <p className='detail-name'>Value:</p>
-                                <p className='detail-value'>{profit.value}</p>
+                                <p className='detail-value'>{profit?.value}</p>
                             </div>
                             <div className='receipt-detail'>
                                 <p className='detail-name'>Currency:</p>
-                                <p className='detail-value'>{profit.paymentCurrency}</p>
+                                <p className='detail-value'>{profit?.paymentCurrency}</p>
                             </div>
 
                             <div className='receipt-detail'>
                                 <p className='detail-name'>Value in USD:</p>
-                                <p className='detail-value'>{profit.valueInUSD}</p>
+                                <p className='detail-value'>{typeof profit.valueInUSD === 'number' ? profit.valueInUSD.toFixed(2) : profit.valueInUSD}</p>
                             </div>
-                            <div className='receipt-detail'>
+                            <div className='receipt-detail timestamp'>
                                 <p className='detail-name'>Timestamp:</p>
-                                <p className='detail-value'>{profit.timestamp}</p>
+                                <p className='detail-value'>{formatTimestamp(profit.timestamp)}</p>
                             </div>
 
                         </div>
