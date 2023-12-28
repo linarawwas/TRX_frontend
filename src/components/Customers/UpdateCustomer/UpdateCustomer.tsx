@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useCallback, ChangeEvent, FormEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../../UI reusables/UpdateSingleRecord/UpdateSingleRecord.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './UpdateCustomer.css';
@@ -161,9 +159,7 @@ function UpdateCustomer(): JSX.Element {
           type="button"
           onClick={handleDeleteCustomer}
           className="delete-button"
-        >
-          <FontAwesomeIcon icon={faTrash} />
-          Delete
+        >          Delete
         </button>
       </div>
 

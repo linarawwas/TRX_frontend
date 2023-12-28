@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './UpdateOrder.css'; // Import your CSS file for this component
 import '../../UI reusables/UpdateSingleRecord/UpdateSingleRecord.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from 'react-redux';
@@ -134,9 +132,7 @@ function UpdateOrder(): JSX.Element {
           type="button"
           onClick={handleDeleteOrder}
           className="delete-button"
-        >
-          <FontAwesomeIcon icon={faTrash} />
-          Delete Order
+        >          Delete Order
         </button>
       </div>
 

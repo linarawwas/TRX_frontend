@@ -13,7 +13,7 @@ const AddExpenses: React.FC = () => {
   const token = useSelector((state: RootState) => state.user.token);
   const [expenses, setExpenses] = useState({
     name: '',
-    value: '',
+    value: 0,
     paymentCurrency: '',
     exchangeRate: '6537789b6ed59ef09c18213d',
     companyId: companyId,
@@ -43,7 +43,7 @@ const AddExpenses: React.FC = () => {
         const errorData = await response.json();
         toast.error('Error recording Expenses:', errorData.error);
       }
-    } catch (error:any) {
+    } catch (error: any) {
       toast.error('Network error:', error);
     }
   };

@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import "./Addresses.css";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from "react-redux";
@@ -72,9 +70,7 @@ export default function Addresses(): JSX.Element {
                     type="button"
                     onClick={handleDeleteArea}
                     className="delete-button"
-                >
-                    <FontAwesomeIcon icon={faTrash} />
-                    Delete Area
+                >                    Delete Area
                 </button>
             </div>            {loading ? (
                 <p className="loading">Loading...</p>
