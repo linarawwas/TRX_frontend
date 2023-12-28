@@ -22,7 +22,6 @@
   }
   
   .areas-title {
-    /* width: 100%; */
     text-align: center;
   
   }
@@ -30,17 +29,13 @@
   .areas-table th,
   .areas-table td {
     border: 1px solid #e0e0e0;
+    box-shadow: 1px 1px 10px  #192D40;
+    background-color: #192D40;
     padding: 15px 5px;
     text-align: center;
   }
-  
-  .areas-table th {
-    background-color: #f0f0f0;
-    font-weight: bold;
+  .areas-table tbody tr td{
+    font-size: 20px;
+    background-color: white;
   }
-  
-  .areas-table tbody tr:nth-child(even) {
-    background-color: #f8f8f8;
-  }
-  
   /* Add more styles as needed to achieve your desired minimalist design. */

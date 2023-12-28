@@ -12,7 +12,7 @@ interface Customer {
     phone: string;
 }
 export default function Addresses(): JSX.Element {
-    const token:string = useSelector((state:any) => state.user.token);
+    const token: string = useSelector((state: any) => state.user.token);
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const { areaId } = useParams();
