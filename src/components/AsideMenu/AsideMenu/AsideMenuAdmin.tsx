@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './AsideMenu.css';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch } from 'react-redux';
 import { clearCompanyId, clearToken, clearIsAdmin } from '../../../redux/UserInfo/action';
-
+import logo from '../../../assets/logo.jpeg';
 const AsideMenuAdmin: React.FC = () => {
   const dispatch = useDispatch();
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
-
+  const navigate = useNavigate();
   const handleLogout = () => {
     toast.success('Logged Out Successfully');
 
@@ -39,6 +39,7 @@ const AsideMenuAdmin: React.FC = () => {
           <button className="menu-toggle" onClick={toggleMenu}>
             {isMenuOpen ? <FaTimes /> : <FaBars />}
           </button>
+          <img className='logo' src={logo} alt="Logo" onClick={() => { navigate('/') }} />
         </div>
         <aside className="sidebar">
           <ul>

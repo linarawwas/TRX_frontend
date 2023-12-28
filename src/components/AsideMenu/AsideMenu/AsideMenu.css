@@ -32,10 +32,16 @@
   flex-flow: row wrap;
   justify-content: space-between;
   align-items: center;
-  width: 100vw;
+  width: 95vw;
+  margin-top:20px;
   position: fixed;
 }
-
+.logo{
+  width: 70px;
+  border-radius: 20px;
+  box-shadow: 1px 1px 10px #082338;
+  cursor: pointer;
+}
 .menu-toggle {
   background: transparent;
   font-size: 20px;

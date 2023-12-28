@@ -29,32 +29,17 @@
 
 h1 {
   font-size: 48px;
-  color: #FFA500;
+  color: white;
   margin-bottom: 10px;
 }
 
-p {
+.landing-page p {
   font-size: 18px;
-  color: #FFA500;
+  color: white;
   margin-bottom: 30px;
 }
 
-.get-started-button {
-  padding: 12px 24px;
-  font-size: 18px;
-  border: none;
-  border-radius: 5px;
-  background-color: #FFA500;
-  color: #082338;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.get-started-button:hover {
-  background-color: #ff6600;
-}
-
-.feature-section {
+.landing-page .feature-section {
   text-align: center;
   margin-bottom: 50px;
   animation: fadeIn 1s ease;
@@ -70,25 +55,25 @@ p {
   }
 }
 
-h2 {
+.landing-page h2 {
   font-size: 32px;
-  color: #FFA500;
+  color: #ff6600;
   margin-bottom: 20px;
 }
 
-ul {
+.landing-page ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-li {
+.landing-page li {
   font-size: 18px;
   color: #FFA500;
   margin-bottom: 10px;
 }
 
-.footer {
+.landing-page .footer {
   text-align: center;
   font-size: 14px;
   color: #FFA500;
