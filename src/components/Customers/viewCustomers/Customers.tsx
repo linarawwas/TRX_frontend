@@ -6,7 +6,6 @@ import './Customers.css';
 import { useSelector } from 'react-redux';
 import AddCustomers from '../AddCustomers/AddCustomers';
 import AddCustomer from '../AddCustomer/AddCustomer';
-import { ToastContainer } from 'react-toastify';
 import SpinLoader from '../../UI reusables/SpinLoader/SpinLoader';
 
 interface Customer {
@@ -102,9 +101,9 @@ const Customers: React.FC = () => {
           <tbody>
             {customersForPage.map((customer) => (
               <tr key={customer._id}>
-                <td>{customer.name}</td>
-                <td>{customer.phone}</td>
-                <td>{customer.address}</td>
+                <td>{customer?.name}</td>
+                <td>{customer?.phone}</td>
+                <td>{customer?.address}</td>
                 <td className='link-to-edit'>
                   <Link to={`/updateCustomer/${customer._id}`}>
                     📝

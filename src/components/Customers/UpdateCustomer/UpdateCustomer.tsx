@@ -7,6 +7,7 @@ import './UpdateCustomer.css';
 import { useSelector } from 'react-redux';
 import SelectInput from '../../UI reusables/SelectInput/SelectInput';
 import SpinLoader from '../../UI reusables/SpinLoader/SpinLoader';
+import CustomerInvoices from '../CustomerInvoices/CustomerInvoices';
 
 interface Area {
   _id: string;
@@ -14,6 +15,7 @@ interface Area {
 }
 
 interface CustomerData {
+  _id:'';
   name: string;
   phone: string;
   address: string;
@@ -30,6 +32,7 @@ function UpdateCustomer(): JSX.Element {
   const [customerData, setCustomerData] = useState<CustomerData | null>(null);
   const [loading, setLoading] = useState(true);
   const [updatedInfo, setUpdatedInfo] = useState<CustomerData>({
+    _id:'',
     name: '',
     phone: '',
     address: '',
@@ -97,6 +100,7 @@ function UpdateCustomer(): JSX.Element {
     e.preventDefault();
     try {
       const updatedData: CustomerData = {
+        _id: updatedInfo._id !== "" ? updatedInfo._id : originalData!._id,
         name: updatedInfo.name !== "" ? updatedInfo.name : originalData!.name,
         phone: updatedInfo.phone !== "" ? updatedInfo.phone : originalData!.phone,
         address: updatedInfo.address !== "" ? updatedInfo.address : originalData!.address,
@@ -176,6 +180,7 @@ function UpdateCustomer(): JSX.Element {
             </thead>
             <tbody>
               {Object.entries(customerData).map(([key, value]) => (
+                
                 <tr key={key}>
                   <td className="field-name">{key}</td>
                   <td className="field-value">{JSON.stringify(value, null, 2)}</td>
@@ -183,6 +188,7 @@ function UpdateCustomer(): JSX.Element {
               ))}
             </tbody>
           </table>
+          <CustomerInvoices customerId={customerData._id}/>
           <h1 className="update-title edit-button" onClick={handleFormToggle}>
             Edit Customer ?
           </h1>

@@ -135,9 +135,9 @@ const OrdersTable: React.FC = () => {
             <tbody>
               {ordersForPage.map((order) => (
                 <tr key={order._id}>
-                  <td>{order.customer.name}</td>
-                  <td>{order.product.type}</td>
-                  <td>{order.total}</td>
+                  <td>{order.customer?.name}</td>
+                  <td>{order.product?.type}</td>
+                  <td>{order?.total}</td>
                   <td className='link-to-edit'>
                     {/* Create a Link for the action button */}
                     <Link to={`/updateOrder/${order._id}`}>

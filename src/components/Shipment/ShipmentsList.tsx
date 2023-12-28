@@ -147,31 +147,31 @@ const ShipmentsList: React.FC = () => {
             currentShipments.map((shipment) => (
               <li key={shipment._id}>
                 <div>
-                  <strong>Date:</strong> {shipment.date.day}/{shipment.date.month}/{shipment.date.year}
+                  <strong>Date:</strong> {shipment.date.day}/{shipment?.date.month}/{shipment.date.year}
                 </div>
                 <div>
-                  <strong>Carrying For Delivery:</strong> {shipment.carryingForDelivery}
+                  <strong>Carrying For Delivery:</strong> {shipment?.carryingForDelivery}
                 </div>
                 <div>
-                  <strong>Calculated Delivered:</strong> {shipment.calculatedDelivered}
+                  <strong>Calculated Delivered:</strong> {shipment?.calculatedDelivered}
                 </div>
                 <div>
-                  <strong>Calculated Returned:</strong> {shipment.calculatedReturned}
+                  <strong>Calculated Returned:</strong> {shipment?.calculatedReturned}
                 </div>
                 <div>
-                  <strong>Shipment Calculated Lira Payments:</strong> {shipment.shipmentCalculatedLiraPayments}
+                  <strong>Shipment Calculated Lira Payments:</strong> {shipment?.shipmentCalculatedLiraPayments}
                 </div>
                 <div>
-                  <strong>Shipment Calculated USD Payments:</strong> {shipment.shipmentCalculatedUSDPayments}
+                  <strong>Shipment Calculated USD Payments:</strong> {shipment?.shipmentCalculatedUSDPayments}
                 </div>
                 <div>
-                  <strong>Shipment Total Payments -usd and liras-  in usd :</strong> {shipment.shipmentCalculatedPayments}
+                  <strong>Shipment Total Payments -usd and liras-  in usd :</strong> {shipment?.shipmentCalculatedPayments}
                 </div>
                 <div>
-                  <strong>Shipment Total Expenses:</strong> {shipment.shipmentTotalExpenses}
+                  <strong>Shipment Total Expenses:</strong> {shipment?.shipmentTotalExpenses}
                 </div>
                 <div>
-                  <strong>Shipment Calculated Extra Profits:</strong> {shipment.shipmentCalculatedExtraProfits}
+                  <strong>Shipment Calculated Extra Profits:</strong> {shipment?.shipmentCalculatedExtraProfits}
                 </div>
               </li>
             ))
