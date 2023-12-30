@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import './UpdateOrder.css'; // Import your CSS file for this component
+import '../../UI reusables/UpdateSingleRecord/UpdateSingleRecord.css'
 import '../../UI reusables/UpdateSingleRecord/UpdateSingleRecord.css';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';

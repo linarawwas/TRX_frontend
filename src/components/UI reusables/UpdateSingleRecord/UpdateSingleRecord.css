@@ -28,7 +28,8 @@
   .update-title {
     font-size: 24px;
     margin-bottom: 10px;
-  }
+    color: black;
+padding: 10px 30px;  }
   
   /* Style for loading message */
   .update-container p {
@@ -37,7 +38,8 @@
   
   /* Style for the table */
   .details-table {
-    width: 100%;
+    margin: 10px auto;
+    width: 70%;
     border-collapse: collapse;
   }
   
