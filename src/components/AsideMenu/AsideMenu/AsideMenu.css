@@ -5,7 +5,7 @@
 }
 
 .sidebar {
-  background: rgb(6, 8, 46);
+  background: linear-gradient(to bottom, #1b3e54 0%, #134368 49%, #082338 100%) no-repeat;
   color: #082338;
   width: 250px;
   height: 100%;
@@ -18,7 +18,7 @@
 }
 
 .sidebar-link {
-  color: #FFA500;
+  color: white;
   font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
   text-decoration: none;
 }

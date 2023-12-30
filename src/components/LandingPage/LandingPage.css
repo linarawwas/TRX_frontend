@@ -58,6 +58,8 @@ h1 {
 .landing-page h2 {
   font-size: 32px;
   color: #ff6600;
+  text-decoration: underline;
+  text-transform: uppercase;
   margin-bottom: 20px;
 }
 
@@ -69,13 +71,13 @@ h1 {
 
 .landing-page li {
   font-size: 18px;
-  color: #FFA500;
+  color: white;
   margin-bottom: 10px;
 }
 
 .landing-page c.footer {
   text-align: center;
   font-size: 14px;
-  color: #FFA500;
+  color: white;
   animation: fadeIn 1s ease;
 }
