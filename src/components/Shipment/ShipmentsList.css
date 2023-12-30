@@ -113,12 +113,26 @@
   border-radius: 20px;
 }
 
-.single-shipment-info {
+.single-shipment-info {}
 
+.shipment-info-field {
+  padding: 10px 20px;
+  color: white;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 20px;
 }
-.shipment-info-field{
-padding: 10px 20px;
-color: white;
-font-family: 'Times New Roman', Times, serif;
-font-size: 20px;
+
+.totals {
+  display: flex;
+  justify-content: space-around;
+}
+
+.totals div {
+  box-shadow: 1px 1px 10px white;
+  font-size: 14px;
+  color: white;
+  font-family: 'Times New Roman', Times, serif;
+  padding: 7px;
+  margin: 5px;
+  border-radius: 20px;
 }

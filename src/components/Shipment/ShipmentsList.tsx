@@ -53,6 +53,7 @@ const ShipmentsList: React.FC = () => {
     }
     return null;
   };
+
   const token = useSelector((state: any) => state.user.token);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -101,6 +102,34 @@ const ShipmentsList: React.FC = () => {
   const paginate = (pageNumber: number) => {
     setCurrentPage(pageNumber);
   };
+  const calculateTotals = () => {
+    const totals: Record<string, number> = {
+      carryingForDelivery: 0,
+      calculatedDelivered: 0,
+      calculatedReturned: 0,
+      shipmentCalculatedPayments: 0,
+      shipmentTotalExpenses: 0,
+      shipmentCalculatedExtraProfits: 0,
+      shipmentCalculatedLiraPayments: 0,
+      shipmentCalculatedUSDPayments: 0,
+    };
+
+    shipments.forEach((shipment) => {
+      totals.carryingForDelivery += shipment.carryingForDelivery || 0;
+      totals.calculatedDelivered += shipment.calculatedDelivered || 0;
+      totals.calculatedReturned += shipment.calculatedReturned || 0;
+      totals.shipmentCalculatedPayments += shipment.shipmentCalculatedPayments || 0;
+      totals.shipmentTotalExpenses += shipment.shipmentTotalExpenses || 0;
+      totals.shipmentCalculatedExtraProfits += shipment.shipmentCalculatedExtraProfits || 0;
+      totals.shipmentCalculatedLiraPayments += shipment.shipmentCalculatedLiraPayments || 0;
+      totals.shipmentCalculatedUSDPayments += shipment.shipmentCalculatedUSDPayments || 0;
+    });
+
+    return totals;
+  };
+
+  const totals = calculateTotals(); // Calculate totals based on the current shipments
+
   return (
     <div className="shipments-container">
 
@@ -141,11 +170,24 @@ const ShipmentsList: React.FC = () => {
           />
           <button onClick={fetchShipments}>Select</button>
         </div>
+
+        {isLoading ? (<SpinLoader />) : (
+          <div className="totals">
+            <div>Carried: {totals.carryingForDelivery}</div>
+            <div>Delivered: {totals.calculatedDelivered}</div>
+            <div>Returned: {totals.calculatedReturned}</div>
+            <div>Lira {totals.shipmentCalculatedLiraPayments}</div>
+            <div>$ {totals.shipmentCalculatedUSDPayments}</div>
+            <div> Total in $: {totals.shipmentCalculatedPayments.toFixed(2)}</div>
+            <div>Expenses $: {totals.shipmentTotalExpenses.toFixed(2)}</div>
+            <div>Extra Profits $: {totals.shipmentCalculatedExtraProfits.toFixed(2)}</div>
+
+          </div>
+        )}
         <ul className='shipment-info-box'>
           {isLoading ? (
             <SpinLoader />) : (
             currentShipments.map((shipment) => (
-
               <li className='single-shipment-info' key={shipment._id}>
                 <div className='shipment-info-field'>
                   <strong>Date:</strong> {shipment.date.day}/{shipment?.date.month}/{shipment.date.year}
@@ -169,10 +211,10 @@ const ShipmentsList: React.FC = () => {
                   <strong> Total Payments -usd and liras-  in usd :</strong> {shipment?.shipmentCalculatedPayments.toFixed(2)}
                 </div>
                 <div className='shipment-info-field'>
-                  <strong>Total Expenses:</strong> {shipment?.shipmentTotalExpenses.toFixed(2)}
+                  <strong>Total Expenses $: </strong> {shipment?.shipmentTotalExpenses.toFixed(2)}
                 </div>
                 <div className='shipment-info-field'>
-                  <strong>Extra Profits:</strong> {shipment?.shipmentCalculatedExtraProfits.toFixed(2)}
+                  <strong>Extra Profits $:</strong> {shipment?.shipmentCalculatedExtraProfits.toFixed(2)}
                 </div>
               </li>
             ))
