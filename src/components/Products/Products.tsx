@@ -3,11 +3,10 @@ import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-import AddExpenses from '../AddExpenses';
-import SpinLoader from '../../../UI reusables/SpinLoader/SpinLoader';
-import './ViewExpenses.css';
+import AddProducts from '../AddProducts';
+import './ViewProducts.css';
 import '../../../Customers/CustomerInvoices/CustomerInvoices.css'
-interface Expenses {
+interface Products {
     _id: string;
     name: string;
     value: number | string;
@@ -20,39 +19,39 @@ interface Expenses {
     recordedBy: string;
     __v: number;
 }
-const Expenses: React.FC = () => {
+const Products: React.FC = () => {
     const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(1);
     const [recordsPerPage] = useState(4);
-    const [showAddExpenses, setShowAddExpenses] = useState<Boolean>(false);
+    const [showAddProducts, setShowAddProducts] = useState<Boolean>(false);
     const companyId = useSelector((state: any) => state.user.companyId);
-    const [extraExpenses, setExpenses] = useState<Expenses[]>([]);
+    const [extraProducts, setProducts] = useState<Products[]>([]);
     const [loading, setLoading] = useState(true);
     const token: string = useSelector((state: any) => state.user.token);
     useEffect(() => {
-        const fetchExpenses = async () => {
+        const fetchProducts = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/expenses/company/${companyId}`, {
+                const response = await axios.get(`http://localhost:5000/api/products/company/${companyId}`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
                 });
                 const data = response.data;
-                setExpenses(data);
+                setProducts(data);
                 setLoading(false);
             } catch (error) {
-                console.error('Error fetching extra expenses:', error);
+                console.error('Error fetching extra products:', error);
                 setLoading(false);
             }
         }
         if (companyId) {
-            fetchExpenses();
+            fetchProducts();
         }
-    }, [companyId, token, showAddExpenses]);
+    }, [companyId, token, showAddProducts]);
 
     const indexOfLastRecord = currentPage * recordsPerPage;
     const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-    const currentRecords = extraExpenses.slice(indexOfFirstRecord, indexOfLastRecord);
+    const currentRecords = extraProducts.slice(indexOfFirstRecord, indexOfLastRecord);
 
     const paginate = (pageNumber: number) => {
         setCurrentPage(pageNumber);
@@ -61,7 +60,7 @@ const Expenses: React.FC = () => {
     const renderPagination = () => {
         return (
             <ul className="pagination">
-                {Array.from({ length: Math.ceil(extraExpenses.length / recordsPerPage) }, (_, index) => (
+                {Array.from({ length: Math.ceil(extraProducts.length / recordsPerPage) }, (_, index) => (
                     <li key={index} onClick={() => paginate(index + 1)} className={`pagination-item ${currentPage === index + 1 ? 'active' : ''}`}>
                         {index + 1}
                     </li>
@@ -89,7 +88,7 @@ const Expenses: React.FC = () => {
     };
     const handleDeleteExpense = async (expenseId: string) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/expenses/${expenseId}`, {
+            const response = await fetch(`http://localhost:5000/api/products/${expenseId}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -110,16 +109,16 @@ const Expenses: React.FC = () => {
         }
     };
     return (
-        <div className="extra-expenses">
+        <div className="extra-products">
             <ToastContainer position="top-right" autoClose={1000} />
 
-            <h2>Extra Expenses</h2>
-            <h3 className='show-add-expenses' onClick={() => { setShowAddExpenses(!showAddExpenses) }}>{showAddExpenses ? "hide form?" : "Add new expenses?"}</h3>
-            {showAddExpenses && <AddExpenses />}
+            <h2>Extra Products</h2>
+            <h3 className='show-add-products' onClick={() => { setShowAddProducts(!showAddProducts) }}>{showAddProducts ? "hide form?" : "Add new products?"}</h3>
+            {showAddProducts && <AddProducts />}
             {loading ? (
                 <SpinLoader />
             ) :
-                extraExpenses.length > 0 ? (
+                extraProducts.length > 0 ? (
                     <div className="receipt-details-container">
                         {currentRecords.map((expense) => (<div className='receipt-details' key={expense._id}>
                             <div className='container-button-div'>
@@ -150,7 +149,7 @@ const Expenses: React.FC = () => {
                         ))}
                     </div>
                 ) : (
-                    <p>No extra expenses found for this company</p>
+                    <p>No extra products found for this company</p>
                 )}
             {renderPagination()}
 
@@ -158,4 +157,4 @@ const Expenses: React.FC = () => {
     );
 };
 
-export default Expenses;
+export default Products;

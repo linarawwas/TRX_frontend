@@ -13,7 +13,7 @@ const RecordOrder = () => {
   // const [products, setProducts] = useState([]); since the admin chose to only have one product default, no product array will be mapped
   useEffect(() => {
     // Fetch days data from your API
-    fetch("http://localhost:5000/api/adminDeterminedDefaults/defaultProduct", {
+    fetch("http://localhost:5000/api/adminDeterminedProducts/defaultProduct", {
       method: "GET", // Assuming this endpoint uses a GET request method
       headers: {
         Authorization: `Bearer ${token}`,
@@ -29,7 +29,7 @@ const RecordOrder = () => {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            type: data.value, // Send the value obtained from adminDeterminedDefaults as type
+            type: data.value, // Send the value obtained from adminDeterminedProducts as type
           }),
         })
           .then((response) => response.json())
@@ -44,7 +44,7 @@ const RecordOrder = () => {
           });
       })
       .catch((error) => {
-        console.error("Error fetching adminDeterminedDefaults:", error);
+        console.error("Error fetching adminDeterminedProducts:", error);
       });
   }, [token, dispatch, companyId]);
   const customerId = useSelector(state => state.order.customer_Id);
