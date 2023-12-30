@@ -20,10 +20,29 @@
     margin:0 auto  ;
     ;
   }
-  
+  .areas-header button{
+      margin:10px;
+      box-shadow: 1px 1px 10px white;
+      border-radius: 30px;
+      background-color: #ff6600;
+      color: white;
+      text-transform: uppercase;
+      font-weight: bold;
+      cursor: pointer;
+      width: 130px;
+      padding: 10px;
+  }
+  .areas-header  button:hover{
+    background-color: #FFA500;
+    color: black;
+    box-shadow: 1px 1px 10px 10px rgb(20, 20, 19);
+
+    
+    }
   .areas-title {
     text-align: center;
-  
+  color: white;
+  text-decoration: underline;
   }
   
   .areas-table th,

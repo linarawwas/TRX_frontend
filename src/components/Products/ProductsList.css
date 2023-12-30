@@ -1,44 +1,51 @@
-.products h2{
+.products h2 {
     text-align: center;
-    color:white;
+    color: white;
 }
-.show-add-products{
+
+.show-add-products {
     text-align: center;
     text-decoration: underline;
     cursor: pointer;
-margin:10px auto;
-padding:10px 40px;
-width:300px;
-border-radius: 30px;
+    margin: 10px auto;
+    padding: 10px 40px;
+    width: 300px;
+    border-radius: 30px;
 }
-.show-add-products:hover{
+
+.show-add-products:hover {
     background-color: white;
-    color:#FFA500;
+    color: #FFA500;
 }
-.select-default-div{
+
+.select-default-div {
     display: flex;
-justify-content: center;
+    justify-content: center;
 }
-.select-default-div select{
-    margin:10px;
+
+.select-default-div select {
+    margin: 10px;
     padding: 10px 20px;
     box-shadow: 1px 1px 10px white;
-    
-    }
-    .select-default-div button{
-        margin:10px;
-        box-shadow: 1px 1px 10px white;
-        border-radius: 30px;
-        background-color: #ff6600;
-        color: white;
-        text-transform: uppercase;
-        font-weight: bold;
-        cursor: pointer;
-        
-        }    .select-default-div button:hover{
-            background-color: #FFA500;
-            color: black;
-            box-shadow: 1px 1px 10px 10px rgb(20, 20, 19);
 
-            
-            }
+}
+
+.select-default-div button {
+    margin: 10px;
+    box-shadow: 1px 1px 10px white;
+    border-radius: 30px;
+    background-color: #ff6600;
+    color: white;
+    text-transform: uppercase;
+    font-weight: bold;
+    cursor: pointer;
+
+}
+
+.select-default-div button:hover {
+    background-color: #FFA500;
+    color: black;
+    box-shadow: 1px 1px 10px 10px rgb(20, 20, 19);
+
+
+}
