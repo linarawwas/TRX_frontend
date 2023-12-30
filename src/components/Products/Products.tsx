@@ -18,7 +18,7 @@ const ProductsList: React.FC = () => {
     const [recordsPerPage] = useState(4);
     const [showAddProducts, setShowAddProducts] = useState<Boolean>(false);
     const companyId = useSelector((state: any) => state.user.companyId);
-    const [extraProducts, setProducts] = useState<Product[]>([]);
+    const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const token: string = useSelector((state: any) => state.user.token);
     useEffect(() => {
@@ -33,7 +33,7 @@ const ProductsList: React.FC = () => {
                 setProducts(data);
                 setLoading(false);
             } catch (error) {
-                console.error('Error fetching extra products:', error);
+                console.error('Error fetching  products:', error);
                 setLoading(false);
             }
         }
@@ -44,7 +44,7 @@ const ProductsList: React.FC = () => {
 
     const indexOfLastRecord = currentPage * recordsPerPage;
     const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-    const currentRecords = extraProducts.slice(indexOfFirstRecord, indexOfLastRecord);
+    const currentRecords = products.slice(indexOfFirstRecord, indexOfLastRecord);
 
     const paginate = (pageNumber: number) => {
         setCurrentPage(pageNumber);
@@ -53,7 +53,7 @@ const ProductsList: React.FC = () => {
     const renderPagination = () => {
         return (
             <ul className="pagination">
-                {Array.from({ length: Math.ceil(extraProducts.length / recordsPerPage) }, (_, index) => (
+                {Array.from({ length: Math.ceil(products.length / recordsPerPage) }, (_, index) => (
                     <li key={index} onClick={() => paginate(index + 1)} className={`pagination-item ${currentPage === index + 1 ? 'active' : ''}`}>
                         {index + 1}
                     </li>
@@ -88,13 +88,13 @@ const ProductsList: React.FC = () => {
         <div className="products">
             <ToastContainer position="top-right" autoClose={1000} />
 
-            <h2>Extra Products</h2>
+            <h2> Products</h2>
             <h3 className='show-add-products' onClick={() => { setShowAddProducts(!showAddProducts) }}>{showAddProducts ? "hide form?" : "Add new products?"}</h3>
             {showAddProducts && <AddProducts />}
             {loading ? (
                 <SpinLoader />
             ) :
-                extraProducts.length > 0 ? (
+                products.length > 0 ? (
                     <div className="receipt-details-container">
                         {currentRecords.map((product) => (<div className='receipt-details' key={product._id}>
                             <div className='container-button-div'>
@@ -109,14 +109,14 @@ const ProductsList: React.FC = () => {
                             </div>
                             <div className='receipt-detail'>
                                 <p className='detail-name'>isReturnable:</p>
-                                <p className='detail-value'>{product?.isReturnable}</p>
+                                <p className='detail-value'>{product.isReturnable ? "true": "false"}</p>
                             </div>
 
                         </div>
                         ))}
                     </div>
                 ) : (
-                    <p>No extra products found for this company</p>
+                    <p>No  products found for this company</p>
                 )}
             {renderPagination()}
 
