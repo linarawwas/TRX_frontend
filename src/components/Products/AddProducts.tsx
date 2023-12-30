@@ -1,23 +1,20 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react';
-import '../../Orders/RecordOrder/RecordOrder.css';
-import SelectInput from '../../UI reusables/SelectInput/SelectInput';
+import '../Orders/RecordOrder/RecordOrder.css';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from 'react-redux';
-import NumberInput from '../../UI reusables/NumberInput/NumberInput';
-import { RootState } from '../../../redux/store'; // Update this path with your Redux store structure
+import { RootState } from '../../redux/store';
+import NumberInput from '../UI reusables/NumberInput/NumberInput';
+import SelectInput from '../UI reusables/SelectInput/SelectInput';
 
 const AddProducts: React.FC = () => {
   const companyId = useSelector((state: RootState) => state.user.companyId);
-  const shipmentId = useSelector((state: RootState) => state.shipment._id);
   const token = useSelector((state: RootState) => state.user.token);
   const [products, setProducts] = useState({
-    name: '',
-    value: 0,
-    paymentCurrency: '',
-    exchangeRate: '6537789b6ed59ef09c18213d',
+    type:'',
+    priceInDollars: 0,
+    isReturnable: false,
     companyId: companyId,
-    shipmentId: shipmentId,
   });
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -55,26 +52,26 @@ const AddProducts: React.FC = () => {
       <form className="record-order-form" onSubmit={handleSubmit}>
         <input
           type="text"
-          name="name"
-          value={products.name}
-          placeholder="Name"
+          name="type"
+          value={products.type}
+          placeholder="type"
           onChange={handleChange}
         />
         <SelectInput
-          label="Payment Currency:"
-          name="paymentCurrency"
-          value={products.paymentCurrency}
+          label="isReturnable:"
+          name="isReturnable"
+          value={products.isReturnable}
           options={[
-            { value: '', label: 'Select Currency' },
-            { value: 'USD', label: 'USD' },
-            { value: 'LBP', label: 'LBP' },
+            { value: '', label: 'Select' },
+            { value: true, label: 'true' },
+            { value: false, label: 'false' },
           ]}
           onChange={handleChange}
         />
         <NumberInput
-          label="Value:"
-          name="value"
-          value={products.value}
+          label="priceInDollars:"
+          name="priceInDollars"
+          value={products.priceInDollars}
           onChange={handleChange}
         />
         <button className="record-order-button" type="submit">

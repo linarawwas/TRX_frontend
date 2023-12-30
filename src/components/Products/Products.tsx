@@ -3,29 +3,24 @@ import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-import AddProducts from '../AddProducts';
-import './ViewProducts.css';
-import '../../../Customers/CustomerInvoices/CustomerInvoices.css'
-interface Products {
-    _id: string;
-    name: string;
-    value: number | string;
-    paymentCurrency: string;
-    exchangeRate: string;
-    valueInUSD: number;
+import './ProductsList.css';
+import '../Customers/CustomerInvoices/CustomerInvoices.css'
+import SpinLoader from '../UI reusables/SpinLoader/SpinLoader.jsx';
+import AddProducts from './AddProducts';
+interface Product {
+    _id:string;
+    type:string;
+    priceInDollars: number;
+    isReturnable: boolean;
     companyId: string;
-    shipmentId: string;
-    timestamp: string;
-    recordedBy: string;
-    __v: number;
 }
-const Products: React.FC = () => {
+const ProductsList: React.FC = () => {
     const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(1);
     const [recordsPerPage] = useState(4);
     const [showAddProducts, setShowAddProducts] = useState<Boolean>(false);
     const companyId = useSelector((state: any) => state.user.companyId);
-    const [extraProducts, setProducts] = useState<Products[]>([]);
+    const [extraProducts, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const token: string = useSelector((state: any) => state.user.token);
     useEffect(() => {
@@ -86,9 +81,9 @@ const Products: React.FC = () => {
 
         return date.toLocaleString('en-US', options);
     };
-    const handleDeleteExpense = async (expenseId: string) => {
+    const handleDeleteExpense = async (productId: string) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/products/${expenseId}`, {
+            const response = await fetch(`http://localhost:5000/api/products/${productId}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -96,16 +91,16 @@ const Products: React.FC = () => {
             });
 
             if (response.ok) {
-                toast.success('expense deleted successfully');
+                toast.success('product deleted successfully');
                 setTimeout(() => {
                     window.location.reload();
                 }, 1500);
             } else {
-                toast.error('Error deleting expense');
+                toast.error('Error deleting product');
             }
         } catch (error) {
-            toast.error('Error deleting expense');
-            console.error('Error deleting expense:', error);
+            toast.error('Error deleting product');
+            console.error('Error deleting product:', error);
         }
     };
     return (
@@ -120,29 +115,20 @@ const Products: React.FC = () => {
             ) :
                 extraProducts.length > 0 ? (
                     <div className="receipt-details-container">
-                        {currentRecords.map((expense) => (<div className='receipt-details' key={expense._id}>
+                        {currentRecords.map((product) => (<div className='receipt-details' key={product._id}>
                             <div className='container-button-div'>
-                                <button className='delete-btn' onClick={() => { handleDeleteExpense(expense._id) }}>delete</button></div>
+                                <button className='delete-btn' onClick={() => { handleDeleteExpense(product._id) }}>delete</button></div>
                             <div className='receipt-detail'>
                                 <p className='detail-name'>Name:</p>
-                                <p className='detail-value'>{expense?.name}</p>
+                                <p className='detail-value'>{product?.type}</p>
                             </div>
                             <div className='receipt-detail'>
                                 <p className='detail-name'>Value:</p>
-                                <p className='detail-value'>{expense?.value}</p>
+                                <p className='detail-value'>{product?.priceInDollars}</p>
                             </div>
                             <div className='receipt-detail'>
-                                <p className='detail-name'>Currency:</p>
-                                <p className='detail-value'>{expense?.paymentCurrency}</p>
-                            </div>
-
-                            <div className='receipt-detail'>
-                                <p className='detail-name'>Value in USD:</p>
-                                <p className='detail-value'>{typeof expense.valueInUSD === 'number' ? expense.valueInUSD.toFixed(2) : expense.valueInUSD}</p>
-                            </div>
-                            <div className='receipt-detail timestamp'>
-                                <p className='detail-name'>Date:</p>
-                                <p className='detail-value'>{formatTimestamp(expense.timestamp)}</p>
+                                <p className='detail-name'>isReturnable:</p>
+                                <p className='detail-value'>{product?.isReturnable}</p>
                             </div>
 
                         </div>
@@ -157,4 +143,4 @@ const Products: React.FC = () => {
     );
 };
 
-export default Products;
+export default ProductsList;

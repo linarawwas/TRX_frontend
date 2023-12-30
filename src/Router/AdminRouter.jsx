@@ -20,7 +20,7 @@ import AddCustomers from '../components/Customers/AddCustomers/AddCustomers.tsx'
 import ShipmentsList from '../components/Shipment/ShipmentsList.tsx';
 import ExtraProfits from '../components/Profits/ViewProfits/ViewProfits.tsx';
 import Expenses from '../components/Expenses/AddExpenses/ViewExpenses/ViewExpenses.tsx';
-import Products from '../components/Products/Products.jsx';
+import Products from '../components/Products/Products.tsx';
 function AdminRouter() {
   return (
     <>

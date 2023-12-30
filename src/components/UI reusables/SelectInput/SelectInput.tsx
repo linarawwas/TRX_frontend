@@ -4,7 +4,7 @@ import './SelectInput.css';
 interface SelectInputProps {
   label: string;
   name: string;
-  value: string;
+  value: string | boolean;
   options: { value: string; label: string }[];
   onChange: (e: ChangeEvent<HTMLSelectElement>) => void;
 }
