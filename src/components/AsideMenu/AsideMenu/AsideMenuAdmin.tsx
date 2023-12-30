@@ -6,7 +6,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch } from 'react-redux';
 import { clearCompanyId, clearToken, clearIsAdmin } from '../../../redux/UserInfo/action';
-import logo from '../../../assets/logo.jpeg';
+import logo from '../../../images/logo.jpeg';
 const AsideMenuAdmin: React.FC = () => {
   const dispatch = useDispatch();
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);

@@ -7,6 +7,7 @@ import '../Customers/CustomerInvoices/CustomerInvoices.css'
 import SpinLoader from '../UI reusables/SpinLoader/SpinLoader.jsx';
 import AddProducts from './AddProducts';
 import DefaultProducts from './DefaultProduct';
+import UpdateDefaultProduct from './UpdateDefaultProduct';
 interface Product {
     _id: string;
     type: string;
@@ -88,7 +89,6 @@ const ProductsList: React.FC = () => {
     return (
         <div className="products">
             <ToastContainer position="top-right" autoClose={1000} />
-
             <h2> Products</h2>
             <h3 className='show-add-products' onClick={() => { setShowAddProducts(!showAddProducts) }}>{showAddProducts ? "hide form?" : "Add new products?"}</h3>
             {showAddProducts && <AddProducts />}
@@ -121,6 +121,7 @@ const ProductsList: React.FC = () => {
                 )}
             {renderPagination()}
             <DefaultProducts />
+<UpdateDefaultProduct products={products} companyId={companyId} />
         </div>
     );
 };

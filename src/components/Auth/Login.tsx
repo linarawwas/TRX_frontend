@@ -2,7 +2,7 @@ import './Login.css'; // Import your CSS file
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-// import logo from '../../assets/logo.jpeg';
+// import logo from '../../images/logo.png';
 
 export default function Login(): JSX.Element {
   const [formData, setFormData] = useState({

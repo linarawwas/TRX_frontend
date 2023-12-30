@@ -44,7 +44,7 @@ const DefaultProducts: React.FC = () => {
         };
 
         fetchData(); // Fetch data when component mounts
-    }, [companyId]);
+    }, [companyId,token]);
 
     return (
         <div>
