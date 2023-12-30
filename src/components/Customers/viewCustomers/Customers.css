@@ -1,10 +1,9 @@
-.customers-body {
-  margin-top: 0;
-  margin-bottom: 100px;
-}
 
 .customer-header {
   text-align: center;
+  color: white;
+  text-decoration: underline;
+  margin-top: 10%;
 }
 
 .customer-adding-option {
@@ -78,12 +77,18 @@
 .nav-arrow {
   flex-basis: 10px;
   padding: 10px;
-  margin: 0 0;
   font-size: 20px;
   cursor: pointer;
-  border-radius: 50%;
+  border-radius: 50px;
   border: 1px solid black;
-
+background-color: white;
+box-shadow: 1px 1px 10px 1px #ff6600;
+}
+.nav-arrow:hover {
+  border: 1px solid black;
+background-color: black;
+color: white;
+box-shadow: 1px 1px 10px 1px #FFA500;
 }
 .link-to-edit {
   text-shadow: 1px 1px 8px black;
