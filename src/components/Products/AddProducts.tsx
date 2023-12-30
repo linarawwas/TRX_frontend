@@ -62,7 +62,6 @@ const AddProducts: React.FC = () => {
           name="isReturnable"
           value={products.isReturnable}
           options={[
-            { value: '', label: 'Select' },
             { value: true, label: 'true' },
             { value: false, label: 'false' },
           ]}
@@ -75,7 +74,7 @@ const AddProducts: React.FC = () => {
           onChange={handleChange}
         />
         <button className="record-order-button" type="submit">
-          Add products
+          Add product
         </button>
       </form>
     </div>

@@ -1,0 +1,17 @@
+.products h2{
+    text-align: center;
+    color:white;
+}
+.show-add-products{
+    text-align: center;
+    text-decoration: underline;
+    cursor: pointer;
+margin:10px auto;
+padding:10px 40px;
+width:300px;
+border-radius: 30px;
+}
+.show-add-products:hover{
+    background-color: white;
+    color:#FFA500;
+}

@@ -2,20 +2,18 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { ToastContainer, toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
 import './ProductsList.css';
 import '../Customers/CustomerInvoices/CustomerInvoices.css'
 import SpinLoader from '../UI reusables/SpinLoader/SpinLoader.jsx';
 import AddProducts from './AddProducts';
 interface Product {
-    _id:string;
-    type:string;
+    _id: string;
+    type: string;
     priceInDollars: number;
     isReturnable: boolean;
     companyId: string;
 }
 const ProductsList: React.FC = () => {
-    const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(1);
     const [recordsPerPage] = useState(4);
     const [showAddProducts, setShowAddProducts] = useState<Boolean>(false);
@@ -63,24 +61,7 @@ const ProductsList: React.FC = () => {
             </ul>
         );
     };
-    const formatTimestamp = (timestamp: string) => {
-        const date = new Date(timestamp);
-        // Adjust the received timestamp by subtracting 2 hours for the Beirut timezone
-        date.setHours(date.getHours() - 2);
 
-        const options: Intl.DateTimeFormatOptions = {
-            timeZone: 'Asia/Beirut',
-            year: 'numeric',
-            month: 'numeric',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            second: 'numeric',
-            hour12: true // Set to true for 12-hour format
-        };
-
-        return date.toLocaleString('en-US', options);
-    };
     const handleDeleteExpense = async (productId: string) => {
         try {
             const response = await fetch(`http://localhost:5000/api/products/${productId}`, {
@@ -104,7 +85,7 @@ const ProductsList: React.FC = () => {
         }
     };
     return (
-        <div className="extra-products">
+        <div className="products">
             <ToastContainer position="top-right" autoClose={1000} />
 
             <h2>Extra Products</h2>
