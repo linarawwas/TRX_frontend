@@ -1,0 +1,11 @@
+.default-product {
+    text-align: center;
+    font-size: 30px;
+    background-color: white;
+    width: 300px;
+    margin: 10px auto;
+    padding: 20px;
+    border-radius: 30px;
+    box-shadow: 1px 1px 10px white;
+    text-transform: uppercase;
+}

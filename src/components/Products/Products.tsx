@@ -6,6 +6,7 @@ import './ProductsList.css';
 import '../Customers/CustomerInvoices/CustomerInvoices.css'
 import SpinLoader from '../UI reusables/SpinLoader/SpinLoader.jsx';
 import AddProducts from './AddProducts';
+import DefaultProducts from './DefaultProduct';
 interface Product {
     _id: string;
     type: string;
@@ -109,7 +110,7 @@ const ProductsList: React.FC = () => {
                             </div>
                             <div className='receipt-detail'>
                                 <p className='detail-name'>isReturnable:</p>
-                                <p className='detail-value'>{product.isReturnable ? "true": "false"}</p>
+                                <p className='detail-value'>{product.isReturnable ? "true" : "false"}</p>
                             </div>
 
                         </div>
@@ -119,7 +120,7 @@ const ProductsList: React.FC = () => {
                     <p>No  products found for this company</p>
                 )}
             {renderPagination()}
-
+            <DefaultProducts />
         </div>
     );
 };
