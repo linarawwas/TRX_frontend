@@ -151,28 +151,28 @@ const ShipmentsList: React.FC = () => {
                   <strong>Date:</strong> {shipment.date.day}/{shipment?.date.month}/{shipment.date.year}
                 </div>
                 <div className='shipment-info-field'>
-                  <strong>Carrying For Delivery:</strong> {shipment?.carryingForDelivery}
+                  <strong>Carried For Delivery:</strong> {shipment?.carryingForDelivery}
                 </div>
                 <div className='shipment-info-field'>
-                  <strong>Calculated Delivered:</strong> {shipment?.calculatedDelivered}
+                  <strong>Delivered:</strong> {shipment?.calculatedDelivered}
                 </div>
                 <div className='shipment-info-field'>
-                  <strong>Calculated Returned:</strong> {shipment?.calculatedReturned}
+                  <strong>Returned:</strong> {shipment?.calculatedReturned}
                 </div>
                 <div className='shipment-info-field'>
-                  <strong>Shipment Calculated Lira Payments:</strong> {shipment?.shipmentCalculatedLiraPayments}
+                  <strong> Lira Payments:</strong> {shipment?.shipmentCalculatedLiraPayments}
                 </div>
                 <div className='shipment-info-field'>
-                  <strong>Shipment Calculated USD Payments:</strong> {shipment?.shipmentCalculatedUSDPayments}
+                  <strong>USD Payments:</strong> {shipment?.shipmentCalculatedUSDPayments}
                 </div>
                 <div className='shipment-info-field'>
-                  <strong>Shipment Total Payments -usd and liras-  in usd :</strong> {shipment?.shipmentCalculatedPayments}
+                  <strong> Total Payments -usd and liras-  in usd :</strong> {shipment?.shipmentCalculatedPayments.toFixed(2)}
                 </div>
                 <div className='shipment-info-field'>
-                  <strong>Shipment Total Expenses:</strong> {shipment?.shipmentTotalExpenses}
+                  <strong>Total Expenses:</strong> {shipment?.shipmentTotalExpenses.toFixed(2)}
                 </div>
                 <div className='shipment-info-field'>
-                  <strong>Shipment Calculated Extra Profits:</strong> {shipment?.shipmentCalculatedExtraProfits}
+                  <strong>Extra Profits:</strong> {shipment?.shipmentCalculatedExtraProfits.toFixed(2)}
                 </div>
               </li>
             ))
