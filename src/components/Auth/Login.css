@@ -1,54 +1,84 @@
 .login-container {
-    max-width: 50%;
-    margin: 100px auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #082338;
-  display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    align-content: center;
-  }
-  .login-form{
-    border:0;
-    box-shadow: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-  .login-container .login-form {
-    display: flex;
-    flex-direction: column;    border:0;
-    /* box-shadow: transparent; */
-    width: 70%;
-    align-items: center;
+  max-width: 50%;
+  margin: 10% auto;
+  margin-bottom: 50px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+   background-image: url("../../images/logo.jpeg");
+   background-size:contain;
+   background-repeat: no-repeat;
+   display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  box-shadow: 1px 8px 20px 10px white;
 
-  }
-  
-  .login-container .login-input {
-    margin-bottom: 10px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-  }
-  
-  .login-container .login-button {
-    padding: 10px;
-    background-color: #FFA500;
-    color: #082338;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin:5px auto;
-    width:50%;
-  }
-  
-  .login-container .login-button:hover {
-    background-color: #ff6600;
-  }
-  .email-textfield{
-    width: 93%;
-  }
+}
+.login-title{
+  color: white;
+
+}
+.login-form {
+  border: 0;
+  box-shadow: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-container .login-form {
+  display: flex;
+  flex-direction: column;
+  border: 0;
+  width: 70%;
+  align-items: center;
+
+}
+
+.login-container .login-input {
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.login-container .login-button , .login-page-paragraph button{
+  padding: 10px;
+  background-color: #FFA500;
+  color: #082338;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  margin: 5px auto;
+  width: 100px;
+  box-shadow: 1px 1px 10px white;
+
+}
+
+.login-container .login-button:hover , .login-page-paragraph button:hover{
+  background-color: #ff6600;
+  color: white;
+  box-shadow: 1px 1px 20px 10px white;
+}
+
+.email-textfield {
+  width: 93%;
+}
+.paragraph-div{
+padding: 30px;
+background: linear-gradient(to bottom, #1b3e54 0%, #134368 49%, #082338 100%) no-repeat;
+width: 60%;
+margin: 10px auto;
+border-radius: 20px;
+box-shadow: 5px 5px 5px 10px black;
+}
+.login-page-paragraph{
+  font-family: 'Times New Roman', Times, serif;
+  text-align: center;
+  color: white;
+  font-size: 25px;
+
+}
