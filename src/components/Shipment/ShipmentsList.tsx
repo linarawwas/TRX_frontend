@@ -58,7 +58,7 @@ const ShipmentsList: React.FC = () => {
 
   const [shipments, setShipments] = useState<ShipmentData[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [shipmentsPerPage] = useState(3);
+  const [shipmentsPerPage] = useState(1);
 
   const indexOfLastShipment = currentPage * shipmentsPerPage;
   const indexOfFirstShipment = indexOfLastShipment - shipmentsPerPage;
@@ -139,38 +139,39 @@ const ShipmentsList: React.FC = () => {
             }}
             placeholderText="Select To Date"
           />
-          <button onClick={fetchShipments}>Fetch Shipments</button>
+          <button onClick={fetchShipments}>Select</button>
         </div>
-        <ul>
+        <ul className='shipment-info-box'>
           {isLoading ? (
             <SpinLoader />) : (
             currentShipments.map((shipment) => (
-              <li key={shipment._id}>
-                <div>
+
+              <li className='single-shipment-info' key={shipment._id}>
+                <div className='shipment-info-field'>
                   <strong>Date:</strong> {shipment.date.day}/{shipment?.date.month}/{shipment.date.year}
                 </div>
-                <div>
+                <div className='shipment-info-field'>
                   <strong>Carrying For Delivery:</strong> {shipment?.carryingForDelivery}
                 </div>
-                <div>
+                <div className='shipment-info-field'>
                   <strong>Calculated Delivered:</strong> {shipment?.calculatedDelivered}
                 </div>
-                <div>
+                <div className='shipment-info-field'>
                   <strong>Calculated Returned:</strong> {shipment?.calculatedReturned}
                 </div>
-                <div>
+                <div className='shipment-info-field'>
                   <strong>Shipment Calculated Lira Payments:</strong> {shipment?.shipmentCalculatedLiraPayments}
                 </div>
-                <div>
+                <div className='shipment-info-field'>
                   <strong>Shipment Calculated USD Payments:</strong> {shipment?.shipmentCalculatedUSDPayments}
                 </div>
-                <div>
+                <div className='shipment-info-field'>
                   <strong>Shipment Total Payments -usd and liras-  in usd :</strong> {shipment?.shipmentCalculatedPayments}
                 </div>
-                <div>
+                <div className='shipment-info-field'>
                   <strong>Shipment Total Expenses:</strong> {shipment?.shipmentTotalExpenses}
                 </div>
-                <div>
+                <div className='shipment-info-field'>
                   <strong>Shipment Calculated Extra Profits:</strong> {shipment?.shipmentCalculatedExtraProfits}
                 </div>
               </li>

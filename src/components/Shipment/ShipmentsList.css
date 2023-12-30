@@ -1,42 +1,57 @@
 .shipments-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: linear-gradient(to bottom,  #1b3e54 0%,#082338 49%,#19394e 100%) no-repeat ; 
-  }
-  
-  .date-inputs {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .shipments-list {
-    width: 80%;
-    padding-bottom: 10px;
-    border-radius: 5px;
-    margin-bottom: 100px;
-  }
-  
-  .shipments-list h2 {
-    text-align: center;
-    margin-bottom: 10px;
-  }
-  
-  .shipments-list ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .shipments-list li {
-    border-bottom: 1px solid #ccc;
-    padding: 10px 0;
-  }
-.shipment-item {
-  border: 1px solid #ccc;
-  padding: 10px;
+  margin-top: 6%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.date-inputs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.shipments-list {
+  width: 80%;
+  padding-bottom: 10px;
+  border-radius: 5px;
+  margin-bottom: 100px;
+}
+
+.shipments-list h2 {
+  text-align: center;
   margin-bottom: 10px;
+  color: white;
+  text-decoration: underline;
+}
+
+.shipments-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.shipments-list li {
+  border-bottom: 1px solid #ccc;
+  padding: 10px 0;
+}
+
+.shipments-list button {
+  box-shadow: 1px 1px 10px white;
+  padding: 10px;
+  border-radius: 30px;
+  background-color: #ff6600;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+
+}
+
+.shipments-list button:hover {
+  background-color: #FFA500;
+  color: black;
+  box-shadow: 1px 1px 10px 10px rgb(20, 20, 19);
+
 }
 
 /* Pagination */
@@ -61,13 +76,17 @@
   background-color: #f0f0f0;
 }
 
-  .loader-container {
-    width: 100%;
-    height: 30px; /* Adjust height as needed */
-  }
-  /* CSS for a simple spinner animation */
+.loader-container {
+  width: 100%;
+  height: 30px;
+  /* Adjust height as needed */
+}
+
+/* CSS for a simple spinner animation */
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .spinner {
@@ -79,10 +98,26 @@
   height: 50px;
   animation: spin 1s linear infinite;
 }
-.date-pickers{
+
+.date-pickers {
   display: flex;
-flex-flow: row wrap;
-justify-content: space-around;
-padding: 20px;
-margin: 60px auto;
-box-shadow: 1px 1px 10px white;}
+  flex-flow: row wrap;
+  justify-content: space-around;
+  padding: 20px;
+  margin: 60px auto;
+  box-shadow: 1px 1px 10px white;
+}
+
+.shipment-info-box {
+  box-shadow: 1px 1px 10px white;
+  padding-left: 10px;
+  border-radius: 20px;
+}
+
+.single-shipment-info {
+
+}
+.shipment-info-field{
+  padding: 10px;
+  
+}
