@@ -4,13 +4,23 @@
 
 .extra-profits h2 {
     text-align: center;
-
+color: white;
+text-decoration: underline;
 }
 
 .show-add-profits {
     text-align: center;
     text-decoration: underline;
     cursor: pointer;
+    margin: 10px auto;
+    padding: 10px 40px;
+    width: 200px;
+    border-radius: 30px;
+}
+
+.show-add-profits:hover {
+    background-color: white;
+    color: #FFA500;
 }
 
 .receipt-details-container {

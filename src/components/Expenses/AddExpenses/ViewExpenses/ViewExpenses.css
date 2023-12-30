@@ -4,15 +4,26 @@
 
 .extra-expenses h2 {
     text-align: center;
+    color: white;
+    text-decoration: underline;
 
 }
+
 
 .show-add-expenses {
     text-align: center;
     text-decoration: underline;
     cursor: pointer;
+    margin: 10px auto;
+    padding: 10px 40px;
+    width: 200px;
+    border-radius: 30px;
 }
 
+.show-add-expenses:hover {
+    background-color: white;
+    color: #FFA500;
+}
 .receipt-details-container {
     display: flex;
     flex-flow: row wrap;
