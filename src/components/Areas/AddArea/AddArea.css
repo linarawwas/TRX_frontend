@@ -20,7 +20,8 @@
 }
 .add-area-container .add-area-title {
   margin-bottom: 20px;
-  color: #0f1011;
+color: white;
+text-transform: uppercase;
 }
 
 .add-area-input-group {
