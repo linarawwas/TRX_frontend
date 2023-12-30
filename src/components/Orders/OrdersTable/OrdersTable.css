@@ -1,6 +1,6 @@
 /* OrdersTable.css */
 .ordersBody {
-  margin:10px auto;
+  margin:10% auto;
   width: 100%;
 
 }
@@ -8,14 +8,11 @@
 .ordersTitle {
   width: 100%;
   text-align: center;
+  color: white;
+  text-decoration: underline;
 }
 
-.orders-table {
-  width: 50%; /* Use the full width on mobile devices */
-  border-collapse: collapse;
-  margin: auto;
-  border-radius: 30px;
-}
+
 
 .orders-table th,
 .orders-table td {
@@ -32,18 +29,8 @@
 .orders-table tbody tr {
   background-color: #f8f8f8;
 }
-
-
-/* Responsive Styles for Mobile */
-@media (max-width: 600px) {
-  .orders-table {
-    font-size: 14px; /* Decrease font size on smaller screens */
-  }
-
-  .orders-table th,
-  .orders-table td {
-    padding: 8px; /* Adjust padding for better spacing on mobile */
-  }
+.orders-table {
+  width: 60%; /* Use the full width on mobile devices */
+  border-collapse: collapse;
+  margin: auto;
 }
-
-/* Add more styles as needed to enhance the mobile experience. */
