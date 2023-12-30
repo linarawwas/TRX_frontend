@@ -19,13 +19,15 @@
 
 .sidebar-link {
   color: white;
-  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  text-transform: uppercase;
+  font-family: 'Times New Roman', Times, serif;
   text-decoration: none;
-}
+padding: 20px 40px 15px 10px;
+border-radius: 10px 30px 5px 5px ;}
 
-.sidebar-link:active {
-  text-decoration: underline;
-  color: red;
+.sidebar-link:hover {
+background-color: white;
+color:black;
 }
 
 .button-div {
@@ -102,13 +104,24 @@
 }
 
 .logout-button {
-  background-color: #FFA500;
-  color: #082338;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  padding: 10px;
-}
+    padding: 10px;
+    background-color: #FFA500;
+    color: #082338;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    margin: 5px auto;
+    width: 100px;
+    box-shadow: 1px 1px 10px white;
+  
+  }
+  
+  .logout-button:hover {
+    background-color: #ff6600;
+    color: white;
+    box-shadow: 1px 1px 20px 10px white;
+  }
+
 
 .prev-shipment-btn {
   position: fixed;
