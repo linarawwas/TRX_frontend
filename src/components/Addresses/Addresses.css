@@ -1,45 +1,53 @@
-/* addressTable.css */
-.addressBody {
-    margin: 0;
-    width: 100%;
-  }
-  
-  .loading {
-    text-align: center;
-  }
-  
-  .address-table {
-    text-align: center;
-    width: 70%;
-    border-collapse: collapse;
-    margin: 10px auto;
-    background-color: white;
-  }
-  
-  .address-title {
-    /* width: 100%; */
-    text-align: center;
-  
-  }
-  
-  .address-table th,
-  .address-table td {
-    /* border: 1px solid #e0e0e0; */
-    padding: 15px 5px;
-    text-align: center;
-    background-color: white;
-  }
-  
-  .address-table th {
-    background-color: #f0f0f0;
-    font-weight: bold;
-  }
-  
 
-.address-header{
+.loading {
+  text-align: center;
+}
+
+.address-table {
+  text-align: center;
+  width: 70%;
+  border-collapse: collapse;
+  margin: 10px auto;
+  background-color: white;
+}
+
+.address-title {
+  /* width: 100%; */
+  text-align: center;
+
+}
+
+.address-table th,
+.address-table td {
+  /* border: 1px solid #e0e0e0; */
+  padding: 15px 5px;
+  text-align: center;
+  background-color: white;
+}
+
+.address-table th {
+  background-color: #f0f0f0;
+  font-weight: bold;
+}
+
+
+.address-header {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  
+
+}
+
+@media only screen and (max-width: 600px) {
+  .address-body {
+    margin-top: 0;
+    padding-top: 25%;
+    background: linear-gradient(to bottom, #1b3e54 0%, #082338 49%, #19394e 100%) no-repeat;
+    height: 100%;
+    padding-bottom: 10%;
+  }
+  .address-title {
+font-size: 20px;
+  }
 }
