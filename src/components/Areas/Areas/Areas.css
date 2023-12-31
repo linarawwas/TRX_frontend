@@ -1,59 +1,82 @@
 /* daysTable.css */
 .areas-body {
-    margin: 10% auto;
-  }
-  
-  .loading {
-    text-align: center;
-  }
-.areas-header{
+  margin: 10% auto;
+}
+
+.loading {
+  text-align: center;
+}
+
+.areas-header {
   display: flex;
-  flex-flow:column nowrap;
+  flex-flow: column nowrap;
   justify-content: center;
   align-items: center;
   margin: 2%;
 }
-  .areas-table {
-    text-align: center;
-    width: 70%;
-    border-collapse: collapse;
-    margin:0 auto  ;
-  }
-  .areas-header button{
-      margin:10px;
-      box-shadow: 1px 1px 10px white;
-      border-radius: 30px;
-      background-color: #ff6600;
-      color: white;
-      text-transform: uppercase;
-      font-weight: bold;
-      cursor: pointer;
-      width: 130px;
-      padding: 10px;
-  }
-  .areas-header  button:hover{
-    background-color: #FFA500;
-    color: black;
-    box-shadow: 1px 1px 10px 10px rgb(20, 20, 19);
 
-    
-    }
-  .areas-title {
-    text-align: center;
+.areas-table {
+  text-align: center;
+  width: 70%;
+  border-collapse: collapse;
+  margin: 0 auto;
+}
+
+.areas-header button {
+  margin: 10px;
+  box-shadow: 1px 1px 10px white;
+  border-radius: 30px;
+  background-color: #ff6600;
+  color: white;
+  text-transform: uppercase;
+  font-weight: bold;
+  cursor: pointer;
+  width: 130px;
+  padding: 10px;
+}
+
+.areas-header button:hover {
+  background-color: #FFA500;
+  color: black;
+  box-shadow: 1px 1px 10px 10px rgb(20, 20, 19);
+
+
+}
+
+.areas-title {
+  text-align: center;
   color: white;
   text-decoration: underline;
+}
+
+.areas-div {
+  margin-top: 50px;
+  margin-bottom: 40px;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-evenly;
+}
+
+.areas-div .area-link {
+  text-decoration: none;
+  color: black;
+  padding: 15px;
+  background-color: white;
+  border-radius: 20px;
+  box-shadow: 1px 1px 10px 10px rgb(20, 20, 19);
+}
+
+.areas-div .area-link:hover {
+  font-weight: bold;
+  color: #ff6600;
+  border: 1px solid black;
+  box-shadow: 1px 1px 10px 10px white;
+}
+
+@media only screen and (max-width: 600px) {
+
+  .areas-body {
+    margin-top: 25%;
   }
   
-  .areas-table th,
-  .areas-table td {
-    border: 1px solid #e0e0e0;
-    box-shadow: 1px 1px 10px  #192D40;
-    background-color: #192D40;
-    padding: 15px 5px;
-    text-align: center;
-  }
-  .areas-table tbody tr td{
-    font-size: 20px;
-    background-color: white;
-  }
-
+}

@@ -40,7 +40,7 @@ export default function Areas(): JSX.Element {
         console.error('Error fetching areas:', error);
         setLoading(false);
       });
-  }, [token,formVisible]);
+  }, [token, formVisible]);
 
   const handlePageChange = (newPage: number) => {
     setSelectedItem(newPage);
@@ -59,7 +59,7 @@ export default function Areas(): JSX.Element {
     }
   };
 
-  const areasPerPage: number = 7;
+  const areasPerPage: number = 4;
   const totalPages: number = Math.ceil(areas.length / areasPerPage);
   const areasForPage: Area[] = areas.slice(
     currentPage * areasPerPage,
@@ -74,24 +74,18 @@ export default function Areas(): JSX.Element {
       </div>
 
       {loading ? (
-<SpinLoader/>      ) : (
+        <SpinLoader />
+      ) : (
         <>
-          {!formVisible && <table className="areas-table">
-            <thead>
-              <tr>
-                <th>Area</th>
-              </tr>
-            </thead>
-            <tbody>
-              {areasForPage.map((area) => (
-                <tr key={area._id}>
-                  <td>
-                    <Link to={`/addresses/${area._id}`}>{area.name}</Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>}
+          <div className='areas-div'>{!formVisible && (
+            areasForPage.map((area) => (
+              <div key={area._id}>
+                <Link to={`/addresses/${area._id}`} className='area-link'>{area.name}</Link>
+              </div>
+            ))
+          )}
+          </div>
+
           {totalPages > 1 && (
             <div className="pagination">
               <div className="nav-arrow left" onClick={goToPreviousPage}>
