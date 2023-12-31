@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux';
 import SelectInput from '../../UI reusables/SelectInput/SelectInput';
 import SpinLoader from '../../UI reusables/SpinLoader/SpinLoader';
 import CustomerInvoices from '../CustomerInvoices/CustomerInvoices';
+import CustomerOrders from '../CustomerOrders/CustomerOrders';
 
 interface Area {
   _id: string;
@@ -174,23 +175,24 @@ function UpdateCustomer(): JSX.Element {
           <div className="receipt-details">
             <div className='receipt-detail'>
               <p className='detail-name'>name </p>
-              <p className='detail-value'>{customerData.name}</p>
+              <p className='detail-value'>{customerData?.name}</p>
             </div>
             <div className='receipt-detail'>
               <p className='detail-name'>phone: </p>
-              <p className='detail-value'>{customerData.phone}</p>
+              <p className='detail-value'>{customerData?.phone}</p>
             </div>
             <div className='receipt-detail'>
               <p className='detail-name'>area name:</p>
-              <p className='detail-value'> {customerData.areaId.name}</p>
+              <p className='detail-value'> {customerData?.areaId?.name}</p>
             </div>
             <div className='receipt-detail'>
               <p className='detail-name'>address </p>
-              <p className='detail-value'>{customerData.address}</p>
+              <p className='detail-value'>{customerData?.address}</p>
             </div>
 
           </div>
           <CustomerInvoices customerId={customerData._id} />
+          <CustomerOrders customerId={customerData._id} />
           <h1 className="update-title edit-button" onClick={handleFormToggle}>
             Edit Customer ?
           </h1>

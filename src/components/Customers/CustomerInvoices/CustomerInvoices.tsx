@@ -52,27 +52,27 @@ const CustomerInvoices: React.FC<CustomerInvoicesProps> = ({ customerId }) => {
                     <div className="receipt-details">
                         <div className='receipt-detail'>
                             <p className='detail-name'>Delivered Sum: </p>
-                            <p className='detail-value'>{sums.deliveredSum}</p>
+                            <p className='detail-value'>{sums?.deliveredSum}</p>
                         </div>
                         <div className='receipt-detail'>
                             <p className='detail-name'>Returned Sum: </p>
-                            <p className='detail-value'>{sums.returnedSum}</p>
+                            <p className='detail-value'>{sums?.returnedSum}</p>
                         </div>
                         <div className='receipt-detail'>
                             <p className='detail-name'>Bottles Left:</p>
-                            <p className='detail-value'> {sums.bottlesLeft}</p>
+                            <p className='detail-value'> {sums?.bottlesLeft}</p>
                         </div>
                         <div className='receipt-detail'>
                             <p className='detail-name'>Checkout Sum: </p>
-                            <p className='detail-value'>{sums.checkoutSum}</p>
+                            <p className='detail-value'>{sums?.checkoutSum}</p>
                         </div>
                         <div className='receipt-detail'>
                             <p className='detail-name'>Paid Sum: </p>
-                            <p className='detail-value'>{sums.paidSum}</p>
+                            <p className='detail-value'>{sums?.paidSum.toFixed(2)}</p>
                         </div>
                         <div className='receipt-detail'>
                             <p className='detail-name'>Total Sum: </p>
-                            <p className='detail-value'>{sums.totalSum}</p>
+                            <p className='detail-value'>{sums?.totalSum.toFixed(2)}</p>
                         </div>
                     </div>
                 ) : (
