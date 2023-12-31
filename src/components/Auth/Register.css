@@ -33,19 +33,22 @@
 .register-button {
   padding: 10px;
   background-color: #f27907;
-  color:white;
+  color: white;
   border-radius: 20px;
   cursor: pointer;
 }
-.register-button:hover{
+
+.register-button:hover {
   background-color: #fab73a;
   color: #082338;
   box-shadow: 1px 1px 10px 10px white;
 }
+
 /* Responsive Styles for Mobile */
 @media (max-width: 600px) {
   .register-container {
     max-width: 60%;
+    margin-top: 30%;
   }
 
   .register-container .register-input {

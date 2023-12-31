@@ -93,7 +93,6 @@ const Customers: React.FC = () => {
           <thead>
             <tr>
               <th>Name</th>
-              <th>Phone</th>
               <th>Address</th>
               <th>Details</th>
             </tr>
@@ -102,7 +101,6 @@ const Customers: React.FC = () => {
             {customersForPage.map((customer) => (
               <tr key={customer._id}>
                 <td>{customer?.name}</td>
-                <td>{customer?.phone}</td>
                 <td>{customer?.address}</td>
                 <td className='link-to-edit'>
                   <Link to={`/updateCustomer/${customer._id}`}>
