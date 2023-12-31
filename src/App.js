@@ -10,7 +10,7 @@ function App() {
   const dispatch = useDispatch();
   const token = localStorage.getItem("token");
   const isAuthenticated = token !== null && token !== undefined;
-  const [isAdmin, setIsAdmin] = useState(false);
+  // const [isAdmin, setIsAdmin] = useState(false);
   useEffect(() => {  // Fetch user data to get companyId
     // Dispatch the setToken action to save the token in the Redux store
     dispatch(setToken(token));
@@ -22,7 +22,7 @@ function App() {
     })
       .then(response => response.json())
       .then(userData => {
-        setIsAdmin(userData.isAdmin);
+        // setIsAdmin(userData.isAdmin);
         dispatch(setCompanyId(userData.companyId));
         dispatch(setIsAdmin(userData.isAdmin));
         dispatch(setUsername(userData.name))
@@ -42,7 +42,9 @@ function App() {
           element={isAuthenticated ? <Navigate to="/" /> : <Login />}
         />
         <Route path="/*" element={isAuthenticated
-          ? <Layout isAdmin={isAdmin} />
+          ? <Layout 
+          // isAdmin={isAdmin} 
+          />
           : <Navigate to="/login" />} />
       </Routes>
     </Router>

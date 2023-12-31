@@ -44,6 +44,7 @@ const AsideMenuEmployee: React.FC = () => {
         <ToastContainer position="top-right" autoClose={1000} />
 
         <div className='button-div'>
+
           <button className="menu-toggle" onClick={toggleMenu}>
             {isMenuOpen ? <FaTimes /> : <FaBars />}
           </button>

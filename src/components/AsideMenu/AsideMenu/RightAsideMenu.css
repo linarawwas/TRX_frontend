@@ -5,11 +5,12 @@
   width: 250px;
   height: 90%;
   border-radius: 90px 0 0 0;
-  background: rgb(6, 8, 46);
+  background: linear-gradient(to bottom, #1b3e54 0%, #134368 49%, #082338 100%) no-repeat;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   transition: right 0.3s ease-in-out;
+  z-index: 10000; 
+  margin-top: 100px;
 }
-
 .right-aside-menu.open {
   right: 0;
   /* Slide in the menu when it's open */

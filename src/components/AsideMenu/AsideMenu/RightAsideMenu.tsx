@@ -7,6 +7,7 @@ import PaidInLira from '../PaidInLira/PaidInLira';
 import { useNavigate } from 'react-router-dom';
 import { FaTimes } from 'react-icons/fa';
 import './RightAsideMenu.css';
+import logo from '../../../images/logo.jpeg';
 
 const RightAsideMenu: React.FC = () => {
   const [isRightMenuOpen, setIsRightMenuOpen] = useState<boolean>(false);
