@@ -1,8 +1,44 @@
+.areas-for-day-table {
+  text-align: center;
+  width: 70%;
+  border-collapse: collapse;
+  margin: 10% auto;
+}
 
-  
-  @media only screen and (max-width: 600px) {
+.areas-for-day-table th,
+.areas-for-day-table td {
+  border: 1px solid #e0e0e0;
+  padding: 15px 5px;
+  text-align: center;
+}
 
-  .days-table {
+.areas-for-day-table th {
+  background-color: #f0f0f0;
+  font-weight: bold;
+}
+
+.areas-for-day-table tbody tr {
+  background-color: #f8f8f8;
+}
+
+.areas-for-day-table button {
+  border: 0;
+  cursor: pointer;
+  padding: 20px;
+  box-shadow: 1px 1px 4px black;
+  border-radius: 20px;
+}
+
+.areas-for-day-table button:hover {
+  color: wheat;
+  background-color: black;
+  font-weight: bold;
+
+}
+
+@media only screen and (max-width: 600px) {
+
+  .areas-for-day-table {
     margin: 35% auto;
   }
 }

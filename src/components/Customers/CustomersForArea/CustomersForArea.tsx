@@ -72,7 +72,7 @@ const CustomersForArea = (): JSX.Element => {
   return (<>
     <h3 className="table-title">Customers of This Area
     </h3>
-    <table className="days-table">
+    <table className="customers-for-area-table">
       <thead>
         <tr>
           <th>name</th>

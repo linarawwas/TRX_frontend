@@ -56,7 +56,7 @@ export default function AreasForDay(): JSX.Element {
   }, [dayId, token]);
 
   return (
-    <table className="days-table">
+    <table className="areas-for-day-table">
       <thead>
         <tr>
           <th>Areas for {dayName}</th>

@@ -9,9 +9,30 @@
     color: white;
     margin: 10% 0 20px 0;
 }
+ .customers-for-area-table{
+    text-align: center;
+    width: 70%;
+    border-collapse: collapse;
+    margin: 0 auto;
+}
 
+.customers-for-area-table th,
+.customers-for-area-table td {
+  border: 1px solid #e0e0e0;
+  padding: 15px 5px;
+  text-align: center;
+}
+
+.customers-for-area-table th {
+  background-color: #f0f0f0;
+  font-weight: bold;
+}
+
+.customers-for-area-table tbody tr {
+  background-color: #f8f8f8;
+}
 @media only screen and (max-width: 600px) {
-    .days-table {
+    .customers-for-area-table {
         margin: 0 auto;
     }
     .table-title {
