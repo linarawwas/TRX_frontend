@@ -2,18 +2,18 @@
     margin-top: 10%;
 }
 
-.receipt-details-container {
+.Orders .receipt-details-container {
     display: flex;
     flex-flow: row wrap;
     justify-content: center;
 }
-.receipt-details {
+.Orders .receipt-details {
     background-color: white;
-    margin: 10px 40px;
-    flex-basis: 300px;
+    flex-basis: 250px;
     display: flex;
     flex-direction: column;
     box-shadow: 2px 2px 10px 1px #FFA500;
+    margin: 20px;
 }
 
 .receipt-detail p {
@@ -30,7 +30,9 @@
     text-align: end;
     padding-right: 10px;
 }
-
+.Orders h2{
+  text-align: center;
+}
 .container-button-div button {
     margin: 2px;
     padding: 5px;

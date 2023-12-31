@@ -16,6 +16,11 @@
 
 }
 
-.receipt-detail p{
-font-family: Georgia, 'Times New Roman', Times, serif;
+.receipt-detail p {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+.customer-receipt h2 {
+    text-align: center;
+    margin: 20px auto;
 }

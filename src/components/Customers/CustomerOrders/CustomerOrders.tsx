@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import SpinLoader from '../../UI reusables/SpinLoader/SpinLoader';
-import '../../Customers/CustomerInvoices/CustomerInvoices.css'
+import './CustomerOrders.css'
 import { ToastContainer, toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 interface Payment {
     date: string;
     amount: number;
@@ -114,6 +114,13 @@ const CustomerOrders: React.FC<CustomerOrdersProps> = ({ customerId }) => {
                 customerOrders.length > 0 ? (
                     <div className="receipt-details-container">
                         {currentRecords.map((Order) => (<div className='receipt-details' key={Order._id}>
+
+                            <div className='container-button-div'>
+                                <button className='check-btn'>                      <Link to={`/updateOrder/${Order._id}`}>
+                                    check
+                                </Link></button>
+
+                            </div>
                             <div className='receipt-detail'>
                                 <p className='detail-name'>Delivered:</p>
                                 <p className='detail-value'>{Order?.delivered}</p>

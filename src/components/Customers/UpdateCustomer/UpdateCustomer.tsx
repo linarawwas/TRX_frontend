@@ -171,7 +171,7 @@ function UpdateCustomer(): JSX.Element {
       {loading ? (
         <SpinLoader />
       ) : customerData ? (
-        <div>
+        <div >
           <div className="receipt-details">
             <div className='receipt-detail'>
               <p className='detail-name'>name </p>
