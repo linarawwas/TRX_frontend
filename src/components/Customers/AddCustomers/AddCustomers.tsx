@@ -2,7 +2,7 @@ import React, { useState, ChangeEvent } from 'react';
 import * as XLSX from 'xlsx';
 import './AddCustomers.css';
 import { useSelector } from 'react-redux';
-import { ToastContainer,toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 
 const AddCustomers = (): JSX.Element => {
   const [file, setFile] = useState<File | null>(null);
@@ -65,11 +65,11 @@ const AddCustomers = (): JSX.Element => {
 
   return (
     <div className="customer-uploader">
-            <ToastContainer position="top-right" autoClose={2000} />
+      <ToastContainer position="top-right" autoClose={2000} />
 
       <h2 className="uploader-title">Upload Customer Data</h2>
       <input type="file" onChange={handleFileUpload} accept=".xlsx, .xls" className="file-input" />
-      <button onClick={handleUpload} className="upload-button">
+      <button onClick={handleUpload} className='upload-btn'>
         Upload
       </button>
     </div>

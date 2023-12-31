@@ -1,34 +1,32 @@
 .customer-uploader {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 20px;
-  }
-  
-  .uploader-title {
-    font-size: 24px;
-    margin-bottom: 15px;
-  }
-  
-  .file-input {
-    margin-bottom: 15px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-  }
-  
-  .upload-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #FFA500;
-    color: #082338;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .upload-button:hover {
-    background-color: #ff6600;
-  }
-  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.uploader-title {
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+.file-input {
+  margin-bottom: 15px;
+  padding: 10px;
+  background-color: white;
+  border-radius: 5px;
+  color: black;
+}
+
+.upload-btn {
+  background-color: white;
+  color: #ff6600;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 20px;
+}
+
+.upload-btn:hover {
+  background-color: #ff6600;
+  color: white;
+}
