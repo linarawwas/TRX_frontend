@@ -1,36 +1,55 @@
 .create-customer-container {
-    width: 400px;
-    margin: 0 auto;
-    padding: 20px 50px;
+  width: 400px;
+  margin: 5% auto;
+  padding: 20px 50px;
+  border-radius: 20px;
+  box-shadow: 1px 1px 10px 10px white;
+
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.customer-input-label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.customer-text-input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.add-customer-button {
+  padding: 10px 20px;
+  background-color: #ff6600;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-customer-button:hover {
+  background-color: #FFA500;
+}
+
+@media (max-width: 600px) {
+  .create-customer-container {
+    max-width: 60%;
+    box-shadow: 1px 1px 10px 10px white;
+    padding: 5px 10px;
   }
-  
-  .form-group {
-    margin-bottom: 15px;
+
+  .customer-text-input {
+    width: 60%;
   }
-  
-  .customer-input-label {
-    display: block;
+
+  .add-customer-button {
+    padding: 5px 10px;
     margin-bottom: 5px;
   }
-  
-  .customer-text-input {
-    width: 100%;
-    padding: 8px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-  }
-  
-  .add-customer-button {
-    padding: 10px 20px;
-    background-color: #ff6600;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .add-customer-button:hover {
-    background-color: #FFA500;
-  }
-  
+}
