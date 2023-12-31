@@ -42,13 +42,28 @@ h1 {
 }
 
 .landing-page .feature-section {
+  padding: 10px 30px;
+  box-shadow:1px 1px 10px 10px white;
   text-align: center;
   margin-bottom: 50px;
   animation: fadeIn 1s ease;
   font-family: 'Times New Roman', Times, serif;
 
 }
+.landing-page .feature-section h2{
+  margin:40px;
+}
+.landing-page .feature-section ul{
+  display: flex;
 
+}
+.landing-page .feature-section ul li{
+  width: 200px;
+  background: linear-gradient(to bottom right, #1b3e54 0%, #487293 49%, #082338 100%) no-repeat;
+margin: 10px;
+padding: 10px;
+border-radius: 20px;
+}
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -62,7 +77,6 @@ h1 {
 .landing-page h2 {
   font-size: 32px;
   color: #FFA500;
-  text-decoration: underline;
   text-transform: uppercase;
   margin-bottom: 20px;
 }
