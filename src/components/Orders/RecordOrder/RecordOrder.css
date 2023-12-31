@@ -1,5 +1,5 @@
 .record-order-container {
-  margin-top:6%;
+  margin-top: 6%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -10,11 +10,15 @@
   font-size: 24px;
   font-weight: bold;
 }
-.default-product-name{
-  border:1px solid black;
-  padding:10px;
+
+.default-product-name {
+  text-align: center;
+  padding: 10px;
   margin: 10px;
+  color: white;
+  text-transform: capitalize;
 }
+
 .record-order-form {
   display: flex;
   flex-direction: column;
@@ -26,7 +30,7 @@
   padding: 20px;
   border: 1px solid #ccc;
   background-color: #082338;
-  margin-bottom:20px;
+  margin-bottom: 20px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -34,13 +38,6 @@
   display: flex;
   flex-direction: column;
   margin: 3px 0;
-}
-
-.order-select-element {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
 }
 
 .order-input {
@@ -65,73 +62,106 @@
   background-color: #ff6600;
 }
 
-.up-down-buttons{
+.up-down-buttons {
   display: flex;
   flex-direction: row;
   align-items: center;
   align-content: center;
   justify-content: center;
   justify-items: center;
-  
+
 }
-.number-input{
-  width:30px;
-  padding:20px;
+
+.number-input {
+  width: 30px;
+  padding: 20px;
   text-align: center;
 }
+
 .up-down-buttons .arrow {
-  width:30px;
-margin:10px;
-padding:10px 2px;
-text-align: center;
+  width: 30px;
+  margin: 10px;
+  padding: 10px 2px;
+  text-align: center;
 }
-.currency-button{
-  padding:10px;
-  margin:10px;
+
+.currency-button {
+  padding: 10px;
+  margin: 10px;
+  font-size: 14px;
+  border-radius: 20px;
 }
-.currency-buttons .selected{
+
+.currency-buttons .selected {
   background-color: rgb(2, 2, 23);
+  color: white;
+  box-shadow: 1px 1px 4px white;
+
 }
-.number-inputs .free-select{
+
+.number-inputs .free-select {
   width: 100%;
   text-align: center;
   /* padding: 10px auto; */
   margin: 10px auto;
 }
+
+.record-order-container p {
+  background-color: white;
+  color: #082338;
+  font-weight: bold;
+  text-transform: capitalize;
+  box-shadow: 1px 1px 4px white;
+  max-width: 150px;
+  margin: 10px auto;
+  padding: 6px;
+  border-radius: 10px;
+  text-align: center;
+}
+
 @media only screen and (max-width: 600px) {
   .record-order-container {
-    margin-top:20%;
+    margin-top: 20%;
   }
-  .default-product-name{
-    border:1px solid black;
-    padding:10px;
+
+  .default-product-name {
+    border: 1px solid black;
+    padding: 10px;
     margin: 10px;
   }
+
   .record-order-form {
     width: 70%;
     padding: 10px;
   }
-  .paid-label{
+
+  .paid-label {
     margin-top: 2px;
   }
+
   .record-order-button {
     font-size: 12px;
     margin-top: 5px;
   }
-  .number-input{
-    width:30px;
-    padding:4px;
+
+  .number-input {
+    width: 30px;
+    padding: 4px;
   }
+
   .up-down-buttons .arrow {
-    width:50px;
-  margin:2px 4px;
+    width: 50px;
+    margin: 2px 4px;
   }
-  .currency-button{
-    padding:10px;
-    margin:10px;
-  }
+
   .currency-button {
-font-size: 15px; 
-margin: 5px 20px;
-margin-bottom: 2px; }
+    padding: 10px;
+    margin: 10px;
+  }
+
+  .currency-button {
+    font-size: 15px;
+    margin: 5px 20px;
+    margin-bottom: 2px;
+  }
 }

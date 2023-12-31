@@ -22,7 +22,7 @@ export default function Login(): JSX.Element {
     // // Refresh the browser to trigger navigation
     setTimeout(() => {
       window.location.reload();
-    }, 1500);
+    }, 1000);
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {

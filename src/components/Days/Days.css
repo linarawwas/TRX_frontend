@@ -12,7 +12,7 @@
   text-align: center;
   width: 70%;
   border-collapse: collapse;
-  margin: 25% auto;
+  margin: 10% auto;
 }
 
 .daysTitle {
@@ -33,7 +33,7 @@
   font-weight: bold;
 }
 
-.days-table tbody tr:nth-child(even) {
+.days-table tbody tr {
   background-color: #f8f8f8;
 }
 

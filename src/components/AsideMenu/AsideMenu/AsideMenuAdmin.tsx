@@ -10,6 +10,8 @@ import logo from '../../../images/logo.jpeg';
 const AsideMenuAdmin: React.FC = () => {
   const dispatch = useDispatch();
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const [Loading, setLoading] = useState<boolean>(false);
+  
   const navigate = useNavigate();
   const handleLogout = () => {
     toast.success('Logged Out Successfully');
@@ -18,7 +20,7 @@ const AsideMenuAdmin: React.FC = () => {
     localStorage.removeItem('token');
     setTimeout(() => {
       window.location.reload();
-    }, 1500);
+    }, 900);
 
     // Dispatch actions to clear token and companyId in the Redux store
     dispatch(clearToken());

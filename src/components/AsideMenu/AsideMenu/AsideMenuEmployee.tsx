@@ -57,7 +57,7 @@ const AsideMenuEmployee: React.FC = () => {
           <ul>
             {shipmentDefined ? (
               <li>
-                <Link to={`/areas/${dayId}`} className='sidebar-link' onClick={toggleMenu}>Delivery Pathway</Link>
+                <Link to={`/areas/${dayId}`} className='sidebar-link' onClick={toggleMenu}>Pathway</Link>
               </li>
             ) : (
               <li>Please Start Shipment</li>

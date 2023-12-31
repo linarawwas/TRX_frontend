@@ -195,7 +195,7 @@ let checkout=orderData.delivered * productPrice;
             </div>
           </div>
               <div className="currency-buttons">
-              <div className='paid-label'>paid: </div> 
+              <p className='paid-label'>paid: </p> 
           <button type="button"
             className={`currency-button ${orderData.paymentCurrency === 'USD' ? 'selected' : ''}`}
             onClick={() => handleCurrencySelection('USD')}
