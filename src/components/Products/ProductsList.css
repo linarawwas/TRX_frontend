@@ -3,6 +3,12 @@
     color: white;
 }
 
+.products {
+    padding: 3% 5%;
+    height: 100%;
+    background-color: #192D40;
+}
+
 .show-add-products {
     text-align: center;
     cursor: pointer;
@@ -58,7 +64,8 @@
         height: 100%;
         background-color: #192D40;
     }
-    .products .receipt-details{
+
+    .products .receipt-details {
         margin: 10px;
     }
 }
