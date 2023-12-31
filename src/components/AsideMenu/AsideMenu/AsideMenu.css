@@ -26,8 +26,9 @@ padding: 20px 40px 15px 10px;
 border-radius: 10px 30px 5px 5px ;}
 
 .sidebar-link:hover {
-background-color: white;
-color:black;
+  box-shadow:1px 1px 10px 10px white;
+  color: #FFA500;
+  font-weight:bold;
 }
 
 .button-div {

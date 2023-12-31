@@ -6,8 +6,8 @@ import { useSelector } from "react-redux";
 import EmployeeRouter from "../Router/EmployeeRouter";
 import AsideMenuAdmin from "../components/AsideMenu/AsideMenu/AsideMenuAdmin";
 import AsideMenuEmployee from "../components/AsideMenu/AsideMenu/AsideMenuEmployee.tsx";
-function Layout() {
-  const isAdmin = useSelector(state => state.user.isAdmin);
+function Layout(isAdmin) {
+  // const isAdmin = useSelector(state => state.user.isAdmin);
   return (
     <Fragment>
       {isAdmin ? <AsideMenuAdmin /> : <AsideMenuEmployee />}
