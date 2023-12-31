@@ -1,6 +1,6 @@
 /* OrdersTable.css */
 .ordersBody {
-  margin:10% auto;
+  margin: 10% auto;
   width: 100%;
 
 }
@@ -17,7 +17,8 @@
 .orders-table th,
 .orders-table td {
   border: 1px solid #e0e0e0;
-  padding: 10px; /* Increase padding for better touch interaction on mobile */
+  padding: 10px;
+  /* Increase padding for better touch interaction on mobile */
   text-align: center;
 }
 
@@ -29,8 +30,16 @@
 .orders-table tbody tr {
   background-color: #f8f8f8;
 }
+
 .orders-table {
-  width: 60%; /* Use the full width on mobile devices */
+  width: 60%;
   border-collapse: collapse;
   margin: auto;
+}
+
+@media (max-width: 600px) {
+  .ordersBody {
+    margin-top: 25%;
+
+  }
 }

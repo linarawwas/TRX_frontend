@@ -85,7 +85,7 @@ const OrdersTable: React.FC = () => {
   }, [token, companyId]);
 
   // Number of records to display on each page
-  const recordsPerPage = 7;
+  const recordsPerPage = 6;
 
   // Function to handle page change
   const handlePageChange = (newPage: number) => {
@@ -128,7 +128,6 @@ const OrdersTable: React.FC = () => {
               <tr>
                 <th>Customer</th>
                 <th>Product Type</th>
-                <th>Total Checkout</th>
                 <th>See More...</th>
               </tr>
             </thead>
@@ -137,7 +136,6 @@ const OrdersTable: React.FC = () => {
                 <tr key={order._id}>
                   <td>{order.customer?.name}</td>
                   <td>{order.product?.type}</td>
-                  <td>{order?.total}</td>
                   <td className='link-to-edit'>
                     {/* Create a Link for the action button */}
                     <Link to={`/updateOrder/${order._id}`}>
