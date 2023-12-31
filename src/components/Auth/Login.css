@@ -5,10 +5,10 @@
   padding: 20px;
   border: 1px solid #ccc;
   border-radius: 5px;
-   background-image: url("../../images/logo.jpeg");
-   background-size:contain;
-   background-repeat: no-repeat;
-   display: flex;
+  background-image: url("../../images/logo.jpeg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -16,10 +16,12 @@
   box-shadow: 1px 8px 20px 10px white;
 
 }
-.login-title{
+
+.login-title {
   color: white;
 
 }
+
 .login-form {
   border: 0;
   box-shadow: 0;
@@ -45,7 +47,8 @@
   border-radius: 5px;
 }
 
-.login-container .login-button , .login-page-paragraph button{
+.login-container .login-button,
+.login-page-paragraph button {
   padding: 10px;
   background-color: #FFA500;
   color: #082338;
@@ -58,7 +61,8 @@
 
 }
 
-.login-container .login-button:hover , .login-page-paragraph button:hover{
+.login-container .login-button:hover,
+.login-page-paragraph button:hover {
   background-color: #ff6600;
   color: white;
   box-shadow: 1px 1px 20px 10px white;
@@ -67,18 +71,36 @@
 .email-textfield {
   width: 93%;
 }
-.paragraph-div{
-padding: 30px;
-background: linear-gradient(to bottom, #1b3e54 0%, #134368 49%, #082338 100%) no-repeat;
-width: 60%;
-margin: 10px auto;
-border-radius: 20px;
-box-shadow: 5px 5px 5px 10px black;
+
+.paragraph-div {
+  padding: 30px;
+  background: linear-gradient(to bottom, #1b3e54 0%, #134368 49%, #082338 100%) no-repeat;
+  width: 60%;
+  margin: 10px auto;
+  border-radius: 20px;
+  box-shadow: 5px 5px 5px 10px black;
 }
-.login-page-paragraph{
+
+.login-page-paragraph {
   font-family: 'Times New Roman', Times, serif;
   text-align: center;
   color: white;
   font-size: 25px;
 
+}
+
+
+@media (max-width: 600px) {
+  .login-body {
+    margin-top: 0;
+    padding: 20% 0;
+    height: 100%;
+    background-color: #192D40;
+  }
+
+
+  .paragraph-div p {
+    font-size: 20px;
+
+  }
 }
