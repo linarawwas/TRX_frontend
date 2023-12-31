@@ -11,11 +11,11 @@ const EmployeeLandingPage: React.FC = () => {
 
   return (
     <div className="employee-landing-page">
-      <h1 className="welcome-message-employee"> Welcome! {name}, what do you want to do ? </h1>
+      <h1 className="welcome-message-employee"> Welcome to TRX, {name}</h1>
       <Link to='/newShipment'>
         <button className='employee-button' onClick={() => {
           dispatch(clearShipmentInfo());
-        }}>Start New Shipment</button>
+        }}>New Shipment</button>
       </Link>
     </div>
   );

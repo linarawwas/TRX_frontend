@@ -1,32 +1,45 @@
-.employee-landing-page{
-text-align: center;
-margin: 10% 2%;
-padding:0 2%;
+.employee-landing-page {
+    text-align: center;
+    margin: 10% 2%;
+    padding: 0 2%;
 }
 
-.employee-button{
-    background-color: rgb(4, 4, 55);
+.employee-button {
+    padding: 10px;
+    background-color: #FFA500;
+    color: #082338;
+    font-size: 20px;
+    border: none;
     border-radius: 20px;
-    border: 2px solid rgb(53, 38, 38);
-    box-shadow: 20px 9px 20px gray;
+    cursor: pointer;
+    margin: 20px auto;
+    width: 200px;
+    box-shadow: 1px 1px 10px white;
+}
+
+.employee-button:hover {
+    background-color: #ff6600;
+    color: white;
+    box-shadow: 1px 1px 20px 10px white;
 }
 
 @media only screen and (max-width: 600px) {
-    .employee-landing-page{
+    .employee-landing-page {
         text-align: center;
         margin: 10% 2%;
-        padding:0 2%;
-        }
-        
-        .employee-button{
-            /* padding: 20px; */
-            /* margin: 10% 0; */
-            background-color: rgb(4, 4, 55);
-            border-radius: 20px;
-            border: 2px solid rgb(53, 38, 38);
-            box-shadow: 20px 9px 20px gray;
-        }
-        .welcome-message-employee{
-            margin-top:40%;
-        }
-  }
+        padding: 0 2%;
+    }
+
+    .employee-button {
+        /* padding: 20px; */
+        /* margin: 10% 0; */
+        background-color: rgb(4, 4, 55);
+        border-radius: 20px;
+        border: 2px solid rgb(53, 38, 38);
+        box-shadow: 20px 9px 20px gray;
+    }
+
+    .welcome-message-employee {
+        margin-top: 40%;
+    }
+}
