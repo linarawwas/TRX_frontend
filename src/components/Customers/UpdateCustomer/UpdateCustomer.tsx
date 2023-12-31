@@ -15,12 +15,12 @@ interface Area {
 }
 
 interface CustomerData {
-  _id:'';
+  _id: '';
   name: string;
   phone: string;
   address: string;
-  areaId: string;
-  companyId: string; 
+  areaId: Area;
+  companyId: string;
 }
 
 function UpdateCustomer(): JSX.Element {
@@ -32,11 +32,11 @@ function UpdateCustomer(): JSX.Element {
   const [customerData, setCustomerData] = useState<CustomerData | null>(null);
   const [loading, setLoading] = useState(true);
   const [updatedInfo, setUpdatedInfo] = useState<CustomerData>({
-    _id:'',
+    _id: '',
     name: '',
     phone: '',
     address: '',
-    areaId: '',
+    areaId: { _id: '', name: '' }, // Initialize as an empty object of type Area
     companyId: companyId
   });
   const [originalData, setOriginalData] = useState<CustomerData | null>(null);
@@ -104,7 +104,7 @@ function UpdateCustomer(): JSX.Element {
         name: updatedInfo.name !== "" ? updatedInfo.name : originalData!.name,
         phone: updatedInfo.phone !== "" ? updatedInfo.phone : originalData!.phone,
         address: updatedInfo.address !== "" ? updatedInfo.address : originalData!.address,
-        areaId: updatedInfo.areaId !== "" ? updatedInfo.areaId : originalData!.areaId,
+        areaId: updatedInfo.areaId._id !== "" ? updatedInfo.areaId : originalData!.areaId,
         companyId: companyId
       };
 
@@ -168,27 +168,29 @@ function UpdateCustomer(): JSX.Element {
       </div>
 
       {loading ? (
-        <SpinLoader/> 
+        <SpinLoader />
       ) : customerData ? (
         <div>
-          <table className="details-table">
-            <thead>
-              <tr>
-                <th>Field</th>
-                <th>Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(customerData).map(([key, value]) => (
-                
-                <tr key={key}>
-                  <td className="field-name">{key}</td>
-                  <td className="field-value">{JSON.stringify(value, null, 2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <CustomerInvoices customerId={customerData._id}/>
+          <div className="receipt-details">
+            <div className='receipt-detail'>
+              <p className='detail-name'>name </p>
+              <p className='detail-value'>{customerData.name}</p>
+            </div>
+            <div className='receipt-detail'>
+              <p className='detail-name'>phone: </p>
+              <p className='detail-value'>{customerData.phone}</p>
+            </div>
+            <div className='receipt-detail'>
+              <p className='detail-name'>area name:</p>
+              <p className='detail-value'> {customerData.areaId.name}</p>
+            </div>
+            <div className='receipt-detail'>
+              <p className='detail-name'>address </p>
+              <p className='detail-value'>{customerData.address}</p>
+            </div>
+
+          </div>
+          <CustomerInvoices customerId={customerData._id} />
           <h1 className="update-title edit-button" onClick={handleFormToggle}>
             Edit Customer ?
           </h1>
@@ -218,18 +220,20 @@ function UpdateCustomer(): JSX.Element {
               <SelectInput
                 label="Area:"
                 name="areaId"
-                value={updatedInfo.areaId}
+                value={updatedInfo.areaId._id} // Assuming 'value' holds the areaId string
                 options={areas.map((area) => ({ value: area._id, label: area.name }))}
                 onChange={handleChange}
               />
+
               <button type="submit">Update Customer</button>
             </form>
           )}
         </div>
       ) : (
         <p>Customer not found</p>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 }
 
