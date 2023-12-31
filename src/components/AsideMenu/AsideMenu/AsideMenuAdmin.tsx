@@ -11,16 +11,16 @@ const AsideMenuAdmin: React.FC = () => {
   const dispatch = useDispatch();
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [Loading, setLoading] = useState<boolean>(false);
-  
+
   const navigate = useNavigate();
   const handleLogout = () => {
     toast.success('Logged Out Successfully');
 
     // Delete the token from local storage
     localStorage.removeItem('token');
-    setTimeout(() => {
+    // setTimeout(() => {
       window.location.reload();
-    }, 900);
+    // }, 3000);
 
     // Dispatch actions to clear token and companyId in the Redux store
     dispatch(clearToken());
