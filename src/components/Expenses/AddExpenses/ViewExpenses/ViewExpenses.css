@@ -12,18 +12,20 @@
 
 .show-add-expenses {
     text-align: center;
-    text-decoration: underline;
     cursor: pointer;
     margin: 10px auto;
-    padding: 10px 40px;
+    padding: 10px;
     width: 200px;
     border-radius: 30px;
+    color: white;
 }
 
 .show-add-expenses:hover {
     background-color: white;
     color: #FFA500;
+    font-weight: bold;
 }
+
 .receipt-details-container {
     display: flex;
     flex-flow: row wrap;
@@ -62,10 +64,53 @@
 
 .delete-btn {
     background-color: rgb(165, 49, 49);
-cursor: pointer;
+    cursor: pointer;
 }
 
 .delete-btn:hover {
-background-color: white;
-box-shadow: 2px 2px 10px 10px #192D40 ;
+    background-color: white;
+    box-shadow: 2px 2px 10px 10px #192D40;
+}
+
+@media (max-width: 600px) {
+    .extra-expenses {
+        margin-top: 0%;
+
+        padding-top: 10%;
+
+        height: 100%;
+        background-color: #192D40;
+    }
+
+    .receipt-details-container {
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: center;
+    }
+
+    .receipt-details {
+        background-color: white;
+        width: 30%;
+        font-size: 12px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .receipt-detail {
+        padding: 0;
+    }
+
+    .container-button-div {
+        padding-right: 5px;
+    }
+
+    .container-button-div button {
+        margin: 2px;
+    }
+
+    .pagination-item {
+        width: 20%;
+        padding: 10px;
+        margin-bottom: 10%;
+    }
 }

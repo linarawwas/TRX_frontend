@@ -85,7 +85,7 @@ const OrdersTable: React.FC = () => {
   }, [token, companyId]);
 
   // Number of records to display on each page
-  const recordsPerPage = 6;
+  const recordsPerPage = 4;
 
   // Function to handle page change
   const handlePageChange = (newPage: number) => {

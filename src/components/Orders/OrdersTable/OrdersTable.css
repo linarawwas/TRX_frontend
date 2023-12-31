@@ -40,6 +40,10 @@
 @media (max-width: 600px) {
   .ordersBody {
     margin-top: 25%;
-
   }
+
+  .ordersBody .nav-arrow {
+    margin: 10px -14%;
+  }
+
 }
