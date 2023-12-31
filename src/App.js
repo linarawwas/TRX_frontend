@@ -42,9 +42,7 @@ function App() {
           element={isAuthenticated ? <Navigate to="/" /> : <Login />}
         />
         <Route path="/*" element={isAuthenticated
-          ? <Layout 
-          // isAdmin={isAdmin} 
-          />
+          ? <Layout />
           : <Navigate to="/login" />} />
       </Routes>
     </Router>

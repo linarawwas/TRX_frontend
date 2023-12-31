@@ -40,51 +40,56 @@ h1 {
 
 }
 
-.landing-page .feature-section {
+.feature-section {
+  max-width: 700px;
   padding: 10px 30px;
-  box-shadow:1px 1px 10px 10px white;
+  box-shadow: 1px 1px 10px 10px white;
   text-align: center;
-  margin-bottom: 50px;
   animation: fadeIn 1s ease;
+  margin: 30px auto 50px auto
+}
 
-}
-.landing-page .feature-section ul li{
+.feature-section ul li {
   width: 200px;
-margin: 10px;
-padding: 10px;
-border-radius: 20px;
-font-size: 18px;
-color: white;
+  margin: 10px;
+  padding: 10px;
+  border-radius: 20px;
+  font-size: 18px;
+  color: white;
 }
-.landing-page .feature-section ul li:hover{
-  box-shadow:1px 1px 10px 10px white;
+
+.feature-section ul li:hover {
+  box-shadow: 1px 1px 10px 10px white;
   color: #FFA500;
-  font-weight:bold;
+  font-weight: bold;
 }
-.landing-page h2 {
+
+.feature-section h2 {
   font-size: 32px;
   color: white;
   text-transform: uppercase;
   margin-bottom: 20px;
 }
 
-.landing-page ul {
+.feature-section ul {
   list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
 }
-.landing-page ul div {
+
+.feature-section ul div {
   display: flex;
   flex-direction: column;
 }
 
-.landing-page c.footer {
+.footer {
   text-align: center;
   font-size: 14px;
   color: white;
   animation: fadeIn 1s ease;
 }
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -94,4 +99,3 @@ color: white;
     opacity: 1;
   }
 }
-

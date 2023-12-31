@@ -4,7 +4,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { RootState } from '../../../redux/store'; // Import the RootState type from your Redux store
 import { clearShipmentInfo } from '../../../redux/Shipment/action';
-
+import FeatureSection from '../../LandingPage/FeatureSection';
+import '../../LandingPage/LandingPage.css';
 const EmployeeLandingPage: React.FC = () => {
   const dispatch = useDispatch();
   const name = useSelector((state: RootState) => state.user.username);
@@ -17,6 +18,7 @@ const EmployeeLandingPage: React.FC = () => {
           dispatch(clearShipmentInfo());
         }}>New Shipment</button>
       </Link>
+      <FeatureSection/>
     </div>
   );
 };
