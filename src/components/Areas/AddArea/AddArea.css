@@ -4,10 +4,11 @@
   margin: 2% auto;
   padding: 20px;
   border-radius: 10px;
-  box-shadow:none;
+  box-shadow: none;
   text-align: center;
 }
-.add-area-form{
+
+.add-area-form {
   margin: auto auto;
   padding: 10px;
   border: 1px solid #ccc;
@@ -18,22 +19,24 @@
   flex-direction: column;
   justify-content: space-between;
 }
+
 .add-area-container .add-area-title {
   margin-bottom: 20px;
-color: white;
-text-transform: uppercase;
+  color: white;
+  text-transform: capitalize;
 }
 
 .add-area-input-group {
   margin: 15px auto;
   display: flex;
-  width:80%;
+  width: 80%;
   flex-direction: column;
 }
 
 .add-area-input-label {
   font-weight: bold;
   font-size: 18px;
+  color: white;
 }
 
 .add-area-input-field {
@@ -56,14 +59,14 @@ text-transform: uppercase;
   border-radius: 5px;
   cursor: pointer;
   font-size: 18px;
-  margin:10px auto;
+  margin: 10px auto;
 }
 
 
 /* Responsive Styles for Mobile */
 @media (max-width: 600px) {
   .add-area-container {
-    max-width: 90%;
+    max-width: 70%;
     margin: 2% auto;
   }
 }
