@@ -5,12 +5,12 @@
 
 .show-add-products {
     text-align: center;
-    text-decoration: underline;
     cursor: pointer;
     margin: 10px auto;
-    padding: 10px 40px;
+    padding: 10px;
     width: 200px;
     border-radius: 30px;
+    color: white;
 }
 
 .show-add-products:hover {
@@ -48,4 +48,14 @@
     box-shadow: 1px 1px 10px 10px rgb(20, 20, 19);
 
 
+}
+
+@media (max-width: 600px) {
+    .products {
+        margin-top: 0%;
+        padding-bottom: 10%;
+        padding-top: 20%;
+        height: 100%;
+        background-color: #192D40;
+    }
 }
