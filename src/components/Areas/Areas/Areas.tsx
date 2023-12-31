@@ -19,6 +19,7 @@ export default function Areas(): JSX.Element {
   const [selectedItem, setSelectedItem] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [formVisible, setFormVisible] = useState<boolean>(false);
+  const companyId: string = useSelector((state: any) => state.user.companyId);
 
   const handleFormToggle = () => {
     setFormVisible(!formVisible);
@@ -26,7 +27,7 @@ export default function Areas(): JSX.Element {
 
   useEffect(() => {
     // Fetch areas data from your API
-    fetch('http://localhost:5000/api/areas', {
+    fetch(`http://localhost:5000/api/areas/company/${companyId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
