@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from 'react-redux';
 import NumberInput from '../../UI reusables/NumberInput/NumberInput';
 import { RootState } from '../../../redux/store'; // Update this path with your Redux store structure
-
+import './AddExpenses.css'
 const AddExpenses: React.FC = () => {
   const companyId = useSelector((state: RootState) => state.user.companyId);
   const shipmentId = useSelector((state: RootState) => state.shipment._id);
@@ -49,7 +49,7 @@ const AddExpenses: React.FC = () => {
   };
 
   return (
-    <div className="record-order-container">
+    <div className="record-order-container add-expenses-container">
       <ToastContainer position="top-right" autoClose={3000} />
       <h1 className="record-order-title">Add Expenses</h1>
       <form className="record-order-form" onSubmit={handleSubmit}>

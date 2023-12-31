@@ -1,14 +1,16 @@
 .number-input {
-    display: flex;
-    flex-direction: column;
-    margin: 10px 0;
-  }
-  
-  .number-input input {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  
+  display: flex;
+  flex-direction: column;
+  margin: 10px 0;
+}
+
+.number-input input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.order-label {
+  color: white;
+}
