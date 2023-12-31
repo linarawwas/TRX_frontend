@@ -14,7 +14,7 @@ const LandingPage: React.FC = () => {
           <h2>Key Features</h2>
           <ul>
             <li>Track your inventory effortlessly</li>
-            <li>Real-time updates and notifications</li>
+            <li>Real-time updates</li>
             <li>Advanced reporting and analytics</li>
           </ul>
         </div>
