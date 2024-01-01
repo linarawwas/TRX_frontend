@@ -79,7 +79,7 @@ div .receipt-details {
 @media (max-width: 600px) {
   .customer-info-container div .receipt-details {
   width: 60%;
-  
+  margin-bottom: 20px;
   }
 
 }
