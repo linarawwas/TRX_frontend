@@ -155,7 +155,7 @@ function UpdateCustomer(): JSX.Element {
   };
 
   return (
-    <div className="update-container">
+    <div className="update-container customer-info-container">
       <ToastContainer position="top-right" autoClose={1000} />
 
       <div className="update-header">

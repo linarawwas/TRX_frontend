@@ -129,6 +129,7 @@ const ShipmentsList: React.FC = () => {
   };
 
   const totals = calculateTotals(); // Calculate totals based on the current shipments
+  const overall = totals.shipmentCalculatedPayments + totals.shipmentCalculatedExtraProfits - totals.shipmentTotalExpenses;
 
   return (
     <div className="shipments-container">
@@ -181,6 +182,7 @@ const ShipmentsList: React.FC = () => {
             <div> Total in $: {totals.shipmentCalculatedPayments.toFixed(2)}</div>
             <div>Expenses $: {totals.shipmentTotalExpenses.toFixed(2)}</div>
             <div>Extra Profits $: {totals.shipmentCalculatedExtraProfits.toFixed(2)}</div>
+            <div>Overall: {overall.toFixed(2)}</div>
 
           </div>
         )}

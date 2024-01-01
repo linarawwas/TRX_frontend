@@ -120,8 +120,8 @@ const ProductsList: React.FC = () => {
                     <p>No  products found for this company</p>
                 )}
             {renderPagination()}
-            <DefaultProducts />
-<UpdateDefaultProduct products={products} companyId={companyId} />
+            {/* <DefaultProducts /> */}
+{/* <UpdateDefaultProduct products={products} companyId={companyId} /> */}
         </div>
     );
 };

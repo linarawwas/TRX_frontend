@@ -21,7 +21,7 @@ const OrdersTable: React.FC = () => {
     exchangeRate: string;
     _id: string;
   }
-  
+
   interface Customer {
     _id: string;
     name: string;
@@ -31,7 +31,7 @@ const OrdersTable: React.FC = () => {
     __v: number;
     companyId: string;
   }
-  
+
   interface Product {
     _id: string;
     id: number;
@@ -41,7 +41,7 @@ const OrdersTable: React.FC = () => {
     companyId: string;
     __v: number;
   }
-  
+
   interface Order {
     _id: string;
     recordedBy: string;
@@ -64,24 +64,24 @@ const OrdersTable: React.FC = () => {
     customer: Customer;
     product: Product;
   }
-  
+
   useEffect(() => {
-    if (companyId) {
-      fetch(`http://localhost:5000/api/orders/company/${companyId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    fetch(`http://localhost:5000/api/orders/company/${companyId}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setOrders(data);
+        setLoading(false);
       })
-        .then((response) => response.json())
-        .then((data) => {
-          setOrders(data);
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error('Error fetching orders:', error);
-          setLoading(false);
-        });
-    }
+      .catch((error) => {
+        console.error('Error fetching orders:', error);
+        setLoading(false);
+      });
+
   }, [token, companyId]);
 
   // Number of records to display on each page
@@ -120,26 +120,26 @@ const OrdersTable: React.FC = () => {
     <div className='ordersBody'>
       <h2 className='ordersTitle'> Orders</h2>
       {loading ? (
-        <SpinLoader/> 
+        <SpinLoader />
       ) : (
         <>
           <table className="orders-table">
             <thead>
               <tr>
-                <th>Customer</th>
-                <th>Product Type</th>
+                <th>Delivered</th>
+                <th>Returned</th>
                 <th>See More...</th>
               </tr>
             </thead>
             <tbody>
               {ordersForPage.map((order) => (
                 <tr key={order._id}>
-                  <td>{order.customer?.name}</td>
-                  <td>{order.product?.type}</td>
+                  <td>{order?.delivered}</td>
+                  <td>{order?.returned}</td>
                   <td className='link-to-edit'>
                     {/* Create a Link for the action button */}
                     <Link to={`/updateOrder/${order._id}`}>
-                    📝
+                      📝
                     </Link>
                   </td>
                 </tr>

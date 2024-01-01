@@ -75,3 +75,11 @@ div .receipt-details {
   text-align: center;
   margin: 0 auto;
 }
+
+@media (max-width: 600px) {
+  .customer-info-container div .receipt-details {
+  width: 60%;
+  
+  }
+
+}

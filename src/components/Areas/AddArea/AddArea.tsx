@@ -18,7 +18,7 @@ function AddArea(): JSX.Element {
 
   // Fetch the list of days from your API
   useEffect(() => {
-    fetch(`http://localhost:5000/api/days/company/${companyId}`, {
+    fetch(`http://localhost:5000/api/days`, {
       headers: {
         Authorization: `Bearer ${token}`,
       }
