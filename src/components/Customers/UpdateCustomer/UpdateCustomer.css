@@ -81,5 +81,10 @@ div .receipt-details {
   width: 60%;
   margin-bottom: 20px;
   }
-
+.customer-info-container .update-customer-form{
+  width: 50%;
+}
+.customer-info-container .update-customer-form input{
+  margin: 2px;
+}
 }
