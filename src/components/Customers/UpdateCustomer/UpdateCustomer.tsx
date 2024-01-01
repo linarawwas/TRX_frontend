@@ -182,6 +182,10 @@ function UpdateCustomer(): JSX.Element {
               <p className='detail-value'>{customerData?.phone}</p>
             </div>
             <div className='receipt-detail'>
+              <p className='detail-name'>area id:</p>
+              <p className='detail-value area-id'> {customerData?.areaId?._id}</p>
+            </div>
+            <div className='receipt-detail'>
               <p className='detail-name'>area name:</p>
               <p className='detail-value'> {customerData?.areaId?.name}</p>
             </div>

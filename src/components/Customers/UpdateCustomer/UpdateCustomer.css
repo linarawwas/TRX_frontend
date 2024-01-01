@@ -87,4 +87,10 @@ div .receipt-details {
 .customer-info-container .update-customer-form input{
   margin: 2px;
 }
+.customer-info-container div .receipt-details  .receipt-detail .area-id{
+  font-size: 10px;
+  /* width: 10px; */
+  text-wrap: wrap;
+  text-align: center;
+}
 }
