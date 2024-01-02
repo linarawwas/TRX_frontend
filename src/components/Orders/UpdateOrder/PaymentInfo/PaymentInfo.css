@@ -1,0 +1,26 @@
+.payment-receipt  .receipt-details {
+    border: 1px solid #FFA500;
+    width: 40%;
+    border-radius: 20px;
+    /* background-color: #192D40; */
+    box-shadow: 2px 2px 20px 9px #192D40;
+    margin: 20px auto;
+
+}
+
+.payment-receipt  .receipt-detail {
+    display: flex;
+    justify-content: space-around;
+    border-top: 1px solid #192D40;
+    border-radius: 20px;
+
+}
+
+.payment-receipt  .receipt-detail p {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+.payment-receipt h2 {
+    text-align: center;
+    margin: 20px auto;
+}

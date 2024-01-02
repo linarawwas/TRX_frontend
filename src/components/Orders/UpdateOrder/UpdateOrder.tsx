@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux';
 import './UpdateOrder.css'
 import AddPaymentForm from './AddPaymentForm/AddPaymentForm';
 import OrderReceipt from './OrderReceipt/OrderReceipt';
+import PaymentInfo from './PaymentInfo/PaymentInfo';
 
 function UpdateOrder(): JSX.Element {
   const token = useSelector((state: any) => state.user.token);
@@ -76,7 +77,7 @@ function UpdateOrder(): JSX.Element {
         </button>
       </div>
       <OrderReceipt orderData={orderData} loading={loading} />
-      
+      <PaymentInfo payments={orderData?.payments} />
       <h1 className="update-title edit-button" onClick={handleFormToggle}>
         {formVisible ? "Hide Form" : "Add New Payment ?"}
       </h1>
