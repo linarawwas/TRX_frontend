@@ -5,8 +5,8 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from 'react-redux';
 import './UpdateOrder.css'
-import SpinLoader from '../../UI reusables/SpinLoader/SpinLoader';
 import AddPaymentForm from './AddPaymentForm/AddPaymentForm';
+import OrderReceipt from './OrderReceipt/OrderReceipt';
 
 function UpdateOrder(): JSX.Element {
   const token = useSelector((state: any) => state.user.token);
@@ -75,32 +75,8 @@ function UpdateOrder(): JSX.Element {
         >          Delete Order
         </button>
       </div>
-
-      {loading ? (
-        <SpinLoader />
-      ) : orderData ? (
-        <div>
-          <table className="details-table bill-table">
-            <thead>
-              <tr>
-                <th>Field</th>
-                <th>Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(orderData).map(([key, value]) => (
-                <tr key={key}>
-                  <td className="field-name">{key}</td>
-                  <td className="field-value">{JSON.stringify(value, null, 2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-        </div>
-      ) : (
-        <p>Order not found</p>
-      )}
+      <OrderReceipt orderData={orderData} loading={loading} />
+      
       <h1 className="update-title edit-button" onClick={handleFormToggle}>
         {formVisible ? "Hide Form" : "Add New Payment ?"}
       </h1>

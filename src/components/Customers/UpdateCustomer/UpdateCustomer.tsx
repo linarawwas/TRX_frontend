@@ -9,6 +9,7 @@ import SelectInput from '../../UI reusables/SelectInput/SelectInput';
 import SpinLoader from '../../UI reusables/SpinLoader/SpinLoader';
 import CustomerInvoices from '../CustomerInvoices/CustomerInvoices';
 import CustomerOrders from '../CustomerOrders/CustomerOrders';
+import CustomerInfo from '../CustomerInfo/CustomerInfo';
 
 interface Area {
   _id: string;
@@ -16,7 +17,7 @@ interface Area {
 }
 
 interface CustomerData {
-  _id: '';
+  _id: string;
   name: string;
   phone: string;
   address: string;
@@ -168,78 +169,48 @@ function UpdateCustomer(): JSX.Element {
         </button>
       </div>
 
-      {loading ? (
-        <SpinLoader />
-      ) : customerData ? (
-        <div >
-          <div className="receipt-details">
-            <div className='receipt-detail'>
-              <p className='detail-name'>name </p>
-              <p className='detail-value'>{customerData?.name}</p>
-            </div>
-            <div className='receipt-detail'>
-              <p className='detail-name'>phone: </p>
-              <p className='detail-value'>{customerData?.phone}</p>
-            </div>
-            <div className='receipt-detail'>
-              <p className='detail-name'>area id:</p>
-              <p className='detail-value area-id'> {customerData?.areaId?._id}</p>
-            </div>
-            <div className='receipt-detail'>
-              <p className='detail-name'>area name:</p>
-              <p className='detail-value'> {customerData?.areaId?.name}</p>
-            </div>
-            <div className='receipt-detail'>
-              <p className='detail-name'>address </p>
-              <p className='detail-value'>{customerData?.address}</p>
-            </div>
+      <CustomerInfo customerData={customerData} loading={loading} />
+      {customerData && <CustomerInvoices customerId={customerData?._id} />}
+      {customerData && <CustomerOrders customerId={customerData?._id} />}
+      <h1 className="update-title edit-button" onClick={handleFormToggle}>
+        Edit Customer ?
+      </h1>
+      {formVisible && (
+        <form className="update-customer-form" onSubmit={handleSubmitUpdate}>
+          <input
+            type="text"
+            name="name"
+            value={updatedInfo.name}
+            placeholder="New Name"
+            onChange={handleChange}
+          ></input>
+          <input
+            type="text"
+            name="phone"
+            value={updatedInfo.phone}
+            placeholder="New Phone"
+            onChange={handleChange}
+          ></input>
+          <input
+            type="text"
+            name="address"
+            value={updatedInfo.address}
+            placeholder="New address"
+            onChange={handleChange}
+          ></input>
+          <SelectInput
+            label="Area:"
+            name="areaId"
+            value={updatedInfo.areaId._id} // Assuming 'value' holds the areaId string
+            options={areas.map((area) => ({ value: area._id, label: area.name }))}
+            onChange={handleChange}
+          />
 
-          </div>
-          <CustomerInvoices customerId={customerData._id} />
-          <CustomerOrders customerId={customerData._id} />
-          <h1 className="update-title edit-button" onClick={handleFormToggle}>
-            Edit Customer ?
-          </h1>
-          {formVisible && (
-            <form className="update-customer-form" onSubmit={handleSubmitUpdate}>
-              <input
-                type="text"
-                name="name"
-                value={updatedInfo.name}
-                placeholder="New Name"
-                onChange={handleChange}
-              ></input>
-              <input
-                type="text"
-                name="phone"
-                value={updatedInfo.phone}
-                placeholder="New Phone"
-                onChange={handleChange}
-              ></input>
-              <input
-                type="text"
-                name="address"
-                value={updatedInfo.address}
-                placeholder="New address"
-                onChange={handleChange}
-              ></input>
-              <SelectInput
-                label="Area:"
-                name="areaId"
-                value={updatedInfo.areaId._id} // Assuming 'value' holds the areaId string
-                options={areas.map((area) => ({ value: area._id, label: area.name }))}
-                onChange={handleChange}
-              />
+          <button type="submit">Update Customer</button>
+        </form>
+      )}
+    </div>
 
-              <button type="submit">Update Customer</button>
-            </form>
-          )}
-        </div>
-      ) : (
-        <p>Customer not found</p>
-      )
-      }
-    </div >
   );
 }
 
