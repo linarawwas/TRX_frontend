@@ -5,6 +5,7 @@ import '../../UI reusables/UpdateSingleRecord/UpdateSingleRecord.css';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from 'react-redux';
+import './UpdateOrder.css'
 import SpinLoader from '../../UI reusables/SpinLoader/SpinLoader';
 interface PaymentData {
   paymentAmount: string;
@@ -140,7 +141,7 @@ function UpdateOrder(): JSX.Element {
         <SpinLoader/> 
       ) : orderData ? (
         <div>
-          <table className="details-table">
+          <table className="details-table bill-table">
             <thead>
               <tr>
                 <th>Field</th>
@@ -183,6 +184,7 @@ function UpdateOrder(): JSX.Element {
                   onChange={handlePaymentChange}
                   className="form-input"
                 >
+                  <option value="LBP">choose currency</option>
                   <option value="LBP">LBP</option>
                   <option value="USD">USD</option>
                   {/* Add other currency options as needed */}

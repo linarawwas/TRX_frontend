@@ -11,9 +11,7 @@
 }
 
 .add-payment-button:hover {
-  background: #ff6600; /* Darker shade on hover */
+  background: #ff6600;
+  /* Darker shade on hover */
 }
 
-.details-table{
-  
-}
