@@ -21,6 +21,7 @@ import ShipmentsList from '../components/Shipment/ShipmentsList.tsx';
 import ExtraProfits from '../components/Profits/ViewProfits/ViewProfits.tsx';
 import Expenses from '../components/Expenses/AddExpenses/ViewExpenses/ViewExpenses.tsx';
 import Products from '../components/Products/Products.tsx';
+import CustomerInfo from '../components/Customers/CustomerInfo/CustomerInfo.tsx';
 function AdminRouter() {
   return (
     <>
@@ -42,6 +43,7 @@ function AdminRouter() {
           <Route path="/updateCustomer/:customerId" element={<UpdateCustomer />} />
           <Route path="/addExpenses" element={<AddExpenses />} />
           <Route path="/addCustomers" element={<AddCustomers />} />
+          <Route path="/customerInfo" element={<CustomerInfo />} />
           <Route path="/addProfits" element={<AddProfits />} />
           <Route path="/currentShipment" element={<ShipmentsList />} />
           <Route path="/Profits" element={<ExtraProfits />} />
