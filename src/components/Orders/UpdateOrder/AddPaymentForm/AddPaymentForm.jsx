@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from 'react-redux';
+import './AddPaymentForm.css'
 export const AddPaymentForm = (props) => {
     const token = useSelector((state) => state.user.token);
     const orderId = props.orderId;
@@ -96,11 +97,6 @@ export const AddPaymentForm = (props) => {
                         <option value="LBP">LBP</option>
                         <option value="USD">USD</option>
                     </select>
-                </div>
-                <div className="form-group">
-                    <label htmlFor="exchangeRateId" className="form-label">
-                        Exchange Rate ID
-                    </label>
                 </div>
                 <button type="button" onClick={handleAddPayment} className="add-payment-button">
                     Add Payment

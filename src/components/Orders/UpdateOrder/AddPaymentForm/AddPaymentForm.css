@@ -1,18 +1,30 @@
 /* Styling for the Add Payment button */
 .add-payment-button {
-    background: #FFA500;
-    color: #082338;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background 0.3s;
-  }
-  
-  .add-payment-button:hover {
-    background: #ff6600;
-    /* Darker shade on hover */
-  }
-  
-  
+  background: #FFA500;
+  color: #082338;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.3s;
+margin:  auto;
+}
+
+.add-payment-button:hover {
+  background: #ff6600;
+}
+
+.payment-form {
+  box-shadow: 2px 2px 20px 9px #192D40;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  justify-items: center;
+  align-content: center;
+  align-items: center;
+}
+
+.payment-form .form-group {
+  text-align: center;
+}
