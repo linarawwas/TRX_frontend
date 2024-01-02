@@ -150,7 +150,7 @@ const CustomerOrders: React.FC<CustomerOrdersProps> = ({ customerId }) => {
                         ))}
                     </div>
                 ) : (
-                    <p>No Orders found for this customer</p>
+                    <p >No Orders found for this customer</p>
                 )}
             {renderPagination()}
 

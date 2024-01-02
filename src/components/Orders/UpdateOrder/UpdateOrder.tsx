@@ -15,6 +15,10 @@ function UpdateOrder(): JSX.Element {
   const { orderId } = useParams();
   const [orderData, setOrderData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [formVisible, setFormVisible] = useState(false);
+  const handleFormToggle = () => {
+    setFormVisible(!formVisible);
+  };
 
   const handleDeleteOrder = async (): Promise<void> => {
     try {
@@ -97,7 +101,12 @@ function UpdateOrder(): JSX.Element {
       ) : (
         <p>Order not found</p>
       )}
-      <AddPaymentForm orderId={orderId} setOrderData={setOrderData} />
+      <h1 className="update-title edit-button" onClick={handleFormToggle}>
+        {formVisible ? "Hide Form" : "Add New Payment ?"}
+      </h1>
+      {formVisible &&
+        < AddPaymentForm orderId={orderId} setOrderData={setOrderData} />
+      }
     </div>
   );
 }
