@@ -1,13 +1,12 @@
-.receipt-details {
-    border: 1px solid #FFA500;
-    width: 60%;
+.order-receipt .receipt-details {
+    width: 70%;
     border-radius: 20px;
     box-shadow: 2px 2px 20px 9px #192D40;
     margin: 1px auto;
 
 }
 
-.receipt-detail {
+.order-receipt .receipt-detail {
     display: flex;
     justify-content: space-around;
     border-top: 1px solid #192D40;
@@ -15,11 +14,16 @@
 
 }
 
-.receipt-detail p {
+.order-receipt .receipt-detail p {
     font-family: Georgia, 'Times New Roman', Times, serif;
 }
 
 .customer-receipt h2 {
     text-align: center;
     margin: 20px auto;
+}
+@media (max-width: 600px) {
+    .order-receipt .receipt-details{
+        width: 90%;
+    }
 }
