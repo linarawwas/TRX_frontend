@@ -82,7 +82,7 @@ function UpdateOrder(): JSX.Element {
         {formVisible ? "Hide Form" : "Add New Payment ?"}
       </h1>
       {formVisible &&
-        < AddPaymentForm orderId={orderId} setOrderData={setOrderData} />
+        < AddPaymentForm orderData={orderData} orderId={orderId} setOrderData={setOrderData} />
       }
     </div>
   );

@@ -2,16 +2,19 @@ import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from 'react-redux';
-
 export const AddPaymentForm = (props) => {
     const token = useSelector((state) => state.user.token);
-    const orderId=props.orderId;
-    const setOrderData=props.setOrderData;
+    const orderId = props.orderId;
+    const orderData = props.orderData;
+    const setOrderData = props.setOrderData;
     const [paymentData, setPaymentData] = useState({
         paymentAmount: '',
         paymentCurrency: '',
         exchangeRateId: '6537789b6ed59ef09c18213d',
     });
+    const handleCurrencySelection = (currency) => {
+        setOrderData({ ...orderData, paymentCurrency: currency });
+    };
 
     const handlePaymentChange = (e) => {
         const { name, value } = e.target;
@@ -81,6 +84,7 @@ export const AddPaymentForm = (props) => {
                     <label htmlFor="paymentCurrency" className="form-label">
                         Payment Currency
                     </label>
+
                     <select
                         id="paymentCurrency"
                         name="paymentCurrency"
@@ -91,21 +95,12 @@ export const AddPaymentForm = (props) => {
                         <option value="LBP">choose currency</option>
                         <option value="LBP">LBP</option>
                         <option value="USD">USD</option>
-                        {/* Add other currency options as needed */}
                     </select>
                 </div>
                 <div className="form-group">
                     <label htmlFor="exchangeRateId" className="form-label">
                         Exchange Rate ID
                     </label>
-                    <input
-                        type="text"
-                        id="exchangeRateId"
-                        name="exchangeRateId"
-                        value={paymentData.exchangeRateId}
-                        onChange={handlePaymentChange}
-                        className="form-input"
-                    />
                 </div>
                 <button type="button" onClick={handleAddPayment} className="add-payment-button">
                     Add Payment
