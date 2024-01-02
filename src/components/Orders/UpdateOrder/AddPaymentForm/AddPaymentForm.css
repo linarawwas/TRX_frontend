@@ -1,0 +1,18 @@
+/* Styling for the Add Payment button */
+.add-payment-button {
+    background: #FFA500;
+    color: #082338;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s;
+  }
+  
+  .add-payment-button:hover {
+    background: #ff6600;
+    /* Darker shade on hover */
+  }
+  
+  
