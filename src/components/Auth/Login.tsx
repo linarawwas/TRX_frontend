@@ -66,7 +66,7 @@ export default function Login(): JSX.Element {
   return (<div className='login-body'>
     <div className="login-container">
       <ToastContainer position="top-right" autoClose={1000} />
-      <h2 className='login-title'>{showLoginForm ? "Login" : "Welcome to TRX"}</h2>
+      <h2 className='login-title'>{showLoginForm ? "Login" : ""}</h2>
       {showLoginForm && <form className='login-form' onSubmit={handleSubmit}>
         <input
           type="email"
