@@ -110,7 +110,7 @@
   color: #082338;
   font-weight: bold;
   text-transform: capitalize;
-  border: 1px solid #082338;
+  /* border: 1px solid #082338; */
   max-width: 150px;
   margin: 10px auto;
   padding: 6px;
@@ -124,7 +124,7 @@
   }
 
   .default-product-name {
-    border: 1px solid #082338;
+    /* border: 1px solid #082338; */
     padding: 10px;
     margin: 10px;
   }
