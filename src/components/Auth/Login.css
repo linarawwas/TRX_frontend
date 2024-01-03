@@ -3,22 +3,20 @@
   margin: 10% auto;
   margin-bottom: 50px;
   padding: 20px;
-  /* border: 1px solid #082338; */
   border-radius: 5px;
   background-image: url("../../images/logo.jpeg");
   background-size: contain;
   background-repeat: no-repeat;
-  display: flex;
+  display: hidden;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   align-content: center;
-  /* border: 1px solid #082338; */
 
 }
 
 .login-title {
-  color:  #082338;
+  color: #082338;
 
 }
 
@@ -93,15 +91,20 @@
     padding: 20% 0;
     height: 100%;
   }
-.login-title{
-  text-shadow: 1px 1px 7px white;
-  background-color: white;
-  opacity: 0.7;
-  text-align: end;
-}
+
+  .login-title {
+    text-shadow: 1px 1px 7px white;
+    background-color: white;
+    opacity: 0.7;
+    text-align: end;
+  }
 
   .paragraph-div p {
     font-size: 20px;
 
+  }
+
+  .login-container {
+    display: flex;
   }
 }
