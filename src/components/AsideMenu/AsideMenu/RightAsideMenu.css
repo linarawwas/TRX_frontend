@@ -5,8 +5,7 @@
   width: 250px;
   height: 90%;
   border-radius: 90px 0 0 0;
-  background: linear-gradient(to bottom, #1b3e54 0%, #134368 49%, #082338 100%) no-repeat;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #082338;
   transition: right 0.3s ease-in-out;
   z-index: 10000; 
   margin-top: 100px;
@@ -43,15 +42,14 @@
   cursor: pointer;
   color: #000;
   font-size: 24px;
-  text-shadow: 2px 1px 8px black;
 }
 
 .right-menu-toggle:focus {
-  outline: none;
+  border: 1px solid #082338;
+
 }
 
 .right-buttons-employee {
   color: black;
   background-color: transparent;
-  text-shadow: 2px 2px 4px black;
 }

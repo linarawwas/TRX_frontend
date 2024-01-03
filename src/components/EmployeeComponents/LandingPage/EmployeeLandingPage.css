@@ -14,13 +14,12 @@
     cursor: pointer;
     margin: 20px auto;
     width: 200px;
-    box-shadow: 1px 1px 10px white;
+    border: 1px solid #082338;
 }
 
 .employee-button:hover {
     background-color: #ff6600;
     color: white;
-    box-shadow: 1px 1px 20px 10px white;
 }
 
 @media only screen and (max-width: 600px) {

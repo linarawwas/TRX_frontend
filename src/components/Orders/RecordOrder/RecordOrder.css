@@ -31,7 +31,6 @@
   border: 1px solid #ccc;
   background-color: #082338;
   margin-bottom: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .order-label {
@@ -95,7 +94,6 @@
 .currency-buttons .selected {
   background-color: rgb(2, 2, 23);
   color: white;
-  box-shadow: 1px 1px 4px white;
 
 }
 
@@ -107,11 +105,10 @@
 }
 
 .record-order-container p {
-  background-color: white;
   color: #082338;
   font-weight: bold;
   text-transform: capitalize;
-  box-shadow: 1px 1px 4px white;
+  border: 1px solid #082338;
   max-width: 150px;
   margin: 10px auto;
   padding: 6px;

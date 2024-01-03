@@ -16,7 +16,7 @@ margin:  auto;
 }
 
 .payment-form {
-  box-shadow: 2px 2px 20px 9px #192D40;
+  border: 1px solid #082338;
   display: flex;
   flex-direction: column;
   justify-content: center;

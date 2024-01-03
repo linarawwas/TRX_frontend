@@ -1,7 +1,6 @@
 .order-receipt .receipt-details {
     width: 70%;
-    border-radius: 20px;
-    box-shadow: 2px 2px 20px 9px #192D40;
+    border: 1px solid #192D40;
     margin: 1px auto;
 
 }
@@ -10,7 +9,6 @@
     display: flex;
     justify-content: space-around;
     border-top: 1px solid #192D40;
-    border-radius: 20px;
 
 }
 
@@ -22,8 +20,9 @@
     text-align: center;
     margin: 20px auto;
 }
+
 @media (max-width: 600px) {
-    .order-receipt .receipt-details{
+    .order-receipt .receipt-details {
         width: 80%;
     }
 }

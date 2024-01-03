@@ -3,8 +3,8 @@ body {
   font-family: 'Times New Roman', Times, serif;
   margin: 0;
   padding: 0;
-  background: linear-gradient(to bottom, #1b3e54 0%, #082338 49%, #19394e 100%) no-repeat;
   height: 100vh;
+  color: #082338;
 }
 
 li,
@@ -14,6 +14,11 @@ tr,
 button,
 div,
 h1,
+form,
+input,
+label,option, select,
+h3,
 h2 {
   font-family: 'Times New Roman', Times, serif;
+  color: #082338;
 }

@@ -2,7 +2,7 @@
   padding: 10vh 20px;
   background-color: #f5f5f5;
   border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border: 1px solid #082338;
 }
 
 .update-header {
@@ -72,12 +72,12 @@
 /* Styling for the Add Payment form container */
 .payment-form {
   background: #f9f9f9;
-  border: 1px solid #ddd;
+  border: 1px solid #082338;
+  color: #082338;
   width: 40dvw;
   margin: 10px auto;
   padding: 10px 60px;
   border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 
 }
 
@@ -97,7 +97,7 @@
 .form-input {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid #082338;
   border-radius: 5px;
   margin-bottom: 15px;
   font-size: 16px;
@@ -106,7 +106,6 @@
 
 .form-input:focus {
   border: 1px solid #FFA500;
-  /* Highlight border on focus */
   outline: none;
 }
 @media (max-width: 600px) {

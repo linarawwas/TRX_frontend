@@ -4,7 +4,7 @@
 
 .extra-expenses h2 {
     text-align: center;
-    color: white;
+   color: #082338;
     text-decoration: underline;
 
 }
@@ -17,11 +17,11 @@
     padding: 10px;
     width: 200px;
     border-radius: 30px;
-    color: white;
+   color: #082338;
 }
 
 .show-add-expenses:hover {
-    background-color: white;
+    border: 1px solid #082338;
     color: #FFA500;
     font-weight: bold;
 }
@@ -33,12 +33,11 @@
 }
 
 .receipt-details {
-    background-color: white;
+    border: 1px solid #082338;
     margin: 10px 40px;
     flex-basis: 300px;
     display: flex;
     flex-direction: column;
-    box-shadow: 2px 2px 10px 1px #FFA500;
 }
 
 .receipt-detail p {
@@ -59,7 +58,7 @@
 .container-button-div button {
     margin: 2px;
     padding: 5px;
-    box-shadow: 1px 1px 10px #ff6600;
+    border: 1px solid #082338;
 }
 
 .delete-btn {
@@ -79,7 +78,7 @@
         padding-top: 10%;
 
         height: 100%;
-        background-color: #192D40;
+        border: 1px solid #082338;
     }
 
     .receipt-details-container {

@@ -1,8 +1,6 @@
 .payment-receipt  .receipt-details {
     width: 40%;
-    border-radius: 20px;
-    /* background-color: #192D40; */
-    box-shadow: 2px 2px 20px 9px #192D40;
+    border: 1px solid #082338;
     margin: 20px auto;
 
 }
@@ -11,7 +9,6 @@
     display: flex;
     justify-content: space-around;
     border-top: 1px solid #192D40;
-    border-radius: 20px;
 
 }
 

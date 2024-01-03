@@ -8,7 +8,7 @@
 .ordersTitle {
   width: 100%;
   text-align: center;
-  color: white;
+  color: #082338;
   text-decoration: underline;
 }
 
@@ -23,7 +23,7 @@
 }
 
 .orders-table th {
-  background-color: #f0f0f0;
+   
   font-weight: bold;
 }
 

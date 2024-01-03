@@ -24,7 +24,7 @@
 
 .areas-header button {
   margin: 10px;
-  box-shadow: 1px 1px 10px white;
+  border: 1px solid #082338;
   border-radius: 30px;
   background-color: #ff6600;
   color: white;
@@ -37,15 +37,15 @@
 
 .areas-header button:hover {
   background-color: #FFA500;
-  color: black;
-  box-shadow: 1px 1px 10px 10px rgb(20, 20, 19);
+  color:  #082338;
+  border: 1px solid #082338;
 
 
 }
 
 .areas-title {
   text-align: center;
-  color: white;
+  color:  #082338;;
   text-decoration: underline;
 }
 
@@ -59,18 +59,17 @@
 
 .areas-div .area-link {
   text-decoration: none;
-  color: black;
+  color:  #082338;;
   padding: 15px;
-  background-color: white;
   border-radius: 20px;
-  box-shadow: 1px 1px 10px 10px rgb(20, 20, 19);
+  border: 1px solid #082338;
 }
 
 .areas-div .area-link:hover {
   font-weight: bold;
   color: #ff6600;
-  border: 1px solid black;
-  box-shadow: 1px 1px 10px 10px white;
+  border: 1px solid  #082338;;
+  border: 1px solid #082338;
 }
 
 @media only screen and (max-width: 600px) {
@@ -78,8 +77,7 @@
   .areas-body {
     margin-top: 0;
     padding-top: 25%;
-    background: linear-gradient(to bottom, #1b3e54 0%, #082338 49%, #19394e 100%) no-repeat;
-    height: 100%;
+     height: 100%;
     padding-bottom: 10%;
   }
 

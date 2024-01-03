@@ -6,9 +6,7 @@
 
   padding: 20px;
   border-radius: 20px;
-  background-color: #082338;
-  border: 1px solid black;
-  box-shadow: 1px 1px 10px 10px white;
+  border: 1px solid #082338;
 }
 
 .register-form {
@@ -20,7 +18,7 @@
 
 .register-title {
   text-align: center;
-  color: white;
+  color: #082338;
 }
 
 .register-input {
@@ -33,7 +31,7 @@
 .register-button {
   padding: 10px;
   background-color: #f27907;
-  color: white;
+  color: #082338;
   border-radius: 20px;
   cursor: pointer;
 }
@@ -41,7 +39,7 @@
 .register-button:hover {
   background-color: #fab73a;
   color: #082338;
-  box-shadow: 1px 1px 10px 10px white;
+  border: 1px solid #082338;
 }
 
 /* Responsive Styles for Mobile */

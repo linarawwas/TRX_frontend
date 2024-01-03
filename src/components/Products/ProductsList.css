@@ -1,12 +1,11 @@
 .products h2 {
     text-align: center;
-    color: white;
+    color: #082338;
 }
 
 .products {
     padding: 3% 5%;
     height: 100%;
-    background-color: #192D40;
 }
 
 .show-add-products {
@@ -16,11 +15,11 @@
     padding: 10px;
     width: 200px;
     border-radius: 30px;
-    color: white;
+    color: #082338;
 }
 
 .show-add-products:hover {
-    background-color: white;
+    background-color: #082338;
     color: #FFA500;
 }
 
@@ -32,13 +31,13 @@
 .select-default-div select {
     margin: 10px;
     padding: 10px 20px;
-    box-shadow: 1px 1px 10px white;
+    border: 1px solid #082338;
 
 }
 
 .select-default-div button {
     margin: 10px;
-    box-shadow: 1px 1px 10px white;
+    border: 1px solid #082338;
     border-radius: 30px;
     background-color: #ff6600;
     color: white;
@@ -62,7 +61,6 @@
         padding-bottom: 10%;
         padding-top: 20%;
         height: 100%;
-        background-color: #192D40;
     }
 
     .products .receipt-details {

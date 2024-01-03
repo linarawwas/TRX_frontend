@@ -27,7 +27,7 @@
 
 h1 {
   font-size: 48px;
-  color: white;
+  color: #082338;
   margin-bottom: 10px;
   font-family: 'Times New Roman', Times, serif;
 
@@ -35,7 +35,7 @@ h1 {
 
 .landing-page p {
   font-size: 18px;
-  color: white;
+  color: #082338;
   margin-bottom: 30px;
 
 }
@@ -43,7 +43,7 @@ h1 {
 .feature-section {
   max-width: 700px;
   padding: 10px 30px;
-  box-shadow: 1px 1px 10px 10px white;
+  border: 1px solid #082338;
   text-align: center;
   animation: fadeIn 1s ease;
   margin: 30px auto 50px auto
@@ -55,18 +55,12 @@ h1 {
   padding: 10px;
   border-radius: 20px;
   font-size: 18px;
-  color: white;
-}
-
-.feature-section ul li:hover {
-  box-shadow: 1px 1px 10px 10px white;
-  color: #FFA500;
-  font-weight: bold;
+  color: #082338;
 }
 
 .feature-section h2 {
   font-size: 32px;
-  color: white;
+  color: #082338;
   text-transform: uppercase;
   margin-bottom: 20px;
 }
@@ -86,7 +80,7 @@ h1 {
 .footer {
   text-align: center;
   font-size: 14px;
-  color: white;
+  color: #082338;
   animation: fadeIn 1s ease;
 }
 
@@ -111,7 +105,7 @@ h1 {
   margin: 5px;
   padding: 5px;
   font-size: 16px;
-  color: white;
+  color: #082338;
 }
 .hero-section h1{
   margin-top: 20%;

@@ -42,18 +42,18 @@
   width: 70%;
   border-collapse: collapse;
   margin: 10px auto;
-  box-shadow: 1px 1px 10px white;
+  border: 1px solid #082338;
 }
 
 .customers-table th,
 .customers-table td {
-  border: 1px solid #e0e0e0;
+  border: 1px solid #082338;
   padding: 15px 5px;
   text-align: center;
 }
 
 .customers-table th {
-  background-color: #f0f0f0;
+   
   font-weight: bold;
 }
 
@@ -70,9 +70,8 @@
   font-size: 20px;
   cursor: pointer;
   border-radius: 50px;
-  border: 1px solid black;
+  border: 1px solid #082338;
   background-color: white;
-  box-shadow: 1px 1px 10px 1px #ff6600;
 }
 
 .nav-arrow:hover {
