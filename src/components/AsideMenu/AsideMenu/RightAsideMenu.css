@@ -6,6 +6,7 @@
   height: 90%;
   border-radius: 90px 0 0 0;
   border: 1px solid #082338;
+  background-color: white;
   transition: right 0.3s ease-in-out;
   z-index: 10000; 
   margin-top: 100px;
