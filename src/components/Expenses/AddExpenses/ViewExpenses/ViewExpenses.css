@@ -87,7 +87,7 @@
         justify-content: center;
     }
 
-    .receipt-details {
+   .receipt-details-container .receipt-details {
         background-color: white;
         width: 30%;
         font-size: 12px;

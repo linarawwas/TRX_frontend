@@ -93,7 +93,7 @@ export const AddPaymentForm = (props) => {
                         onChange={handlePaymentChange}
                         className="form-input"
                     >
-                        <option value="LBP">choose currency</option>
+                        <option value="">choose currency</option>
                         <option value="LBP">LBP</option>
                         <option value="USD">USD</option>
                     </select>

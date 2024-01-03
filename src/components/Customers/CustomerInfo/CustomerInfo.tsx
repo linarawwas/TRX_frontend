@@ -1,6 +1,6 @@
 import React from 'react';
 import SpinLoader from '../../UI reusables/SpinLoader/SpinLoader';
-
+import './CustomerInfo.css'
 interface CustomerInfoProps {
     customerData: any; // Change 'any' to the type of your orderData if available
     loading: boolean;
@@ -12,7 +12,7 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({ customerData, loading }: Cu
             {loading ? (
                 <SpinLoader/>
             ) : customerData ? (
-                <div className="receipt-details">
+                <div className="receipt-details customer-info-details">
                     <div className='receipt-detail'>
                         <p className='detail-name'>name </p>
                         <p className='detail-value'>{customerData?.name}</p>

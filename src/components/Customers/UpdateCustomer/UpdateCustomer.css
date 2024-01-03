@@ -1,6 +1,8 @@
 .update-customer-form {
   max-width: 400px;
   margin: 30px auto;
+  border: 1px solid #083323;
+  padding: 5%;
 }
 
 .update-customer-form input {
@@ -78,19 +80,23 @@ div .receipt-details {
 
 @media (max-width: 600px) {
   .customer-info-container div .receipt-details {
-  width: 60%;
-  margin-bottom: 20px;
+    width: 60%;
+    margin-bottom: 20px;
   }
-.customer-info-container .update-customer-form{
-  width: 50%;
-}
-.customer-info-container .update-customer-form input{
-  margin: 2px;
-}
-.customer-info-container div .receipt-details  .receipt-detail .area-id{
-  font-size: 10px;
-  /* width: 10px; */
-  text-wrap: wrap;
-  text-align: center;
-}
+
+  .customer-info-container .update-customer-form {
+    width: 60%;
+    padding: 5%;
+  }
+
+  .customer-info-container .update-customer-form input {
+    width: 70%;
+    margin: 2px;
+  }
+
+  .customer-info-container div .receipt-details .receipt-detail .area-id {
+    font-size: 8px;
+    text-wrap: wrap;
+    text-align: center;
+  }
 }

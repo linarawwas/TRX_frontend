@@ -1,7 +1,6 @@
 .receipt-details {
     border: 1px solid #083323;
     width: 60%;
-    border-radius: 20px;
     margin: 1px auto;
 
 }
@@ -10,7 +9,6 @@
     display: flex;
     justify-content: space-around;
     border-top: 1px solid #192D40;
-    border-radius: 20px;
 
 }
 
@@ -21,4 +19,9 @@
 .customer-receipt h2 {
     text-align: center;
     margin: 20px auto;
+}
+@media (max-width: 600px) {
+    .receipt-details {
+        width: 80%;
+    }
 }
