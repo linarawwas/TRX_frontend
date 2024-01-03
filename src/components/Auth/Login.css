@@ -7,11 +7,11 @@
   background-image: url("../../images/logo.jpeg");
   background-size: contain;
   background-repeat: no-repeat;
-  display: hidden;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   align-content: center;
+  display: hidden;
 
 }
 

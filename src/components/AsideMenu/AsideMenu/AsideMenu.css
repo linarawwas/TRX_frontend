@@ -5,7 +5,12 @@
 }
 
 .sidebar {
-  background: linear-gradient(to bottom, #1b3e54 0%, #134368 49%, #082338 100%) no-repeat;
+  background-color: white;
+  border: 1px solid #082338;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
   color: #082338;
   width: 250px;
   height: 100%;
@@ -17,7 +22,8 @@
   z-index: 10000;
 }
 
-.sidebar-link , .go-to-home-button{
+.sidebar-link,
+.go-to-home-button {
   color: #082338;
   text-transform: capitalize;
   font-family: 'Times New Roman', Times, serif;
@@ -26,8 +32,10 @@
   border-radius: 10px 30px 5px 5px;
 }
 
-.sidebar-link:hover , .go-to-home-button:hover{
-  border: 1px solid #082338;
+.sidebar-link:hover,
+.go-to-home-button:hover {
+  background-color: #082338;
+  color: white;
   font-weight: bold;
 }
 
@@ -125,10 +133,11 @@
   text-align: center;
   margin-top: 10%;
 }
+
 @media (max-width: 600px) {
   .sidebar-link {
     font-size: 20px;
-   
+
   }
-  
-  }
+
+}
