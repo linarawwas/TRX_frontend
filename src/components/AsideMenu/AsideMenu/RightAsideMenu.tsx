@@ -38,8 +38,15 @@ const RightAsideMenu: React.FC = () => {
         <div className='go-to-home-button'>Cash Input: </div>
         <PaidInDollars />
         <PaidInLira />
-        <ExpensesButton />
-        <ProfitsButton />
+        <div className='expenses-profits'></div>
+        <div className='expenses'>
+          <div className='go-to-home-button'>Expenses: </div>
+          <ExpensesButton />
+        </div>
+        <div className='profits'>
+          <div className='go-to-home-button'>Profits: </div>
+          <ProfitsButton /></div>
+
       </div>
     </aside>
   );

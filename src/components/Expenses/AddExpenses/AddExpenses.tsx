@@ -44,9 +44,9 @@ const AddExpenses: React.FC = () => {
 
         toast.success('Expenses successfully recorded.');
         if (expenses.paymentCurrency === 'USD') {
-          dispatch(setShipmentExpensesInUSD(shipmentExpensesInUSD + expenses.value))
+          dispatch(setShipmentExpensesInUSD(parseInt(shipmentExpensesInUSD) + parseInt(expenses.value)))
         } else {
-          dispatch(setShipmentExpensesInLiras(shipmentExpensesInLiras + expenses.value))
+          dispatch(setShipmentExpensesInLiras(parseInt(shipmentExpensesInLiras) + parseInt(expenses.value)))
         }
       } else {
         const errorData = await response.json();

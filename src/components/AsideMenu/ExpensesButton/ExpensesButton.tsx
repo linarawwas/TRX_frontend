@@ -3,14 +3,13 @@ import { useSelector } from 'react-redux';
 import '../AsideMenu/AsideMenu.css';
 
 const ExpensesButton: React.FC = () => {
-  const expenses: number = useSelector((state: any) => state.shipment.expenses);
-  useEffect(() => {
-    console.log(expenses)
-  }, [expenses])
+  const expensesInLiras: number = useSelector((state: any) => state.shipment.expensesInLiras);
+  const expensesInUSD: number = useSelector((state: any) => state.shipment.expensesInUSD);
 
   return (
     <>
-      <div className='go-to-home-button'>{expenses}</div>
+      <div className='go-to-home-button'>{expensesInLiras}LBP</div>
+      <div className='go-to-home-button'>{expensesInUSD}$</div>
     </>
   );
 };

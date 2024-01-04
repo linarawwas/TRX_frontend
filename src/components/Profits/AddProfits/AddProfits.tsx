@@ -7,7 +7,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import NumberInput from '../../UI reusables/NumberInput/NumberInput';
 import './AddProfits.css'
 import { setShipmentProfitsInLiras, setShipmentProfitsInUSD } from '../../../redux/Shipment/action';
-import ShipmentsList from '../../Shipment/ShipmentsList';
 const AddProfits: React.FC = () => {
   const companyId = useSelector((state: any) => state.user.companyId);
   const shipmentId = useSelector((state: any) => state.shipment._id);
@@ -44,9 +43,9 @@ const AddProfits: React.FC = () => {
       if (response.ok) {
         toast.success('Profits successfully recorded.');
         if (profits.paymentCurrency === 'USD') {
-          dispatch(setShipmentProfitsInUSD(shipmentProfitsInUSD + profits.value))
+          dispatch(setShipmentProfitsInUSD(parseInt(shipmentProfitsInUSD) + parseInt(profits.value)))
         } else {
-          dispatch(setShipmentProfitsInLiras(shipmentProfitsInLiras + profits.value))
+          dispatch(setShipmentProfitsInLiras(parseInt(shipmentProfitsInLiras) + parseInt(profits.value)))
         }
       } else {
         const errorData = await response.json(); // Parse the error response
