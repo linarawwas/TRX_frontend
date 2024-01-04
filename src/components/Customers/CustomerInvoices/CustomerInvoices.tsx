@@ -17,11 +17,12 @@ interface Sums {
 // }
 
 const CustomerInvoices: React.FC = () => {
+
     const [sums, setSums] = useState<Sums | null>(null);
     const [loading, setLoading] = useState(true);
     const token: string = useSelector((state: any) => state.user.token);
     const customerId = useSelector((state: any) => state.order.customer_Id);
-
+    const deliveredInShipment = useSelector((state: any) => state.shipment.delivered)
     useEffect(() => {
         const fetchCustomerInvoices = async () => {
             try {
@@ -43,7 +44,7 @@ const CustomerInvoices: React.FC = () => {
         };
 
         fetchCustomerInvoices();
-    }, [customerId]);
+    }, [customerId, deliveredInShipment]);
 
     return (
         <div className="customer-receipt">
