@@ -16,10 +16,14 @@ import {
   SET_USD_PAYMENTS,
   SET_LIRA_PAYMENTS,
   SET_SHIPMENT_FROM_PREV,
-  SET_SHIPMENT_EXPENSES,
-  SET_SHIPMENT_PROFITS,
-  CLEAR_SHIPMENT_EXPENSES,
-  CLEAR_SHIPMENT_PROFITS,
+  CLEAR_SHIPMENT_PROFITS_IN_LIRAS,
+  CLEAR_SHIPMENT_PROFITS_IN_USD,
+  CLEAR_SHIPMENT_EXPENSES_IN_USD,
+  CLEAR_SHIPMENT_EXPENSES_IN_LIRAS,
+  SET_SHIPMENT_EXPENSES_IN_USD,
+  SET_SHIPMENT_PROFITS_IN_USD,
+  SET_SHIPMENT_EXPENSES_IN_LIRAS,
+  SET_SHIPMENT_PROFITS_IN_LIRAS,
 } from "./actionTypes";
 
 const initialState = {
@@ -45,10 +49,14 @@ const initialState = {
   prev_dollarPayments: 0,
   liraPayments: 0,
   prev_liraPayments: 0,
-  profits: 0,
-  prev_profits: 0,
-  expenses: 0,
-  prev_expenses: 0,
+  expensesInLiras: 0,
+  profitsInLiras: 0,
+  expensesInUSD: 0,
+  profitsInUSD: 0,
+  prev_expensesInLiras: 0,
+  prev_profitsInLiras: 0,
+  prev_profitsInUSD: 0,
+  prev_expensesInUSD: 0,
 };
 
 const shipmentReducer = (state = initialState, action) => {
@@ -77,8 +85,10 @@ const shipmentReducer = (state = initialState, action) => {
         payments: state.prev_payments || state.payments,
         dollarPayments: state.prev_dollarPayments || state.dollarPayments,
         liraPayments: state.prev_liraPayments || state.liraPayments,
-        profits: state.prev_profits || state.profits,
-        expenses: state.prev_expenses || state.expenses,
+        profitsInUSD: state.prev_profitsInUSD || state.profitsInUSD,
+        expensesInUSD: state.prev_expensesInUSD || state.expensesInUSD,
+        expensesInLiras: state.prev_expensesInLiras || state.expensesInLiras,
+        profitsInLiras: state.prev_profitsInLiras || state.profitsInLiras,
       };
 
     case SET_USD_PAYMENTS:
@@ -111,15 +121,25 @@ const shipmentReducer = (state = initialState, action) => {
         ...state,
         target: action.payload,
       };
-    case SET_SHIPMENT_EXPENSES:
+    case SET_SHIPMENT_PROFITS_IN_LIRAS:
       return {
         ...state,
-        expenses: action.payload,
+        profitsInLiras: action.payload,
       };
-    case SET_SHIPMENT_PROFITS:
+    case SET_SHIPMENT_EXPENSES_IN_LIRAS:
       return {
         ...state,
-        profits: action.payload,
+        expensesInLiras: action.payload,
+      };
+    case SET_SHIPMENT_PROFITS_IN_USD:
+      return {
+        ...state,
+        profitsInUSD: action.payload,
+      };
+    case SET_SHIPMENT_EXPENSES_IN_USD:
+      return {
+        ...state,
+        expensesInUSD: action.payload,
       };
     case SET_DATE_DAY:
       return {
@@ -156,15 +176,26 @@ const shipmentReducer = (state = initialState, action) => {
         ...state,
         day: null,
       };
-    case CLEAR_SHIPMENT_EXPENSES:
+    case CLEAR_SHIPMENT_EXPENSES_IN_LIRAS:
       return {
         ...state,
-        expenses: 0,
+        expensesInLiras: 0,
       };
-    case CLEAR_SHIPMENT_PROFITS:
+
+    case CLEAR_SHIPMENT_PROFITS_IN_LIRAS:
       return {
         ...state,
-        profits: 0,
+        profitsInLiras: 0,
+      };
+    case CLEAR_SHIPMENT_PROFITS_IN_USD:
+      return {
+        ...state,
+        profitsInUSD: 0,
+      };
+    case CLEAR_SHIPMENT_EXPENSES_IN_USD:
+      return {
+        ...state,
+        expensesInUSD: 0,
       };
     case CLEAR_ALL_SHIPMENT_INFO:
       return {
@@ -180,8 +211,10 @@ const shipmentReducer = (state = initialState, action) => {
         prev_payments: state.payments,
         prev_dollarPayments: state.dollarPayments,
         prev_liraPayments: state.liraPayments,
-        prev_profits: state.profits,
-        prev_expenses: state.expenses,
+        prev_expensesInLiras: state.expensesInLiras,
+        prev_profitsInLiras: state.profitsInLiras,
+        prev_profitsInUSD: state.profitsInUSD,
+        prev_expensesInUSD: state.expensesInUSD,
         _id: '',
         dayId: '',
         year: null,
@@ -193,8 +226,10 @@ const shipmentReducer = (state = initialState, action) => {
         payments: 0,
         dollarPayments: 0,
         liraPayments: 0,
-        profits: 0,
-        expenses: 0,
+        expensesInLiras: 0,
+        profitsInLiras: 0,
+        expensesInUSD: 0,
+        profitsInUSD: 0,
       };
     default:
       return state;

@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import NumberInput from '../../UI reusables/NumberInput/NumberInput';
 import './AddProfits.css'
 import { setShipmentProfits } from '../../../redux/Shipment/action';
-const AddProfits: React.FC = () => {
+\const AddProfits: React.FC = () => {
   const companyId = useSelector((state: any) => state.user.companyId);
   const shipmentId = useSelector((state: any) => state.shipment._id);
   const token = useSelector((state: any) => state.user.token);
@@ -20,12 +20,13 @@ const AddProfits: React.FC = () => {
     shipmentId: shipmentId,
   });
   const dispatch = useDispatch();
-  const shipmentProfits = useSelector((state: any) => state.shipment.profits)
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setProfits({ ...profits, [name]: value });
   };
 
+  const shipmentProfitsInLiras = useSelector((state: any) => state.shipment.profitsInLiras)
+  const shipmentProfitsInUSD = useSelector((state: any) => state.shipment.profitsInUSD)
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
@@ -40,7 +41,9 @@ const AddProfits: React.FC = () => {
 
       if (response.ok) {
         toast.success('Profits successfully recorded.');
-        dispatch(setShipmentProfits(shipmentProfits + profits.value))
+if(profits.paymentCurrency==='USD'){
+  dispatch(setShipmentProfits)
+}
       } else {
         const errorData = await response.json(); // Parse the error response
         toast.error('Error recording Profits:', errorData.error); // Log the error message from the server
@@ -49,6 +52,7 @@ const AddProfits: React.FC = () => {
       toast.error('Network error:', error);
     }
   };
+
 
   return (
     <div className="record-order-container add-profits-container">

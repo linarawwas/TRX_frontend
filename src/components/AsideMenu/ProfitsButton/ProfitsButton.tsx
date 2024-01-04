@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import '../AsideMenu/AsideMenu.css';
 
 const ProfitsButton: React.FC = () => {
   const profits: number = useSelector((state: any) => state.shipment.profits);
-
+ useEffect(()=>{
+  console.log(profits)
+ },[profits]) 
   return (
     <>
       <div className='go-to-home-button'>{profits}</div>
