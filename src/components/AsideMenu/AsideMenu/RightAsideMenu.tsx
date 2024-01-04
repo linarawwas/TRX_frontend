@@ -7,7 +7,8 @@ import PaidInLira from '../PaidInLira/PaidInLira';
 import { useNavigate } from 'react-router-dom';
 import { FaTimes } from 'react-icons/fa';
 import './RightAsideMenu.css';
-import logo from '../../../images/logo.jpeg';
+import ExpensesButton from '../ExpensesButton/ExpensesButton';
+import ProfitsButton from '../ProfitsButton/ProfitsButton';
 
 const RightAsideMenu: React.FC = () => {
   const [isRightMenuOpen, setIsRightMenuOpen] = useState<boolean>(false);
@@ -37,6 +38,8 @@ const RightAsideMenu: React.FC = () => {
         <div className='go-to-home-button'>Cash Input: </div>
         <PaidInDollars />
         <PaidInLira />
+        <ExpensesButton />
+        <ProfitsButton />
       </div>
     </aside>
   );

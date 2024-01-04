@@ -12,10 +12,6 @@ interface Sums {
     totalSum: number;
 }
 
-// interface CustomerInvoicesProps {
-//     customerId: string;
-// }
-
 const CustomerInvoices: React.FC = () => {
 
     const [sums, setSums] = useState<Sums | null>(null);

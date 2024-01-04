@@ -16,6 +16,10 @@ import {
   SET_USD_PAYMENTS,
   SET_LIRA_PAYMENTS,
   SET_SHIPMENT_FROM_PREV,
+  SET_SHIPMENT_EXPENSES,
+  SET_SHIPMENT_PROFITS,
+  CLEAR_SHIPMENT_EXPENSES,
+  CLEAR_SHIPMENT_PROFITS,
 } from "./actionTypes";
 
 const initialState = {
@@ -41,6 +45,10 @@ const initialState = {
   prev_dollarPayments: 0,
   liraPayments: 0,
   prev_liraPayments: 0,
+  profits: 0,
+  prev_profits: 0,
+  expenses: 0,
+  prev_expenses: 0,
 };
 
 const shipmentReducer = (state = initialState, action) => {
@@ -55,21 +63,23 @@ const shipmentReducer = (state = initialState, action) => {
         ...state,
         payments: action.payload,
       };
-case SET_SHIPMENT_FROM_PREV:
-  return {
-    ...state,
-    _id: state.prev_id || state._id,
-    dayId: state.prev_dayId || state.dayId,
-    year: state.prev_year || state.year,
-    month: state.prev_month || state.month,
-    day: state.prev_day || state.day,
-    target: state.prev_target || state.target,
-    delivered: state.prev_delivered || state.delivered,
-    returned: state.prev_returned || state.returned,
-    payments: state.prev_payments || state.payments,
-    dollarPayments: state.prev_dollarPayments || state.dollarPayments,
-    liraPayments: state.prev_liraPayments || state.liraPayments,
-  };
+    case SET_SHIPMENT_FROM_PREV:
+      return {
+        ...state,
+        _id: state.prev_id || state._id,
+        dayId: state.prev_dayId || state.dayId,
+        year: state.prev_year || state.year,
+        month: state.prev_month || state.month,
+        day: state.prev_day || state.day,
+        target: state.prev_target || state.target,
+        delivered: state.prev_delivered || state.delivered,
+        returned: state.prev_returned || state.returned,
+        payments: state.prev_payments || state.payments,
+        dollarPayments: state.prev_dollarPayments || state.dollarPayments,
+        liraPayments: state.prev_liraPayments || state.liraPayments,
+        profits: state.prev_profits || state.profits,
+        expenses: state.prev_expenses || state.expenses,
+      };
 
     case SET_USD_PAYMENTS:
       return {
@@ -100,6 +110,16 @@ case SET_SHIPMENT_FROM_PREV:
       return {
         ...state,
         target: action.payload,
+      };
+    case SET_SHIPMENT_EXPENSES:
+      return {
+        ...state,
+        expenses: action.payload,
+      };
+    case SET_SHIPMENT_PROFITS:
+      return {
+        ...state,
+        profits: action.payload,
       };
     case SET_DATE_DAY:
       return {
@@ -136,6 +156,16 @@ case SET_SHIPMENT_FROM_PREV:
         ...state,
         day: null,
       };
+    case CLEAR_SHIPMENT_EXPENSES:
+      return {
+        ...state,
+        expenses: 0,
+      };
+    case CLEAR_SHIPMENT_PROFITS:
+      return {
+        ...state,
+        profits: 0,
+      };
     case CLEAR_ALL_SHIPMENT_INFO:
       return {
         ...state,
@@ -150,7 +180,8 @@ case SET_SHIPMENT_FROM_PREV:
         prev_payments: state.payments,
         prev_dollarPayments: state.dollarPayments,
         prev_liraPayments: state.liraPayments,
-        // Resetting the state to initial state
+        prev_profits: state.profits,
+        prev_expenses: state.expenses,
         _id: '',
         dayId: '',
         year: null,
@@ -162,6 +193,8 @@ case SET_SHIPMENT_FROM_PREV:
         payments: 0,
         dollarPayments: 0,
         liraPayments: 0,
+        profits: 0,
+        expenses: 0,
       };
     default:
       return state;

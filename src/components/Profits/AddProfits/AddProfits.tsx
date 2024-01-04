@@ -3,9 +3,10 @@ import '../../Orders/RecordOrder/RecordOrder.css';
 import SelectInput from '../../UI reusables/SelectInput/SelectInput';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import NumberInput from '../../UI reusables/NumberInput/NumberInput';
 import './AddProfits.css'
+import { setShipmentProfits } from '../../../redux/Shipment/action';
 const AddProfits: React.FC = () => {
   const companyId = useSelector((state: any) => state.user.companyId);
   const shipmentId = useSelector((state: any) => state.shipment._id);
@@ -18,7 +19,8 @@ const AddProfits: React.FC = () => {
     companyId: companyId,
     shipmentId: shipmentId,
   });
-
+  const dispatch = useDispatch();
+  const shipmentProfits = useSelector((state: any) => state.shipment.profits)
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setProfits({ ...profits, [name]: value });
@@ -38,11 +40,12 @@ const AddProfits: React.FC = () => {
 
       if (response.ok) {
         toast.success('Profits successfully recorded.');
+        dispatch(setShipmentProfits(shipmentProfits + profits.value))
       } else {
         const errorData = await response.json(); // Parse the error response
         toast.error('Error recording Profits:', errorData.error); // Log the error message from the server
       }
-    } catch (error:any) {
+    } catch (error: any) {
       toast.error('Network error:', error);
     }
   };
