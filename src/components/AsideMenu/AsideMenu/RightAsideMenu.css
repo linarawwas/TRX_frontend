@@ -3,7 +3,7 @@
   bottom: 0;
   right: -300px;
   width: 250px;
-  height: 90%;
+  height: 80%;
   border-radius: 90px 0 0 0;
   border: 1px solid #082338;
   background-color: white;
@@ -52,5 +52,6 @@
 
 .right-buttons-employee {
   color: black;
-  background-color: transparent;
+  background-color: white;
+  border: 1px solid #082338;
 }
