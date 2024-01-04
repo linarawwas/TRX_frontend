@@ -6,8 +6,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch, useSelector } from 'react-redux';
 import NumberInput from '../../UI reusables/NumberInput/NumberInput';
 import './AddProfits.css'
-import { setShipmentProfits } from '../../../redux/Shipment/action';
-\const AddProfits: React.FC = () => {
+import { setShipmentProfitsInLiras, setShipmentProfitsInUSD } from '../../../redux/Shipment/action';
+import ShipmentsList from '../../Shipment/ShipmentsList';
+const AddProfits: React.FC = () => {
   const companyId = useSelector((state: any) => state.user.companyId);
   const shipmentId = useSelector((state: any) => state.shipment._id);
   const token = useSelector((state: any) => state.user.token);
@@ -27,6 +28,7 @@ import { setShipmentProfits } from '../../../redux/Shipment/action';
 
   const shipmentProfitsInLiras = useSelector((state: any) => state.shipment.profitsInLiras)
   const shipmentProfitsInUSD = useSelector((state: any) => state.shipment.profitsInUSD)
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
@@ -41,9 +43,11 @@ import { setShipmentProfits } from '../../../redux/Shipment/action';
 
       if (response.ok) {
         toast.success('Profits successfully recorded.');
-if(profits.paymentCurrency==='USD'){
-  dispatch(setShipmentProfits)
-}
+        if (profits.paymentCurrency === 'USD') {
+          dispatch(setShipmentProfitsInUSD(shipmentProfitsInUSD + profits.value))
+        } else {
+          dispatch(setShipmentProfitsInLiras(shipmentProfitsInLiras + profits.value))
+        }
       } else {
         const errorData = await response.json(); // Parse the error response
         toast.error('Error recording Profits:', errorData.error); // Log the error message from the server

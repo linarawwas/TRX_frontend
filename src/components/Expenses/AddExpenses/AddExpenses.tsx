@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import NumberInput from '../../UI reusables/NumberInput/NumberInput';
 import { RootState } from '../../../redux/store'; // Update this path with your Redux store structure
 import './AddExpenses.css'
-import { setShipmentExpenses } from '../../../redux/Shipment/action';
+import { setShipmentExpensesInLiras, setShipmentExpensesInUSD } from '../../../redux/Shipment/action';
 const AddExpenses: React.FC = () => {
   const companyId = useSelector((state: RootState) => state.user.companyId);
   const shipmentId = useSelector((state: RootState) => state.shipment._id);
@@ -21,11 +21,12 @@ const AddExpenses: React.FC = () => {
     shipmentId: shipmentId,
   });
   const dispatch = useDispatch();
-  const shipmentExpenses: number = useSelector((state: any) => state.shipment.expenses)
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setExpenses({ ...expenses, [name]: value });
   };
+  const shipmentExpensesInLiras = useSelector((state: any) => state.shipment.expensesInLiras)
+  const shipmentExpensesInUSD = useSelector((state: any) => state.shipment.expensesInUSD)
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -40,9 +41,13 @@ const AddExpenses: React.FC = () => {
       });
 
       if (response.ok) {
-        dispatch(setShipmentExpenses(shipmentExpenses + expenses.value))
 
         toast.success('Expenses successfully recorded.');
+        if (expenses.paymentCurrency === 'USD') {
+          dispatch(setShipmentExpensesInUSD(shipmentExpensesInUSD + expenses.value))
+        } else {
+          dispatch(setShipmentExpensesInLiras(shipmentExpensesInLiras + expenses.value))
+        }
       } else {
         const errorData = await response.json();
         toast.error('Error recording Expenses:', errorData.error);
