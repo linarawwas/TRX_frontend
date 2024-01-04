@@ -12,21 +12,22 @@ interface Sums {
     totalSum: number;
 }
 
-interface CustomerInvoicesProps {
-    customerId: string;
-}
+// interface CustomerInvoicesProps {
+//     customerId: string;
+// }
 
-const CustomerInvoices: React.FC<CustomerInvoicesProps> = ({ customerId }) => {
+const CustomerInvoices: React.FC = () => {
     const [sums, setSums] = useState<Sums | null>(null);
     const [loading, setLoading] = useState(true);
     const token: string = useSelector((state: any) => state.user.token);
+    const customerId = useSelector((state: any) => state.order.customer_Id);
 
     useEffect(() => {
         const fetchCustomerInvoices = async () => {
             try {
                 const response = await axios.get(`http://localhost:5000/api/customers/reciept/${customerId}`,
                     {
-                        method: 'DELETE',
+                        method: 'GET',
                         headers: {
                             Authorization: `Bearer ${token}`,
                         },

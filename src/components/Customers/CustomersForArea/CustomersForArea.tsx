@@ -66,7 +66,7 @@ const CustomersForArea = (): JSX.Element => {
 
   const handleOrderState = (customerId: string) => {
     dispatch(setCustomerId(customerId));
-    navigate('/recordOrder');
+    navigate('/recordOrderforCustomer');
   };
 
   return (<>

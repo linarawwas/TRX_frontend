@@ -52,7 +52,6 @@
 .logo {
   width: 70px;
   border-radius: 20px;
-  border: 1px solid #082338;
   cursor: pointer;
 }
 
@@ -126,11 +125,11 @@
 
 .prev-shipment-btn {
   position: fixed;
-  bottom: 110px;
-  left: 0px;
+  bottom: 200px;
+  left: 20px;
   background-color: transparent;
+  border: none;
   font-size: 30px;
-  text-align: center;
   margin-top: 10%;
 }
 

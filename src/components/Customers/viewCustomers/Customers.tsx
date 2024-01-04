@@ -113,14 +113,13 @@ const Customers: React.FC = () => {
         </table>}
         {totalPages > 1 && (
           <div className="pagination">
-            <div className="nav-arrow left" onClick={goToPreviousPage}>
-              &lt;
-            </div>
+            
+            
             <Carousel
               showStatus={false}
               showArrows={false}
               showThumbs={false}
-              selectedItem={selectedItem}
+              selectedItem={selectedItem}              
             >
               {Array.from({ length: totalPages }, (_, i) => (
                 <div key={i} onClick={() => handlePageChange(i)}>
@@ -128,9 +127,14 @@ const Customers: React.FC = () => {
                 </div>
               ))}
             </Carousel>
+            <div className='nav-arrows'>  
+              <div className="nav-arrow left" onClick={goToPreviousPage}>
+              &lt;
+            </div>
             <div className="nav-arrow right" onClick={goToNextPage}>
               &gt;
-            </div>
+            </div></div>
+          
           </div>
         )}
       </div>

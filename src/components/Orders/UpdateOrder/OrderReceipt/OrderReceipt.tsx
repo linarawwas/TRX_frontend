@@ -58,15 +58,15 @@ const OrderReceipt: React.FC<OrderReceiptProps> = ({ orderData, loading }: Order
                         </div>
                         <div className="receipt-detail">
                             <p className="detail-name">checkout: </p>
-                            <p className="detail-value">{orderData?.checkout.toFixed(2)}</p>
+                            <p className="detail-value">{orderData?.checkout?.toFixed(2)}</p>
                         </div>
                         <div className="receipt-detail">
                             <p className="detail-name">Paid: </p>
-                            <p className="detail-value">{orderData?.paid.toFixed(2)}</p>
+                            <p className="detail-value">{orderData?.paid?.toFixed(2)}</p>
                         </div>
                         <div className="receipt-detail">
                             <p className="detail-name">Total : </p>
-                            <p className="detail-value">{orderData?.total.toFixed(2)}</p>
+                            <p className="detail-value">{orderData?.total?.toFixed(2)}</p>
                         </div>
                     </div>
                 </div>

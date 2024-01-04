@@ -9,13 +9,14 @@ import EmployeeLandingPage from '../components/EmployeeComponents/LandingPage/Em
 import StartShipment from '../components/EmployeeComponents/StartShipment/StartShipment.tsx';
 import AddExpenses from '../components/Expenses/AddExpenses/AddExpenses.tsx';
 import AddProfits from '../components/Profits/AddProfits/AddProfits.tsx';
+import RecordOrderForCustomer from '../components/Orders/RecordOrder/RecordOrderForCustomer/RecordOrderForCustomer.jsx';
 function EmployeeRouter() {
     return (
         <div className="userRouter">
             <Routes>
                 <Route index element={<EmployeeLandingPage />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/recordOrder" element={<RecordOrder />} />
+                <Route path="/recordOrderforCustomer" element={<RecordOrderForCustomer />} />
                 <Route path="/days" element={<Days />} />
                 <Route path="/newShipment" element={<StartShipment />} />
                 <Route path="/areas/:dayId" element={<AreasForDay />} />
