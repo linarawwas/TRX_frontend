@@ -3,8 +3,11 @@ import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 // import logo from '../../images/logo.png';
+import gsap from 'gsap';
 
 export default function Login(): JSX.Element {
+
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -92,7 +95,7 @@ export default function Login(): JSX.Element {
     <div className='paragraph-div'><p className='login-page-paragraph'> TRX is your go-to Inventory management software for tracking shipments, orders, sales and deliveries. It leaves nothing untracked, and provides you with bills of materials and other production-related documents, keeping expenses, profits, and payments all in your control. </p>
       <p className='login-page-paragraph' >Get rid of all your frustrations, time-consuming checkups, and employee tracking errors, with just one tool! <button onClick={() => { setShowLoginForm(!showLoginForm) }}> Sign up now!</button></p></div>
 
-  </div>  
+  </div>
 
   );
 };
