@@ -1,29 +1,33 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import React from 'react';
 import '../Orders/RecordOrder/RecordOrder.css';
-import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
-import NumberInput from '../UI reusables/NumberInput/NumberInput';
-import SelectInput from '../UI reusables/SelectInput/SelectInput';
-
+import AddToModel from '../AddToModel/AddToModel';
 const AddProducts: React.FC = () => {
+  // Define the configuration for products
+  const productConfig = {
+    "component-related-fields": {
+      "modelName": "products",
+      "title": "Add to Products",
+      "button-label": "Add Product",
+    },
+    "model-related-fields": {
+      "type": { "label": "Type of Product", "input-type": "text" },
+      "priceInDollars": { "label": "Price In Dollars", "input-type": "number" },
+      "isReturnable": {
+        "label": "Is it Returnable?", "input-type": "selectOption",
+        "options":
+          [{ value: true, label: 'Yes' },
+          { value: false, label: 'No' }]
+      },
+    }
+  };
   const companyId = useSelector((state: RootState) => state.user.companyId);
   const token = useSelector((state: RootState) => state.user.token);
-  const [products, setProducts] = useState({
-    type:'',
-    priceInDollars: 0,
-    isReturnable: false,
-    companyId: companyId,
-  });
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setProducts({ ...products, [name]: value });
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  // Function to handle submitting products data
+  const handleSubmitProducts = async (data: any) => {
     try {
       const response = await fetch('http://localhost:5000/api/products', {
         method: 'POST',
@@ -31,53 +35,23 @@ const AddProducts: React.FC = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(products),
+        body: JSON.stringify({ ...data, companyId }),
       });
 
-      if (response.ok) {
-        toast.success('Products successfully recorded.');
-      } else {
-        const errorData = await response.json();
-        toast.error('Error recording Products:', errorData.error);
-      }
+      return response;
     } catch (error: any) {
-      toast.error('Network error:', error);
+      throw error;
     }
   };
 
   return (
-    <div className="record-order-container">
-      <ToastContainer position="top-right" autoClose={3000} />
-      <h1 className="record-order-title">Add Products</h1>
-      <form className="record-order-form" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="type"
-          value={products.type}
-          placeholder="type"
-          onChange={handleChange}
-        />
-        <SelectInput
-          label="isReturnable:"
-          name="isReturnable"
-          value={products.isReturnable}
-          options={[
-            { value: true, label: 'true' },
-            { value: false, label: 'false' },
-          ]}
-          onChange={handleChange}
-        />
-        <NumberInput
-          label="priceInDollars:"
-          name="priceInDollars"
-          value={products.priceInDollars}
-          onChange={handleChange}
-        />
-        <button className="record-order-button" type="submit">
-          Add product
-        </button>
-      </form>
-    </div>
+    <AddToModel
+      modelName={productConfig['component-related-fields'].modelName}
+      title={productConfig['component-related-fields'].title}
+      buttonLabel={productConfig['component-related-fields']['button-label']}
+      modelFields={productConfig['model-related-fields']}
+      onSubmit={handleSubmitProducts}
+    />
   );
 };
 

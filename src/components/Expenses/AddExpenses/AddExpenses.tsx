@@ -53,7 +53,9 @@ const AddExpenses: React.FC = () => {
     "model-related-fields": {
       "name": { "label": "Name", "input-type": "text" },
       "value": { "label": "Value", "input-type": "number" },
-      "paymentCurrency": { "label": "Payment Currency", "input-type": "selectOption", "options": ["USD", "LBP"] },
+      "paymentCurrency": { "label": "Payment Currency", "input-type": "selectOption", "options": [
+        { value: 'USD', label: 'USD' },
+        { value: 'LBP', label: 'LBP' }] },
     }
   };
   return (

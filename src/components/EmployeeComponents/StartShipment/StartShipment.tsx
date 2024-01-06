@@ -16,6 +16,7 @@ import {
   setDayId,
 } from '../../../redux/Shipment/action';
 import { useNavigate } from 'react-router-dom';
+import AddToModel from '../../AddToModel/AddToModel';
 
 const StartShipment: React.FC = () => {
   interface ShipmentData {
@@ -34,7 +35,6 @@ const StartShipment: React.FC = () => {
     month: null,
     year: null,
     companyId: '',
-    carryingForDelivery: 0,
   });
 
   const updateShipmentData = (data: any) => {
@@ -48,10 +48,6 @@ const StartShipment: React.FC = () => {
     });
   };
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setShipmentData({ ...shipmentData, [name]: value });
-  };
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   useEffect(() => {
     // Fetch and set the initial data when the component mounts
@@ -104,8 +100,7 @@ const StartShipment: React.FC = () => {
 
     initializeDate();
   }, [dispatch, token]);
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleShipmentSubmit = async (formData:any) => {
     try {
       const response = await fetch('http://localhost:5000/api/shipments', {
         method: 'POST',
@@ -113,7 +108,7 @@ const StartShipment: React.FC = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(shipmentData),
+        body: JSON.stringify({...formData, shipmentData}),
       });
 
       if (response.ok) {
@@ -134,23 +129,25 @@ const StartShipment: React.FC = () => {
       toast.error('Network error:', error);
     }
   };
+  const shipmentConfig = {
+    "component-related-fields": {
+      "modelName": "shipments",
+      "title": "Enter Shipment Info",
+      "button-label": "Start shipment",
+    },
+    "model-related-fields": {
+      "carryingForDelivery": { "label": "Amount Carried For Delivery", "input-type": "number" }
+    }
+  };
+
   return (
-    <div className="record-order-container">
-      <ToastContainer position="top-right" autoClose={3000} />
-      <h1 className="record-order-title">Enter Shipment Info</h1>
-      <form className="record-order-form" onSubmit={handleSubmit}>
-        <NumberInput
-          label="Carrying For Delivery:"
-          name="carryingForDelivery"
-          value={shipmentData.carryingForDelivery}
-          onChange={handleChange}
-        />
-        {/* <DateSelector updateShipmentData={updateShipmentData} /> */}
-        <button className="record-order-button" type="submit">
-          Start Shipment
-        </button>
-      </form>
-    </div>
+    <AddToModel
+      modelName={shipmentConfig['component-related-fields'].modelName}
+      title={shipmentConfig['component-related-fields'].title}
+      buttonLabel={shipmentConfig['component-related-fields']['button-label']}
+      modelFields={shipmentConfig['model-related-fields']}
+      onSubmit={handleShipmentSubmit}
+    />
   );
 };
 

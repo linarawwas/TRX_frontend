@@ -1,36 +1,12 @@
 // for profits, expenses, products, and shipments:
 
-// for products: 
-// {
-//     "component-related-fields": {
-//         "modelName": "products",
-//             "title": "Add to Products",
-//                 "button-label": "add product",
-//     },
-//     "model-related-fields": {
-//         "type": { "label": "Type of Product", "input-type": "text",  },
-//         "priceInDollars": { "label": "Price In Dollars", "input-type": "number",  },
-//         "isReturnable": { "label": "Is it Returnable?", "input-type": "selectOption", "options": [true, false] },
-//     }
-// }
-// for shipment:
-// {
-//     "component-related-fields": {
-//         "modelName": "shipments",
-//             "title": "Enter Shipment Info",
-//                 "button-label": "start shipment",
-//     },
-//     "model-related-fields": {
-//         "carryingForDelivery": { "label": "Amount Carried For Delivery", "input-type": "number" }
-//     }
-// }
 
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 
 interface FieldConfig {
   label: string;
-  'input-type': string;
-  options?: string[];
+  'input-type': string|boolean|number;
+  options?: { value: string | number | boolean; label: string }[];
 }
 
 interface ModelFields {
@@ -96,8 +72,8 @@ const AddToModel: React.FC<Props> = ({ modelName, title, buttonLabel, modelField
               >
                 <option value="">{`Select ${fieldConfig.label}`}</option>
                 {fieldConfig.options?.map((option, index) => (
-                  <option key={index} value={option}>
-                    {option}
+                  <option key={index} value={option.value}>
+                    {option.label}
                   </option>
                 ))}
               </select>
