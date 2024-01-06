@@ -1,29 +1,5 @@
-// for expenses: 
-// {
-//     "component-related-fields": {
-//         "modelName": "expenses",
-//             "title": "Add to Expenses",
-//                 "button-label": "add expense",
-//     },
-//     "model-related-fields": {
-//         "name": { "label": "Name", "input-type": "text" },
-//         "value": { "label": "Value", "input-type": "number" },
-//         "paymentCurrency": { "label": "Payment Currency", "input-type": "selectOption", , "options": ["USD", "LBP"] },
-//     }
-// }
-// for profits: 
-// {
-//     "component-related-fields": {
-//         "modelName": "extraProfits",
-//             "title": "Add to profits",
-//                 "button-label": "add profit",
-//     },
-//     "model-related-fields": {
-//         "name": { "label": "Name", "input-type": "text" },
-//         "value": { "label": "Value", "input-type": "number" },
-//         "paymentCurrency": { "label": "Payment Currency", "input-type": "selectOption", "options": ["USD", "LBP"] },
-//     }
-// }
+// for profits, expenses, products, and shipments:
+
 // for products: 
 // {
 //     "component-related-fields": {

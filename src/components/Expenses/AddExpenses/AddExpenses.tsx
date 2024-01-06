@@ -6,6 +6,7 @@ import { RootState } from '../../../redux/store'; // Update this path with your 
 import './AddExpenses.css'
 import { setShipmentExpensesInLiras, setShipmentExpensesInUSD } from '../../../redux/Shipment/action';
 import AddToModel from '../../AddToModel/AddToModel';
+
 const AddExpenses: React.FC = () => {
 
   const exchangeRate = '6537789b6ed59ef09c18213d';
@@ -25,7 +26,6 @@ const AddExpenses: React.FC = () => {
         },
         body: JSON.stringify({ ...formData, companyId, shipmentId, exchangeRate }),
       });
-
       if (response.ok) {
         toast.success('Expenses successfully recorded.');
         if (formData.paymentCurrency === 'USD') {
@@ -62,8 +62,7 @@ const AddExpenses: React.FC = () => {
       title={expensesConfig['component-related-fields'].title}
       buttonLabel={expensesConfig['component-related-fields']['button-label']}
       modelFields={expensesConfig['model-related-fields']}
-      onSubmit={handleSubmit}
-    />
+      onSubmit={handleSubmit}  />
   );
 };
 

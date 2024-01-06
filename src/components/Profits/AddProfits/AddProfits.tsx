@@ -1,96 +1,69 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
-import '../../Orders/RecordOrder/RecordOrder.css';
-import SelectInput from '../../UI reusables/SelectInput/SelectInput';
-import { toast, ToastContainer } from 'react-toastify';
+import React from 'react';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch, useSelector } from 'react-redux';
-import NumberInput from '../../UI reusables/NumberInput/NumberInput';
+import { RootState } from '../../../redux/store'; // Update this path with your Redux store structure
 import './AddProfits.css'
 import { setShipmentProfitsInLiras, setShipmentProfitsInUSD } from '../../../redux/Shipment/action';
-const AddProfits: React.FC = () => {
-  const companyId = useSelector((state: any) => state.user.companyId);
-  const shipmentId = useSelector((state: any) => state.shipment._id);
-  const token = useSelector((state: any) => state.user.token);
-  const [profits, setProfits] = useState({
-    name: '',
-    value: 0,
-    paymentCurrency: '',
-    exchangeRate: '6537789b6ed59ef09c18213d',
-    companyId: companyId,
-    shipmentId: shipmentId,
-  });
-  const dispatch = useDispatch();
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setProfits({ ...profits, [name]: value });
-  };
+import AddToModel from '../../AddToModel/AddToModel';
 
+const AddProfits: React.FC = () => {
+
+  const exchangeRate = '6537789b6ed59ef09c18213d';
+  const companyId = useSelector((state: RootState) => state.user.companyId);
+  const shipmentId = useSelector((state: RootState) => state.shipment._id);
+  const token = useSelector((state: RootState) => state.user.token);
+  const dispatch = useDispatch();
   const shipmentProfitsInLiras = useSelector((state: any) => state.shipment.profitsInLiras)
   const shipmentProfitsInUSD = useSelector((state: any) => state.shipment.profitsInUSD)
-
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = async (formData: any) => {
     try {
       const response = await fetch('http://localhost:5000/api/extraProfits', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`, // Include the  token in the headers
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(profits),
+        body: JSON.stringify({ ...formData, companyId, shipmentId, exchangeRate }),
       });
-
       if (response.ok) {
         toast.success('Profits successfully recorded.');
-        if (profits.paymentCurrency === 'USD') {
-          dispatch(setShipmentProfitsInUSD(parseInt(shipmentProfitsInUSD) + parseInt(profits.value)))
+        if (formData.paymentCurrency === 'USD') {
+          dispatch(setShipmentProfitsInUSD(parseInt(shipmentProfitsInUSD) + parseInt(formData.value)))
         } else {
-          dispatch(setShipmentProfitsInLiras(parseInt(shipmentProfitsInLiras) + parseInt(profits.value)))
+          dispatch(setShipmentProfitsInLiras(parseInt(shipmentProfitsInLiras) + parseInt(formData.value)))
         }
       } else {
-        const errorData = await response.json(); // Parse the error response
-        toast.error('Error recording Profits:', errorData.error); // Log the error message from the server
+        const errorData = await response.json();
+        toast.error(`Error recording Profits: ${errorData.error}`);
       }
+
+      return response;
     } catch (error: any) {
-      toast.error('Network error:', error);
+      toast.error(`Network error: ${error}`);
+      throw error;
     }
   };
-
-
+  const profitsConfig = {
+      "component-related-fields": {
+          "modelName": "extraProfits",
+              "title": "Add to profits",
+                  "button-label": "add profit",
+      },
+      "model-related-fields": {
+          "name": { "label": "Name", "input-type": "text" },
+          "value": { "label": "Value", "input-type": "number" },
+          "paymentCurrency": { "label": "Payment Currency", "input-type": "selectOption", "options": ["USD", "LBP"] },
+  }
+  };
   return (
-    <div className="record-order-container add-profits-container">
-      <ToastContainer position="top-right" autoClose={3000} />
-      <h1 className="record-order-title">Add Profits</h1>
-      <form className="record-order-form" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="name"
-          value={profits.name}
-          placeholder="Name"
-          onChange={handleChange}
-        />
-        <SelectInput
-          label="Payment Currency:"
-          name="paymentCurrency"
-          value={profits.paymentCurrency}
-          options={[
-            { value: '', label: 'Select Currency' },
-            { value: 'USD', label: 'USD' },
-            { value: 'LBP', label: 'LBP' },
-          ]}
-          onChange={handleChange}
-        />
-        <NumberInput
-          label="Value:"
-          name="value"
-          value={profits.value}
-          onChange={handleChange}
-        />
-        <button className="record-order-button" type="submit">
-          Add profits
-        </button>
-      </form>
-    </div>
+    <AddToModel
+      modelName={profitsConfig['component-related-fields'].modelName}
+      title={profitsConfig['component-related-fields'].title}
+      buttonLabel={profitsConfig['component-related-fields']['button-label']}
+      modelFields={profitsConfig['model-related-fields']}
+      onSubmit={handleSubmit}
+    />
   );
 };
 
