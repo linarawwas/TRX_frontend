@@ -13,7 +13,7 @@ const RecordOrder = () => {
   // const [products, setProducts] = useState([]); since the admin chose to only have one product default, no product array will be mapped
   useEffect(() => {
     // Fetch days data from your API
-    fetch("http://localhost:5000/api/adminDeterminedProducts/defaultProduct", {
+    fetch("http://localhost:5000/api/adminDeterminedDefaults/defaultProduct", {
       method: "GET", // Assuming this endpoint uses a GET request method
       headers: {
         Authorization: `Bearer ${token}`,
