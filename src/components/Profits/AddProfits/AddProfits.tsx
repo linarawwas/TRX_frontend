@@ -46,8 +46,8 @@ const AddProfits: React.FC = () => {
   const profitsConfig = {
       "component-related-fields": {
           "modelName": "extraProfits",
-              "title": "Add to profits",
-                  "button-label": "add profit",
+              "title": "Add to Profits",
+                  "button-label": "Add Profit",
       },
       "model-related-fields": {
           "name": { "label": "Name", "input-type": "text" },
