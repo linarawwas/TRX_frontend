@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import FeatureSection from './FeatureSection';
 import SpinLoader from '../UI reusables/SpinLoader/SpinLoader';
+import CurrentShipmentStats from './CurrentShipmentStats/CurrentShipmentStat';
 
 const LandingPage: React.FC = () => {
   const name = useSelector((state: RootState) => state.user.username);
@@ -28,6 +29,7 @@ const LandingPage: React.FC = () => {
           <div className="hero-section">
             <h1>Welcome to TRX, {name}</h1>
             <p>A powerful inventory management system</p>
+            <CurrentShipmentStats />
           </div>
         </>
       )}
