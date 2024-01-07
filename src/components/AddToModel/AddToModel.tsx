@@ -2,7 +2,7 @@
 
 
 import React, { useState, ChangeEvent, FormEvent } from 'react';
-
+import './AddToModel.css';
 interface FieldConfig {
   label: string;
   'input-type': string|boolean|number;

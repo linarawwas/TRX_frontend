@@ -1,9 +1,9 @@
 import React from 'react';
-import '../Orders/RecordOrder/RecordOrder.css';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import AddToModel from '../AddToModel/AddToModel';
+import { toast } from 'react-toastify';
 const AddProducts: React.FC = () => {
   // Define the configuration for products
   const productConfig = {
@@ -37,7 +37,9 @@ const AddProducts: React.FC = () => {
         },
         body: JSON.stringify({ ...data, companyId }),
       });
-
+      if (response.ok) {
+        toast.success('Product successfully recorded.');
+      }
       return response;
     } catch (error: any) {
       throw error;

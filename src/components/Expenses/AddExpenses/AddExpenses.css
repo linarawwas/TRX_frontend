@@ -1,9 +1,0 @@
-.add-expenses-container{
-    margin-top:10%;
-}
-@media only screen and (max-width: 600px) {
-
-    .add-expenses-container{
-        margin-top:25%;
-    }
-  }
