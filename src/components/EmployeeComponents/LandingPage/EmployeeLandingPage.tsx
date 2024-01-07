@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './EmployeeLandingPage.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -9,15 +9,9 @@ import '../../LandingPage/LandingPage.css';
 const EmployeeLandingPage: React.FC = () => {
   const dispatch = useDispatch();
   const name = useSelector((state: RootState) => state.user.username);
-
   return (
     <div className="employee-landing-page">
       <h1 className="welcome-message-employee"> Welcome to TRX, {name}</h1>
-      <Link to='/newShipment'>
-        <button className='employee-button' onClick={() => {
-          dispatch(clearShipmentInfo());
-        }}>New Shipment</button>
-      </Link>
       <FeatureSection/>
     </div>
   );
