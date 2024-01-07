@@ -29,7 +29,6 @@ const LandingPage: React.FC = () => {
             <h1>Welcome to TRX, {name}</h1>
             <p>A powerful inventory management system</p>
           </div>
-          <FeatureSection />
         </>
       )}
     </div>
