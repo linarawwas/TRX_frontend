@@ -108,8 +108,14 @@ const StartShipment: React.FC = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({...formData, shipmentData}),
-      });
+        body: JSON.stringify({
+          companyId: shipmentData.companyId,
+          dayId: shipmentData.dayId,
+          day: shipmentData.day,
+          month: shipmentData.month,
+          year: shipmentData.year,
+          carryingForDelivery: formData.carryingForDelivery,
+        }),      });
 
       if (response.ok) {
 
