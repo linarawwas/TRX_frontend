@@ -62,12 +62,12 @@ const AsideMenuEmployee: React.FC = () => {
             ) : (
               <li>Please Start Shipment</li>
             )}
-            <li>
+            {/* <li>
               <Link to="/addExpenses" className='sidebar-link' onClick={toggleMenu}>Add Expenses</Link>
             </li>
             <li>
               <Link to="/addProfits" className='sidebar-link' onClick={toggleMenu}>Add Profits</Link>
-            </li>
+            </li> */}
             <li>
               <button className='logout-button' onClick={handleLogout}>Logout</button>
             </li>
