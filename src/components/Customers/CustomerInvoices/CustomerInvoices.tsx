@@ -19,6 +19,8 @@ const CustomerInvoices: React.FC = () => {
     const token: string = useSelector((state: any) => state.user.token);
     const customerId = useSelector((state: any) => state.order.customer_Id);
     const deliveredInShipment = useSelector((state: any) => state.shipment.delivered)
+    const liraPayments = useSelector((state: any) => state.shipment.liraPayments)
+    const dollarPayments = useSelector((state: any) => state.shipment.dollarPayments)
     useEffect(() => {
         const fetchCustomerInvoices = async () => {
             try {
@@ -40,7 +42,7 @@ const CustomerInvoices: React.FC = () => {
         };
 
         fetchCustomerInvoices();
-    }, [customerId, deliveredInShipment]);
+    }, [customerId, deliveredInShipment, liraPayments,dollarPayments]);
 
     return (
         <div className="customer-receipt">

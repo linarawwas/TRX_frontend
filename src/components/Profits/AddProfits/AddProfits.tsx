@@ -7,7 +7,6 @@ import { setShipmentProfitsInLiras, setShipmentProfitsInUSD } from '../../../red
 import AddToModel from '../../AddToModel/AddToModel';
 
 const AddProfits: React.FC = () => {
-
   const exchangeRate = '6537789b6ed59ef09c18213d';
   const companyId = useSelector((state: RootState) => state.user.companyId);
   const shipmentId = useSelector((state: RootState) => state.shipment._id);
@@ -44,17 +43,19 @@ const AddProfits: React.FC = () => {
     }
   };
   const profitsConfig = {
-      "component-related-fields": {
-          "modelName": "extraProfits",
-              "title": "Add to Profits",
-                  "button-label": "Add Profit",
+    "component-related-fields": {
+      "modelName": "extraProfits",
+      "title": "Add to Profits",
+      "button-label": "Add Profit",
+    },
+    "model-related-fields": {
+      "name": { "label": "Name", "input-type": "text" },
+      "value": { "label": "Value", "input-type": "number" },
+      "paymentCurrency": {
+        "label": "Payment Currency", "input-type": "selectOption", "options": [{ value: 'USD', label: 'USD' },
+        { value: 'LBP', label: 'LBP' }]
       },
-      "model-related-fields": {
-          "name": { "label": "Name", "input-type": "text" },
-          "value": { "label": "Value", "input-type": "number" },
-          "paymentCurrency": { "label": "Payment Currency", "input-type": "selectOption", "options": [  { value: 'USD', label: 'USD' },
-          { value: 'LBP', label: 'LBP' }] },
-  }
+    }
   };
   return (
     <AddToModel
