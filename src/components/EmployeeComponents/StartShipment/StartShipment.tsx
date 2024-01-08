@@ -12,6 +12,7 @@ import {
   setDateMonth,
   setDateYear,
   setDayId,
+  clearShipmentInfo,
 } from '../../../redux/Shipment/action';
 import { useNavigate } from 'react-router-dom';
 import AddToModel from '../../AddToModel/AddToModel';
@@ -98,7 +99,7 @@ const StartShipment: React.FC = () => {
 
     initializeDate();
   }, [dispatch, token]);
-  const handleShipmentSubmit = async (formData:any) => {
+  const handleShipmentSubmit = async (formData: any) => {
     try {
       const response = await fetch('http://localhost:5000/api/shipments', {
         method: 'POST',
@@ -113,15 +114,14 @@ const StartShipment: React.FC = () => {
           month: shipmentData.month,
           year: shipmentData.year,
           carryingForDelivery: formData.carryingForDelivery,
-        }),      });
+        }),
+      });
 
       if (response.ok) {
 
         const shipmentDataResponse = await response.json();
+        dispatch(clearShipmentInfo())
         dispatch(setShipmentId(shipmentDataResponse._id));
-        dispatch(setShipmentDelivered(shipmentDataResponse.calculatedDelivered));
-        dispatch(setShipmentReturned(shipmentDataResponse.calculatedReturned));
-        dispatch(setShipmentPayments(shipmentDataResponse.shipmentCalculatedPayments));
         dispatch(setShipmentTarget(shipmentDataResponse.carryingForDelivery));
         toast.success('Shipment successfully recorded.');
         const dayId = shipmentData.dayId

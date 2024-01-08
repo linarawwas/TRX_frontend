@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import '../../Shipment/ShipmentsList.css';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
 import { useSelector } from 'react-redux';
 import { ToastContainer, toast } from 'react-toastify';
 import SpinLoader from '../../UI reusables/SpinLoader/SpinLoader';
@@ -18,11 +16,12 @@ interface ShipmentData {
   carryingForDelivery: number;
   calculatedDelivered: number;
   calculatedReturned: number;
-  shipmentCalculatedPayments: number;
-  shipmentTotalExpenses: number;
-  shipmentCalculatedExtraProfits: number;
-  shipmentCalculatedLiraPayments: number;
-  shipmentCalculatedUSDPayments: number;
+  shipmentLiraPayments: number;
+  shipmentUSDPayments: number;
+  shipmentLiraExtraProfits: number;
+  shipmentUSDExtraProfits: number;
+  shipmentLiraExpenses: number;
+  shipmentUSDExpenses: number;
 }
 interface DateObject {
   day: number | null;
@@ -143,29 +142,35 @@ const CurrentShipmentStat: React.FC = () => {
       carryingForDelivery: 0,
       calculatedDelivered: 0,
       calculatedReturned: 0,
-      shipmentCalculatedPayments: 0,
-      shipmentTotalExpenses: 0,
-      shipmentCalculatedExtraProfits: 0,
-      shipmentCalculatedLiraPayments: 0,
-      shipmentCalculatedUSDPayments: 0,
+      shipmentLiraPayments: 0,
+      shipmentUSDPayments: 0,
+      shipmentLiraExtraProfits: 0,
+      shipmentUSDExtraProfits: 0,
+      shipmentLiraExpenses: 0,
+      shipmentUSDExpenses: 0,
+      USD_overall: 0,
+      LIRA_overall: 0,
     };
 
     shipments.forEach((shipment) => {
       totals.carryingForDelivery += shipment.carryingForDelivery || 0;
       totals.calculatedDelivered += shipment.calculatedDelivered || 0;
       totals.calculatedReturned += shipment.calculatedReturned || 0;
-      totals.shipmentCalculatedPayments += shipment.shipmentCalculatedPayments || 0;
-      totals.shipmentTotalExpenses += shipment.shipmentTotalExpenses || 0;
-      totals.shipmentCalculatedExtraProfits += shipment.shipmentCalculatedExtraProfits || 0;
-      totals.shipmentCalculatedLiraPayments += shipment.shipmentCalculatedLiraPayments || 0;
-      totals.shipmentCalculatedUSDPayments += shipment.shipmentCalculatedUSDPayments || 0;
+      totals.shipmentLiraPayments += shipment.shipmentLiraPayments || 0;
+      totals.shipmentUSDPayments += shipment.shipmentUSDPayments || 0;
+      totals.shipmentLiraExtraProfits += shipment.shipmentLiraExtraProfits || 0;
+      totals.shipmentUSDExtraProfits += shipment.shipmentUSDExtraProfits || 0;
+      totals.shipmentLiraExpenses += shipment.shipmentLiraExpenses || 0;
+      totals.shipmentUSDExpenses += shipment.shipmentUSDExpenses || 0
+
     });
 
     return totals;
   };
 
   const totals = calculateTotals(); // Calculate totals based on the current shipments
-  const overall = totals.shipmentCalculatedPayments + totals.shipmentCalculatedExtraProfits - totals.shipmentTotalExpenses;
+  const USD_overall = totals.shipmentUSDPayments + totals.shipmentUSDExtraProfits - totals.shipmentUSDExpenses;
+  const LIRA_overall = totals.shipmentLiraPayments + totals.shipmentLiraExtraProfits - totals.shipmentLiraExpenses;
 
   return (
     <div className="shipments-container">
@@ -179,59 +184,16 @@ const CurrentShipmentStat: React.FC = () => {
             <div>Carried: {totals.carryingForDelivery}</div>
             <div>Delivered: {totals.calculatedDelivered}</div>
             <div>Returned: {totals.calculatedReturned}</div>
-            <div>Lira {totals.shipmentCalculatedLiraPayments}</div>
-            <div>$ {totals.shipmentCalculatedUSDPayments}</div>
-            <div> Total in $: {totals.shipmentCalculatedPayments.toFixed(2)}</div>
-            <div>Expenses $: {totals.shipmentTotalExpenses.toFixed(2)}</div>
-            <div>Extra Profits $: {totals.shipmentCalculatedExtraProfits.toFixed(2)}</div>
-            <div>Overall: {overall.toFixed(2)}</div>
-
+            <div>Lira Payments {totals.shipmentLiraPayments}</div>
+            <div>$ Payments {totals.shipmentUSDPayments}</div>
+            <div>Expenses $: {totals.shipmentUSDExpenses}</div>
+            <div>Expenses LBP: {totals.shipmentLiraExpenses}</div>
+            <div>Extra Profits $: {totals.shipmentUSDExtraProfits.toFixed(2)}</div>
+            <div>Extra Profits LBP: {totals.shipmentLiraExtraProfits}</div>
+            <div>Overall LBP: {LIRA_overall}</div>
+            <div>Overall $: {USD_overall}</div>
           </div>
         )}
-        <ul className='shipment-info-box'>
-          {isLoading ? (
-            <SpinLoader />) : (
-            currentShipments.map((shipment) => (
-              <li className='single-shipment-info' key={shipment._id}>
-                <div className='shipment-info-field'>
-                  <strong>Date:</strong> {shipment.date.day}/{shipment?.date.month}/{shipment.date.year}
-                </div>
-                <div className='shipment-info-field'>
-                  <strong>Carried For Delivery:</strong> {shipment?.carryingForDelivery}
-                </div>
-                <div className='shipment-info-field'>
-                  <strong>Delivered:</strong> {shipment?.calculatedDelivered}
-                </div>
-                <div className='shipment-info-field'>
-                  <strong>Returned:</strong> {shipment?.calculatedReturned}
-                </div>
-                <div className='shipment-info-field'>
-                  <strong> Lira Payments:</strong> {shipment?.shipmentCalculatedLiraPayments}
-                </div>
-                <div className='shipment-info-field'>
-                  <strong>USD Payments:</strong> {shipment?.shipmentCalculatedUSDPayments}
-                </div>
-                <div className='shipment-info-field'>
-                  <strong> Total Payments -usd and liras-  in usd :</strong> {shipment?.shipmentCalculatedPayments.toFixed(2)}
-                </div>
-                <div className='shipment-info-field'>
-                  <strong>Total Expenses $: </strong> {shipment?.shipmentTotalExpenses.toFixed(2)}
-                </div>
-                <div className='shipment-info-field'>
-                  <strong>Extra Profits $:</strong> {shipment?.shipmentCalculatedExtraProfits.toFixed(2)}
-                </div>
-              </li>
-            ))
-          )}
-        </ul>
-        {/* Pagination */}
-        <ul className="pagination">
-          {Array.from({ length: Math.ceil(shipments.length / shipmentsPerPage) }, (_, index) => (
-            <li key={index} onClick={() => paginate(index + 1)} className="pagination-item">
-              {index + 1}
-            </li>
-          ))}
-        </ul>
       </div>
     </div>
   );
