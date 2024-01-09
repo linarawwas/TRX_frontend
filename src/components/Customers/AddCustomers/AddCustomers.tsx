@@ -20,7 +20,7 @@ const AddCustomers = (): JSX.Element => {
       alert('Please select a file.');
       return;
     }
-
+  
     const reader = new FileReader();
     reader.onload = async (e) => {
       if (e.target && e.target.result) {
@@ -29,20 +29,30 @@ const AddCustomers = (): JSX.Element => {
         const sheetName = workbook.SheetNames[0];
         const sheet = workbook.Sheets[sheetName];
         const data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
+  
         if (Array.isArray(data) && data.length > 0 && Array.isArray(data[0])) {
           const headers: string[] = data[0].map((header: any) => String(header));
-
-          const customerData = data.slice(1).map((row: any) => {
+  
+          const customerData = [];
+          let stopProcessing = false;
+  
+          for (let i = 1; i < data.length && !stopProcessing; i++) {
+            const row = data[i];
             const customer: { [key: string]: any } = {};
+  
             headers.forEach((header: string, index: number) => {
               if (index < row.length) {
                 customer[header] = row[index];
               }
             });
-            return customer;
-          });
-
+  
+            if (customer.name) {
+              customerData.push({ ...customer, companyId });
+            } else {
+              stopProcessing = true;
+            }
+          }
+  
           try {
             const response = await fetch('http://localhost:5000/api/customers/many', {
               method: 'POST',
@@ -50,10 +60,10 @@ const AddCustomers = (): JSX.Element => {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`,
               },
-              body: JSON.stringify(customerData.map(customer => ({ ...customer, companyId: companyId }))),
+              body: JSON.stringify(customerData),
             });
-
-            toast.success('Customers Added successfuly');
+  
+            toast.success('Customers Added successfully');
           } catch (error) {
             toast.error('Error uploading customers');
           }
