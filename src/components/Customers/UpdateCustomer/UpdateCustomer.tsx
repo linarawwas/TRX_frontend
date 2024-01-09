@@ -23,6 +23,10 @@ interface CustomerData {
   address: string;
   areaId: Area;
   companyId: string;
+  hasDiscount: Boolean;
+  valueAfterDiscount: Number;
+  discountCurrency: string;
+  noteAboutCustomer: string;
 }
 
 function UpdateCustomer(): JSX.Element {
@@ -39,7 +43,11 @@ function UpdateCustomer(): JSX.Element {
     phone: '',
     address: '',
     areaId: { _id: '', name: '' }, // Initialize as an empty object of type Area
-    companyId: companyId
+    companyId: companyId,
+    hasDiscount: false,
+    valueAfterDiscount: 0,
+    discountCurrency: '',
+    noteAboutCustomer: '',
   });
   const [originalData, setOriginalData] = useState<CustomerData | null>(null);
 
@@ -107,6 +115,10 @@ function UpdateCustomer(): JSX.Element {
         phone: updatedInfo.phone !== "" ? updatedInfo.phone : originalData!.phone,
         address: updatedInfo.address !== "" ? updatedInfo.address : originalData!.address,
         areaId: updatedInfo.areaId._id !== "" ? updatedInfo.areaId : originalData!.areaId,
+        hasDiscount: updatedInfo.hasDiscount !== false ? updatedInfo.hasDiscount : originalData!.hasDiscount,
+        valueAfterDiscount: updatedInfo.valueAfterDiscount !== 0 ? updatedInfo.valueAfterDiscount : originalData!.valueAfterDiscount,
+        discountCurrency: updatedInfo.discountCurrency !== "" ? updatedInfo.discountCurrency : originalData!.discountCurrency,
+        noteAboutCustomer: updatedInfo.noteAboutCustomer !== "" ? updatedInfo.noteAboutCustomer : originalData!.noteAboutCustomer,
         companyId: companyId
       };
 
@@ -170,7 +182,7 @@ function UpdateCustomer(): JSX.Element {
       </div>
 
       <CustomerInfo customerData={customerData} loading={loading} />
-      {customerData && <CustomerInvoices customerId={customerData?._id} />}
+      {customerData && <CustomerInvoices />}
       {customerData && <CustomerOrders customerId={customerData?._id} />}
       <h1 className="update-title edit-button" onClick={handleFormToggle}>
         Edit Customer ?

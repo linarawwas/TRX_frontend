@@ -10,6 +10,8 @@ interface Sums {
     checkoutSum: number;
     paidSum: number;
     totalSum: number;
+    paidInLirasSum: number;
+    paidInDollarsSum: number;
 }
 
 const CustomerInvoices: React.FC = () => {
@@ -42,7 +44,7 @@ const CustomerInvoices: React.FC = () => {
         };
 
         fetchCustomerInvoices();
-    }, [customerId, deliveredInShipment, liraPayments,dollarPayments]);
+    }, [customerId, deliveredInShipment, liraPayments, dollarPayments]);
 
     return (
         <div className="customer-receipt">
@@ -64,11 +66,19 @@ const CustomerInvoices: React.FC = () => {
                         </div>
                         <div className='receipt-detail'>
                             <p className='detail-name'>Checkout Sum: </p>
-                            <p className='detail-value'>{sums?.checkoutSum}</p>
+                            <p className='detail-value'>{sums?.checkoutSum.toFixed(2)}</p>
                         </div>
                         <div className='receipt-detail'>
                             <p className='detail-name'>Paid Sum: </p>
                             <p className='detail-value'>{sums?.paidSum.toFixed(2)}</p>
+                        </div>
+                        <div className='receipt-detail'>
+                            <p className='detail-name'> Sum of Lira Payments: </p>
+                            <p className='detail-value'>{sums?.paidInLirasSum}</p>
+                        </div>
+                        <div className='receipt-detail'>
+                            <p className='detail-name'>Sum of dollar Payments: </p>
+                            <p className='detail-value'>{sums?.paidInDollarsSum}</p>
                         </div>
                         <div className='receipt-detail'>
                             <p className='detail-name'>Total Sum: </p>
