@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { setShipmentDelivered, setShipmentPayments, setShipmentPaymentsInDollars, setShipmentPaymentsInLiras, setShipmentReturned } from '../../../redux/Shipment/action.js'
 import { setProductId, setProductName, setProductPrice } from '../../../redux/Order/action';
-const RecordOrder = () => {
+const RecordOrder = (props) => {
   const dispatch = useDispatch();
 
   const token = useSelector(state => state.user.token);
@@ -52,7 +52,7 @@ const RecordOrder = () => {
   const shipmentId = useSelector(state => state.shipment._id);
   const productName = useSelector(state => state.order.product_name)
   const productId = useSelector(state => state.order.product_id)
-const productPrice=useSelector(state=>state.order.product_price)
+  const productPrice = useSelector(state => state.order.product_price)
   const [orderData, setOrderData] = useState({
     delivered: 0,
     returned: 0,
@@ -70,7 +70,7 @@ const productPrice=useSelector(state=>state.order.product_price)
   let shipmentPaymentsInLiras = useSelector(state => state.shipment.liraPayments);
   let shipmentPaymentsInDollars = useSelector(state => state.shipment.dollarPayments);
   let totalPayments = useSelector(state => state.shipment.payments)
-let checkout=orderData.delivered * productPrice;
+  let checkout = props.customerData?.hasDiscount ? props.customerData?.valueAfterDiscount * orderData.delivered : orderData.delivered * productPrice;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -121,7 +121,7 @@ let checkout=orderData.delivered * productPrice;
         <div className="number-inputs">
 
           <div className="up-down-input">
-          <p>delivered: </p>
+            <p>delivered: </p>
 
             <div className="up-down-buttons">
               <button className='arrow'
@@ -156,9 +156,9 @@ let checkout=orderData.delivered * productPrice;
               </button>
             </div>
           </div>
-          <p>checkout: {checkout} $</p>
+          <p>checkout: {checkout.toFixed(2)} $</p>
           <div className="up-down-input">
-          <p>returned: </p>
+            <p>returned: </p>
 
             <div className="up-down-buttons">
               <button
@@ -194,21 +194,21 @@ let checkout=orderData.delivered * productPrice;
               </button>
             </div>
           </div>
-              <div className="currency-buttons">
-              <p className='paid-label'>paid: </p> 
-          <button type="button"
-            className={`currency-button ${orderData.paymentCurrency === 'USD' ? 'selected' : ''}`}
-            onClick={() => handleCurrencySelection('USD')}
-          >
-            USD
-          </button>
-          <button type="button"
-            className={`currency-button ${orderData.paymentCurrency === 'LBP' ? 'selected' : ''}`}
-            onClick={() => handleCurrencySelection('LBP')}
-          >
-            LBP
-          </button>
-        </div>
+          <div className="currency-buttons">
+            <p className='paid-label'>paid: </p>
+            <button type="button"
+              className={`currency-button ${orderData.paymentCurrency === 'USD' ? 'selected' : ''}`}
+              onClick={() => handleCurrencySelection('USD')}
+            >
+              USD
+            </button>
+            <button type="button"
+              className={`currency-button ${orderData.paymentCurrency === 'LBP' ? 'selected' : ''}`}
+              onClick={() => handleCurrencySelection('LBP')}
+            >
+              LBP
+            </button>
+          </div>
 
           <input
             type="number"

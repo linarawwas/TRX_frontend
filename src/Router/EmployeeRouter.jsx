@@ -9,7 +9,7 @@ import EmployeeLandingPage from '../components/EmployeeComponents/LandingPage/Em
 import StartShipment from '../components/EmployeeComponents/StartShipment/StartShipment.tsx';
 import AddExpenses from '../components/Expenses/AddExpenses/AddExpenses.tsx';
 import AddProfits from '../components/Profits/AddProfits/AddProfits.tsx';
-import RecordOrderForCustomer from '../components/Orders/RecordOrder/RecordOrderForCustomer/RecordOrderForCustomer.jsx';
+import RecordOrderForCustomer from '../components/Orders/RecordOrder/RecordOrderForCustomer/RecordOrderForCustomer.tsx';
 function EmployeeRouter() {
     return (
         <div className="userRouter">

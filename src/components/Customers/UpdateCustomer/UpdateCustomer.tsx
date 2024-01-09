@@ -6,7 +6,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import './UpdateCustomer.css';
 import { useSelector } from 'react-redux';
 import SelectInput from '../../UI reusables/SelectInput/SelectInput';
-import SpinLoader from '../../UI reusables/SpinLoader/SpinLoader';
 import CustomerInvoices from '../CustomerInvoices/CustomerInvoices';
 import CustomerOrders from '../CustomerOrders/CustomerOrders';
 import CustomerInfo from '../CustomerInfo/CustomerInfo';
