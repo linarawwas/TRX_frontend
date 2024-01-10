@@ -4,10 +4,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store'; // Update this path with your Redux store structure
 import {
-  setShipmentDelivered,
   setShipmentId,
-  setShipmentPayments,
-  setShipmentReturned,
   setShipmentTarget, setDateDay,
   setDateMonth,
   setDateYear,
@@ -55,12 +52,12 @@ const StartShipment: React.FC = () => {
         // Get the current date
         const currentDate = new Date();
         setSelectedDate(currentDate);
-
-        const dayName = currentDate.toLocaleDateString('en-US', { weekday: 'long' });
         const month = currentDate.getMonth() + 1;
         const day = currentDate.getDate();
         const year = currentDate.getFullYear();
 
+        const dayName = currentDate.toLocaleDateString('en-US', { weekday: 'long' });
+     
         // Perform your API request and dispatch actions here based on the current date
         const response = await fetch(`http://localhost:5000/api/days/name/${dayName}`, {
           headers: {
@@ -98,7 +95,7 @@ const StartShipment: React.FC = () => {
     };
 
     initializeDate();
-  }, [dispatch, token]);
+  }, []);
   const handleShipmentSubmit = async (formData: any) => {
     try {
       const response = await fetch('http://localhost:5000/api/shipments', {

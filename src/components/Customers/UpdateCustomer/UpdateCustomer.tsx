@@ -4,11 +4,12 @@ import '../../UI reusables/UpdateSingleRecord/UpdateSingleRecord.css';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './UpdateCustomer.css';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import SelectInput from '../../UI reusables/SelectInput/SelectInput';
 import CustomerInvoices from '../CustomerInvoices/CustomerInvoices';
 import CustomerOrders from '../CustomerOrders/CustomerOrders';
 import CustomerInfo from '../CustomerInfo/CustomerInfo';
+import { setCustomerId } from '../../../redux/Order/action';
 
 interface Area {
   _id: string;
@@ -29,11 +30,13 @@ interface CustomerData {
 }
 
 function UpdateCustomer(): JSX.Element {
+  const dispatch = useDispatch();
   const token: string = useSelector((state: any) => state.user.token);
   const companyId: string = useSelector((state: any) => state.user.companyId);
   const navigate = useNavigate();
   const [areas, setAreas] = useState<Area[]>([]);
   const { customerId } = useParams();
+  dispatch(setCustomerId(customerId))
   const [customerData, setCustomerData] = useState<CustomerData | null>(null);
   const [loading, setLoading] = useState(true);
   const [updatedInfo, setUpdatedInfo] = useState<CustomerData>({
@@ -182,7 +185,7 @@ function UpdateCustomer(): JSX.Element {
 
       <CustomerInfo customerData={customerData} loading={loading} />
       {customerData && <CustomerInvoices />}
-      {customerData && <CustomerOrders customerId={customerData?._id} />}
+      {customerData && <CustomerOrders />}
       <h1 className="update-title edit-button" onClick={handleFormToggle}>
         Edit Customer ?
       </h1>

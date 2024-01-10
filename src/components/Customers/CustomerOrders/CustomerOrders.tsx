@@ -34,12 +34,9 @@ interface Order {
     __v: number;
 }
 
-interface CustomerOrdersProps {
-    customerId: string;
-}
-
-const CustomerOrders: React.FC<CustomerOrdersProps> = ({ customerId }) => {
+const CustomerOrders: React.FC = () => {
     const navigate = useNavigate();
+    const customerId:string=useSelector((state:any)=>state.order.customer_Id)
     const [currentPage, setCurrentPage] = useState(1);
     const [recordsPerPage] = useState(4);
     const [showAddOrders, setShowAddOrders] = useState<Boolean>(false);

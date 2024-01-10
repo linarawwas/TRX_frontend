@@ -3,10 +3,11 @@ import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Link } from 'react-router-dom';
 import './Customers.css';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import AddCustomers from '../AddCustomers/AddCustomers';
 import AddCustomer from '../AddCustomer/AddCustomer';
 import SpinLoader from '../../UI reusables/SpinLoader/SpinLoader';
+import { clearCustomerId } from '../../../redux/Order/action';
 
 interface Customer {
   _id: string;
@@ -24,7 +25,10 @@ const Customers: React.FC = () => {
   const [selectedItem, setSelectedItem] = useState<number>(0);
   const [showInsertBulk, setShowInsertBulk] = useState<boolean>(false);
   const [showInsertOne, setShowInsertOne] = useState<boolean>(false);
+  const dispatch = useDispatch();
   useEffect(() => {
+    dispatch(clearCustomerId());
+
     fetch(`http://localhost:5000/api/customers/company/${companyId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -87,7 +91,7 @@ const Customers: React.FC = () => {
 
 
       {loading ? (
-        <SpinLoader/> 
+        <SpinLoader />
       ) : (<div>
         {!showInsertOne && <table className="customers-table">
           <thead>
@@ -113,13 +117,13 @@ const Customers: React.FC = () => {
         </table>}
         {totalPages > 1 && (
           <div className="pagination">
-            
-            
+
+
             <Carousel
               showStatus={false}
               showArrows={false}
               showThumbs={false}
-              selectedItem={selectedItem}              
+              selectedItem={selectedItem}
             >
               {Array.from({ length: totalPages }, (_, i) => (
                 <div key={i} onClick={() => handlePageChange(i)}>
@@ -127,14 +131,14 @@ const Customers: React.FC = () => {
                 </div>
               ))}
             </Carousel>
-            <div className='nav-arrows'>  
+            <div className='nav-arrows'>
               <div className="nav-arrow left" onClick={goToPreviousPage}>
-              &lt;
-            </div>
-            <div className="nav-arrow right" onClick={goToNextPage}>
-              &gt;
-            </div></div>
-          
+                &lt;
+              </div>
+              <div className="nav-arrow right" onClick={goToNextPage}>
+                &gt;
+              </div></div>
+
           </div>
         )}
       </div>
