@@ -3,37 +3,11 @@ import Login from "./components/Auth/Login";
 import Layout from "./Layout/Layout";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
-import { useDispatch } from 'react-redux';
-import { setCompanyId, setIsAdmin, setToken, setUsername } from './redux/UserInfo/action.js';
 import './index.css'
 function App() {
-  const dispatch = useDispatch();
   const token = localStorage.getItem("token");
   const isAuthenticated = token !== null && token !== undefined;
-  // const [isAdmin, setIsAdmin] = useState(false);
-  useEffect(() => {  // Fetch user data to get companyId
-    // Dispatch the setToken action to save the token in the Redux store
-    dispatch(setToken(token));
-    fetch('http://localhost:5000/api/users/me', {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then(response => response.json())
-      .then(userData => {
-        // setIsAdmin(userData.isAdmin);
-        dispatch(setCompanyId(userData.companyId));
-        dispatch(setIsAdmin(userData.isAdmin));
-        dispatch(setUsername(userData.name))
-      })
-      .catch(error => {
-        console.error('Error fetching user data:', error);
-      });
-
-  }, [dispatch, token]);
-
-
+ 
   return (
     <Router>
       <Routes>

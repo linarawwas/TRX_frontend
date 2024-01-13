@@ -37,6 +37,7 @@ const Customers: React.FC = () => {
       .then((response) => response.json())
       .then((data: Customer[]) => {
         setCustomers(data);
+        console.log("number of customers in your company: ",data.length)
         setLoading(false);
       })
       .catch((error) => {

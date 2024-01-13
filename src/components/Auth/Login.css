@@ -48,8 +48,8 @@
   border-radius: 5px;
 }
 
-.login-container .login-button,.sign-up
- {
+.login-container .login-button,
+.sign-up {
   padding: 10px;
   background-color: #FFA500;
   color: #082338;
@@ -61,9 +61,11 @@
   border: 1px solid #082338;
 
 }
-.sign-up{
+
+.sign-up {
   width: 35%;
 }
+
 .login-container .login-button:hover,
 .sign-up:hover {
   background-color: #ff6600;
@@ -121,6 +123,12 @@
   .paragraph-div p {
     font-size: 20px;
 
+  }
+
+  .sign-up {
+    width: 80%;
+    font-size: 20px;
+    box-shadow: 1px 1px 100px 10px #082338;
   }
 
   .login-container {

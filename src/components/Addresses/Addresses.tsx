@@ -28,6 +28,8 @@ export default function Addresses(): JSX.Element {
             .then((response) => response.json())
             .then((data) => {
                 setCustomers(data);
+                console.log(`number of customers of this area: ${data.length}`)
+
                 setLoading(false);
             })
             .catch((error) => {
@@ -45,6 +47,7 @@ export default function Addresses(): JSX.Element {
 
             if (response.ok) {
                 toast.success('Area deleted successfully');
+
                 setTimeout(() => {
                     navigate('/areas');
                 }, 1500);

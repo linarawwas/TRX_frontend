@@ -8,31 +8,14 @@ import CurrentShipmentStats from './CurrentShipmentStats/CurrentShipmentStat';
 
 const LandingPage: React.FC = () => {
   const name = useSelector((state: RootState) => state.user.username);
-  const [showLoader, setShowLoader] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowLoader(false);
-    }, 800); // Display the loader for 1 second
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, []); // Empty dependency array to run this effect only once when the component mounts
-
   return (
     <div className="landing-page">
-      {showLoader ? (
-        <SpinLoader /> // Render your SpinLoader component while showLoader is true
-      ) : (
-        <>
+
           <div className="hero-section">
             <h1>Welcome to TRX, {name}</h1>
             <p>A powerful inventory management system</p>
             <CurrentShipmentStats />
           </div>
-        </>
-      )}
     </div>
   );
 };
