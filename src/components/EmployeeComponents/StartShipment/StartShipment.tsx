@@ -57,7 +57,7 @@ const StartShipment: React.FC = () => {
         const year = currentDate.getFullYear();
 
         const dayName = currentDate.toLocaleDateString('en-US', { weekday: 'long' });
-     
+
         // Perform your API request and dispatch actions here based on the current date
         const response = await fetch(`http://localhost:5000/api/days/name/${dayName}`, {
           headers: {
@@ -83,10 +83,7 @@ const StartShipment: React.FC = () => {
           year,
         };
 
-        dispatch(setDayId(shipmentData.dayId));
-        dispatch(setDateMonth(shipmentData.month));
-        dispatch(setDateDay(shipmentData.day));
-        dispatch(setDateYear(shipmentData.year));
+
         updateShipmentData(shipmentData);
 
       } catch (error) {
@@ -118,6 +115,10 @@ const StartShipment: React.FC = () => {
 
         const shipmentDataResponse = await response.json();
         dispatch(clearShipmentInfo())
+        dispatch(setDayId(shipmentData.dayId));
+        dispatch(setDateMonth(shipmentData.month));
+        dispatch(setDateDay(shipmentData.day));
+        dispatch(setDateYear(shipmentData.year));
         dispatch(setShipmentId(shipmentDataResponse._id));
         dispatch(setShipmentTarget(shipmentDataResponse.carryingForDelivery));
         toast.success('Shipment successfully recorded.');
