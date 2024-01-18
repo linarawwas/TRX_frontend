@@ -23,8 +23,7 @@ function EmployeeRouter() {
                 <Route path="/viewOrders" element={<OrdersTable />} />
                 <Route path="/customers" element={<Customers />} />
                 <Route path="/updateOrder/:orderId" element={<UpdateOrder />} />
-          <Route path="/updateCustomer/:customerId" element={<UpdateCustomer />} />
-      
+                <Route path="/updateCustomer/:customerId" element={<UpdateCustomer />} />
                 <Route path="/recordOrderforCustomer" element={<RecordOrderForCustomer />} />
                 <Route path="/days" element={<Days />} />
                 <Route path="/newShipment" element={<StartShipment />} />

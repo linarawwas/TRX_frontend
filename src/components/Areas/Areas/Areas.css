@@ -36,7 +36,7 @@
 }
 
 .areas-header button:hover {
-  background-color: #006094;
+  background-color: #0d94dd;
   color:  #082338;
   border: 1px solid #082338;
 
@@ -68,7 +68,6 @@
 .areas-div .area-link:hover {
   font-weight: bold;
   color: #006094;
-  border: 1px solid  #082338;;
   border: 1px solid #082338;
 }
 
