@@ -63,6 +63,12 @@ const AsideMenuEmployee: React.FC = () => {
               <li>Please Start Shipment</li>
             )}
             <li>
+              <Link to="/customers" className='sidebar-link' onClick={toggleMenu}>Customer</Link>
+            </li>
+            <li>
+              <Link to="/viewOrders" className='sidebar-link' onClick={toggleMenu} >Orders</Link>
+            </li>
+            <li>
               <button className='logout-button' onClick={handleLogout}>Logout</button>
             </li>
             <button className='prev-shipment-btn' onClick={handlePrevShipment}>↩️</button>
