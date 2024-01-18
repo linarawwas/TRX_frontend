@@ -5,9 +5,10 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { setShipmentDelivered, setShipmentPayments, setShipmentPaymentsInDollars, setShipmentPaymentsInLiras, setShipmentReturned } from '../../../redux/Shipment/action.js'
 import { setProductId, setProductName, setProductPrice } from '../../../redux/Order/action';
+import { useNavigate } from 'react-router-dom';
 const RecordOrder = (props) => {
   const dispatch = useDispatch();
-
+  const navigate = useNavigate();
   const token = useSelector(state => state.user.token);
   const companyId = useSelector(state => state.user.companyId);
   // const [products, setProducts] = useState([]); since the admin chose to only have one product default, no product array will be mapped
@@ -98,6 +99,7 @@ const RecordOrder = (props) => {
         dispatch(setShipmentPaymentsInDollars(shipmentPaymentsInDollars + parseInt(responseData.SumOfPaymentsInDollars)));
         dispatch(setShipmentPayments(totalPayments + parseInt(responseData.paid)));
         toast.success('Order successfully recorded.');
+        navigate(-1);
       } else {
         const errorData = await response.json();
         toast.error('Error recording order:', errorData.error);
