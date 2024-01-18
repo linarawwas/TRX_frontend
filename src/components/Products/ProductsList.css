@@ -20,7 +20,7 @@
 
 .show-add-products:hover {
     background-color: #082338;
-    color: #FFA500;
+    color: #006094;
 }
 
 .select-default-div {
@@ -39,7 +39,7 @@
     margin: 10px;
     border: 1px solid #082338;
     border-radius: 30px;
-    background-color: #ff6600;
+    background-color: #006094;
     color: white;
     text-transform: uppercase;
     font-weight: bold;
@@ -48,7 +48,7 @@
 }
 
 .select-default-div button:hover {
-    background-color: #FFA500;
+    background-color: #006094;
     color: black;
     box-shadow: 1px 1px 10px 10px rgb(20, 20, 19);
 

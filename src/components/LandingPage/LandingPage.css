@@ -16,10 +16,10 @@
 .show-form-li {
   cursor: pointer;
   border: 1px solid rgb(4, 18, 26);
-  box-shadow: 1px 1px 2px rgb(11, 28, 51);
+  box-shadow: 1px 1px 2px #006094;
   width: fit-content;
   height: fit-content;
-  background-color: orange;
+  background-color: #006094;
   padding: 3px;
 }
 

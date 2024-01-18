@@ -26,7 +26,7 @@
 .update-customer-form button {
   width: 100%;
   padding: 10px;
-  background-color: #FFA500;
+  background-color: #006094;
   color: #082338;
   border: none;
   border-radius: 5px;
@@ -35,7 +35,7 @@
 }
 
 .update-customer-form button:hover {
-  background-color: #ff6600;
+  background-color: #006094;
 }
 
 .update-customer-form button:disabled {

@@ -6,7 +6,7 @@
 
 .employee-button {
     padding: 10px;
-    background-color: #FFA500;
+    background-color: #006094;
     color: #082338;
     font-size: 20px;
     border: none;
@@ -18,7 +18,7 @@
 }
 
 .employee-button:hover {
-    background-color: #ff6600;
+    background-color: #006094;
     color: white;
 }
 

@@ -1,6 +1,6 @@
 /* Styling for the Add Payment button */
 .add-payment-button {
-  background: #FFA500;
+  background: #006094;
   color: #082338;
   border: none;
   padding: 10px 20px;
@@ -12,7 +12,7 @@ margin:  auto;
 }
 
 .add-payment-button:hover {
-  background: #ff6600;
+  background: #006094;
 }
 
 .payment-form {

@@ -26,7 +26,7 @@
   margin: 10px;
   border: 1px solid #082338;
   border-radius: 30px;
-  background-color: #ff6600;
+  background-color: #006094;
   color: white;
   text-transform: uppercase;
   font-weight: bold;
@@ -36,7 +36,7 @@
 }
 
 .areas-header button:hover {
-  background-color: #FFA500;
+  background-color: #006094;
   color:  #082338;
   border: 1px solid #082338;
 
@@ -67,7 +67,7 @@
 
 .areas-div .area-link:hover {
   font-weight: bold;
-  color: #ff6600;
+  color: #006094;
   border: 1px solid  #082338;;
   border: 1px solid #082338;
 }

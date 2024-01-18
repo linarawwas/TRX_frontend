@@ -7,7 +7,7 @@
 
 .customer-adding-option {
   padding: 10px;
-  background-color: #ff6600;
+  background-color: #006094;
   color: white;
   border: none;
   box-shadow: 1px 1px 8px white;
@@ -18,7 +18,7 @@
 }
 
 .customer-adding-option:hover {
-  background-color: #FFA500;
+  background-color: #006094;
 
 }
 
@@ -86,7 +86,7 @@
   border: 1px solid black;
   background-color: black;
   color: white;
-  box-shadow: 1px 1px 10px 1px #FFA500;
+  box-shadow: 1px 1px 10px 1px #006094;
 }
 
 .link-to-edit {

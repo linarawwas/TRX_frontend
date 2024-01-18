@@ -30,14 +30,14 @@
 
 .register-button {
   padding: 10px;
-  background-color: #f27907;
+  background-color: #006094;
   color: #082338;
   border-radius: 20px;
   cursor: pointer;
 }
 
 .register-button:hover {
-  background-color: #fab73a;
+  background-color: #006094;
   color: #082338;
   border: 1px solid #082338;
 }

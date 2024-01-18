@@ -22,13 +22,13 @@
 
 .upload-btn {
   background-color: white;
-  color: #ff6600;
+  color: #006094;
   cursor: pointer;
   padding: 10px;
   border-radius: 20px;
 }
 
 .upload-btn:hover {
-  background-color: #ff6600;
+  background-color: #006094;
   color: white;
 }

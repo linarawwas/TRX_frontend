@@ -32,7 +32,7 @@
   border: 1px solid #082338;
   padding: 10px;
   border-radius: 30px;
-  background-color: #ff6600;
+  background-color: #006094;
  color: #082338;
   font-weight: bold;
   cursor: pointer;
@@ -40,7 +40,7 @@
 }
 
 .shipments-list button:hover {
-  background-color: #FFA500;
+  background-color: #006094;
   color: black;
   box-shadow: 1px 1px 10px 10px rgb(20, 20, 19);
 
