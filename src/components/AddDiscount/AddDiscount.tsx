@@ -107,6 +107,7 @@ const AddDiscount: React.FC = () => {
       .then(data => {
         // Handle success response
         console.log('Data sent successfully:', data);
+        console.log("customer id: ",formData.customerId)
         toast.success('Customer Discount Saved Successfully!')
       })
       .catch(error => {
@@ -138,8 +139,9 @@ const AddDiscount: React.FC = () => {
         Customer:
         <select
           value={formData.customerId}
-          onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+          onChange={(e: ChangeEvent<HTMLSelectElement>) =>{
             handleInputChange('customerId', e.target.value)
+          }
           }
         >
           <option value="">Select a customer</option>
