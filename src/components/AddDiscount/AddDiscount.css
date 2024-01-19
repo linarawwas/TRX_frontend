@@ -1,0 +1,62 @@
+
+.add-discount-container {
+    padding: 10px;
+    border: 1px solid rgb(8, 20, 43);
+    width: 20%;
+    box-shadow: 1px 1px 2px #006094;
+    margin: 10px auto;
+    border-radius: 7px;
+}
+
+.add-discount-container .title {
+    text-align: center;
+}
+
+.add-discount-container form {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+}
+
+.add-discount-container form input,
+.add-discount-container form select {
+    padding: 10px;
+    margin: 5px;
+
+}
+
+.add-discount-container form button {
+    padding: 10px;
+    margin: 5px;
+    border-radius: 7px;
+    box-shadow: 1px 1px 2px #006094;
+    color: black;
+    background-color: #006094;
+}
+
+.add-discount-container form button:hover {
+    color: white;
+    background-color: #0d94dd;
+    cursor: pointer;
+}
+
+@media (max-width: 600px) {
+
+    .add-discount-container {
+        padding: 4px;
+        width: 70%;
+        box-shadow: 1px 1px 2px #006094
+    }
+
+    .add-discount-container .title {
+        font-size: 30px;
+    }
+
+    .add-discount-container form input,
+    .add-discount-container form select {
+        padding: 9px;
+        margin: 6px;
+        width: fit-content;
+    }
+
+}

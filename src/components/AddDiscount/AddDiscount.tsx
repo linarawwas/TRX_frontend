@@ -2,6 +2,7 @@ import React, { useState, useEffect, ChangeEvent } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { toast } from 'react-toastify';
+import './AddDiscount.css';
 interface Area {
   _id: string;
   name: string;
@@ -107,7 +108,7 @@ const AddDiscount: React.FC = () => {
       .then(data => {
         // Handle success response
         console.log('Data sent successfully:', data);
-        console.log("customer id: ",formData.customerId)
+        console.log("customer id: ", formData.customerId)
         toast.success('Customer Discount Saved Successfully!')
       })
       .catch(error => {
@@ -117,77 +118,79 @@ const AddDiscount: React.FC = () => {
   };
 
   return (
-    <div>
-      <label>
-        Area:
-        <select
-          value={formData.areaId}
-          onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-            handleInputChange('areaId', e.target.value)
-          }
-        >
-          <option value="">Select an area</option>
-          {areaOptions.map(area => (
-            <option key={area._id} value={area._id}>
-              {area.name}
-            </option>
-          ))}
-        </select>
-      </label>
+    <div className='add-discount-container'>
+      <h1 className="title">Add Customer Discount</h1>
+      <form>
 
-      <label>
-        Customer:
-        <select
-          value={formData.customerId}
-          onChange={(e: ChangeEvent<HTMLSelectElement>) =>{
-            handleInputChange('customerId', e.target.value)
-          }
-          }
-        >
-          <option value="">Select a customer</option>
-          {customerOptions.map(customer => (
-            <option key={customer._id} value={customer._id}>
-              {customer.name}
-            </option>
-          ))}
-        </select>
-      </label>
+        <label>
+          Area:
+          <select
+            value={formData.areaId}
+            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+              handleInputChange('areaId', e.target.value)
+            }
+          >
+            <option value="">Select an area</option>
+            {areaOptions.map(area => (
+              <option key={area._id} value={area._id}>
+                {area.name}
+              </option>
+            ))}
+          </select>
+        </label>
 
-      <label>
-        Explain Briefly:
-        <textarea
-          value={formData.noteAboutCustomer}
-          onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
-            handleInputChange('noteAboutCustomer', e.target.value)
-          }
-        />
-      </label>
+        <label>
+          Customer:
+          <select
+            value={formData.customerId}
+            onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+              handleInputChange('customerId', e.target.value)
+            }
+            }
+          >
+            <option value="">Select a customer</option>
+            {customerOptions.map(customer => (
+              <option key={customer._id} value={customer._id}>
+                {customer.name}
+              </option>
+            ))}
+          </select>
+        </label>
 
-      <label>
-        Discount Currency:
-        <select
-          value={formData.discountCurrency}
-          onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-            handleInputChange('discountCurrency', e.target.value)
-          }
-        >
-          <option value="USD">USD</option>
-          <option value="LBP">LBP</option>
-        </select>
-      </label>
+        <label>
+          Explain Briefly:
+          <textarea
+            value={formData.noteAboutCustomer}
+            onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+              handleInputChange('noteAboutCustomer', e.target.value)
+            }
+          />
+        </label>
+        <label>
+          Value After Discount:
+          <input
+            type="number"
+            value={formData.valueAfterDiscount || ''}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              handleInputChange('valueAfterDiscount', e.target.value)
+            }
+          />
+        </label>
+        <label>
+          Discount Currency:
+          <select
+            value={formData.discountCurrency}
+            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+              handleInputChange('discountCurrency', e.target.value)
+            }
+          >
+            <option value="USD">USD</option>
+            <option value="LBP">LBP</option>
+          </select>
+        </label>
+        <button onClick={handleSubmit}>Submit</button>
+      </form>
 
-      <label>
-        Value After Discount:
-        <input
-          type="number"
-          value={formData.valueAfterDiscount || ''}
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            handleInputChange('valueAfterDiscount', e.target.value)
-          }
-        />
-      </label>
-
-      <button onClick={handleSubmit}>Submit</button>
     </div>
   );
 };
