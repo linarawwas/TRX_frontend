@@ -58,7 +58,7 @@ const AddDiscount: React.FC = () => {
       .then(response => response.json())
       .then(data => setExchangeRate(data.exchangeRateInLBP))
       .catch(error => console.error('Error fetching exchange rate:', error));
-  }, [token]);
+  }, []);
 
   // Fetch customers based on selected area
   useEffect(() => {
@@ -77,12 +77,15 @@ const AddDiscount: React.FC = () => {
   const handleInputChange = (field: keyof FormData, value: string | boolean) => {
     if (field === 'discountCurrency' && value !== 'USD') {
       // Convert valueAfterDiscount to USD using exchange rate
+      console.log(exchangeRate);
+
       const convertedValue = formData.valueAfterDiscount! / exchangeRate;
       setFormData(prevData => ({
         ...prevData,
         discountCurrency: 'USD',
         valueAfterDiscount: convertedValue,
       }));
+      console.log(convertedValue);
     } else {
       setFormData(prevData => ({
         ...prevData,
@@ -177,7 +180,7 @@ const AddDiscount: React.FC = () => {
           type="number"
           value={formData.valueAfterDiscount || ''}
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            handleInputChange('valueAfterDiscount', parseFloat(e.target.value))
+            handleInputChange('valueAfterDiscount', e.target.value)
           }
         />
       </label>
