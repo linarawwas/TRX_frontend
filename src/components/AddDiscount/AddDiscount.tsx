@@ -1,6 +1,7 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
+import { toast } from 'react-toastify';
 interface Area {
   _id: string;
   name: string;
@@ -103,6 +104,7 @@ const AddDiscount: React.FC = () => {
       .then(data => {
         // Handle success response
         console.log('Data sent successfully:', data);
+        toast.success('Customer Discount Saved Successfully!')
       })
       .catch(error => {
         // Handle error
