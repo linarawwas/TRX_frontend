@@ -6,8 +6,6 @@ import './ProductsList.css';
 import '../../components/Customers/CustomerInvoices/CustomerInvoices.css'
 import SpinLoader from '../../components/UI reusables/SpinLoader/SpinLoader.jsx';
 import AddProducts from '../../components/Products/AddProducts.tsx';
-import DefaultProducts from '../../components/Products/DefaultProduct.js';
-import UpdateDefaultProduct from '../../components/Products/UpdateDefaultProduct.js';
 interface Product {
     _id: string;
     type: string;
@@ -120,8 +118,6 @@ const ProductsList: React.FC = () => {
                     <p>No  products found for this company</p>
                 )}
             {renderPagination()}
-            {/* <DefaultProducts /> */}
-{/* <UpdateDefaultProduct products={products} companyId={companyId} /> */}
         </div>
     );
 };

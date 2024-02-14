@@ -1,19 +1,19 @@
 .customer-for-area-record-button {
-    font-size: 20px;
-    padding: 0;
-    background-color: transparent;
+  font-size: 20px;
+  padding: 0;
+  background-color: transparent;
 }
 
 .table-title {
-    text-align: center;
-    color: white;
-    margin: 10% 0 20px 0;
+  text-align: center;
+  color: white;
+  margin: 10% 0 20px 0;
 }
- .customers-for-area-table{
-    text-align: center;
-    width: 70%;
-    border-collapse: collapse;
-    margin: 0 auto;
+.customers-for-area-table {
+  text-align: center;
+  width: 70%;
+  border-collapse: collapse;
+  margin: 0 auto;
 }
 
 .customers-for-area-table th,
@@ -24,18 +24,28 @@
 }
 
 .customers-for-area-table th {
-   
   font-weight: bold;
 }
 
-.customers-for-area-table tbody tr {
-  background-color: #f8f8f8;
+.customer-with-filled-order {
+  background-color: rgb(37, 134, 37);
+}
+
+.customer-with-empty-order {
+  background-color: rgb(221, 66, 66);
+}
+.customer-with-filled-order td,
+.customer-with-empty-order td {
+  color: white;
+  font-weight: bold;
+  text-transform: capitalize;
+  text-decoration: underline;
 }
 @media only screen and (max-width: 600px) {
-    .customers-for-area-table {
-        margin: 0 auto;
-    }
-    .table-title {
-        margin: 25% 0 20px 0;
-    }
+  .customers-for-area-table {
+    margin: 0 auto;
+  }
+  .table-title {
+    margin: 25% 0 20px 0;
+  }
 }

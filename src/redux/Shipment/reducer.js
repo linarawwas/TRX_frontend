@@ -24,17 +24,19 @@ import {
   SET_SHIPMENT_PROFITS_IN_USD,
   SET_SHIPMENT_EXPENSES_IN_LIRAS,
   SET_SHIPMENT_PROFITS_IN_LIRAS,
+  ADD_CUSTOMER_WITH_FILLED_ORDER,
+  ADD_CUSTOMER_WITH_EMPTY_ORDER,
 } from "./actionTypes";
 
 const initialState = {
-  _id: '',
-  dayId: '',
+  _id: "",
+  dayId: "",
   year: null,
   month: null,
   day: null,
   target: 0,
-  prev_id: '',
-  prev_dayId: '',
+  prev_id: "",
+  prev_dayId: "",
   prev_year: null,
   prev_month: null,
   prev_day: null,
@@ -55,6 +57,10 @@ const initialState = {
   prev_profitsInLiras: 0,
   prev_profitsInUSD: 0,
   prev_expensesInUSD: 0,
+  CustomersWithFilledOrders: [],
+  CustomersWithEmptyOrders: [],
+  prev_CustomersWithFilledOrders: [],
+  prev_CustomersWithEmptyOrders: [],
 };
 
 const shipmentReducer = (state = initialState, action) => {
@@ -68,6 +74,22 @@ const shipmentReducer = (state = initialState, action) => {
       return {
         ...state,
         payments: action.payload,
+      };
+    case ADD_CUSTOMER_WITH_FILLED_ORDER:
+      return {
+        ...state,
+        CustomersWithFilledOrders: [
+          ...state.CustomersWithFilledOrders,
+          action.payload,
+        ],
+      };
+    case ADD_CUSTOMER_WITH_EMPTY_ORDER:
+      return {
+        ...state,
+        CustomersWithEmptyOrders: [
+          ...state.CustomersWithEmptyOrders,
+          action.payload,
+        ],
       };
     case SET_SHIPMENT_FROM_PREV:
       return {
@@ -86,6 +108,11 @@ const shipmentReducer = (state = initialState, action) => {
         expensesInUSD: state.prev_expensesInUSD || state.expensesInUSD,
         expensesInLiras: state.prev_expensesInLiras || state.expensesInLiras,
         profitsInLiras: state.prev_profitsInLiras || state.profitsInLiras,
+        CustomersWithFilledOrders:
+          state.prev_CustomersWithFilledOrders ||
+          state.CustomersWithFilledOrders,
+        CustomersWithEmptyOrders:
+          state.prev_CustomersWithEmptyOrders || state.CustomersWithEmptyOrders,
       };
 
     case SET_USD_PAYMENTS:
@@ -156,7 +183,7 @@ const shipmentReducer = (state = initialState, action) => {
     case CLEAR_DAY_ID:
       return {
         ...state,
-        dayId: '',
+        dayId: "",
       };
     case CLEAR_DATE_MONTH:
       return {
@@ -212,8 +239,8 @@ const shipmentReducer = (state = initialState, action) => {
         prev_profitsInLiras: state.profitsInLiras,
         prev_profitsInUSD: state.profitsInUSD,
         prev_expensesInUSD: state.expensesInUSD,
-        _id: '',
-        dayId: '',
+        _id: "",
+        dayId: "",
         year: null,
         month: null,
         day: null,
@@ -227,6 +254,8 @@ const shipmentReducer = (state = initialState, action) => {
         profitsInLiras: 0,
         expensesInUSD: 0,
         profitsInUSD: 0,
+        CustomersWithFilledOrders: [],
+        CustomersWithEmptyOrders: [],
       };
     default:
       return state;

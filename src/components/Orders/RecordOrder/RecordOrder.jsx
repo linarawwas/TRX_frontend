@@ -4,6 +4,8 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector, useDispatch } from "react-redux";
 import {
+  addCustomerWithEmptyOrder,
+  addCustomerWithFilledOrder,
   setShipmentDelivered,
   setShipmentPayments,
   setShipmentPaymentsInDollars,
@@ -119,6 +121,12 @@ const RecordOrder = (props) => {
         dispatch(
           setShipmentPayments(totalPayments + parseInt(responseData.paid))
         );
+        // Check delivered value and dispatch appropriate action
+        if (parseInt(orderData.delivered) > 0) {
+          dispatch(addCustomerWithFilledOrder(customerId));
+        } else {
+          dispatch(addCustomerWithEmptyOrder(customerId));
+        }
         toast.success("Order successfully recorded.");
         navigate(-1);
       } else {
@@ -127,6 +135,7 @@ const RecordOrder = (props) => {
       }
     } catch (error) {
       toast.error("Network error:", error);
+      console.log(error)
     }
   };
 
@@ -263,9 +272,6 @@ const RecordOrder = (props) => {
             onChange={handleChange}
           />
         </div>
-        {/* Currency Selection Buttons */}
-
-        {/* Record Order Button */}
         <button className="record-order-button" type="submit">
           Record
         </button>
