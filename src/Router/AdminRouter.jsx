@@ -9,7 +9,7 @@ import Addresses from '../Pages/Addresses/Addresses.tsx';
 import AreasForDay from '../Pages/AreasForDay/AreasForDay.tsx'
 import CustomersForArea from '../Pages/CustomersForArea/CustomersForArea.tsx';
 import AddArea from '../components/Areas/AddArea/AddArea.tsx';
-import Login from '../components/Auth/Login.tsx';
+import Login from '../Pages/Login/Login.tsx';
 import UpdateOrder from '../components/Orders/UpdateOrder/UpdateOrder.tsx';
 import UpdateCustomer from '../components/Customers/UpdateCustomer/UpdateCustomer.tsx';
 import AddExpenses from '../components/Expenses/AddExpenses/AddExpenses.tsx';

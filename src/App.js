@@ -1,5 +1,5 @@
 import React, { useDebugValue, useEffect, useState } from "react";
-import Login from "./components/Auth/Login";
+import Login from "./Pages/Login/Login";
 import Layout from "./Layout/Layout";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import { setToken } from './redux/UserInfo/action.js'
