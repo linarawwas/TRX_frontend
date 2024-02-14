@@ -16,7 +16,7 @@ const AddProfits: React.FC = () => {
   const shipmentProfitsInUSD = useSelector((state: any) => state.shipment.profitsInUSD)
   const handleSubmit = async (formData: any) => {
     try {
-      const response = await fetch('http://localhost:5000/api/extraProfits', {
+      const response = await fetch('https://api.trx-bi.com/api/extraProfits', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

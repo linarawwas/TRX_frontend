@@ -32,7 +32,7 @@ const Expenses: React.FC = () => {
     useEffect(() => {
         const fetchExpenses = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/expenses/company/${companyId}`, {
+                const response = await axios.get(`https://api.trx-bi.com/api/expenses/company/${companyId}`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
@@ -89,7 +89,7 @@ const Expenses: React.FC = () => {
     };
     const handleDeleteExpense = async (expenseId: string) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/expenses/${expenseId}`, {
+            const response = await fetch(`https://api.trx-bi.com/api/expenses/${expenseId}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${token}`,

@@ -23,7 +23,7 @@ export default function AreasForDay(): JSX.Element {
     dispatch(clearAreaId());
   
     // Fetch areas data for the specified day
-    fetch(`http://localhost:5000/api/areas/days/${dayId}`, {
+    fetch(`https://api.trx-bi.com/api/areas/days/${dayId}`, {
       method: 'POST', // Assuming you're sending the companyId in the request body
       headers: {
         Authorization: `Bearer ${token}`,
@@ -44,7 +44,7 @@ export default function AreasForDay(): JSX.Element {
   
   useEffect(() => {
     // Fetch name of the specified day
-    fetch(`http://localhost:5000/api/days/${dayId}`, {
+    fetch(`https://api.trx-bi.com/api/days/${dayId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

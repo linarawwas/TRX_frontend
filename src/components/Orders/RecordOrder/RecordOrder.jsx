@@ -27,7 +27,7 @@ const RecordOrder = (props) => {
   useEffect(() => {
     // Send the defaultProduct to another API endpoint to retrieve product _id
     fetch(
-      `http://localhost:5000/api/products/productType/company/${companyId}`,
+      `https://api.trx-bi.com/api/products/productType/company/${companyId}`,
       {
         method: "POST",
         headers: {
@@ -60,7 +60,7 @@ const RecordOrder = (props) => {
     areaId: areaId,
     paid: 0,
     productId: productId,
-    paymentCurrency: "",
+    paymentCurrency: "USD",
     exchangeRate: "6537789b6ed59ef09c18213d",
     companyId: companyId,
     shipmentId: shipmentId,
@@ -85,7 +85,7 @@ const RecordOrder = (props) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:5000/api/orders", {
+      const response = await fetch("https://api.trx-bi.com/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -122,10 +122,14 @@ const RecordOrder = (props) => {
           setShipmentPayments(totalPayments + parseInt(responseData.paid))
         );
         // Check delivered value and dispatch appropriate action
-        if (parseInt(orderData.delivered) > 0) {
-          dispatch(addCustomerWithFilledOrder(customerId));
-        } else {
+        if (
+          parseInt(orderData.delivered) === 0 &&
+          parseInt(orderData.returned) === 0 &&
+          parseInt(orderData.paid) === 0
+        ) {
           dispatch(addCustomerWithEmptyOrder(customerId));
+        } else {
+          dispatch(addCustomerWithFilledOrder(customerId));
         }
         toast.success("Order successfully recorded.");
         navigate(-1);
@@ -135,7 +139,7 @@ const RecordOrder = (props) => {
       }
     } catch (error) {
       toast.error("Network error:", error);
-      console.log(error)
+      console.log(error);
     }
   };
 
