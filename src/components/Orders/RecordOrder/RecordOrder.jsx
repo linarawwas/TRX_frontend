@@ -23,41 +23,26 @@ const RecordOrder = (props) => {
   const companyId = useSelector((state) => state.user.companyId);
   // const [products, setProducts] = useState([]); since the admin chose to only have one product default, no product array will be mapped
   useEffect(() => {
-    fetch("http://localhost:5000/api/adminDeterminedDefaults/defaultProduct", {
-      method: "GET", // Assuming this endpoint uses a GET request method
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    // Send the defaultProduct to another API endpoint to retrieve product _id
+    fetch(
+      `http://localhost:5000/api/products/productType/company/${companyId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          type: "Bottles", // Send the value obtained from adminDeterminedProducts as type
+        }),
+      }
+    )
       .then((response) => response.json())
-      .then((data) => {
-        // Send the defaultProduct to another API endpoint to retrieve product _id
-        fetch(
-          `http://localhost:5000/api/products/productType/company/${companyId}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              type: data.value, // Send the value obtained from adminDeterminedProducts as type
-            }),
-          }
-        )
-          .then((response) => response.json())
-          .then((productData) => {
-            dispatch(setProductId(productData.id));
-            dispatch(setProductName(productData.type));
-            dispatch(setProductPrice(productData.priceInDollars));
-            // Perform operations with the obtained product _id here if needed
-          })
-          .catch((error) => {
-            console.error("Error fetching product:", error);
-          });
-      })
-      .catch((error) => {
-        console.error("Error fetching adminDeterminedProducts:", error);
+      .then((productData) => {
+        dispatch(setProductId(productData.id));
+        dispatch(setProductName(productData.type));
+        dispatch(setProductPrice(productData.priceInDollars));
+        // Perform operations with the obtained product _id here if needed
       });
   }, [token, dispatch, companyId]);
   const customerId = useSelector((state) => state.order.customer_Id);
