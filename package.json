@@ -1,5 +1,6 @@
 {
-  "name": "order-distribution-company-tracking-app",
+  "name": "trx-bi",
+  "homepage": "https://portal.trx-bi.com",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

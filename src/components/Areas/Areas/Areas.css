@@ -26,7 +26,7 @@
   margin: 10px;
   border: 1px solid #082338;
   border-radius: 30px;
-  background-color: #006094;
+  background-color: #1f8ceb;
   color: white;
   text-transform: uppercase;
   font-weight: bold;
@@ -67,7 +67,7 @@
 
 .areas-div .area-link:hover {
   font-weight: bold;
-  color: #006094;
+  color: #1f8ceb;
   border: 1px solid #082338;
 }
 

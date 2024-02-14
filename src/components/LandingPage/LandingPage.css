@@ -14,12 +14,13 @@
 }
 
 .show-form-li {
+  color: white;
   cursor: pointer;
   border: 1px solid rgb(4, 18, 26);
-  box-shadow: 1px 1px 2px #006094;
+  box-shadow: 1px 1px 2px #1f8ceb;
   width: fit-content;
   height: fit-content;
-  background-color: #006094;
+  background-color: #1f8ceb;
   padding: 3px;
 }
 
@@ -65,7 +66,7 @@ h1 {
   padding: 10px;
   border-radius: 20px;
   font-size: 18px;
-  color: #082338;
+  color: white;
 }
 
 .feature-section h2 {
@@ -118,7 +119,7 @@ h1 {
     margin: 5px;
     padding: 5px;
     font-size: 16px;
-    color: #082338;
+    color: white;
   }
 
   .hero-section h1 {

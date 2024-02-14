@@ -20,7 +20,7 @@
 
 .show-add-products:hover {
     background-color: #082338;
-    color: #006094;
+    color: #1f8ceb;
 }
 
 .select-default-div {
@@ -39,7 +39,7 @@
     margin: 10px;
     border: 1px solid #082338;
     border-radius: 30px;
-    background-color: #006094;
+    background-color: #1f8ceb;
     color: white;
     text-transform: uppercase;
     font-weight: bold;

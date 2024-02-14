@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { clearAreaId, setAreaId } from "../../../redux/Order/action";
 import './AreasForDay.css';
+import { RootState } from "../../../redux/store";
 
 interface Area {
   _id: string;
@@ -11,7 +12,8 @@ interface Area {
 
 export default function AreasForDay(): JSX.Element {
   const dispatch = useDispatch();
-  const token: string = useSelector((state: any) => state.user.token);
+  const companyId = useSelector((state: RootState) => state.user.companyId);
+  const token: string = useSelector((state: RootState) => state.user.token);
   const { dayId } = useParams();
   const [areas, setAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -19,15 +21,18 @@ export default function AreasForDay(): JSX.Element {
 
   useEffect(() => {
     dispatch(clearAreaId());
-
+  
     // Fetch areas data for the specified day
     fetch(`http://localhost:5000/api/areas/days/${dayId}`, {
+      method: 'POST', // Assuming you're sending the companyId in the request body
       headers: {
         Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json', // Specify content type if sending JSON data
       },
+      body: JSON.stringify({ companyId }), // Send companyId in the request body
     })
       .then((response) => response.json())
-      .then((data: Area[]) => {
+      .then((data) => {
         setAreas(data);
         setLoading(false);
       })
@@ -35,8 +40,8 @@ export default function AreasForDay(): JSX.Element {
         console.error('Error fetching areas:', error);
         setLoading(false);
       });
-  }, [dayId, dispatch, token]);
-
+  }, [dayId, companyId,dispatch, token]);
+  
   useEffect(() => {
     // Fetch name of the specified day
     fetch(`http://localhost:5000/api/days/${dayId}`, {

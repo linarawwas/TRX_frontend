@@ -2,7 +2,7 @@
     padding: 10px;
     border: 1px solid rgb(8, 20, 43);
     width: 20%;
-    box-shadow: 1px 1px 2px #006094;
+    box-shadow: 1px 1px 2px #1f8ceb;
     margin: 10px auto;
     border-radius: 7px;
 }
@@ -28,9 +28,9 @@
     padding: 10px;
     margin: 5px;
     border-radius: 7px;
-    box-shadow: 1px 1px 2px #006094;
+    box-shadow: 1px 1px 2px #1f8ceb;
     color: black;
-    background-color: #006094;
+    background-color: #1f8ceb;
 }
 
 .add-model-form button:hover {
@@ -44,7 +44,7 @@
     .add-model-container {
         padding: 4px;
         width: 70%;
-        box-shadow: 1px 1px 2px #006094
+        box-shadow: 1px 1px 2px #1f8ceb
     }
 
     .add-model-title {

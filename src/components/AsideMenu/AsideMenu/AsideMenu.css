@@ -65,7 +65,7 @@
   height: 50px;
   border-radius: 20px;
   border: none;
-  color: #006094;
+  color: #1f8ceb;
   cursor: pointer;
   display: block;
   z-index: 100;
@@ -105,7 +105,7 @@
 
 .logout-button {
   padding: 10px;
-  background-color: #006094;
+  background-color: #1f8ceb;
   color: #082338;
   border: none;
   border-radius: 20px;
@@ -117,7 +117,7 @@
 }
 
 .logout-button:hover {
-  background-color: #006094;
+  background-color: #1f8ceb;
   color: white;
   border: 1px solid #082338;
 }
