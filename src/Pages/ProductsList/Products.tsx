@@ -24,7 +24,7 @@ const ProductsList: React.FC = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await axios.get(`https://api.trx-bi.com/api/products/company/${companyId}`, {
+                const response = await axios.get(`http://localhost:5000/api/products/company/${companyId}`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
@@ -64,7 +64,7 @@ const ProductsList: React.FC = () => {
 
     const handleDeleteExpense = async (productId: string) => {
         try {
-            const response = await fetch(`https://api.trx-bi.com/api/products/${productId}`, {
+            const response = await fetch(`http://localhost:5000/api/products/${productId}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${token}`,

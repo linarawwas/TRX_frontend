@@ -33,7 +33,7 @@ const AddRecords: React.FC = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch(`https://api.trx-bi.com/api/${nameOfModel}`, {
+      const response = await fetch(`http://localhost:5000/api/${nameOfModel}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

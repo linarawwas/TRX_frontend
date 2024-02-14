@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import '../../../Pages/Shipment/ShipmentsList.css';
-import { useSelector } from 'react-redux';
-import { ToastContainer, toast } from 'react-toastify';
-import SpinLoader from '../../UI reusables/SpinLoader/SpinLoader';
+import React, { useEffect, useState } from "react";
+import "../../../Pages/Shipment/ShipmentsList.css";
+import { useSelector } from "react-redux";
+import { ToastContainer, toast } from "react-toastify";
+import SpinLoader from "../../UI reusables/SpinLoader/SpinLoader";
+import { RootState } from "../../../redux/store";
 
 interface ShipmentData {
   _id: string;
@@ -34,10 +35,17 @@ const CurrentShipmentStat: React.FC = () => {
     toast.error(errorMessage);
   };
 
-
-  const [fromDate, setFromDate] = useState<DateObject>({ day: null, month: null, year: null });
-  const [toDate, setToDate] = useState<DateObject>({ day: null, month: null, year: null });
-
+  const [fromDate, setFromDate] = useState<DateObject>({
+    day: null,
+    month: null,
+    year: null,
+  });
+  const [toDate, setToDate] = useState<DateObject>({
+    day: null,
+    month: null,
+    year: null,
+  });
+  const companyId = useSelector((state: RootState) => state.user.companyId);
   const formatDateObject = (dateObject: DateObject): DateObject => {
     const { day, month, year } = dateObject;
     return {
@@ -55,45 +63,51 @@ const CurrentShipmentStat: React.FC = () => {
 
   const token = useSelector((state: any) => state.user.token);
   const [isLoading, setIsLoading] = useState(false);
-
   const [shipments, setShipments] = useState<ShipmentData[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [shipmentsPerPage] = useState(1);
-
-  const indexOfLastShipment = currentPage * shipmentsPerPage;
-  const indexOfFirstShipment = indexOfLastShipment - shipmentsPerPage;
-  const currentShipments = shipments.slice(indexOfFirstShipment, indexOfLastShipment);
 
   const fetchShipments = async (fromDate: DateObject, toDate: DateObject) => {
     const formattedFromDate = formatDateObject(fromDate);
     const formattedToDate = formatDateObject(toDate);
 
-    if (!formattedFromDate.day || !formattedFromDate.month || !formattedFromDate.year ||
-      !formattedToDate.day || !formattedToDate.month || !formattedToDate.year) {
-      console.error('Please select both From and To dates.');
+    if (
+      !formattedFromDate.day ||
+      !formattedFromDate.month ||
+      !formattedFromDate.year ||
+      !formattedToDate.day ||
+      !formattedToDate.month ||
+      !formattedToDate.year
+    ) {
+      console.error("Please select both From and To dates.");
       return;
     }
     try {
       setIsLoading(true); // Set loading state to true before fetching
 
-      const response = await fetch(`https://api.trx-bi.com/api/shipments/range`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ fromDate: formattedFromDate, toDate: formattedToDate }),
-      });
+      const response = await fetch(
+        `http://localhost:5000/api/shipments/range`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            companyId: companyId,
+            fromDate: formattedFromDate,
+            toDate: formattedToDate,
+          }),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch shipments');
+        throw new Error("Failed to fetch shipments");
       }
 
       const { shipments: fetchedShipments } = await response.json();
       setShipments(fetchedShipments);
     } catch (error) {
-      console.error('Error fetching shipments:', error);
-      notifyError('Failed to fetch shipments. Please try again.');
+      console.error("Error fetching shipments:", error);
+      notifyError("Failed to fetch shipments. Please try again.");
     } finally {
       setIsLoading(false); // Set loading state to false after fetching (success or error)
     }
@@ -130,7 +144,14 @@ const CurrentShipmentStat: React.FC = () => {
 
   // Fetch shipments whenever the fromDate or toDate changes
   useEffect(() => {
-    if (fromDate && toDate && isSameDay(new Date(), new Date(toDate.year!, toDate.month! - 1, toDate.day!))) {
+    if (
+      fromDate &&
+      toDate &&
+      isSameDay(
+        new Date(),
+        new Date(toDate.year!, toDate.month! - 1, toDate.day!)
+      )
+    ) {
       fetchShipments(fromDate, toDate);
     }
   }, [fromDate, toDate]);
@@ -161,25 +182,31 @@ const CurrentShipmentStat: React.FC = () => {
       totals.shipmentLiraExtraProfits += shipment.shipmentLiraExtraProfits || 0;
       totals.shipmentUSDExtraProfits += shipment.shipmentUSDExtraProfits || 0;
       totals.shipmentLiraExpenses += shipment.shipmentLiraExpenses || 0;
-      totals.shipmentUSDExpenses += shipment.shipmentUSDExpenses || 0
-
+      totals.shipmentUSDExpenses += shipment.shipmentUSDExpenses || 0;
     });
 
     return totals;
   };
 
   const totals = calculateTotals(); // Calculate totals based on the current shipments
-  const USD_overall = totals.shipmentUSDPayments + totals.shipmentUSDExtraProfits - totals.shipmentUSDExpenses;
-  const LIRA_overall = totals.shipmentLiraPayments + totals.shipmentLiraExtraProfits - totals.shipmentLiraExpenses;
+  const USD_overall =
+    totals.shipmentUSDPayments +
+    totals.shipmentUSDExtraProfits -
+    totals.shipmentUSDExpenses;
+  const LIRA_overall =
+    totals.shipmentLiraPayments +
+    totals.shipmentLiraExtraProfits -
+    totals.shipmentLiraExpenses;
 
   return (
     <div className="shipments-container">
-
       <div className="shipments-list">
         <h2>Here are your shipment stats for today's shipment</h2>
         <ToastContainer position="top-right" autoClose={3000} />
 
-        {isLoading ? (<SpinLoader />) : (
+        {isLoading ? (
+          <SpinLoader />
+        ) : (
           <div className="totals">
             <div>Carried: {totals.carryingForDelivery}</div>
             <div>Delivered: {totals.calculatedDelivered}</div>
@@ -188,7 +215,9 @@ const CurrentShipmentStat: React.FC = () => {
             <div>$ Payments {totals.shipmentUSDPayments}</div>
             <div>Expenses $: {totals.shipmentUSDExpenses}</div>
             <div>Expenses LBP: {totals.shipmentLiraExpenses}</div>
-            <div>Extra Profits $: {totals.shipmentUSDExtraProfits.toFixed(2)}</div>
+            <div>
+              Extra Profits $: {totals.shipmentUSDExtraProfits.toFixed(2)}
+            </div>
             <div>Extra Profits LBP: {totals.shipmentLiraExtraProfits}</div>
             <div>Overall LBP: {LIRA_overall}</div>
             <div>Overall $: {USD_overall}</div>
@@ -200,4 +229,3 @@ const CurrentShipmentStat: React.FC = () => {
 };
 
 export default CurrentShipmentStat;
-

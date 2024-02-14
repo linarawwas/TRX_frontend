@@ -33,7 +33,7 @@ const ExtraProfits: React.FC = () => {
     useEffect(() => {
         const fetchExtraProfits = async () => {
             try {
-                const response = await axios.get(`https://api.trx-bi.com/api/extraProfits/company/${companyId}`, {
+                const response = await axios.get(`http://localhost:5000/api/extraProfits/company/${companyId}`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
@@ -90,7 +90,7 @@ const ExtraProfits: React.FC = () => {
     };
     const handleDeleteProfit = async (profitId: string) => {
         try {
-            const response = await fetch(`https://api.trx-bi.com/api/extraProfits/${profitId}`, {
+            const response = await fetch(`http://localhost:5000/api/extraProfits/${profitId}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${token}`,

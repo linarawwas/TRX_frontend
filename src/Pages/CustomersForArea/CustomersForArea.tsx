@@ -32,7 +32,7 @@ const CustomersForArea = (): JSX.Element => {
     dispatch(clearCustomerId());
 
     // Fetch areas data for the specified day
-    fetch(`https://api.trx-bi.com/api/customers/area/${areaId}`, {
+    fetch(`http://localhost:5000/api/customers/area/${areaId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

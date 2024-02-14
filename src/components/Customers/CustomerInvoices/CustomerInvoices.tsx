@@ -26,7 +26,7 @@ const CustomerInvoices: React.FC = () => {
     useEffect(() => {
         const fetchCustomerInvoices = async () => {
             try {
-                const response = await axios.get(`https://api.trx-bi.com/api/customers/reciept/${customerId}`,
+                const response = await axios.get(`http://localhost:5000/api/customers/reciept/${customerId}`,
                     {
                         method: 'GET',
                         headers: {
