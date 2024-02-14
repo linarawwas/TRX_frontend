@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
+import SpinLoader from '../../components/UI reusables/SpinLoader/SpinLoader';
+import AddProfits from '../../components/Profits/AddProfits/AddProfits';
+import '../../components/Customers/CustomerInvoices/CustomerInvoices.css'
+import './ViewProfits.css'
 import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-import AddExpenses from '../AddExpenses';
-import SpinLoader from '../../../UI reusables/SpinLoader/SpinLoader';
-import './ViewExpenses.css';
-import '../../../Customers/CustomerInvoices/CustomerInvoices.css'
-interface Expenses {
+
+interface ExtraProfit {
     _id: string;
     name: string;
     value: number | string;
@@ -20,39 +21,39 @@ interface Expenses {
     recordedBy: string;
     __v: number;
 }
-const Expenses: React.FC = () => {
+const ExtraProfits: React.FC = () => {
     const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(1);
     const [recordsPerPage] = useState(4);
-    const [showAddExpenses, setShowAddExpenses] = useState<Boolean>(false);
+    const [showAddProfits, setShowAddProfits] = useState<Boolean>(false);
     const companyId = useSelector((state: any) => state.user.companyId);
-    const [extraExpenses, setExpenses] = useState<Expenses[]>([]);
+    const [extraProfits, setExtraProfits] = useState<ExtraProfit[]>([]);
     const [loading, setLoading] = useState(true);
     const token: string = useSelector((state: any) => state.user.token);
     useEffect(() => {
-        const fetchExpenses = async () => {
+        const fetchExtraProfits = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/expenses/company/${companyId}`, {
+                const response = await axios.get(`http://localhost:5000/api/extraProfits/company/${companyId}`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
                 });
                 const data = response.data;
-                setExpenses(data);
+                setExtraProfits(data);
                 setLoading(false);
             } catch (error) {
-                console.error('Error fetching extra expenses:', error);
+                console.error('Error fetching extra profits:', error);
                 setLoading(false);
             }
         }
         if (companyId) {
-            fetchExpenses();
+            fetchExtraProfits();
         }
-    }, [companyId, token, showAddExpenses]);
+    }, [companyId, token, showAddProfits]);
 
     const indexOfLastRecord = currentPage * recordsPerPage;
     const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-    const currentRecords = extraExpenses.slice(indexOfFirstRecord, indexOfLastRecord);
+    const currentRecords = extraProfits.slice(indexOfFirstRecord, indexOfLastRecord);
 
     const paginate = (pageNumber: number) => {
         setCurrentPage(pageNumber);
@@ -61,7 +62,7 @@ const Expenses: React.FC = () => {
     const renderPagination = () => {
         return (
             <ul className="pagination">
-                {Array.from({ length: Math.ceil(extraExpenses.length / recordsPerPage) }, (_, index) => (
+                {Array.from({ length: Math.ceil(extraProfits.length / recordsPerPage) }, (_, index) => (
                     <li key={index} onClick={() => paginate(index + 1)} className={`pagination-item ${currentPage === index + 1 ? 'active' : ''}`}>
                         {index + 1}
                     </li>
@@ -87,9 +88,9 @@ const Expenses: React.FC = () => {
 
         return date.toLocaleString('en-US', options);
     };
-    const handleDeleteExpense = async (expenseId: string) => {
+    const handleDeleteProfit = async (profitId: string) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/expenses/${expenseId}`, {
+            const response = await fetch(`http://localhost:5000/api/extraProfits/${profitId}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -97,60 +98,60 @@ const Expenses: React.FC = () => {
             });
 
             if (response.ok) {
-                toast.success('expense deleted successfully');
+                toast.success('profit deleted successfully');
                 setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
+                window.location.reload();
+            }, 1500);
             } else {
-                toast.error('Error deleting expense');
+                toast.error('Error deleting profit');
             }
         } catch (error) {
-            toast.error('Error deleting expense');
-            console.error('Error deleting expense:', error);
+            toast.error('Error deleting profit');
+            console.error('Error deleting profit:', error);
         }
     };
     return (
-        <div className="extra-expenses">
+        <div className="extra-profits">
             <ToastContainer position="top-right" autoClose={1000} />
 
-            <h2>Extra Expenses</h2>
-            <h3 className='show-add-expenses' onClick={() => { setShowAddExpenses(!showAddExpenses) }}>{showAddExpenses ? "hide form?" : "Add new expenses?"}</h3>
-            {showAddExpenses && <AddExpenses />}
+            <h2>Extra Profits</h2>
+            <h3 className='show-add-profits' onClick={() => { setShowAddProfits(!showAddProfits) }}>{showAddProfits ? "hide form?" : "Add new profits?"}</h3>
+            {showAddProfits && <AddProfits />}
             {loading ? (
                 <SpinLoader />
             ) :
-                extraExpenses.length > 0 ? (
+                extraProfits.length > 0 ? (
                     <div className="receipt-details-container">
-                        {currentRecords.map((expense) => (<div className='receipt-details' key={expense._id}>
+                        {currentRecords.map((profit) => (<div className='receipt-details' key={profit._id}>
                             <div className='container-button-div'>
-                                <button className='delete-btn' onClick={() => { handleDeleteExpense(expense._id) }}>delete</button></div>
+                                <button className='delete-btn' onClick={() => { handleDeleteProfit(profit._id) }}>delete</button></div>
                             <div className='receipt-detail'>
                                 <p className='detail-name'>Name:</p>
-                                <p className='detail-value'>{expense?.name}</p>
+                                <p className='detail-value'>{profit?.name}</p>
                             </div>
                             <div className='receipt-detail'>
                                 <p className='detail-name'>Value:</p>
-                                <p className='detail-value'>{expense?.value}</p>
+                                <p className='detail-value'>{profit?.value}</p>
                             </div>
                             <div className='receipt-detail'>
                                 <p className='detail-name'>Currency:</p>
-                                <p className='detail-value'>{expense?.paymentCurrency}</p>
+                                <p className='detail-value'>{profit?.paymentCurrency}</p>
                             </div>
 
                             <div className='receipt-detail'>
                                 <p className='detail-name'>Value in USD:</p>
-                                <p className='detail-value'>{typeof expense.valueInUSD === 'number' ? expense.valueInUSD.toFixed(2) : expense.valueInUSD}</p>
+                                <p className='detail-value'>{typeof profit.valueInUSD === 'number' ? profit.valueInUSD.toFixed(2) : profit.valueInUSD}</p>
                             </div>
                             <div className='receipt-detail timestamp'>
                                 <p className='detail-name'>Date:</p>
-                                <p className='detail-value'>{formatTimestamp(expense.timestamp)}</p>
+                                <p className='detail-value'>{formatTimestamp(profit.timestamp)}</p>
                             </div>
 
                         </div>
                         ))}
                     </div>
                 ) : (
-                    <p>No extra expenses found for this company</p>
+                    <p>No extra profits found for this company</p>
                 )}
             {renderPagination()}
 
@@ -158,4 +159,4 @@ const Expenses: React.FC = () => {
     );
 };
 
-export default Expenses;
+export default ExtraProfits;

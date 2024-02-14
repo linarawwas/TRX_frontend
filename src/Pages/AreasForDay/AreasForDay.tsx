@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { clearAreaId, setAreaId } from "../../../redux/Order/action";
+import { clearAreaId, setAreaId } from "../../redux/Order/action";
 import './AreasForDay.css';
-import { RootState } from "../../../redux/store";
+import { RootState } from "../../redux/store";
 
 interface Area {
   _id: string;

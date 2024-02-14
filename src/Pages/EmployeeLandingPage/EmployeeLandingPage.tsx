@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import './EmployeeLandingPage.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { RootState } from '../../../redux/store'; // Import the RootState type from your Redux store
-import { clearShipmentInfo } from '../../../redux/Shipment/action';
-import '../../LandingPage/LandingPage.css';
-import FeatureSection from '../../LandingPage/FeatureSection';
+import { RootState } from '../../redux/store'; // Import the RootState type from your Redux store
+import { clearShipmentInfo } from '../../redux/Shipment/action';
+import '../AdminLandingPage/LandingPage.css';
+import FeatureSection from '../../components/LandingPage/FeatureSection';
 const EmployeeLandingPage: React.FC = () => {
   const dispatch = useDispatch();
   const name = useSelector((state: RootState) => state.user.username);

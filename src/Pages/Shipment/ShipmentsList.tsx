@@ -4,7 +4,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useSelector } from 'react-redux';
 import { ToastContainer, toast } from 'react-toastify';
-import SpinLoader from '../UI reusables/SpinLoader/SpinLoader';
+import SpinLoader from '../../components/UI reusables/SpinLoader/SpinLoader';
 
 
 interface ShipmentData {

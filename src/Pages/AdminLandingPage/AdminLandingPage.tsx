@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import './LandingPage.css';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
-import CurrentShipmentStats from './CurrentShipmentStats/CurrentShipmentStat';
-import AdminFeatures from './AdminFeatures';
+import CurrentShipmentStats from '../../components/LandingPage/CurrentShipmentStats/CurrentShipmentStat';
+import AdminFeatures from '../../components/LandingPage/AdminFeatures';
 
-const LandingPage: React.FC = () => {
+const AdminLandingPage: React.FC = () => {
   const name = useSelector((state: RootState) => state.user.username);
   return (
     <div className="landing-page">
@@ -23,4 +23,4 @@ const LandingPage: React.FC = () => {
   );
 };
 
-export default LandingPage;
+export default AdminLandingPage;

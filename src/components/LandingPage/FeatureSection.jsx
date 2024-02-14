@@ -1,11 +1,9 @@
 
 import { useState } from 'react';
-import './LandingPage.css';
+import '../../Pages/AdminLandingPage/LandingPage.css';
 import AddProfits from '../Profits/AddProfits/AddProfits';
 import AddExpenses from '../Expenses/AddExpenses/AddExpenses';
 import { useDispatch } from 'react-redux';
-import { clearShipmentInfo } from '../../redux/Shipment/action';
-import { Link } from 'react-router-dom';
 import StartShipment from '../EmployeeComponents/StartShipment/StartShipment';
 import { FaTimes } from 'react-icons/fa';
 const FeatureSection = () => {

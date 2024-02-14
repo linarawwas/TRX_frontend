@@ -4,8 +4,8 @@ import './Areas.css';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { useSelector } from 'react-redux';
-import AddArea from '../AddArea/AddArea';
-import SpinLoader from '../../UI reusables/SpinLoader/SpinLoader';
+import AddArea from '../../components/Areas/AddArea/AddArea';
+import SpinLoader from '../../components/UI reusables/SpinLoader/SpinLoader';
 
 interface Area {
   _id: string;

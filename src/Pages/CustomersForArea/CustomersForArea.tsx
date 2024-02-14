@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { clearCustomerId, setCustomerId } from "../../../redux/Order/action";
+import { clearCustomerId, setCustomerId } from "../../redux/Order/action";
 import './CustomersForArea.css'
 interface Customer {
   _id: string;

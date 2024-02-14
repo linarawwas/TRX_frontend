@@ -4,10 +4,10 @@ import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Link } from 'react-router-dom';
 import './Customers.css';
 import { useDispatch, useSelector } from 'react-redux';
-import AddCustomers from '../AddCustomers/AddCustomers';
-import AddCustomer from '../AddCustomer/AddCustomer';
-import SpinLoader from '../../UI reusables/SpinLoader/SpinLoader';
-import { clearCustomerId } from '../../../redux/Order/action';
+import AddCustomers from '../../components/Customers/AddCustomers/AddCustomers';
+import AddCustomer from '../../components/Customers/AddCustomer/AddCustomer';
+import SpinLoader from '../../components/UI reusables/SpinLoader/SpinLoader';
+import { clearCustomerId } from '../../redux/Order/action';
 
 interface Customer {
   _id: string;

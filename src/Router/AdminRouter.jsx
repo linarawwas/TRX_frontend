@@ -1,13 +1,13 @@
 import { Route, Routes } from 'react-router-dom';
 import Register from '../components/Auth/Register.tsx';
-import OrdersTable from '../components/Orders/OrdersTable/OrdersTable.tsx';
+import OrdersTable from '../Pages/OrdersTable/OrdersTable.tsx';
 import RecordOrder from '../components/Orders/RecordOrder/RecordOrder.jsx';
 import Days from '../components/Days/Days.tsx';
-import Areas from '../components/Areas/Areas/Areas.tsx';
-import Customers from '../components/Customers/viewCustomers/Customers.tsx';
-import Addresses from '../components/Addresses/Addresses.tsx';
-import AreasForDay from '../components/Areas/AreasForDay/AreasForDay.tsx'
-import CustomersForArea from '../components/Customers/CustomersForArea/CustomersForArea.tsx';
+import Areas from '../Pages/Areas/Areas.tsx';
+import Customers from '../Pages/viewCustomers/Customers.tsx';
+import Addresses from '../Pages/Addresses/Addresses.tsx';
+import AreasForDay from '../Pages/AreasForDay/AreasForDay.tsx'
+import CustomersForArea from '../Pages/CustomersForArea/CustomersForArea.tsx';
 import AddArea from '../components/Areas/AddArea/AddArea.tsx';
 import Login from '../components/Auth/Login.tsx';
 import UpdateOrder from '../components/Orders/UpdateOrder/UpdateOrder.tsx';
@@ -15,12 +15,12 @@ import UpdateCustomer from '../components/Customers/UpdateCustomer/UpdateCustome
 import AddExpenses from '../components/Expenses/AddExpenses/AddExpenses.tsx';
 import AddProfits from '../components/Profits/AddProfits/AddProfits.tsx';
 import AddCustomers from '../components/Customers/AddCustomers/AddCustomers.tsx';
-import ShipmentsList from '../components/Shipment/ShipmentsList.tsx';
-import ExtraProfits from '../components/Profits/ViewProfits/ViewProfits.tsx';
-import Expenses from '../components/Expenses/AddExpenses/ViewExpenses/ViewExpenses.tsx';
-import Products from '../components/Products/Products.tsx';
+import ShipmentsList from '../Pages/Shipment/ShipmentsList.tsx';
+import ExtraProfits from '../Pages/ViewProfits/ViewProfits.tsx';
+import Expenses from '../Pages/ViewExpenses/ViewExpenses.tsx';
+import Products from '../Pages/ProductsList/Products.tsx';
 import CustomerInfo from '../components/Customers/CustomerInfo/CustomerInfo.tsx';
-import AdminLandingPage from '../components/LandingPage/LandingPage.tsx';
+import AdminLandingPage from '../Pages/AdminLandingPage/AdminLandingPage.tsx';
 function AdminRouter() {
   return (
     <>

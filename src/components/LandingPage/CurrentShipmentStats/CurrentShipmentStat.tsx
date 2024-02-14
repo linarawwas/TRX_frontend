@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import '../../Shipment/ShipmentsList.css';
+import '../../../Pages/Shipment/ShipmentsList.css';
 import { useSelector } from 'react-redux';
 import { ToastContainer, toast } from 'react-toastify';
 import SpinLoader from '../../UI reusables/SpinLoader/SpinLoader';

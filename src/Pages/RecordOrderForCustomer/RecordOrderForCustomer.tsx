@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
-import CustomerInvoices from "../../../Customers/CustomerInvoices/CustomerInvoices";
-import RecordOrder from "../RecordOrder";
+import CustomerInvoices from "../../components/Customers/CustomerInvoices/CustomerInvoices";
+import RecordOrder from "../../components/Orders/RecordOrder/RecordOrder";
 import './RecordOrderForCustomer.css'
 import { useEffect, useState } from "react";
 
