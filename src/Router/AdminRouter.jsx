@@ -1,5 +1,4 @@
 import { Route, Routes } from 'react-router-dom';
-import React from 'react';
 import Register from '../components/Auth/Register.tsx';
 import OrdersTable from '../components/Orders/OrdersTable/OrdersTable.tsx';
 import RecordOrder from '../components/Orders/RecordOrder/RecordOrder.jsx';
@@ -11,7 +10,6 @@ import AreasForDay from '../components/Areas/AreasForDay/AreasForDay.tsx'
 import CustomersForArea from '../components/Customers/CustomersForArea/CustomersForArea.tsx';
 import AddArea from '../components/Areas/AddArea/AddArea.tsx';
 import Login from '../components/Auth/Login.tsx';
-import LandingPage from '../components/LandingPage/LandingPage.tsx';
 import UpdateOrder from '../components/Orders/UpdateOrder/UpdateOrder.tsx';
 import UpdateCustomer from '../components/Customers/UpdateCustomer/UpdateCustomer.tsx';
 import AddExpenses from '../components/Expenses/AddExpenses/AddExpenses.tsx';
@@ -22,12 +20,13 @@ import ExtraProfits from '../components/Profits/ViewProfits/ViewProfits.tsx';
 import Expenses from '../components/Expenses/AddExpenses/ViewExpenses/ViewExpenses.tsx';
 import Products from '../components/Products/Products.tsx';
 import CustomerInfo from '../components/Customers/CustomerInfo/CustomerInfo.tsx';
+import AdminLandingPage from '../components/LandingPage/LandingPage.tsx';
 function AdminRouter() {
   return (
     <>
       <div className="userRouter">
         <Routes>
-          <Route index element={<LandingPage />} />
+          <Route index element={<AdminLandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/viewOrders" element={<OrdersTable />} />

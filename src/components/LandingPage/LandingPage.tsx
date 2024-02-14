@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import './LandingPage.css';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
-import FeatureSection from './FeatureSection';
-import SpinLoader from '../UI reusables/SpinLoader/SpinLoader';
 import CurrentShipmentStats from './CurrentShipmentStats/CurrentShipmentStat';
 import AdminFeatures from './AdminFeatures';
 

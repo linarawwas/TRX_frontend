@@ -1,18 +1,23 @@
-import { SET_DEFAULT } from "./actionTypes";
+import { SET_DEFAULT_LANGUAGE, SET_DEFAULT_PRODUCT } from "./actionTypes";
 
 const initialState = {
-  product: '',
-  default:'en'
+  default_product: '',
+  default_language:'en'
 };
 
 const defaultReducer = (state = initialState, action: any) => {
   switch (action.type) {
-    case SET_DEFAULT:
+    case SET_DEFAULT_PRODUCT:
       return {
         ...state,
-        area_Id: action.payload,
+        default_product: action.payload,
       };
-
+      case SET_DEFAULT_LANGUAGE:
+        return {
+          ...state,
+          default_language: action.payload,
+        };
+  
     default:
       return state;
   }
