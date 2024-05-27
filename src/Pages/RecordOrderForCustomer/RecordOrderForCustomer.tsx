@@ -19,7 +19,7 @@ function RecordOrderForCustomer(): JSX.Element {
 
     useEffect(() => {
         setIsLoading(true);
-        fetch(`http://localhost:5000/api/customers/discount/${customerId}`, {
+        fetch(`https://api.trx-bi.com/api/customers/discount/${customerId}`, {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then((response) => response.json())

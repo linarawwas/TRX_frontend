@@ -5,6 +5,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { useSelector } from 'react-redux';
 import { ToastContainer, toast } from 'react-toastify';
 import SpinLoader from '../../components/UI reusables/SpinLoader/SpinLoader';
+import { RootState } from '../../redux/store';
 
 
 interface ShipmentData {
@@ -40,6 +41,7 @@ const ShipmentsList: React.FC = () => {
 
   const [fromDate, setFromDate] = useState<DateObject>({ day: null, month: null, year: null });
   const [toDate, setToDate] = useState<DateObject>({ day: null, month: null, year: null });
+  const companyId = useSelector((state: RootState) => state.user.companyId);
 
   const formatDateObject = (dateObject: DateObject): DateObject => {
     const { day, month, year } = dateObject;
@@ -79,13 +81,13 @@ const ShipmentsList: React.FC = () => {
     try {
       setIsLoading(true); // Set loading state to true before fetching
 
-      const response = await fetch(`http://localhost:5000/api/shipments/range`, {
+      const response = await fetch(`https://api.trx-bi.com/api/shipments/range`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ fromDate: formattedFromDate, toDate: formattedToDate }),
+        body: JSON.stringify({ companyId:companyId, fromDate: formattedFromDate, toDate: formattedToDate }),
       });
 
       if (!response.ok) {

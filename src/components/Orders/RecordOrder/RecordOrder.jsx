@@ -27,7 +27,7 @@ const RecordOrder = (props) => {
   useEffect(() => {
     // Send the defaultProduct to another API endpoint to retrieve product _id
     fetch(
-      `http://localhost:5000/api/products/productType/company/${companyId}`,
+      `https://api.trx-bi.com/api/products/productType/company/${companyId}`,
       {
         method: "POST",
         headers: {
@@ -85,7 +85,7 @@ const RecordOrder = (props) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:5000/api/orders", {
+      const response = await fetch("https://api.trx-bi.com/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

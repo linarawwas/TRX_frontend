@@ -27,7 +27,7 @@ export default function Areas(): JSX.Element {
 
   useEffect(() => {
     // Fetch areas data from your API
-    fetch(`http://localhost:5000/api/areas/company/${companyId}`, {
+    fetch(`https://api.trx-bi.com/api/areas/company/${companyId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
