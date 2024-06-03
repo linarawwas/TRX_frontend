@@ -23,7 +23,7 @@ export default function AreasForDay(): JSX.Element {
     dispatch(clearAreaId());
   
     // Fetch areas data for the specified day
-    fetch(`https://api.trx-bi.com/api/areas/days/${dayId}`, {
+    fetch(`http://localhost:5000/api/areas/days/${dayId}`, {
       method: 'POST', // Assuming you're sending the companyId in the request body
       headers: {
         Authorization: `Bearer ${token}`,
@@ -40,18 +40,24 @@ export default function AreasForDay(): JSX.Element {
         console.error('Error fetching areas:', error);
         setLoading(false);
       });
-  }, [dayId, companyId,dispatch, token]);
+  }, [dayId, companyId, token]);
   
   useEffect(() => {
     // Fetch name of the specified day
-    fetch(`https://api.trx-bi.com/api/days/${dayId}`, {
+    fetch(`http://localhost:5000/api/days/${dayId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
       .then((response) => response.json())
       .then((data) => {
-        setDayName(data.name);
+        setDayName(data?.name);
+        console.log('Fetched areas data:', data); // Log the data
+        if (Array.isArray(data)) {
+          setAreas(data);
+        } else {
+          console.error('Fetched data is not an array:', data);
+        }
         setLoading(false);
       })
       .catch((error) => {
@@ -75,12 +81,12 @@ export default function AreasForDay(): JSX.Element {
         </tbody>
       ) : (
         <tbody>
-          {areas.map((area) => (
-            <tr key={area._id}>
+          {areas?.map((area?) => (
+            <tr key={area?._id}>
               <td>
-                <Link to={`/customers/${area._id}`}>
-                  <button onClick={() => { dispatch(setAreaId(area._id)) }}>
-                    {area.name}
+                <Link to={`/customers/${area?._id}`}>
+                  <button onClick={() => { dispatch(setAreaId(area?._id)) }}>
+                    {area?.name}
                   </button>
                 </Link>
               </td>

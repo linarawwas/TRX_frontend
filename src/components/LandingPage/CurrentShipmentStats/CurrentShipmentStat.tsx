@@ -84,7 +84,7 @@ const CurrentShipmentStat: React.FC = () => {
       setIsLoading(true); // Set loading state to true before fetching
 
       const response = await fetch(
-        `https://api.trx-bi.com/api/shipments/range`,
+        `http://localhost:5000/api/shipments/range`,
         {
           method: "POST",
           headers: {
@@ -155,9 +155,7 @@ const CurrentShipmentStat: React.FC = () => {
       fetchShipments(fromDate, toDate);
     }
   }, [fromDate, toDate]);
-  const paginate = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
-  };
+
   const calculateTotals = () => {
     const totals: Record<string, number> = {
       carryingForDelivery: 0,

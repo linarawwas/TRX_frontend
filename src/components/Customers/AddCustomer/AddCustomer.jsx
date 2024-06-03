@@ -22,7 +22,7 @@ const AddCustomer = () => {
 
   const fetchAreas = async (companyId) => {
     try {
-      const response = await fetch(`https://api.trx-bi.com/api/areas/company/${companyId}`, {
+      const response = await fetch(`http://localhost:5000/api/areas/company/${companyId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -57,7 +57,7 @@ const AddCustomer = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch('https://api.trx-bi.com/api/customers', {
+      const response = await fetch('http://localhost:5000/api/customers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

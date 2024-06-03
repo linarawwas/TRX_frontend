@@ -1,7 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
 import Register from '../components/Auth/Register.tsx';
 import OrdersTable from '../Pages/OrdersTable/OrdersTable.tsx';
-import RecordOrder from '../components/Orders/RecordOrder/RecordOrder.jsx';
 import Days from '../components/Days/Days.tsx';
 import Areas from '../Pages/Areas/Areas.tsx';
 import Customers from '../Pages/viewCustomers/Customers.tsx';
@@ -21,6 +20,7 @@ import Expenses from '../Pages/ViewExpenses/ViewExpenses.tsx';
 import Products from '../Pages/ProductsList/Products.tsx';
 import CustomerInfo from '../components/Customers/CustomerInfo/CustomerInfo.tsx';
 import AdminLandingPage from '../Pages/AdminLandingPage/AdminLandingPage.tsx';
+import RecordOrderForCustomer from '../Pages/RecordOrderForCustomer/RecordOrderForCustomer.tsx';
 function AdminRouter() {
   return (
     <>
@@ -30,7 +30,7 @@ function AdminRouter() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/viewOrders" element={<OrdersTable />} />
-          <Route path="/recordOrder" element={<RecordOrder />} />
+          <Route path="/recordOrderforCustomer" element={<RecordOrderForCustomer />} />
           <Route path="/days" element={<Days />} />
           <Route path="/areas" element={<Areas />} />
           <Route path="/customers" element={<Customers />} />

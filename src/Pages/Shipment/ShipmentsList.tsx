@@ -81,7 +81,7 @@ const ShipmentsList: React.FC = () => {
     try {
       setIsLoading(true); // Set loading state to true before fetching
 
-      const response = await fetch(`https://api.trx-bi.com/api/shipments/range`, {
+      const response = await fetch(`http://localhost:5000/api/shipments/range`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -122,15 +122,15 @@ const ShipmentsList: React.FC = () => {
     };
 
     shipments.forEach((shipment) => {
-      totals.carryingForDelivery += shipment.carryingForDelivery || 0;
-      totals.calculatedDelivered += shipment.calculatedDelivered || 0;
-      totals.calculatedReturned += shipment.calculatedReturned || 0;
-      totals.shipmentLiraPayments += shipment.shipmentLiraPayments || 0;
-      totals.shipmentUSDPayments += shipment.shipmentUSDPayments || 0;
-      totals.shipmentLiraExtraProfits += shipment.shipmentLiraExtraProfits || 0;
-      totals.shipmentUSDExtraProfits += shipment.shipmentUSDExtraProfits || 0;
-      totals.shipmentLiraExpenses += shipment.shipmentLiraExpenses || 0;
-      totals.shipmentUSDExpenses += shipment.shipmentUSDExpenses || 0
+      totals.carryingForDelivery += Number(shipment.carryingForDelivery) || 0;
+      totals.calculatedDelivered += Number(shipment.calculatedDelivered ) || 0;
+      totals.calculatedReturned += Number(shipment.calculatedReturned ) || 0;
+      totals.shipmentLiraPayments += Number(shipment.shipmentLiraPayments ) || 0;
+      totals.shipmentUSDPayments += Number(shipment.shipmentUSDPayments ) || 0;
+      totals.shipmentLiraExtraProfits += Number(shipment.shipmentLiraExtraProfits ) || 0;
+      totals.shipmentUSDExtraProfits += Number(shipment.shipmentUSDExtraProfits ) || 0;
+      totals.shipmentLiraExpenses += Number(shipment.shipmentLiraExpenses ) || 0;
+      totals.shipmentUSDExpenses += Number(shipment.shipmentUSDExpenses ) || 0
 
     });
 

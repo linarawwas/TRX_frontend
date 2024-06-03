@@ -33,7 +33,7 @@ const UpdateDefaultProduct: React.FC<UpdateDefaultProductProps> = ({ products, c
             };
 
             // Update default product based on selectedProduct
-            await axios.put(`https://api.trx-bi.com/api/adminDeterminedDefaults/defaultProduct`, data, {
+            await axios.put(`http://localhost:5000/api/adminDeterminedDefaults/defaultProduct`, data, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }

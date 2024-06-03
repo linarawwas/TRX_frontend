@@ -18,7 +18,7 @@ function AddArea(): JSX.Element {
 
   // Fetch the list of days from your API
   useEffect(() => {
-    fetch(`https://api.trx-bi.com/api/days`, {
+    fetch(`http://localhost:5000/api/days`, {
       headers: {
         Authorization: `Bearer ${token}`,
       }
@@ -52,7 +52,7 @@ function AddArea(): JSX.Element {
 
     try {
       // Send a POST request to your create area endpoint
-      const response = await fetch('https://api.trx-bi.com/api/areas', {
+      const response = await fetch('http://localhost:5000/api/areas', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
