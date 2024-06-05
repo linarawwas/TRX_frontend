@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import './OrdersTable.css';
-import { Carousel } from 'react-responsive-carousel';
-import 'react-responsive-carousel/lib/styles/carousel.min.css';
-import { Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../redux/store'; // Update this path with your types/interfaces
-import SpinLoader from '../../components/UI reusables/SpinLoader/SpinLoader';
+import React, { useState, useEffect } from "react";
+import "./OrdersTable.css";
+import { Carousel } from "react-responsive-carousel";
+import "react-responsive-carousel/lib/styles/carousel.min.css";
+import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store"; // Update this path with your types/interfaces
+import SpinLoader from "../../components/UI reusables/SpinLoader/SpinLoader";
 const OrdersTable: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,7 +67,7 @@ const OrdersTable: React.FC = () => {
 
   useEffect(() => {
     fetch(`http://localhost:5000/api/orders/company/${companyId}`, {
-      method: 'GET',
+      method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -75,13 +75,13 @@ const OrdersTable: React.FC = () => {
       .then((response) => response.json())
       .then((data) => {
         setOrders(data);
+        console.log(orders);
         setLoading(false);
       })
       .catch((error) => {
-        console.error('Error fetching orders:', error);
+        console.error("Error fetching orders:", error);
         setLoading(false);
       });
-
   }, [token, companyId]);
 
   // Number of records to display on each page
@@ -117,8 +117,8 @@ const OrdersTable: React.FC = () => {
   );
 
   return (
-    <div className='ordersBody'>
-      <h2 className='ordersTitle'> Orders</h2>
+    <div className="ordersBody">
+      <h2 className="ordersTitle"> Orders</h2>
       {loading ? (
         <SpinLoader />
       ) : (
@@ -126,6 +126,7 @@ const OrdersTable: React.FC = () => {
           <table className="orders-table">
             <thead>
               <tr>
+                <th>Customer</th>
                 <th>Delivered</th>
                 <th>Returned</th>
                 <th>See More...</th>
@@ -134,13 +135,12 @@ const OrdersTable: React.FC = () => {
             <tbody>
               {ordersForPage.map((order) => (
                 <tr key={order._id}>
+                  <td>{order?.customer?.name}</td>
                   <td>{order?.delivered}</td>
                   <td>{order?.returned}</td>
-                  <td className='link-to-edit'>
+                  <td className="link-to-edit">
                     {/* Create a Link for the action button */}
-                    <Link to={`/updateOrder/${order._id}`}>
-                      📝
-                    </Link>
+                    <Link to={`/updateOrder/${order._id}`}>📝</Link>
                   </td>
                 </tr>
               ))}
@@ -158,10 +158,7 @@ const OrdersTable: React.FC = () => {
                 selectedItem={selectedItem}
               >
                 {Array.from({ length: totalPages }, (_, i) => (
-                  <div
-                    key={i}
-                    onClick={() => handlePageChange(i)}
-                  >
+                  <div key={i} onClick={() => handlePageChange(i)}>
                     Page {i + 1}
                   </div>
                 ))}
