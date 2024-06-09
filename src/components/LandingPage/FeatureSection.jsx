@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import '../../Pages/AdminLandingPage/LandingPage.css';
+import '../../Pages/AdminPages/AdminLandingPage/LandingPage.css';
 import AddProfits from '../Profits/AddProfits/AddProfits';
 import AddExpenses from '../Expenses/AddExpenses/AddExpenses';
 import { useDispatch } from 'react-redux';

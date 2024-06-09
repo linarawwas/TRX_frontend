@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import '../../Pages/AdminLandingPage/LandingPage.css';
+import '../../Pages/AdminPages/AdminLandingPage/LandingPage.css';
 import { useDispatch } from 'react-redux';
 import { FaTimes } from 'react-icons/fa';
 import UpdateExchangeRate from '../ExchangeRate/UpdateExchangeRate';

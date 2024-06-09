@@ -5,8 +5,8 @@ import { useSelector } from "react-redux";
 import { useDispatch } from 'react-redux';
 import EmployeeRouter from "../Router/EmployeeRouter";
 import { setCompanyId, setIsAdmin, setToken, setUsername } from '../redux/UserInfo/action.js'
-import AsideMenuAdmin from "../components/AsideMenu/AsideMenu/AsideMenuAdmin";
-import AsideMenuEmployee from "../components/AsideMenu/AsideMenu/AsideMenuEmployee.tsx";
+import AsideMenuAdmin from "../components/AsideMenu/Left/AsideMenuAdmin.tsx";
+import AsideMenuEmployee from "../components/AsideMenu/Left/AsideMenuEmployee.tsx";
 function Layout() {
   const dispatch = useDispatch();
   const token = localStorage.getItem("token");
@@ -35,7 +35,7 @@ function Layout() {
   }, []);
   return (
     <Fragment>
-      {isAdmin ? <AsideMenuAdmin /> : <AsideMenuEmployee />}
+      {isAdmin ? <AsideMenuAdmin /> : <AsideMenuEmployee/>}
       {isAdmin ? <AdminRouter /> : <EmployeeRouter />}
     </Fragment>
   );
