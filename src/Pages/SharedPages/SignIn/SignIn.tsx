@@ -25,11 +25,8 @@ function Copyright(props: any) {
       {...props}
     >
       {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
+TRX
+      {`\t BY LINA RAWAS ${new Date().getFullYear()}`}
     </Typography>
   );
 }
@@ -157,11 +154,11 @@ export default function SignInSide() {
               alignItems: "center",
             }}
           >
-            <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-              <LockOutlinedIcon />
+            <Avatar sx={{ m: 1, bgcolor: "#1565C0" }}>
+              {<LockOutlinedIcon />}
             </Avatar>
             <Typography component="h1" variant="h5">
-              Sign in
+            يا هلا، معليه بدنا نعزبك تعرفنا عنك
             </Typography>
             <Box
               component="form"
@@ -174,7 +171,7 @@ export default function SignInSide() {
                 required
                 fullWidth
                 id="email"
-                label="Email Address"
+                label="إيميلك لو سمحت"
                 name="email"
                 value={email}
                 onChange={handleChange}
@@ -186,37 +183,22 @@ export default function SignInSide() {
                 required
                 fullWidth
                 name="password"
-                label="Password"
+                label="كلمة السر (مش حنقول لحدا)"
                 type="password"
                 id="password"
                 value={password}
                 onChange={handleChange}
                 autoComplete="current-password"
               />
-              <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
-                label="Remember me"
-              />
+             
               <Button
                 type="submit"
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
               >
-                Sign In
-              </Button>
-              <Grid container>
-                <Grid item xs>
-                  <Link href="#" variant="body2">
-                    Forgot password?
-                  </Link>
-                </Grid>
-                <Grid item>
-                  <Link href="#" variant="body2">
-                    {"Don't have an account? Sign Up"}
-                  </Link>
-                </Grid>
-              </Grid>
+                بتنوّر والله             </Button>
+             
               <Copyright sx={{ mt: 5 }} />
             </Box>
           </Box>
