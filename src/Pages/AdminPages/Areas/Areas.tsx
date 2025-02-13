@@ -6,7 +6,6 @@ import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { useSelector } from 'react-redux';
 import AddArea from '../../../components/Areas/AddArea/AddArea';
 import SpinLoader from '../../../components/UI reusables/SpinLoader/SpinLoader';
-import { saveAreas, getAreas } from '../../../utils/indexedDB';
 
 interface Area {
   _id: string;
@@ -31,16 +30,6 @@ export default function Areas(): JSX.Element {
     async function fetchAreas() {
       setLoading(true);
 
-      if (!navigator.onLine) {
-        // 📌 If offline, get data from IndexedDB
-        const cachedAreas = await getAreas();
-        if (cachedAreas.length > 0) {
-          setAreas(cachedAreas);
-          setLoading(false);
-          return;
-        }
-      }
-
       // 📌 Fetch data from API if online
       fetch(`http://localhost:5000/api/areas/company/${companyId}`, {
         headers: {
@@ -50,7 +39,6 @@ export default function Areas(): JSX.Element {
         .then((response) => response.json())
         .then(async (data: Area[]) => {
           setAreas(data);
-          await saveAreas(data); // ✅ Save data in IndexedDB
           setLoading(false);
         })
         .catch((error) => {
@@ -60,11 +48,6 @@ export default function Areas(): JSX.Element {
     }
 
     fetchAreas();
-
-    // 📌 Sync when the user comes back online
-    const handleOnline = () => fetchAreas();
-    window.addEventListener('online', handleOnline);
-    return () => window.removeEventListener('online', handleOnline);
   }, [token, formVisible]);
 
   const handlePageChange = (newPage: number) => {
