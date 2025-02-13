@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./RecordOrder.css";
+import { saveRequest } from "../../../services/indexedDb"; // Import IndexedDB utilities
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector, useDispatch } from "react-redux";
@@ -84,15 +85,26 @@ const RecordOrder = (props) => {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const response = await fetch("http://localhost:5000/api/orders", {
+    const request = {
+      url: "http://localhost:5000/api/orders",
+      options: {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(orderData),
-      });
+      },
+    };
+    if (!navigator.onLine) {
+      await saveRequest(request);
+      toast.info(
+        "You're offline. Your order will be submitted when you're back online."
+      );
+      return;
+    }
+    try {
+      const response = await fetch(request.url, request.options);
 
       if (response.ok) {
         const responseData = await response.json();
