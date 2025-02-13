@@ -38,7 +38,7 @@ const Register: React.FC = () => {
       if (response.ok) {
         // Registration was successful
         toast.success('User registered successfully');
-        // You can redirect to the login page or handle it as needed
+        // You can redirect to the signIn page or handle it as needed
       } else {
         // Registration failed
         const data = await response.json();
