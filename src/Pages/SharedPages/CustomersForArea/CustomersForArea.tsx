@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import "./CustomersForArea.css";
 import { clearCustomerId, setCustomerId } from "../../../redux/Order/action";
+import { saveCustomersToDB, getCustomersFromDB } from "../../../utils/indexedDB"; // Import the cache functions
+
 interface Customer {
   _id: string;
   name: string;
@@ -19,36 +21,62 @@ const CustomersForArea = (): JSX.Element => {
   const customersWithFilledOrders = useSelector(
     (state: any) => state.shipment?.CustomersWithFilledOrders
   );
-  console.log("customersWithFilledOrders", customersWithFilledOrders);
-
   const customersWithEmptyOrders = useSelector(
     (state: any) => state.shipment?.CustomersWithEmptyOrders
   );
-  console.log("customersWithEmptyOrders", customersWithEmptyOrders);
-
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     dispatch(clearCustomerId());
-
-    // Fetch areas data for the specified day
-    fetch(`http://localhost:5000/api/customers/area/${areaId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((response) => response.json())
-      .then((data: Customer[]) => {
-        setCustomers(data);
-        console.log("number of customers in your company: ", data.length);
-
+  
+    const fetchData = async () => {
+      try {
+        if (navigator.onLine) {
+          const response = await fetch(`http://localhost:5000/api/customers/area/${areaId}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+  
+          if (!response.ok) throw new Error("Network response was not ok");
+  
+          const data: Customer[] = await response.json();
+          setCustomers(data);
+          console.log("Fetched customers from API:", data);
+  
+          // Save data to IndexedDB using the helper function
+          await saveCustomersToDB(areaId!, data);
+        } else {
+          console.log("No internet connection, loading from IndexedDB");
+  
+          // Load from IndexedDB using the helper function
+          const cachedCustomers = await getCustomersFromDB(areaId!);
+          if (cachedCustomers) {
+            console.log("Loaded customers from IndexedDB:", cachedCustomers);
+            setCustomers(cachedCustomers);
+          } else {
+            console.log("No cached customer data found.");
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching customers:", error);
+  
+        // If an error occurs (e.g., no network), load from IndexedDB
+        const cachedCustomers = await getCustomersFromDB(areaId!);
+        if (cachedCustomers) {
+          console.log("Fetched customers from IndexedDB:", cachedCustomers);
+          setCustomers(cachedCustomers);
+        } else {
+          console.log("No cached customer data available.");
+        }
+      } finally {
         setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching areas:", error);
-        setLoading(false);
-      });
+      }
+    };
+  
+    fetchData();
   }, [areaId, token, dispatch]);
-
+  
   const handleOrderState = (customerId: string) => {
     dispatch(setCustomerId(customerId));
     navigate("/recordOrderforCustomer");
@@ -83,7 +111,7 @@ const CustomersForArea = (): JSX.Element => {
                     : ""
                 }
               >
-                <td> {customer.name}</td>
+                <td>{customer.name}</td>
                 <td>{customer.address}</td>
                 <td>{customer.phone}</td>
                 <td>
