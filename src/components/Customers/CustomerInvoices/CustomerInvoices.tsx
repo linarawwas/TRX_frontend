@@ -80,6 +80,7 @@ const CustomerInvoices: React.FC = () => {
             "Loaded receipt data from IndexedDB:",
             cachedInvoiceData
           );
+          setSums(cachedInvoiceData.sums)
         } else {
           console.log("No cached data found.");
         }

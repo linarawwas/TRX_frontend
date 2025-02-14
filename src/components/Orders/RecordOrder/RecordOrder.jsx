@@ -23,7 +23,10 @@ import {
   setProductPrice,
 } from "../../../redux/Order/action";
 import { useNavigate } from "react-router-dom";
-import { getProductTypeFromDB } from "../../../utils/indexedDB";
+import {
+  getProductTypeFromDB,
+  saveProductTypeToDB,
+} from "../../../utils/indexedDB";
 const RecordOrder = (props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -78,12 +81,15 @@ const RecordOrder = (props) => {
           dispatch(setProductName(productData.type));
           dispatch(setProductPrice(productData.priceInDollars));
           // You could also cache this product in IndexedDB here if needed
+          saveProductTypeToDB(companyId, productData);
+          console.log("saved product type to cache: ", productData)
         } catch (error) {
           toast.error("Error fetching product data", error);
         }
       } else {
         // User is offline, fetch product from IndexedDB cache
         const product = await getProductTypeFromDB(companyId);
+        console.log("product from cached data: ", product);
         if (product) {
           // If product exists in the cache, dispatch it
           dispatch(setProductId(product.id));
