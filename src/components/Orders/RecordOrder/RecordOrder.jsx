@@ -82,7 +82,7 @@ const RecordOrder = (props) => {
           dispatch(setProductPrice(productData.priceInDollars));
           // You could also cache this product in IndexedDB here if needed
           saveProductTypeToDB(companyId, productData);
-          console.log("saved product type to cache: ", productData)
+          console.log("saved product type to cache: ", productData);
         } catch (error) {
           toast.error("Error fetching product data", error);
         }

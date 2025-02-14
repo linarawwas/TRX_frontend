@@ -1,6 +1,6 @@
 import { openDB } from 'idb';
 const openIndexedDB = async () => {
-  return await openDB('MyDatabase', 5, {
+  return await openDB('MyDatabase', 6, {
     upgrade(db) {
       if (!db.objectStoreNames.contains('requests')) {
         const store = db.createObjectStore('requests', {

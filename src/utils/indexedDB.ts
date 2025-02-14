@@ -2,7 +2,7 @@ import { openDB } from "idb";
 
 // Database name
 const DB_NAME = "MyDatabase";
-const DB_VERSION = 5; // Make sure the version is consistent
+const DB_VERSION = 6; // Make sure the version is consistent
 
 // Store names
 const AREAS_STORE_NAME = "areas";
