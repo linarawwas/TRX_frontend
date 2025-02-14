@@ -3,9 +3,11 @@ import "./RecordOrderForCustomer.css";
 import { useEffect, useState } from "react";
 import CustomerInvoices from "../../../components/Customers/CustomerInvoices/CustomerInvoices";
 import RecordOrder from "../../../components/Orders/RecordOrder/RecordOrder";
+import { saveCustomerDiscountToDB, getCustomerDiscountFromDB } from "../../../utils/indexedDB"; // Adjust path as needed
+
 interface CustomerData {
-  hasDiscount: boolean; // lowercase boolean
-  valueAfterDiscount: number; // lowercase number
+  hasDiscount: boolean;
+  valueAfterDiscount: number;
   discountCurrency: string;
   noteAboutCustomer: string;
 }
@@ -18,19 +20,46 @@ function RecordOrderForCustomer(): JSX.Element {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    setIsLoading(true);
-    fetch(`http://localhost:5000/api/customers/discount/${customerId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((response) => response.json())
-      .then((data: CustomerData) => {
-        setCustomerDiscountStatus(data);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-        setIsLoading(false);
-      });
+    const fetchData = async () => {
+      setIsLoading(true);
+
+      if (navigator.onLine) {
+        // Online: Fetch from API and cache the result
+        try {
+          const response = await fetch(
+            `http://localhost:5000/api/customers/discount/${customerId}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+
+          if (!response.ok) throw new Error("Failed to fetch");
+
+          const data: CustomerData = await response.json();
+          setCustomerDiscountStatus(data);
+
+          // Cache the fetched data
+          await saveCustomerDiscountToDB(customerId, data);
+        } catch (error) {
+          console.error("Error fetching discount data:", error);
+        }
+      } else {
+        // Offline: Load from IndexedDB
+        console.log("No internet connection, loading from IndexedDB");
+
+        const cachedDiscountData = await getCustomerDiscountFromDB(customerId);
+        if (cachedDiscountData) {
+          setCustomerDiscountStatus(cachedDiscountData);
+          console.log("Loaded discount data from IndexedDB:", cachedDiscountData);
+        } else {
+          console.log("No cached data found.");
+        }
+      }
+
+      setIsLoading(false);
+    };
+
+    fetchData();
   }, [customerId, token]);
 
   return (
@@ -44,9 +73,9 @@ function RecordOrderForCustomer(): JSX.Element {
         </div>
       )}
       <RecordOrder customerData={customerDiscountStatus} />
-
       <CustomerInvoices />
     </div>
   );
 }
+
 export default RecordOrderForCustomer;

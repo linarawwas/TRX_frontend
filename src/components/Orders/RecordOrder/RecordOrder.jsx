@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "./RecordOrder.css";
-import { saveRequest } from "../../../services/indexedDb"; // Import IndexedDB utilities
+import {
+  getPendingRequests,
+  removeRequestFromDb,
+  saveRequest,
+} from "../../../services/indexedDb";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector, useDispatch } from "react-redux";
@@ -19,35 +23,83 @@ import {
   setProductPrice,
 } from "../../../redux/Order/action";
 import { useNavigate } from "react-router-dom";
+import { getProductTypeFromDB } from "../../../utils/indexedDB";
 const RecordOrder = (props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = useSelector((state) => state.user.token);
   const companyId = useSelector((state) => state.user.companyId);
-  // const [products, setProducts] = useState([]); since the admin chose to only have one product default, no product array will be mapped
+
+  // Place the useEffect for online status listener here
   useEffect(() => {
-    // Send the defaultProduct to another API endpoint to retrieve product _id
-    fetch(
-      `http://localhost:5000/api/products/productType/company/${companyId}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          type: "Bottles", // Send the value obtained from adminDeterminedProducts as type
-        }),
+    const handleOnline = async () => {
+      const pendingRequests = await getPendingRequests(); // Fetch pending requests from IndexedDB
+      if (pendingRequests.length > 0) {
+        for (const request of pendingRequests) {
+          try {
+            const response = await fetch(request.url, request.options);
+            if (response.ok) {
+              // If successful, remove the request from IndexedDB
+              removeRequestFromDb(request); // Assuming you have this function
+              toast.success("Order submitted after coming online.");
+            }
+          } catch (error) {
+            toast.error("Failed to submit order after coming online:", error);
+          }
+        }
       }
-    )
-      .then((response) => response.json())
-      .then((productData) => {
-        dispatch(setProductId(productData.id));
-        dispatch(setProductName(productData.type));
-        dispatch(setProductPrice(productData.priceInDollars));
-        // Perform operations with the obtained product _id here if needed
-      });
+    };
+
+    window.addEventListener("online", handleOnline);
+
+    // Clean up the event listener when the component unmounts
+    return () => window.removeEventListener("online", handleOnline);
+  }, []);
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (navigator.onLine) {
+        // User is online, fetch product from API
+        try {
+          const response = await fetch(
+            `http://localhost:5000/api/products/productType/company/${companyId}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                type: "Bottles", // Default product type
+              }),
+            }
+          );
+          const productData = await response.json();
+          dispatch(setProductId(productData.id));
+          dispatch(setProductName(productData.type));
+          dispatch(setProductPrice(productData.priceInDollars));
+          // You could also cache this product in IndexedDB here if needed
+        } catch (error) {
+          toast.error("Error fetching product data", error);
+        }
+      } else {
+        // User is offline, fetch product from IndexedDB cache
+        const product = await getProductTypeFromDB(companyId);
+        if (product) {
+          // If product exists in the cache, dispatch it
+          dispatch(setProductId(product.id));
+          dispatch(setProductName(product.type));
+          dispatch(setProductPrice(product.priceInDollars));
+        } else {
+          toast.warn(
+            "No cached product found. Please come online to fetch it."
+          );
+        }
+      }
+    };
+
+    fetchProduct();
   }, [token, dispatch, companyId]);
+
   const customerId = useSelector((state) => state.order.customer_Id);
   const areaId = useSelector((state) => state.order.area_Id);
   const shipmentId = useSelector((state) => state.shipment._id);
@@ -96,13 +148,16 @@ const RecordOrder = (props) => {
         body: JSON.stringify(orderData),
       },
     };
+
     if (!navigator.onLine) {
+      // Save the request in IndexedDB when offline
       await saveRequest(request);
       toast.info(
         "You're offline. Your order will be submitted when you're back online."
       );
       return;
     }
+
     try {
       const response = await fetch(request.url, request.options);
 
@@ -133,6 +188,7 @@ const RecordOrder = (props) => {
         dispatch(
           setShipmentPayments(totalPayments + parseInt(responseData.paid))
         );
+
         // Check delivered value and dispatch appropriate action
         if (
           parseInt(orderData.delivered) === 0 &&
@@ -143,6 +199,7 @@ const RecordOrder = (props) => {
         } else {
           dispatch(addCustomerWithFilledOrder(customerId));
         }
+
         toast.success("Order successfully recorded.");
         navigate(-1);
       } else {
