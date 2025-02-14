@@ -73,12 +73,12 @@ const CustomerInvoices: React.FC = () => {
         // Offline: Load from IndexedDB
         console.log("No internet connection, loading from IndexedDB");
 
-        const cachedDiscountData = await getCustomerDiscountFromDB(customerId);
-        if (cachedDiscountData) {
-          saveCustomerDiscountToDB(customerId,cachedDiscountData);
+        const cachedInvoiceData = await getCustomerInvoiceFromCache(customerId);
+        if (cachedInvoiceData) {
+            saveCustomerInvoiceToCache(customerId,cachedInvoiceData);
           console.log(
-            "Loaded discount data from IndexedDB:",
-            cachedDiscountData
+            "Loaded receipt data from IndexedDB:",
+            cachedInvoiceData
           );
         } else {
           console.log("No cached data found.");
