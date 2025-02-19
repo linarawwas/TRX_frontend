@@ -63,8 +63,9 @@ const CustomerInvoices: React.FC = () => {
           setSums(data.sums);
           setLoading(false);
 
-          // Cache the fetched data
+          // Cache the fetched data only if it is new
           saveCustomerInvoiceToCache(customerId, data);
+
         } catch (error) {
           console.error("Error fetching customer receipt:", error);
           setLoading(false);
@@ -75,18 +76,14 @@ const CustomerInvoices: React.FC = () => {
 
         const cachedInvoiceData = await getCustomerInvoiceFromCache(customerId);
         if (cachedInvoiceData) {
-            saveCustomerInvoiceToCache(customerId,cachedInvoiceData);
-          console.log(
-            "Loaded receipt data from IndexedDB:",
-            cachedInvoiceData
-          );
-          setSums(cachedInvoiceData.sums)
+          console.log("Loaded receipt data from IndexedDB:", cachedInvoiceData);
+          setSums(cachedInvoiceData.sums);
         } else {
           console.log("No cached data found.");
         }
-      }
 
-      setLoading(false);
+        setLoading(false);
+      }
     };
 
     fetchCustomerInvoices();

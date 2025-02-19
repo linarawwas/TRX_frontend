@@ -22,9 +22,10 @@ export default function AreasForDay(): JSX.Element {
 
   useEffect(() => {
     dispatch(clearAreaId());
-  
+
     const fetchData = async () => {
       try {
+        setLoading(true);
         if (navigator.onLine) {
           const response = await fetch(`http://localhost:5000/api/areas/days/${dayId}`, {
             method: "POST",
@@ -34,18 +35,18 @@ export default function AreasForDay(): JSX.Element {
             },
             body: JSON.stringify({ companyId }),
           });
-  
+
           if (!response.ok) throw new Error("Network response was not ok");
-  
+
           const data = await response.json();
           setAreas(data);
           console.log("Fetched areas from API:", data);
-  
+
           // Save data to IndexedDB using the helper function
           await saveAreasToDB(dayId, data);
         } else {
           console.log("No internet connection, loading from IndexedDB");
-  
+
           // Load from IndexedDB using the helper function
           const cachedData = await getAreasFromDB(dayId);
           if (cachedData) {
@@ -61,11 +62,9 @@ export default function AreasForDay(): JSX.Element {
         setLoading(false);
       }
     };
-  
+
     fetchData();
   }, [dayId, companyId, token]);
-  
-  
 
   useEffect(() => {
     // Fetch name of the specified day
@@ -98,17 +97,23 @@ export default function AreasForDay(): JSX.Element {
         </tbody>
       ) : (
         <tbody>
-          {areas?.map((area) => (
-            <tr key={area?._id}>
-              <td>
-                <Link to={`/customers/${area?._id}`}>
-                  <button onClick={() => dispatch(setAreaId(area?._id))}>
-                    {area?.name}
-                  </button>
-                </Link>
-              </td>
+          {areas?.length > 0 ? (
+            areas.map((area) => (
+              <tr key={area._id}>
+                <td>
+                  <Link to={`/customers/${area._id}`}>
+                    <button onClick={() => dispatch(setAreaId(area._id))}>
+                      {area.name}
+                    </button>
+                  </Link>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={2}>No areas available</td>
             </tr>
-          ))}
+          )}
         </tbody>
       )}
     </table>

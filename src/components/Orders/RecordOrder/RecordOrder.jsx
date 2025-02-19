@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from "react";
 import "./RecordOrder.css";
-import {
-  getPendingRequests,
-  removeRequestFromDb,
-  saveRequest,
-} from "../../../services/indexedDb";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector, useDispatch } from "react-redux";
@@ -24,8 +19,11 @@ import {
 } from "../../../redux/Order/action";
 import { useNavigate } from "react-router-dom";
 import {
+  getPendingRequests,
   getProductTypeFromDB,
+  removeRequestFromDb,
   saveProductTypeToDB,
+  saveRequest,
 } from "../../../utils/indexedDB";
 const RecordOrder = (props) => {
   const dispatch = useDispatch();
@@ -42,8 +40,9 @@ const RecordOrder = (props) => {
           try {
             const response = await fetch(request.url, request.options);
             if (response.ok) {
+              console.log(request);
               // If successful, remove the request from IndexedDB
-              removeRequestFromDb(request); // Assuming you have this function
+              removeRequestFromDb(request.id); // Assuming you have this function
               toast.success("Order submitted after coming online.");
             }
           } catch (error) {
@@ -60,8 +59,15 @@ const RecordOrder = (props) => {
   }, []);
   useEffect(() => {
     const fetchProduct = async () => {
+      const cachedProduct = await getProductTypeFromDB(companyId);
+      if (cachedProduct) {
+        dispatch(setProductId(cachedProduct.id));
+        dispatch(setProductName(cachedProduct.type));
+        dispatch(setProductPrice(cachedProduct.priceInDollars));
+        return;
+      }
+
       if (navigator.onLine) {
-        // User is online, fetch product from API
         try {
           const response = await fetch(
             `http://localhost:5000/api/products/productType/company/${companyId}`,
@@ -71,35 +77,19 @@ const RecordOrder = (props) => {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
               },
-              body: JSON.stringify({
-                type: "Bottles", // Default product type
-              }),
+              body: JSON.stringify({ type: "Bottles" }),
             }
           );
           const productData = await response.json();
           dispatch(setProductId(productData.id));
           dispatch(setProductName(productData.type));
           dispatch(setProductPrice(productData.priceInDollars));
-          // You could also cache this product in IndexedDB here if needed
           saveProductTypeToDB(companyId, productData);
-          console.log("saved product type to cache: ", productData);
         } catch (error) {
-          toast.error("Error fetching product data", error);
+          toast.error(`Error fetching product data: ${error.message}`);
         }
       } else {
-        // User is offline, fetch product from IndexedDB cache
-        const product = await getProductTypeFromDB(companyId);
-        console.log("product from cached data: ", product);
-        if (product) {
-          // If product exists in the cache, dispatch it
-          dispatch(setProductId(product.id));
-          dispatch(setProductName(product.type));
-          dispatch(setProductPrice(product.priceInDollars));
-        } else {
-          toast.warn(
-            "No cached product found. Please come online to fetch it."
-          );
-        }
+        toast.warn("No cached product found. Please come online to fetch it.");
       }
     };
 
@@ -155,8 +145,17 @@ const RecordOrder = (props) => {
       },
     };
 
+    // Save the request in IndexedDB when offline
     if (!navigator.onLine) {
-      // Save the request in IndexedDB when offline
+      dispatch(
+        setShipmentDelivered(
+          deliveredInShipment + parseInt(orderData.delivered)
+        )
+      );
+      dispatch(
+        setShipmentReturned(returnedInShipment + parseInt(orderData.returned))
+      );
+      dispatch(setShipmentPayments(totalPayments + parseInt(orderData.paid)));
       await saveRequest(request);
       toast.info(
         "You're offline. Your order will be submitted when you're back online."
@@ -210,10 +209,10 @@ const RecordOrder = (props) => {
         navigate(-1);
       } else {
         const errorData = await response.json();
-        toast.error("Error recording order:", errorData.error);
+        toast.error(`Error fetching product data: ${errorData.message}`);
       }
     } catch (error) {
-      toast.error("Network error:", error);
+      toast.error(`Network error: ${error.message}`);
       console.log(error);
     }
   };
