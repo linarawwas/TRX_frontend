@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { getPendingRequests, removeRequestFromDb } from "../utils/indexedDB";
+
 const useSyncOfflineOrders = () => {
   useEffect(() => {
     const syncOfflineOrders = async () => {

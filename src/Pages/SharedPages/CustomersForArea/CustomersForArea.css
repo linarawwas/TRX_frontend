@@ -30,7 +30,9 @@
 .customer-with-filled-order {
   background-color: rgb(37, 134, 37);
 }
-
+.customer-with-pending-order {
+  background-color: goldenrod;
+}
 .customer-with-empty-order {
   background-color: rgb(221, 66, 66);
 }

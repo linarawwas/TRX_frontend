@@ -3,7 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import "./CustomersForArea.css";
 import { clearCustomerId, setCustomerId } from "../../../redux/Order/action";
-import { saveCustomersToDB, getCustomersFromDB } from "../../../utils/indexedDB"; // Import the cache functions
+import {
+  saveCustomersToDB,
+  getCustomersFromDB,
+} from "../../../utils/indexedDB"; // Import the cache functions
 
 interface Customer {
   _id: string;
@@ -21,6 +24,9 @@ const CustomersForArea = (): JSX.Element => {
   const customersWithFilledOrders = useSelector(
     (state: any) => state.shipment?.CustomersWithFilledOrders
   );
+  const customersWithPendingOrders = useSelector(
+    (state: any) => state.shipment?.CustomersWithPendingOrders
+  );
   const customersWithEmptyOrders = useSelector(
     (state: any) => state.shipment?.CustomersWithEmptyOrders
   );
@@ -28,27 +34,30 @@ const CustomersForArea = (): JSX.Element => {
 
   useEffect(() => {
     dispatch(clearCustomerId());
-  
+
     const fetchData = async () => {
       try {
         if (navigator.onLine) {
-          const response = await fetch(`http://localhost:5000/api/customers/area/${areaId}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-  
+          const response = await fetch(
+            `http://localhost:5000/api/customers/area/${areaId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
           if (!response.ok) throw new Error("Network response was not ok");
-  
+
           const data: Customer[] = await response.json();
           setCustomers(data);
           console.log("Fetched customers from API:", data);
-  
+
           // Save data to IndexedDB using the helper function
           await saveCustomersToDB(areaId!, data);
         } else {
           console.log("No internet connection, loading from IndexedDB");
-  
+
           // Load from IndexedDB using the helper function
           const cachedCustomers = await getCustomersFromDB(areaId!);
           if (cachedCustomers) {
@@ -60,7 +69,7 @@ const CustomersForArea = (): JSX.Element => {
         }
       } catch (error) {
         console.error("Error fetching customers:", error);
-  
+
         // If an error occurs (e.g., no network), load from IndexedDB
         const cachedCustomers = await getCustomersFromDB(areaId!);
         if (cachedCustomers) {
@@ -73,10 +82,10 @@ const CustomersForArea = (): JSX.Element => {
         setLoading(false);
       }
     };
-  
+
     fetchData();
   }, [areaId, token, dispatch]);
-  
+
   const handleOrderState = (customerId: string) => {
     dispatch(setCustomerId(customerId));
     navigate("/recordOrderforCustomer");
@@ -108,6 +117,8 @@ const CustomersForArea = (): JSX.Element => {
                     ? "customer-with-filled-order"
                     : customersWithEmptyOrders?.includes(customer._id)
                     ? "customer-with-empty-order"
+                    : customersWithPendingOrders?.includes(customer._id)
+                    ? "customer-with-pending-order" // Add this class for pending orders
                     : ""
                 }
               >

@@ -6,6 +6,8 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   addCustomerWithEmptyOrder,
   addCustomerWithFilledOrder,
+  addPendingOrder,
+  removePendingOrder,
   setShipmentDelivered,
   setShipmentPayments,
   setShipmentPaymentsInDollars,
@@ -99,6 +101,8 @@ const RecordOrder = (props) => {
   const customerId = useSelector((state) => state.order.customer_Id);
   const areaId = useSelector((state) => state.order.area_Id);
   const shipmentId = useSelector((state) => state.shipment._id);
+  const customersWithPendingOrders =
+    useSelector((state) => state.shipment?.CustomersWithPendingOrders) || [];
   const productName = useSelector((state) => state.order.product_name);
   const productId = useSelector((state) => state.order.product_id);
   const productPrice = useSelector((state) => state.order.product_price);
@@ -133,6 +137,7 @@ const RecordOrder = (props) => {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const request = {
       url: "http://localhost:5000/api/orders",
       options: {
@@ -145,7 +150,7 @@ const RecordOrder = (props) => {
       },
     };
 
-    // Save the request in IndexedDB when offline
+    // Offline Scenario: Save the order as pending and update shipment details
     if (!navigator.onLine) {
       dispatch(
         setShipmentDelivered(
@@ -156,20 +161,29 @@ const RecordOrder = (props) => {
         setShipmentReturned(returnedInShipment + parseInt(orderData.returned))
       );
       dispatch(setShipmentPayments(totalPayments + parseInt(orderData.paid)));
-      await saveRequest(request);
+      // Save the order as pending and store in IndexedDB
+      dispatch(addPendingOrder(customerId));
+      await saveRequest(request); // Save to IndexedDB for future submission
       toast.info(
         "You're offline. Your order will be submitted when you're back online."
       );
+      navigate(-1);
       return;
     }
 
+    // Online Scenario: Make the API request to submit the order
     try {
       const response = await fetch(request.url, request.options);
 
       if (response.ok) {
         const responseData = await response.json();
 
-        // Update shipment details based on the order response
+        // After a successful request, remove from pending orders (if it was pending)
+        if (customersWithPendingOrders.includes(customerId)) {
+          dispatch(removePendingOrder(customerId));
+        }
+
+        // Update shipment details based on the response
         dispatch(
           setShipmentDelivered(
             deliveredInShipment + parseInt(orderData.delivered)
@@ -194,7 +208,7 @@ const RecordOrder = (props) => {
           setShipmentPayments(totalPayments + parseInt(responseData.paid))
         );
 
-        // Check delivered value and dispatch appropriate action
+        // Determine whether the order is filled or empty, and update Redux state
         if (
           parseInt(orderData.delivered) === 0 &&
           parseInt(orderData.returned) === 0 &&

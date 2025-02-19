@@ -61,7 +61,6 @@ export async function getPendingRequests() {
   const db = await openDB(DB_NAME, DB_VERSION);
   return await db.getAll(REQUESTS_STORE);
 }
-
 export const removeRequestFromDb = async (requestId) => {
   try {
     console.log("Attempting to delete request with ID:", requestId); // Log the requestId
@@ -75,7 +74,7 @@ export const removeRequestFromDb = async (requestId) => {
       return;
     }
 
-    // Proceed with deletion
+    // Proceed with deletion from IndexedDB
     await tx.store.delete(requestId);
     await tx.done;
     console.log(`Request with ID ${requestId} deleted successfully.`);

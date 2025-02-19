@@ -26,6 +26,8 @@ import {
   SET_SHIPMENT_PROFITS_IN_LIRAS,
   ADD_CUSTOMER_WITH_FILLED_ORDER,
   ADD_CUSTOMER_WITH_EMPTY_ORDER,
+  ADD_PENDING_ORDER,
+  REMOVE_PENDING_ORDER,
 } from "./actionTypes";
 
 const initialState = {
@@ -59,8 +61,10 @@ const initialState = {
   prev_expensesInUSD: 0,
   CustomersWithFilledOrders: [],
   CustomersWithEmptyOrders: [],
-  prev_CustomersWithFilledOrders: [],
+  CustomersWithPendingOrders: [], // <-- Make sure this key exists
+  prev_CustomersWithFilledOrder: [],
   prev_CustomersWithEmptyOrders: [],
+  prev_CustomersWithPendingOrders: [], // Add this line
 };
 
 const shipmentReducer = (state = initialState, action) => {
@@ -90,6 +94,21 @@ const shipmentReducer = (state = initialState, action) => {
           ...state.CustomersWithEmptyOrders,
           action.payload,
         ],
+      };
+    case ADD_PENDING_ORDER:
+      return {
+        ...state,
+        CustomersWithPendingOrders: [
+          ...state.CustomersWithPendingOrders,
+          action.payload,
+        ],
+      };
+    case REMOVE_PENDING_ORDER:
+      return {
+        ...state,
+        CustomersWithPendingOrders: state.CustomersWithPendingOrders.filter(
+          (id) => id !== action.payload
+        ),
       };
     case SET_SHIPMENT_FROM_PREV:
       return {
@@ -256,6 +275,7 @@ const shipmentReducer = (state = initialState, action) => {
         profitsInUSD: 0,
         CustomersWithFilledOrders: [],
         CustomersWithEmptyOrders: [],
+        CustomersWithPendingOrders: [], // <-- Make sure this key exists
       };
     default:
       return state;
