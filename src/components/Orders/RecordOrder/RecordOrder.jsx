@@ -152,6 +152,7 @@ const RecordOrder = (props) => {
 
     // Offline Scenario: Save the order as pending and update shipment details
     if (!navigator.onLine) {
+      console.log(orderData);
       dispatch(
         setShipmentDelivered(
           deliveredInShipment + parseInt(orderData.delivered)
@@ -160,7 +161,20 @@ const RecordOrder = (props) => {
       dispatch(
         setShipmentReturned(returnedInShipment + parseInt(orderData.returned))
       );
+      orderData.paymentCurrency === "USD"
+        ? dispatch(
+            setShipmentPaymentsInDollars(
+              shipmentPaymentsInDollars + parseInt(orderData.paid)
+            )
+          )
+        : dispatch(
+            setShipmentPaymentsInLiras(
+              shipmentPaymentsInLiras + parseInt(orderData.paid)
+            )
+          );
+
       dispatch(setShipmentPayments(totalPayments + parseInt(orderData.paid)));
+
       // Save the order as pending and store in IndexedDB
       dispatch(addPendingOrder(customerId));
       await saveRequest(request); // Save to IndexedDB for future submission
