@@ -32,7 +32,7 @@ The `CustomersForArea` component is responsible for displaying the list of custo
 - `getCustomersFromDB(areaId)`: Retrieves cached data when offline.
 
 ## API Interaction
-- Fetches customer data from `http://localhost:5000/api/customers/area/{areaId}`.
+- Fetches customer data from `https://api-trx.linarawas.com/api/customers/area/{areaId}`.
 - Includes authentication via a Bearer token.
 - Falls back to IndexedDB if network requests fail.
 

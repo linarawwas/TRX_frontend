@@ -21,7 +21,7 @@ const DefaultProducts: React.FC = () => {
         const fetchData = async () => {
             try {
                 const response = await axios.get<DefaultProduct[]>(
-                    `http://localhost:5000/api/adminDeterminedDefaults/company/${companyId}`, {
+                    `https://api-trx.linarawas.com/api/adminDeterminedDefaults/company/${companyId}`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }

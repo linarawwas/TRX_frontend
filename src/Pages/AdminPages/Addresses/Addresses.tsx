@@ -19,7 +19,7 @@ export default function Addresses(): JSX.Element {
     const navigate = useNavigate();
     useEffect(() => {
         // Fetch days data from your API
-        fetch(`http://localhost:5000/api/customers/area/${areaId}`, {
+        fetch(`https://api-trx.linarawas.com/api/customers/area/${areaId}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             }
@@ -39,7 +39,7 @@ export default function Addresses(): JSX.Element {
     }, [areaId, token]);
     const handleDeleteArea = async () => {
         try {
-            const response = await fetch(`http://localhost:5000/api/areas/${areaId}`, {
+            const response = await fetch(`https://api-trx.linarawas.com/api/areas/${areaId}`, {
                 method: 'DELETE', headers: {
                     Authorization: `Bearer ${token}`,
                 }

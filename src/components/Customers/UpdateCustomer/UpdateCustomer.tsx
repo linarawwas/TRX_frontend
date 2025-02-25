@@ -56,7 +56,7 @@ function UpdateCustomer(): JSX.Element {
   const [formVisible, setFormVisible] = useState(false);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/areas/company/${companyId}`, {
+    fetch(`https://api-trx.linarawas.com/api/areas/company/${companyId}`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then((response) => response.json())
@@ -84,7 +84,7 @@ function UpdateCustomer(): JSX.Element {
 
   const fetchData = useCallback(async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/customers/${customerId}`, {
+      const response = await fetch(`https://api-trx.linarawas.com/api/customers/${customerId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         }
@@ -124,7 +124,7 @@ function UpdateCustomer(): JSX.Element {
         companyId: companyId
       };
 
-      const response = await fetch(`http://localhost:5000/api/customers/${customerId}`, {
+      const response = await fetch(`https://api-trx.linarawas.com/api/customers/${customerId}`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -147,7 +147,7 @@ function UpdateCustomer(): JSX.Element {
 
   const handleDeleteCustomer = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/customers/${customerId}`, {
+      const response = await fetch(`https://api-trx.linarawas.com/api/customers/${customerId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,

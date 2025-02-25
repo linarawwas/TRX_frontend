@@ -1,4 +1,4 @@
-// this is only the form portion of the login form page 
+// this is only the form portion of the login form page
 import "./Login.css"; // Import your CSS file
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import { toast, ToastContainer } from "react-toastify";
@@ -34,13 +34,18 @@ export default function LoginForm(): JSX.Element {
 
     try {
       // Send a POST request to your authentication endpoint
-      const response = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(credentials),
-      });
+      const response = await fetch(
+        "https://api-trx.linarawas.com/api/auth/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include", // Ensures cookies and tokens are sent
+
+          body: JSON.stringify(credentials),
+        }
+      );
 
       if (response.ok) {
         toast.success("Logged In Successfully");
@@ -62,7 +67,6 @@ export default function LoginForm(): JSX.Element {
   };
 
   return (
-    
     <form className="login-form" onSubmit={handleSubmit}>
       <input
         type="email"

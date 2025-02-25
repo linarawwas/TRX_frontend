@@ -1,6 +1,6 @@
 {
   "name": "trx-bi",
-  "homepage": "http://localhost:3000",
+  "homepage": "https://trx-portal.linarawas.com/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -37,8 +37,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build-sw": "node workbox-config.js",
-    "build": "react-scripts build && npm run build-sw",
+    "build": "react-scripts build ",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

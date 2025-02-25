@@ -39,7 +39,7 @@ const AddDiscount: React.FC = () => {
 
   // Fetch areas from the API
   useEffect(() => {
-    fetch(`http://localhost:5000/api/areas/company/${companyId}`, {
+    fetch(`https://api-trx.linarawas.com/api/areas/company/${companyId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -51,7 +51,7 @@ const AddDiscount: React.FC = () => {
 
   // Fetch exchange rate from the API
   useEffect(() => {
-    fetch(`http://localhost:5000/api/exchangeRates/6537789b6ed59ef09c18213d`, {
+    fetch(`https://api-trx.linarawas.com/api/exchangeRates/6537789b6ed59ef09c18213d`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -64,7 +64,7 @@ const AddDiscount: React.FC = () => {
   // Fetch customers based on selected area
   useEffect(() => {
     if (formData.areaId) {
-      fetch(`http://localhost:5000/api/customers/area/${formData.areaId}`, {
+      fetch(`https://api-trx.linarawas.com/api/customers/area/${formData.areaId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -96,7 +96,7 @@ const AddDiscount: React.FC = () => {
   };
 
   const handleSubmit = () => {
-    fetch(`http://localhost:5000/api/customers/${formData.customerId}`, {
+    fetch(`https://api-trx.linarawas.com/api/customers/${formData.customerId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

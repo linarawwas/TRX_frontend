@@ -33,32 +33,59 @@ const RecordOrder = (props) => {
   const token = useSelector((state) => state.user.token);
   const companyId = useSelector((state) => state.user.companyId);
 
-  // Place the useEffect for online status listener here
-  useEffect(() => {
-    const handleOnline = async () => {
-      const pendingRequests = await getPendingRequests(); // Fetch pending requests from IndexedDB
-      if (pendingRequests.length > 0) {
-        for (const request of pendingRequests) {
-          try {
-            const response = await fetch(request.url, request.options);
-            if (response.ok) {
-              console.log(request);
-              // If successful, remove the request from IndexedDB
-              removeRequestFromDb(request.id); // Assuming you have this function
-              toast.success("Order submitted after coming online.");
-            }
-          } catch (error) {
-            toast.error("Failed to submit order after coming online:", error);
-          }
-        }
-      }
-    };
+  // // Place the useEffect for online status listener here
+  // useEffect(() => {
+  //   const handleOnline = async () => {
+  //     console.log(
+  //       "Device is back online. Waiting 3 seconds before processing pending orders..."
+  //     );
 
-    window.addEventListener("online", handleOnline);
+  //     await new Promise((resolve) => setTimeout(resolve, 3000)); // Delay for 3 seconds
 
-    // Clean up the event listener when the component unmounts
-    return () => window.removeEventListener("online", handleOnline);
-  }, []);
+  //     const pendingRequests = await getPendingRequests(); // Fetch pending requests from IndexedDB
+
+  //     console.log(`Total pending requests: ${pendingRequests.length}`);
+
+  //     if (pendingRequests.length > 0) {
+  //       for (const request of pendingRequests) {
+  //         try {
+  //           console.log(`Processing request: ${JSON.stringify(request)}`);
+
+  //           // Reconstruct the request object properly
+  //           const response = await fetch(request.url, {
+  //             method: request.options.method,
+  //             headers: request.options.headers,
+  //             body: request.options.body
+  //               ? JSON.stringify(request.options.body)
+  //               : null,
+  //           });
+
+  //           if (response.ok) {
+  //             console.log(
+  //               "Order successfully submitted. Removing from IndexedDB."
+  //             );
+  //             await removeRequestFromDb(request.id);
+  //             toast.success("Order submitted after coming online.");
+  //           } else {
+  //             const errorData = await response.json();
+  //             console.error("Server responded with an error:", errorData);
+  //             toast.error(`Failed to sync order: ${errorData.message}`);
+  //           }
+  //         } catch (error) {
+  //           console.error("Error syncing offline order:", error);
+  //           toast.error(
+  //             `Failed to submit order after coming online: ${error.message}`
+  //           );
+  //         }
+  //       }
+  //     }
+  //   };
+
+  //   window.addEventListener("online", handleOnline);
+
+  //   // Clean up the event listener when the component unmounts
+  //   return () => window.removeEventListener("online", handleOnline);
+  // }, []);
   useEffect(() => {
     const fetchProduct = async () => {
       const cachedProduct = await getProductTypeFromDB(companyId);
@@ -72,7 +99,7 @@ const RecordOrder = (props) => {
       if (navigator.onLine) {
         try {
           const response = await fetch(
-            `http://localhost:5000/api/products/productType/company/${companyId}`,
+            `https://api-trx.linarawas.com/api/products/productType/company/${companyId}`,
             {
               method: "POST",
               headers: {
@@ -139,7 +166,7 @@ const RecordOrder = (props) => {
     e.preventDefault();
 
     const request = {
-      url: "http://localhost:5000/api/orders",
+      url: "https://api-trx.linarawas.com/api/orders",
       options: {
         method: "POST",
         headers: {
