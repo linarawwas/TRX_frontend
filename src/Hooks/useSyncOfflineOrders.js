@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { getPendingRequests, removeRequestFromDb } from "../utils/indexedDB";
@@ -10,40 +10,36 @@ import {
 
 const useSyncOfflineOrders = () => {
   const dispatch = useDispatch();
-  const [hasPendingOrders, setHasPendingOrders] = useState(false);
 
   useEffect(() => {
-    let syncTimeout;
-
-    const checkForPendingOrders = async () => {
-      console.log("Checking IndexedDB for pending orders...");
-      const pendingRequests = await getPendingRequests();
-      if (pendingRequests.length > 0) {
-        console.log("Pending orders found:", pendingRequests.length);
-        setHasPendingOrders(true);
-      } else {
-        console.log("No pending orders.");
-        setHasPendingOrders(false);
-      }
-    };
-
     const syncOfflineOrders = async () => {
+      console.log("Checking if device is online...");
+      
+      if (!navigator.onLine) {
+        console.log("Device is offline. Syncing will not start.");
+        toast.info("You are offline. Orders will sync once you're online.");
+        return;
+      }
+
+      console.log("Checking IndexedDB for pending orders...");
+      
+      let pendingRequests;
+      try {
+        pendingRequests = await getPendingRequests();
+        console.log("Fetched pending requests:", pendingRequests);
+      } catch (error) {
+        console.error("Error fetching pending requests:", error);
+        return;
+      }
+
+      const hasPendingOrders = pendingRequests.length > 0;
+      
       if (!navigator.onLine || !hasPendingOrders) {
         console.log("Sync not needed (either offline or no pending orders).");
         return;
       }
 
-      console.log("Waiting 5 seconds before syncing...");
-      await new Promise((resolve) => (syncTimeout = setTimeout(resolve, 5000)));
-
-      console.log("Fetching pending requests...");
-      const pendingRequests = await getPendingRequests();
-
-      if (pendingRequests.length === 0) {
-        console.log("No pending requests to sync.");
-        setHasPendingOrders(false);
-        return;
-      }
+      console.log(`Total pending requests found: ${pendingRequests.length}`);
 
       for (const request of pendingRequests) {
         try {
@@ -58,17 +54,14 @@ const useSyncOfflineOrders = () => {
 
           console.log("Sending request to server...");
           const response = await fetch(request.url, request.options);
-          
+
           if (response.ok) {
             console.log("Order synced successfully. Removing from IndexedDB...");
             await removeRequestFromDb(request.id);
 
-            console.log("Updating Redux store...");
-            if (
-              parseInt(body.delivered) === 0 &&
-              parseInt(body.returned) === 0 &&
-              parseInt(body.paid) === 0
-            ) {
+            if (parseInt(body.delivered) === 0 &&
+                parseInt(body.returned) === 0 &&
+                parseInt(body.paid) === 0) {
               dispatch(addCustomerWithEmptyOrder(body.customerid));
             } else {
               dispatch(addCustomerWithFilledOrder(body.customerid));
@@ -82,27 +75,24 @@ const useSyncOfflineOrders = () => {
           }
         } catch (error) {
           console.error("Error syncing offline order:", error);
-          toast.error("Network error, retrying when connection stabilizes.");
+          toast.error("Network error, retrying in 10 seconds...");
+          setTimeout(syncOfflineOrders, 10000); // Retry after 10 seconds
         }
       }
-
-      console.log("Sync completed.");
-      setHasPendingOrders(false);
     };
 
     window.addEventListener("online", syncOfflineOrders);
 
-    if (!navigator.onLine) {
-      checkForPendingOrders();
+    if (navigator.onLine) {
+      console.log("Device is online. Starting immediate sync...");
+      syncOfflineOrders();
     }
 
     return () => {
-      console.log("Cleaning up event listener...");
+      console.log("Cleaning up event listener for online status...");
       window.removeEventListener("online", syncOfflineOrders);
-      clearTimeout(syncTimeout);
     };
-  }, [dispatch, hasPendingOrders]);
-
+  }, [dispatch]);
 };
 
 export default useSyncOfflineOrders;
