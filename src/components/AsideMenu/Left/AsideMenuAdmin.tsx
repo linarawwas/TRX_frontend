@@ -5,7 +5,7 @@ import { FaBars, FaTimes } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
-import logo from '../../../images/logo.jpeg'
+import logo from "../../../images/logo.jpeg";
 import {
   clearCompanyId,
   clearToken,
@@ -60,19 +60,6 @@ const AsideMenuAdmin: React.FC = () => {
         </div>
         <aside className="sidebar">
           <ul>
-            {shipmentDefined ? (
-              <li>
-                <Link
-                  to={`/areas/${dayId}`}
-                  className="sidebar-link"
-                  onClick={toggleMenu}
-                >
-                  Today's Pathway
-                </Link>
-              </li>
-            ) : (
-              <li>Please Start Shipment</li>
-            )}
             <li>
               <Link to="/areas" className="sidebar-link" onClick={toggleMenu}>
                 Areas
@@ -94,15 +81,6 @@ const AsideMenuAdmin: React.FC = () => {
                 onClick={toggleMenu}
               >
                 Customer
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/viewOrders"
-                className="sidebar-link"
-                onClick={toggleMenu}
-              >
-                Orders
               </Link>
             </li>
             <li>
