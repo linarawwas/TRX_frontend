@@ -134,16 +134,22 @@ const ExtraProfits: React.FC = () => {
       <ToastContainer position="top-right" autoClose={1000} />
 
       <h2>Extra Profits</h2>
-      <h3
-        className="show-add-profits"
-        onClick={() => {
-          setShowAddProfits(!showAddProfits);
-        }}
-      >
-        {" "}
-        {!isAdmin && showAddProfits ? "hide form?" : "Add new profits?"}
-      </h3>
-      {!isAdmin && showAddProfits && <AddProfits />}
+      {isAdmin ? (
+        <></>
+      ) : (
+        <>
+          <h3
+            className="show-add-profits"
+            onClick={() => {
+              setShowAddProfits(!showAddProfits);
+            }}
+          >
+            {showAddProfits ? "hide form?" : "Add new profits?"}
+          </h3>
+          {showAddProfits && <AddProfits />}
+        </>
+      )}
+
       {loading ? (
         <SpinLoader />
       ) : extraProfits.length > 0 ? (

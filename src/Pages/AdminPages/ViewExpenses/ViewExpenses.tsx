@@ -134,15 +134,21 @@ const Expenses: React.FC = () => {
       <ToastContainer position="top-right" autoClose={1000} />
 
       <h2>Extra Expenses</h2>
-      <h3
-        className="show-add-expenses"
-        onClick={() => {
-          setShowAddExpenses(!showAddExpenses);
-        }}
-      >
-        {!isAdmin && showAddExpenses ? "hide form?" : "Add new expenses?"}
-      </h3>
-      {!isAdmin && showAddExpenses && <AddExpenses />}
+      {isAdmin ? (
+        <></>
+      ) : (
+        <>
+          <h3
+            className="show-add-expenses"
+            onClick={() => {
+              setShowAddExpenses(!showAddExpenses);
+            }}
+          >
+            {showAddExpenses ? "hide form?" : "Add new expenses?"}
+          </h3>
+          {showAddExpenses && <AddExpenses />}
+        </>
+      )}
       {loading ? (
         <SpinLoader />
       ) : extraExpenses.length > 0 ? (
