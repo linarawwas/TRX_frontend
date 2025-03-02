@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { getPendingRequests, removeRequestFromDb } from "../utils/indexedDB";
@@ -10,36 +10,40 @@ import {
 
 const useSyncOfflineOrders = () => {
   const dispatch = useDispatch();
+  const syncInProgress = useRef(false);  // Prevent multiple syncs
+  const hasEventListener = useRef(false); // Ensure event listener is added only once
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   useEffect(() => {
     const syncOfflineOrders = async () => {
-      console.log("Checking if device is online...");
-      
-      if (!navigator.onLine) {
-        console.log("Device is offline. Syncing will not start.");
-        toast.info("You are offline. Orders will sync once you're online.");
+      if (syncInProgress.current) {
+        console.log("Sync already in progress, skipping...");
         return;
       }
 
-      console.log("Checking IndexedDB for pending orders...");
-      
+      if (!navigator.onLine) {
+        console.log("Device is offline. Sync will start once online.");
+        return;
+      }
+
+      syncInProgress.current = true;
+      console.log("Fetching pending requests from IndexedDB...");
+
       let pendingRequests;
       try {
         pendingRequests = await getPendingRequests();
-        console.log("Fetched pending requests:", pendingRequests);
+        console.log("Pending requests found:", pendingRequests);
       } catch (error) {
         console.error("Error fetching pending requests:", error);
+        syncInProgress.current = false;
         return;
       }
 
-      const hasPendingOrders = pendingRequests.length > 0;
-      
-      if (!navigator.onLine || !hasPendingOrders) {
-        console.log("Sync not needed (either offline or no pending orders).");
+      if (pendingRequests.length === 0) {
+        console.log("No pending requests to sync.");
+        syncInProgress.current = false;
         return;
       }
-
-      console.log(`Total pending requests found: ${pendingRequests.length}`);
 
       for (const request of pendingRequests) {
         try {
@@ -52,12 +56,14 @@ const useSyncOfflineOrders = () => {
             continue;
           }
 
+          // Remove request from IndexedDB before sending to avoid duplicates
+          await removeRequestFromDb(request.id);
+
           console.log("Sending request to server...");
           const response = await fetch(request.url, request.options);
 
           if (response.ok) {
-            console.log("Order synced successfully. Removing from IndexedDB...");
-            await removeRequestFromDb(request.id);
+            console.log("Order synced successfully.");
 
             if (parseInt(body.delivered) === 0 &&
                 parseInt(body.returned) === 0 &&
@@ -76,23 +82,36 @@ const useSyncOfflineOrders = () => {
         } catch (error) {
           console.error("Error syncing offline order:", error);
           toast.error("Network error, retrying in 10 seconds...");
-          setTimeout(syncOfflineOrders, 10000); // Retry after 10 seconds
+          setTimeout(syncOfflineOrders, 10000);
         }
       }
+
+      syncInProgress.current = false;
     };
 
-    window.addEventListener("online", syncOfflineOrders);
+    const handleOnline = () => {
+      setIsOnline(true);
+      syncOfflineOrders();
+    };
 
-    if (navigator.onLine) {
+    if (!hasEventListener.current) {
+      window.addEventListener("online", handleOnline);
+      hasEventListener.current = true;
+    }
+
+    if (isOnline) {
       console.log("Device is online. Starting immediate sync...");
       syncOfflineOrders();
     }
 
     return () => {
       console.log("Cleaning up event listener for online status...");
-      window.removeEventListener("online", syncOfflineOrders);
+      window.removeEventListener("online", handleOnline);
+      hasEventListener.current = false;
     };
-  }, [dispatch]);
+  }, [dispatch, isOnline]);
+
+  return null;
 };
 
 export default useSyncOfflineOrders;
