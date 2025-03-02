@@ -10,8 +10,8 @@ import {
 
 const useSyncOfflineOrders = () => {
   const dispatch = useDispatch();
-  const syncInProgress = useRef(false);  // Prevent multiple syncs
-  const hasEventListener = useRef(false); // Ensure event listener is added only once
+  const syncInProgress = useRef(false);
+  const hasEventListener = useRef(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   useEffect(() => {
@@ -27,6 +27,10 @@ const useSyncOfflineOrders = () => {
       }
 
       syncInProgress.current = true;
+
+      console.log("Waiting 10 seconds before syncing...");
+      await new Promise((resolve) => setTimeout(resolve, 10000));
+
       console.log("Fetching pending requests from IndexedDB...");
 
       let pendingRequests;
@@ -56,14 +60,12 @@ const useSyncOfflineOrders = () => {
             continue;
           }
 
-          // Remove request from IndexedDB before sending to avoid duplicates
-          await removeRequestFromDb(request.id);
-
           console.log("Sending request to server...");
           const response = await fetch(request.url, request.options);
 
           if (response.ok) {
-            console.log("Order synced successfully.");
+            console.log("Order synced successfully. Removing from IndexedDB...");
+            await removeRequestFromDb(request.id);
 
             if (parseInt(body.delivered) === 0 &&
                 parseInt(body.returned) === 0 &&
@@ -91,7 +93,9 @@ const useSyncOfflineOrders = () => {
 
     const handleOnline = () => {
       setIsOnline(true);
-      syncOfflineOrders();
+      if (!syncInProgress.current) {
+        syncOfflineOrders();
+      }
     };
 
     if (!hasEventListener.current) {
@@ -100,8 +104,8 @@ const useSyncOfflineOrders = () => {
     }
 
     if (isOnline) {
-      console.log("Device is online. Starting immediate sync...");
-      syncOfflineOrders();
+      console.log("Device is online. Waiting 10 seconds before sync...");
+      setTimeout(syncOfflineOrders, 10000);
     }
 
     return () => {
