@@ -47,7 +47,7 @@ const CustomerOrders: React.FC = () => {
     useEffect(() => {
         const fetchCustomerOrders = async () => {
             try {
-                const response = await axios.get(`https://api-trx.linarawas.com/api/orders/customer/${customerId}`, {
+                const response = await axios.get(`http://localhost:5000/api/orders/customer/${customerId}`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }

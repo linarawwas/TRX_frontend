@@ -27,7 +27,7 @@ export default function AreasForDay(): JSX.Element {
       try {
         setLoading(true);
         if (navigator.onLine) {
-          const response = await fetch(`https://api-trx.linarawas.com/api/areas/days/${dayId}`, {
+          const response = await fetch(`http://localhost:5000/api/areas/days/${dayId}`, {
             method: "POST",
             headers: {
               Authorization: `Bearer ${token}`,
@@ -68,7 +68,7 @@ export default function AreasForDay(): JSX.Element {
 
   useEffect(() => {
     // Fetch name of the specified day
-    fetch(`https://api-trx.linarawas.com/api/days/${dayId}`, {
+    fetch(`http://localhost:5000/api/days/${dayId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

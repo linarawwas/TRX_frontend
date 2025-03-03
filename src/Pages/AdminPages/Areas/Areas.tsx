@@ -31,7 +31,7 @@ export default function Areas(): JSX.Element {
       setLoading(true);
 
       // 📌 Fetch data from API if online
-      fetch(`https://api-trx.linarawas.com/api/areas/company/${companyId}`, {
+      fetch(`http://localhost:5000/api/areas/company/${companyId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

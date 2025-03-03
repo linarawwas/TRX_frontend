@@ -35,7 +35,7 @@ export default function LoginForm(): JSX.Element {
     try {
       // Send a POST request to your authentication endpoint
       const response = await fetch(
-        "https://api-trx.linarawas.com/api/auth/login",
+        "http://localhost:5000/api/auth/login",
         {
           method: "POST",
           headers: {
