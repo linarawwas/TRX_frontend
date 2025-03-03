@@ -4,7 +4,12 @@ import { useSelector, useDispatch } from "react-redux";
 import "./AreasForDay.css";
 import { RootState } from "../../../redux/store";
 import { clearAreaId, setAreaId } from "../../../redux/Order/action";
-import { saveAreasToDB, getAreasFromDB } from "../../../utils/indexedDB"; // Import IndexedDB helper
+import {
+  saveAreasToDB,
+  getAreasFromDB,
+  getDayFromDB,
+  saveDayToDB,
+} from "../../../utils/indexedDB"; // Import IndexedDB helper
 
 interface Area {
   _id: string;
@@ -27,14 +32,17 @@ export default function AreasForDay(): JSX.Element {
       try {
         setLoading(true);
         if (navigator.onLine) {
-          const response = await fetch(`http://localhost:5000/api/areas/days/${dayId}`, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ companyId }),
-          });
+          const response = await fetch(
+            `http://localhost:5000/api/areas/days/${dayId}`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ companyId }),
+            }
+          );
 
           if (!response.ok) throw new Error("Network response was not ok");
 
@@ -67,19 +75,45 @@ export default function AreasForDay(): JSX.Element {
   }, [dayId, companyId, token]);
 
   useEffect(() => {
-    // Fetch name of the specified day
-    fetch(`http://localhost:5000/api/days/${dayId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
+    const fetchDay = async () => {
+      try {
+        // Check for offline mode
+        if (!navigator.onLine) {
+          console.log("Offline: Fetching day from IndexedDB");
+          const cachedDay = await getDayFromDB(dayId);
+          if (cachedDay) {
+            setDayName(cachedDay.name);
+            return;
+          } else {
+            console.warn("No cached data available for the day.");
+            setDayName("Unknown Day");
+            return;
+          }
+        }
+
+        // Online: Fetch from API
+        const response = await fetch(
+          `http://localhost:5000/api/days/${dayId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) throw new Error("Failed to fetch day data");
+
+        const data = await response.json();
         setDayName(data?.name || "Unknown Day");
-      })
-      .catch((error) => {
+
+        // Save fetched data to IndexedDB
+        await saveDayToDB(dayId, data);
+      } catch (error) {
         console.error("Error fetching day name:", error);
-      });
+      }
+    };
+
+    fetchDay();
   }, [dayId, token]);
 
   return (

@@ -2,7 +2,7 @@ import { openDB } from "idb";
 
 // Database configuration
 const DB_NAME = "MyDatabase";
-const DB_VERSION = 6;
+const DB_VERSION = 7;
 
 // Store names
 const REQUESTS_STORE = "requests";
@@ -12,6 +12,7 @@ const DISCOUNT_STORE_NAME = "customerDiscounts";
 const INVOICE_STORE_NAME = "customerInvoices";
 const PRODUCTS_STORE_NAME = "products";
 const TRANSACTIONS_STORE_NAME = "transactions";
+const DAY_STORE_NAME = "dayStore";
 
 // Initialize IndexedDB
 export async function initializeDB() {
@@ -44,6 +45,9 @@ export async function initializeDB() {
           keyPath: "id",
           autoIncrement: true,
         });
+      }
+      if (!db.objectStoreNames.contains(DAY_STORE_NAME)) {
+        db.createObjectStore(DAY_STORE_NAME, { keyPath: "dayId" });
       }
     },
   });
@@ -170,4 +174,15 @@ export async function getProductTypeFromDB(companyId: string) {
   const db = await openDB(DB_NAME, DB_VERSION);
   const result = await db.get(PRODUCTS_STORE_NAME, companyId);
   return result?.productType || null;
+}
+export async function saveDayToDB(dayId: string, dayData: any) {
+  const db = await openDB(DB_NAME, DB_VERSION);
+  const tx = db.transaction(DAY_STORE_NAME, "readwrite");
+  await tx.store.put({ dayId, ...dayData });
+  await tx.done;
+}
+export async function getDayFromDB(dayId: string) {
+  const db = await openDB(DB_NAME, DB_VERSION);
+  const result = await db.get(DAY_STORE_NAME, dayId);
+  return result || null;
 }
