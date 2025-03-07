@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import "./Customers.css";
 import { useDispatch, useSelector } from "react-redux";
 import { clearCustomerId } from "../../../redux/Order/action";
-import AddCustomers from "../../../components/Customers/AddCustomers/AddCustomers.tsx";
+import AddCustomers from "../../../components/Customers/AddCustomers/AddCustomers";
 import AddCustomer from "../../../components/Customers/AddCustomer/AddCustomer.jsx";
 import SpinLoader from "../../../components/UI reusables/SpinLoader/SpinLoader.jsx";
 
