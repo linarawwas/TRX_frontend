@@ -3,13 +3,6 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import SpinLoader from "../../UI reusables/SpinLoader/SpinLoader";
 import "./CustomerInvoices.css";
-import {
-  getCustomerDiscountFromDB,
-  saveCustomerDiscountToDB,
-  getCustomerInvoiceFromCache,
-  saveCustomerInvoiceToCache,
-} from "../../../utils/indexedDB";
-
 interface Sums {
   deliveredSum: number;
   returnedSum: number;
@@ -40,15 +33,7 @@ const CustomerInvoices: React.FC = () => {
 
       if (navigator.onLine) {
         try {
-          // First, check if the data is cached
-          const cachedData = await getCustomerInvoiceFromCache(customerId);
-          if (cachedData) {
-            setSums(cachedData.sums);
-            setLoading(false);
-            return;
-          }
-
-          // If not cached, fetch from API
+          //fetch from API
           const response = await axios.get(
             `http://localhost:5000/api/customers/reciept/${customerId}`,
             {
@@ -62,26 +47,12 @@ const CustomerInvoices: React.FC = () => {
           const data = response.data;
           setSums(data.sums);
           setLoading(false);
-
-          // Cache the fetched data only if it is new
-          saveCustomerInvoiceToCache(customerId, data);
-
         } catch (error) {
           console.error("Error fetching customer receipt:", error);
           setLoading(false);
         }
       } else {
         // Offline: Load from IndexedDB
-        console.log("No internet connection, loading from IndexedDB");
-
-        const cachedInvoiceData = await getCustomerInvoiceFromCache(customerId);
-        if (cachedInvoiceData) {
-          console.log("Loaded receipt data from IndexedDB:", cachedInvoiceData);
-          setSums(cachedInvoiceData.sums);
-        } else {
-          console.log("No cached data found.");
-        }
-
         setLoading(false);
       }
     };

@@ -2,14 +2,13 @@ import { openDB } from "idb";
 
 // Database configuration
 const DB_NAME = "MyDatabase";
-const DB_VERSION = 7;
+const DB_VERSION = 8;
 
 // Store names
 const REQUESTS_STORE = "requests";
 const AREAS_STORE_NAME = "areas";
 const CUSTOMERS_STORE_NAME = "customers";
 const DISCOUNT_STORE_NAME = "customerDiscounts";
-const INVOICE_STORE_NAME = "customerInvoices";
 const PRODUCTS_STORE_NAME = "products";
 const TRANSACTIONS_STORE_NAME = "transactions";
 const DAY_STORE_NAME = "dayStore";
@@ -34,9 +33,7 @@ export async function initializeDB() {
       if (!db.objectStoreNames.contains(DISCOUNT_STORE_NAME)) {
         db.createObjectStore(DISCOUNT_STORE_NAME, { keyPath: "customerId" });
       }
-      if (!db.objectStoreNames.contains(INVOICE_STORE_NAME)) {
-        db.createObjectStore(INVOICE_STORE_NAME, { keyPath: "customerId" });
-      }
+
       if (!db.objectStoreNames.contains(PRODUCTS_STORE_NAME)) {
         db.createObjectStore(PRODUCTS_STORE_NAME, { keyPath: "companyId" });
       }
@@ -106,24 +103,6 @@ export async function removeTransactionFromDB(transactionId: number) {
   await tx.store.delete(transactionId);
   await tx.done;
 }
-
-// ==== OTHER STORE OPERATIONS ====
-export async function saveCustomerInvoiceToCache(
-  customerId: string,
-  data: any
-) {
-  const db = await openDB(DB_NAME, DB_VERSION);
-  const tx = db.transaction(INVOICE_STORE_NAME, "readwrite");
-  await tx.store.put({ customerId, invoice: data });
-  await tx.done;
-}
-
-export async function getCustomerInvoiceFromCache(customerId: string) {
-  const db = await openDB(DB_NAME, DB_VERSION);
-  const result = await db.get(INVOICE_STORE_NAME, customerId);
-  return result?.invoice || null;
-}
-
 export async function saveAreasToDB(dayId: string, data: any) {
   const db = await openDB(DB_NAME, DB_VERSION);
   const tx = db.transaction(AREAS_STORE_NAME, "readwrite");
