@@ -1,4 +1,4 @@
-.login-container {
+/* .login-container {
   max-width: 50%;
   margin: 0 auto;
   margin-bottom: 50px;
@@ -140,4 +140,30 @@
   .login-title{
     text-align: center;
   }
+} */
+.white-bg {
+  height: 15vh;
+  background-color: white;
+  margin: 0;
+  padding: 0;
+}
+.blue-box {
+  height: 100%;
+  background-color: rgb(79, 158, 243);
+  border-radius: 0 0 200px;
+  margin: 0;
+  padding: 0;
+}
+.blue-bg {
+  height: 85vh;
+  background-color: rgb(79, 158, 243);
+  margin: 0;
+  padding: 0;
+}
+.white-box {
+  height: 100%;
+  background-color: white;
+  border-radius: 200px 0 0 0;
+  margin: 0;
+  padding: 0;
 }
