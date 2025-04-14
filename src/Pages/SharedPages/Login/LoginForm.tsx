@@ -34,18 +34,15 @@ export default function LoginForm(): JSX.Element {
 
     try {
       // Send a POST request to your authentication endpoint
-      const response = await fetch(
-        "http://localhost:5000/api/auth/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include", // Ensures cookies and tokens are sent
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // Ensures cookies and tokens are sent
 
-          body: JSON.stringify(credentials),
-        }
-      );
+        body: JSON.stringify(credentials),
+      });
 
       if (response.ok) {
         toast.success("Logged In Successfully");
