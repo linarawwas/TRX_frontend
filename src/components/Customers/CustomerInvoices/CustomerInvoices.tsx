@@ -67,19 +67,19 @@ const CustomerInvoices: React.FC = () => {
         <SpinLoader />
       ) : sums ? (
         <div className="receipt-details">
-          <div className="receipt-detail">
+          {/* <div className="receipt-detail">
             <p className="detail-name">Delivered Sum: </p>
             <p className="detail-value">{sums?.deliveredSum}</p>
           </div>
           <div className="receipt-detail">
             <p className="detail-name">Returned Sum: </p>
             <p className="detail-value">{sums?.returnedSum}</p>
-          </div>
+          </div> */}
           <div className="receipt-detail">
             <p className="detail-name">Bottles Left:</p>
             <p className="detail-value"> {sums?.bottlesLeft}</p>
           </div>
-          <div className="receipt-detail">
+          {/* <div className="receipt-detail">
             <p className="detail-name">Checkout Sum: </p>
             <p className="detail-value">{sums?.checkoutSum.toFixed(2)}</p>
           </div>
@@ -94,7 +94,7 @@ const CustomerInvoices: React.FC = () => {
           <div className="receipt-detail">
             <p className="detail-name">Sum of dollar Payments: </p>
             <p className="detail-value">{sums?.paidInDollarsSum}</p>
-          </div>
+          </div> */}
           <div className="receipt-detail">
             <p className="detail-name">Total Sum: </p>
             <p className="detail-value">{sums?.totalSum.toFixed(2)}</p>
