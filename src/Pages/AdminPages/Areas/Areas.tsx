@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import './Areas.css';
-import { Carousel } from 'react-responsive-carousel';
-import 'react-responsive-carousel/lib/styles/carousel.min.css';
-import { useSelector } from 'react-redux';
-import AddArea from '../../../components/Areas/AddArea/AddArea';
-import SpinLoader from '../../../components/UI reusables/SpinLoader/SpinLoader';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import "./Areas.css";
+import { Carousel } from "react-responsive-carousel";
+import "react-responsive-carousel/lib/styles/carousel.min.css";
+import { useSelector } from "react-redux";
+import AddArea from "../../../components/Areas/AddArea/AddArea";
+import SpinLoader from "../../../components/UI reusables/SpinLoader/SpinLoader";
 
 interface Area {
   _id: string;
@@ -42,7 +42,7 @@ export default function Areas(): JSX.Element {
           setLoading(false);
         })
         .catch((error) => {
-          console.error('Error fetching areas:', error);
+          console.error("Error fetching areas:", error);
           setLoading(false);
         });
     }
@@ -50,73 +50,29 @@ export default function Areas(): JSX.Element {
     fetchAreas();
   }, [token, formVisible]);
 
-  const handlePageChange = (newPage: number) => {
-    setSelectedItem(newPage);
-    setCurrentPage(newPage);
-  };
-
-  const goToPreviousPage = () => {
-    if (currentPage > 0) {
-      handlePageChange(currentPage - 1);
-    }
-  };
-
-  const goToNextPage = () => {
-    if (currentPage < totalPages - 1) {
-      handlePageChange(currentPage + 1);
-    }
-  };
-
-  const areasPerPage: number = 4;
-  const totalPages: number = Math.ceil(areas.length / areasPerPage);
-  const areasForPage: Area[] = areas.slice(
-    currentPage * areasPerPage,
-    (currentPage + 1) * areasPerPage
-  );
-
   return (
     <div className="areas-body">
       <div className="areas-header">
         <h2 className="areas-title">Distribution Areas</h2>
-        <button onClick={handleFormToggle}>{formVisible ? "Show Areas" : "Add A New Area?"}</button>
+        <button onClick={handleFormToggle}>
+          {formVisible ? "Show Areas" : "Add A New Area?"}
+        </button>
       </div>
 
       {loading ? (
         <SpinLoader />
       ) : (
         <>
-          <div className='areas-div'>
+          <div className="areas-div">
             {!formVisible &&
-              areasForPage.map((area) => (
+              areas?.map((area) => (
                 <div key={area._id}>
-                  <Link to={`/addresses/${area._id}`} className='area-link'>{area.name}</Link>
+                  <Link to={`/addresses/${area._id}`} className="area-link">
+                    {area.name}
+                  </Link>
                 </div>
-              ))
-            }
+              ))}
           </div>
-
-          {totalPages > 1 && (
-            <div className="pagination">
-              <div className="nav-arrow left" onClick={goToPreviousPage}>
-                &lt;
-              </div>
-              <Carousel
-                showStatus={false}
-                showArrows={false}
-                showThumbs={false}
-                selectedItem={selectedItem}
-              >
-                {Array.from({ length: totalPages }, (_, i) => (
-                  <div key={i} onClick={() => handlePageChange(i)}>
-                    Page {i + 1}
-                  </div>
-                ))}
-              </Carousel>
-              <div className="nav-arrow right" onClick={goToNextPage}>
-                &gt;
-              </div>
-            </div>
-          )}
           <div className="add-area-div">{formVisible && <AddArea />}</div>
         </>
       )}
