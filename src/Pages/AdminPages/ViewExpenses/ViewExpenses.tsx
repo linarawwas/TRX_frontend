@@ -54,38 +54,6 @@ const Expenses: React.FC = () => {
       fetchExpenses();
     }
   }, [companyId, token, showAddExpenses]);
-
-  const indexOfLastRecord = currentPage * recordsPerPage;
-  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentRecords = extraExpenses.slice(
-    indexOfFirstRecord,
-    indexOfLastRecord
-  );
-
-  const paginate = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
-  };
-
-  const renderPagination = () => {
-    return (
-      <ul className="pagination">
-        {Array.from(
-          { length: Math.ceil(extraExpenses.length / recordsPerPage) },
-          (_, index) => (
-            <li
-              key={index}
-              onClick={() => paginate(index + 1)}
-              className={`pagination-item ${
-                currentPage === index + 1 ? "active" : ""
-              }`}
-            >
-              {index + 1}
-            </li>
-          )
-        )}
-      </ul>
-    );
-  };
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
     // Adjust the received timestamp by subtracting 2 hours for the Beirut timezone
@@ -153,7 +121,7 @@ const Expenses: React.FC = () => {
         <SpinLoader />
       ) : extraExpenses.length > 0 ? (
         <div className="receipt-details-container">
-          {currentRecords.map((expense) => (
+          {Expenses?.map((expense) => (
             <div className="receipt-details" key={expense._id}>
               <div className="container-button-div">
                 <button
@@ -198,7 +166,6 @@ const Expenses: React.FC = () => {
       ) : (
         <p>No extra expenses found for this company</p>
       )}
-      {renderPagination()}
     </div>
   );
 };

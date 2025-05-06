@@ -84,38 +84,6 @@ const OrdersTable: React.FC = () => {
       });
   }, [token, companyId]);
 
-  // Number of records to display on each page
-  const recordsPerPage = 4;
-
-  // Function to handle page change
-  const handlePageChange = (newPage: number) => {
-    setSelectedItem(newPage);
-    setCurrentPage(newPage);
-  };
-
-  // Function to go to the previous page
-  const goToPreviousPage = () => {
-    if (currentPage > 0) {
-      handlePageChange(currentPage - 1);
-    }
-  };
-
-  // Function to go to the next page
-  const goToNextPage = () => {
-    if (currentPage < totalPages - 1) {
-      handlePageChange(currentPage + 1);
-    }
-  };
-
-  // Calculate the total number of pages
-  const totalPages = Math.ceil(orders.length / recordsPerPage);
-
-  // Get the orders for the current page
-  const ordersForPage = orders?.slice(
-    currentPage * recordsPerPage,
-    (currentPage + 1) * recordsPerPage
-  );
-
   return (
     <div className="ordersBody">
       <h2 className="ordersTitle"> Orders</h2>
@@ -133,7 +101,7 @@ const OrdersTable: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {ordersForPage.map((order) => (
+              {orders.map((order) => (
                 <tr key={order._id}>
                   <td>{order?.customer?.name}</td>
                   <td>{order?.delivered}</td>
@@ -146,28 +114,6 @@ const OrdersTable: React.FC = () => {
               ))}
             </tbody>
           </table>
-          {totalPages > 1 && (
-            <div className="pagination">
-              <div className="nav-arrow left" onClick={goToPreviousPage}>
-                &lt;
-              </div>
-              <Carousel
-                showStatus={false}
-                showArrows={false}
-                showThumbs={false}
-                selectedItem={selectedItem}
-              >
-                {Array.from({ length: totalPages }, (_, i) => (
-                  <div key={i} onClick={() => handlePageChange(i)}>
-                    Page {i + 1}
-                  </div>
-                ))}
-              </Carousel>
-              <div className="nav-arrow right" onClick={goToNextPage}>
-                &gt;
-              </div>
-            </div>
-          )}
         </>
       )}
     </div>
