@@ -55,37 +55,6 @@ const ExtraProfits: React.FC = () => {
     }
   }, [companyId, token, showAddProfits]);
 
-  const indexOfLastRecord = currentPage * recordsPerPage;
-  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentRecords = extraProfits.slice(
-    indexOfFirstRecord,
-    indexOfLastRecord
-  );
-
-  const paginate = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
-  };
-
-  const renderPagination = () => {
-    return (
-      <ul className="pagination">
-        {Array.from(
-          { length: Math.ceil(extraProfits.length / recordsPerPage) },
-          (_, index) => (
-            <li
-              key={index}
-              onClick={() => paginate(index + 1)}
-              className={`pagination-item ${
-                currentPage === index + 1 ? "active" : ""
-              }`}
-            >
-              {index + 1}
-            </li>
-          )
-        )}
-      </ul>
-    );
-  };
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
     // Adjust the received timestamp by subtracting 2 hours for the Beirut timezone
@@ -154,7 +123,7 @@ const ExtraProfits: React.FC = () => {
         <SpinLoader />
       ) : extraProfits.length > 0 ? (
         <div className="receipt-details-container">
-          {currentRecords.map((profit) => (
+          {extraProfits?.map((profit) => (
             <div className="receipt-details" key={profit._id}>
               <div className="container-button-div">
                 <button
@@ -199,7 +168,6 @@ const ExtraProfits: React.FC = () => {
       ) : (
         <p>No extra profits found for this company</p>
       )}
-      {renderPagination()}
     </div>
   );
 };
