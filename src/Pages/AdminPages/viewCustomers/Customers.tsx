@@ -8,6 +8,7 @@ import { clearCustomerId } from "../../../redux/Order/action";
 import AddCustomers from "../../../components/Customers/AddCustomers/AddCustomers";
 import AddCustomer from "../../../components/Customers/AddCustomer/AddCustomer.jsx";
 import SpinLoader from "../../../components/UI reusables/SpinLoader/SpinLoader.jsx";
+import AddCustomerInitials from "../../../components/Customers/AddCustomerInitials/AddCustomerInitials";
 
 interface Customer {
   _id: string;
@@ -25,6 +26,7 @@ const Customers: React.FC = () => {
   const [selectedItem, setSelectedItem] = useState<number>(0);
   const [showInsertBulk, setShowInsertBulk] = useState<boolean>(false);
   const [showInsertOne, setShowInsertOne] = useState<boolean>(false);
+  const [showInsertInitial, setShowInsertInitial] = useState<boolean>(false);
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(clearCustomerId());
@@ -68,8 +70,17 @@ const Customers: React.FC = () => {
             {" "}
             {showInsertOne ? "Show customers" : "Add one?"}{" "}
           </button>
+          <button
+            className="customer-adding-option"
+            onClick={() => {
+              setShowInsertInitial(!showInsertInitial);
+            }}
+          >
+            {showInsertInitial ? "Go Back" : "Add Customer Initials Per Area"}{" "}
+          </button>
           {showInsertBulk && <AddCustomers />}
           {showInsertOne && <AddCustomer />}
+          {showInsertInitial && <AddCustomerInitials />}
         </div>
       </div>
 
