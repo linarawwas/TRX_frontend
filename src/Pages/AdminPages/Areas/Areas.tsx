@@ -51,14 +51,14 @@ export default function Areas(): JSX.Element {
   }, [token, formVisible]);
 
   return (
-    <div className="areas-body">
+    <div className="areas-body" dir="rtl">
       <div className="areas-header">
-        <h2 className="areas-title">Distribution Areas</h2>
+        <h2 className="areas-title">مناطق التوزيع</h2>
         <button onClick={handleFormToggle}>
-          {formVisible ? "Show Areas" : "Add A New Area?"}
+          {formVisible ? "عرض المناطق" : "إضافة منطقة جديدة؟"}
         </button>
       </div>
-
+  
       {loading ? (
         <SpinLoader />
       ) : (
@@ -78,4 +78,5 @@ export default function Areas(): JSX.Element {
       )}
     </div>
   );
+  
 }

@@ -133,14 +133,15 @@ const StartShipment: React.FC = () => {
   };
   const shipmentConfig = {
     "component-related-fields": {
-      "modelName": "shipments",
-      "title": "Enter Shipment Info",
-      "button-label": "Start shipment",
+      "modelName": "الشحنات",
+      "title": "أدخل معلومات الشحنة",
+      "button-label": "بدء الشحنة"
     },
     "model-related-fields": {
-      "carryingForDelivery": { "label": "Amount Carried For Delivery", "input-type": "number" }
+      "carryingForDelivery": { "label": "الكمية المحملة للتوصيل", "input-type": "number" }
     }
   };
+  
 
   return (
     <AddToModel

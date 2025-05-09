@@ -71,16 +71,16 @@ const ProductsList: React.FC = () => {
     }
   };
   return (
-    <div className="products">
+    <div className="products" dir="rtl">
       <ToastContainer position="top-right" autoClose={1000} />
-      <h2> Products</h2>
+      <h2>المنتجات</h2>
       <h3
         className="show-add-products"
         onClick={() => {
           setShowAddProducts(!showAddProducts);
         }}
       >
-        {showAddProducts ? "hide form?" : "Add new products?"}
+        {showAddProducts ? "هل تريد إخفاء النموذج؟" : "هل تريد إضافة منتجات جديدة؟"}
       </h3>
       {showAddProducts && <AddProducts />}
       {loading ? (
@@ -96,31 +96,32 @@ const ProductsList: React.FC = () => {
                     handleDeleteExpense(product._id);
                   }}
                 >
-                  delete
+                  حذف
                 </button>
               </div>
               <div className="receipt-detail">
-                <p className="detail-name">Name:</p>
+                <p className="detail-name">الاسم:</p>
                 <p className="detail-value">{product?.type}</p>
               </div>
               <div className="receipt-detail">
-                <p className="detail-name">Value:</p>
+                <p className="detail-name">القيمة:</p>
                 <p className="detail-value">{product?.priceInDollars}</p>
               </div>
               <div className="receipt-detail">
-                <p className="detail-name">isReturnable:</p>
+                <p className="detail-name">هل يمكن إرجاعه:</p>
                 <p className="detail-value">
-                  {product.isReturnable ? "true" : "false"}
+                  {product.isReturnable ? "نعم" : "لا"}
                 </p>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <p>No products found for this company</p>
+        <p>لا توجد منتجات لهذه الشركة</p>
       )}
     </div>
   );
+  
 };
 
 export default ProductsList;

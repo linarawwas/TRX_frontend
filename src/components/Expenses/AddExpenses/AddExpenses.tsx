@@ -45,18 +45,24 @@ const AddExpenses: React.FC = () => {
   };
   const expensesConfig = {
     "component-related-fields": {
-      "modelName": "Expenses",
-      "title": "Add Expenses",
-      "button-label": "Add Expenses",
+      "modelName": "المصاريف",
+      "title": "إضافة مصاريف",
+      "button-label": "إضافة مصاريف"
     },
     "model-related-fields": {
-      "name": { "label": "Name", "input-type": "text" },
-      "value": { "label": "Value", "input-type": "number" },
-      "paymentCurrency": { "label": "Payment Currency", "input-type": "selectOption", "options": [
-        { value: 'USD', label: 'USD' },
-        { value: 'LBP', label: 'LBP' }] },
+      "name": { "label": "الاسم", "input-type": "text" },
+      "value": { "label": "القيمة", "input-type": "number" },
+      "paymentCurrency": { 
+        "label": "عملة الدفع", 
+        "input-type": "selectOption", 
+        "options": [
+          { "value": "USD", "label": "دولار أمريكي" },
+          { "value": "LBP", "label": "ليرة لبنانية" }
+        ]
+      }
     }
   };
+  
   return (
     <AddToModel
       modelName={expensesConfig['component-related-fields'].modelName}

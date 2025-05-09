@@ -41,10 +41,10 @@ const AsideMenuAdmin: React.FC = () => {
   };
 
   return (
-    <div className={`dashboard ${isMenuOpen ? "menu-open" : "menu-closed"}`}>
+    <div className={`dashboard ${isMenuOpen ? "menu-open" : "menu-closed"}`} dir="rtl">
       <div className="aside-Menu">
         <ToastContainer position="top-right" autoClose={1000} />
-
+  
         <div className="button-div">
           <button className="menu-toggle" onClick={toggleMenu}>
             {isMenuOpen ? <FaTimes /> : <FaBars />}
@@ -52,50 +52,38 @@ const AsideMenuAdmin: React.FC = () => {
           <img
             className="logo"
             src={logo}
-            alt="Logo"
+            alt="الشعار"
             onClick={() => {
               navigate("/");
             }}
           />
         </div>
+  
         <aside className="sidebar">
           <ul>
             <li>
               <Link to="/areas" className="sidebar-link" onClick={toggleMenu}>
-                Areas
+                المناطق
+              </Link>
+            </li>
+            {/* <li>
+              <Link to="/register" className="sidebar-link" onClick={toggleMenu}>
+                تسجيل موظف جديد
+              </Link>
+            </li> */}
+            <li>
+              <Link to="/customers" className="sidebar-link" onClick={toggleMenu}>
+                الزبائن
               </Link>
             </li>
             <li>
-              <Link
-                to="/register"
-                className="sidebar-link"
-                onClick={toggleMenu}
-              >
-                Register
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/customers"
-                className="sidebar-link"
-                onClick={toggleMenu}
-              >
-                Customer
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/Expenses"
-                className="sidebar-link"
-                onClick={toggleMenu}
-              >
-                Expenses
+              <Link to="/Expenses" className="sidebar-link" onClick={toggleMenu}>
+                المصاريف
               </Link>
             </li>
             <li>
               <Link to="/Profits" className="sidebar-link" onClick={toggleMenu}>
-                {" "}
-                Profits
+                الأرباح
               </Link>
             </li>
             <li>
@@ -104,22 +92,17 @@ const AsideMenuAdmin: React.FC = () => {
                 className="sidebar-link"
                 onClick={toggleMenu}
               >
-                Shipment Info
+                تفاصيل الشحنة الحالية
               </Link>
             </li>
             <li>
-              <Link
-                to="/Products"
-                className="sidebar-link"
-                onClick={toggleMenu}
-              >
-                {" "}
-                Products
+              <Link to="/Products" className="sidebar-link" onClick={toggleMenu}>
+                المنتجات
               </Link>
             </li>
             <li>
               <button className="logout-button" onClick={handleLogout}>
-                Logout
+                تسجيل الخروج
               </button>
             </li>
           </ul>
@@ -127,6 +110,7 @@ const AsideMenuAdmin: React.FC = () => {
       </div>
     </div>
   );
+  
 };
 
 export default AsideMenuAdmin;

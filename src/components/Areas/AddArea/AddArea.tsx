@@ -73,15 +73,14 @@ function AddArea(): JSX.Element {
       toast.error('Area creation error:', error);
     }
   };
-
   return (
-    <div className="add-area-container">
+    <div className="add-area-container" dir="rtl">
       <ToastContainer position="top-right" autoClose={1000} />
-
-      <h2 className='add-area-title'>Add New Area</h2>
+  
+      <h2 className='add-area-title'>إضافة منطقة جديدة</h2>
       <form className='add-area-form' onSubmit={handleSubmit}>
         <div className="add-area-input-group">
-          <label htmlFor="name" className="add-area-input-label">Area Name:</label>
+          <label htmlFor="name" className="add-area-input-label">اسم المنطقة:</label>
           <input
             className='area-name-input add-area-input-field'
             type="text"
@@ -92,8 +91,9 @@ function AddArea(): JSX.Element {
             required
           />
         </div>
+  
         <div className="add-area-input-group">
-          <label htmlFor="day" className="add-area-input-label">Select a Day:</label>
+          <label htmlFor="day" className="add-area-input-label">اختر يوماً:</label>
           <select
             id="day"
             name="dayId"
@@ -102,7 +102,7 @@ function AddArea(): JSX.Element {
             required
             className="add-area-input-field"
           >
-            <option value="">Select a Day</option>
+            <option value="">اختر يوماً</option>
             {days.map((day) => (
               <option key={day._id} value={day._id}>
                 {day.name}
@@ -110,10 +110,12 @@ function AddArea(): JSX.Element {
             ))}
           </select>
         </div>
-        <button type="submit" className="add-area-submit-button">Add Area</button>
+  
+        <button type="submit" className="add-area-submit-button">إضافة المنطقة</button>
       </form>
     </div>
   );
+  
 }
 
 export default AddArea;

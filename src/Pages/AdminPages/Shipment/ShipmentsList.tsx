@@ -144,11 +144,11 @@ const ShipmentsList: React.FC = () => {
   const LIRA_overall = totals.shipmentLiraPayments + totals.shipmentLiraExtraProfits - totals.shipmentLiraExpenses;
 
   return (
-    <div className="shipments-container">
-
+    <div className="shipments-container" dir="rtl">
       <div className="shipments-list">
-        <h2>Shipments List</h2>
+        <h2>قائمة الشحنات</h2>
         <ToastContainer position="top-right" autoClose={3000} />
+  
         {/* Date Pickers */}
         <div className="date-pickers">
           <DatePicker
@@ -164,7 +164,7 @@ const ShipmentsList: React.FC = () => {
                 setFromDate({ day: null, month: null, year: null });
               }
             }}
-            placeholderText="Select From Date"
+            placeholderText="اختر تاريخ البداية"
           />
           <DatePicker
             selected={dateObjectToDate(toDate)}
@@ -179,65 +179,69 @@ const ShipmentsList: React.FC = () => {
                 setToDate({ day: null, month: null, year: null });
               }
             }}
-            placeholderText="Select To Date"
+            placeholderText="اختر تاريخ النهاية"
           />
-          <button onClick={fetchShipments}>Select</button>
+          <button onClick={fetchShipments}>تحديد</button>
         </div>
-
-        {isLoading ? (<SpinLoader />) : (
+  
+        {isLoading ? (
+          <SpinLoader />
+        ) : (
           <div className="totals">
-            <div>Carried: {totals.carryingForDelivery}</div>
-            <div>Delivered: {totals.calculatedDelivered}</div>
-            <div>Returned: {totals.calculatedReturned}</div>
-            <div>Lira Payments {totals.shipmentLiraPayments}</div>
-            <div>$ Payments {totals.shipmentUSDPayments}</div>
-            <div>Expenses $: {totals.shipmentUSDExpenses}</div>
-            <div>Expenses LBP: {totals.shipmentLiraExpenses}</div>
-            <div>Extra Profits $: {totals.shipmentUSDExtraProfits}</div>
-            <div>Extra Profits LBP: {totals.shipmentLiraExtraProfits}</div>
-            <div>Overall LBP: {LIRA_overall}</div>
-            <div>Overall $: {USD_overall}</div>
+            <div>مجموع الشحنات للتوصيل: {totals.carryingForDelivery}</div>
+            <div>مجموع الشحنات المُسلمة: {totals.calculatedDelivered}</div>
+            <div>مجموع الشحنات المُعادت: {totals.calculatedReturned}</div>
+            <div>مدفوعات الليرة: {totals.shipmentLiraPayments}</div>
+            <div>مدفوعات الدولار: {totals.shipmentUSDPayments}</div>
+            <div>النفقات بالدولار: {totals.shipmentUSDExpenses}</div>
+            <div>النفقات بالليرة: {totals.shipmentLiraExpenses}</div>
+            <div>الأرباح الإضافية بالدولار: {totals.shipmentUSDExtraProfits}</div>
+            <div>الأرباح الإضافية بالليرة: {totals.shipmentLiraExtraProfits}</div>
+            <div>إجمالي بالليرة: {LIRA_overall}</div>
+            <div>إجمالي بالدولار: {USD_overall}</div>
           </div>
         )}
-        <ul className='shipment-info-box'>
+        <ul className="shipment-info-box">
           {isLoading ? (
-            <SpinLoader />) : (
+            <SpinLoader />
+          ) : (
             currentShipments.map((shipment) => (
-              <li className='single-shipment-info' key={shipment._id}>
-                <div className='shipment-info-field'>
-                  <strong>Date:</strong> {shipment.date.day}/{shipment?.date.month}/{shipment.date.year}
+              <li className="single-shipment-info" key={shipment._id}>
+                <div className="shipment-info-field">
+                  <strong>التاريخ:</strong> {shipment.date.day}/{shipment?.date.month}/{shipment.date.year}
                 </div>
-                <div className='shipment-info-field'>
-                  <strong>Carried For Delivery:</strong> {shipment?.carryingForDelivery}
+                <div className="shipment-info-field">
+                  <strong>مجموع الشحنات للتوصيل:</strong> {shipment?.carryingForDelivery}
                 </div>
-                <div className='shipment-info-field'>
-                  <strong>Delivered:</strong> {shipment?.calculatedDelivered}
+                <div className="shipment-info-field">
+                  <strong>مجموع الشحنات المُسلمة:</strong> {shipment?.calculatedDelivered}
                 </div>
-                <div className='shipment-info-field'>
-                  <strong>Returned:</strong> {shipment?.calculatedReturned}
+                <div className="shipment-info-field">
+                  <strong>مجموع الشحنات المُعادت:</strong> {shipment?.calculatedReturned}
                 </div>
-                <div className='shipment-info-field'>
-                  <strong> Lira Payments:</strong> {shipment?.shipmentLiraPayments}
+                <div className="shipment-info-field">
+                  <strong>مدفوعات الليرة:</strong> {shipment?.shipmentLiraPayments}
                 </div>
-                <div className='shipment-info-field'>
-                  <strong>$ Payments:</strong> {shipment?.shipmentUSDPayments}
+                <div className="shipment-info-field">
+                  <strong>مدفوعات الدولار:</strong> {shipment?.shipmentUSDPayments}
                 </div>
-                <div className='shipment-info-field'>
-                  <strong> Lira Expenses:</strong> {shipment?.shipmentLiraExpenses}
+                <div className="shipment-info-field">
+                  <strong>النفقات بالليرة:</strong> {shipment?.shipmentLiraExpenses}
                 </div>
-                <div className='shipment-info-field'>
-                  <strong> Expenses $: </strong> {shipment?.shipmentUSDExpenses}
+                <div className="shipment-info-field">
+                  <strong>النفقات بالدولار:</strong> {shipment?.shipmentUSDExpenses}
                 </div>
-                <div className='shipment-info-field'>
-                  <strong>$ Extra Profits:</strong> {shipment?.shipmentUSDExtraProfits}
+                <div className="shipment-info-field">
+                  <strong>الأرباح الإضافية بالدولار:</strong> {shipment?.shipmentUSDExtraProfits}
                 </div>
-                <div className='shipment-info-field'>
-                  <strong>Lira Extra Profits:</strong> {shipment?.shipmentLiraExtraProfits}
+                <div className="shipment-info-field">
+                  <strong>الأرباح الإضافية بالليرة:</strong> {shipment?.shipmentLiraExtraProfits}
                 </div>
               </li>
             ))
           )}
         </ul>
+  
         {/* Pagination */}
         <ul className="pagination">
           {Array.from({ length: Math.ceil(shipments.length / shipmentsPerPage) }, (_, index) => (
@@ -249,6 +253,7 @@ const ShipmentsList: React.FC = () => {
       </div>
     </div>
   );
+  
 };
 
 export default ShipmentsList;

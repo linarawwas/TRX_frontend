@@ -8,21 +8,23 @@ const AddProducts: React.FC = () => {
   // Define the configuration for products
   const productConfig = {
     "component-related-fields": {
-      "modelName": "products",
-      "title": "Add to Products",
-      "button-label": "Add Product",
+      "modelName": "المنتجات",
+      "title": "إضافة إلى المنتجات",
+      "button-label": "إضافة منتج"
     },
     "model-related-fields": {
-      "type": { "label": "Type of Product", "input-type": "text" },
-      "priceInDollars": { "label": "Price In Dollars", "input-type": "number" },
+      "type": { "label": "نوع المنتج", "input-type": "text" },
+      "priceInDollars": { "label": "السعر بالدولار", "input-type": "number" },
       "isReturnable": {
-        "label": "Is it Returnable?", "input-type": "selectOption",
-        "options":
-          [{ value: true, label: 'Yes' },
-          { value: false, label: 'No' }]
-      },
+        "label": "هل يمكن إرجاعه؟", "input-type": "selectOption",
+        "options": [
+          { "value": true, "label": "نعم" },
+          { "value": false, "label": "لا" }
+        ]
+      }
     }
   };
+  
   const companyId = useSelector((state: RootState) => state.user.companyId);
   const token = useSelector((state: RootState) => state.user.token);
 

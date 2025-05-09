@@ -48,9 +48,9 @@ const Customers: React.FC = () => {
       });
   }, [token, companyId, showInsertBulk, showInsertOne]);
   return (
-    <div className="customers-body">
+    <div className="customers-body" dir="rtl">
       <div className="customer-header">
-        <h2 className="customers-title">Customers</h2>
+        <h2 className="customers-title">الزبائن</h2>
         <div className="customer-adding-options">
           <button
             className="customer-adding-option"
@@ -58,8 +58,7 @@ const Customers: React.FC = () => {
               setShowInsertBulk(!showInsertBulk);
             }}
           >
-            {" "}
-            {showInsertBulk ? "Hide Form" : "Add Many?"}{" "}
+            {showInsertBulk ? "إخفاء النموذج" : "إضافة مجموعة؟"}
           </button>
           <button
             className="customer-adding-option"
@@ -67,8 +66,7 @@ const Customers: React.FC = () => {
               setShowInsertOne(!showInsertOne);
             }}
           >
-            {" "}
-            {showInsertOne ? "Show customers" : "Add one?"}{" "}
+            {showInsertOne ? "عرض الزبائن" : "إضافة زبون؟"}
           </button>
           <button
             className="customer-adding-option"
@@ -76,14 +74,14 @@ const Customers: React.FC = () => {
               setShowInsertInitial(!showInsertInitial);
             }}
           >
-            {showInsertInitial ? "Go Back" : "Add Customer Initials Per Area"}{" "}
+            {showInsertInitial ? "عودة" : "إضافة زبائن أولية حسب المنطقة"}
           </button>
           {showInsertBulk && <AddCustomers />}
           {showInsertOne && <AddCustomer />}
           {showInsertInitial && <AddCustomerInitials />}
         </div>
       </div>
-
+  
       {loading ? (
         <SpinLoader />
       ) : (
@@ -92,9 +90,9 @@ const Customers: React.FC = () => {
             <table className="customers-table">
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Address</th>
-                  <th>Details</th>
+                  <th>الاسم</th>
+                  <th>العنوان</th>
+                  <th>تعديل</th>
                 </tr>
               </thead>
               <tbody>
@@ -114,6 +112,7 @@ const Customers: React.FC = () => {
       )}
     </div>
   );
+  
 };
 
 export default Customers;

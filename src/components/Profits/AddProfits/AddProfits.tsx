@@ -44,19 +44,24 @@ const AddProfits: React.FC = () => {
   };
   const profitsConfig = {
     "component-related-fields": {
-      "modelName": "extraProfits",
-      "title": "Add to Profits",
-      "button-label": "Add Profit",
+      "modelName": "الأرباح الإضافية",
+      "title": "إضافة إلى الأرباح",
+      "button-label": "إضافة ربح"
     },
     "model-related-fields": {
-      "name": { "label": "Name", "input-type": "text" },
-      "value": { "label": "Value", "input-type": "number" },
-      "paymentCurrency": {
-        "label": "Payment Currency", "input-type": "selectOption", "options": [{ value: 'USD', label: 'USD' },
-        { value: 'LBP', label: 'LBP' }]
-      },
+      "name": { "label": "الاسم", "input-type": "text" },
+      "value": { "label": "القيمة", "input-type": "number" },
+      "paymentCurrency": { 
+        "label": "عملة الدفع", 
+        "input-type": "selectOption", 
+        "options": [
+          { "value": "USD", "label": "دولار أمريكي" },
+          { "value": "LBP", "label": "ليرة لبنانية" }
+        ]
+      }
     }
   };
+  
   return (
     <AddToModel
       modelName={profitsConfig['component-related-fields'].modelName}

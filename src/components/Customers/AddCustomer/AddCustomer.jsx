@@ -78,23 +78,47 @@ const AddCustomer = () => {
   };
 
   return (
-    <div className="create-customer-container">
-      <h2>Add Customer</h2>
+    <div className="create-customer-container" dir="rtl">
+      <h2>إضافة زبون</h2>
       <ToastContainer position="top-right" autoClose={2000} />
-
+  
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="name" className='customer-input-label'>Name:</label>
-          <input type="text" className='customer-text-input'id="name" name="name" value={formData.name} onChange={handleChange} required />
+          <label htmlFor="name" className="customer-input-label">الاسم:</label>
+          <input
+            type="text"
+            className="customer-text-input"
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
         </div>
+  
         <div className="form-group">
-          <label htmlFor="phone" className='customer-input-label'>Phone:</label>
-          <input type="text" className='customer-text-input' id="phone" name="phone" value={formData.phone} onChange={handleChange} required />
+          <label htmlFor="phone" className="customer-input-label">الهاتف:</label>
+          <input
+            type="text"
+            className="customer-text-input"
+            id="phone"
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+            required
+          />
         </div>
+  
         <div className="form-group">
-          <label htmlFor="areaId" className='customer-input-label'>Area:</label>
-          <select id="areaId" name="areaId" value={formData.areaId} onChange={handleAreaChange} required>
-            <option value="">Select an area</option>
+          <label htmlFor="areaId" className="customer-input-label">المنطقة:</label>
+          <select
+            id="areaId"
+            name="areaId"
+            value={formData.areaId}
+            onChange={handleAreaChange}
+            required
+          >
+            <option value="">اختر منطقة</option>
             {areas.map((area) => (
               <option key={area._id} value={area._id}>
                 {area.name}
@@ -102,14 +126,25 @@ const AddCustomer = () => {
             ))}
           </select>
         </div>
+  
         <div className="form-group">
-          <label className='customer-input-label' htmlFor="address">Address:</label>
-          <input type="text" className='customer-text-input' id="address" name="address" value={formData.address} onChange={handleChange} required />
+          <label className="customer-input-label" htmlFor="address">العنوان:</label>
+          <input
+            type="text"
+            className="customer-text-input"
+            id="address"
+            name="address"
+            value={formData.address}
+            onChange={handleChange}
+            required
+          />
         </div>
-        <button type="submit" className='add-customer-button'>Add Customer</button>
+  
+        <button type="submit" className="add-customer-button">إضافة الزبون</button>
       </form>
     </div>
   );
+  
 };
 
 export default AddCustomer;

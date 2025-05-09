@@ -194,7 +194,7 @@ const CurrentShipmentStat: React.FC = () => {
   return (
     <div className="shipments-container" dir="rtl">
       <div className="shipments-list">
-        <h2>إحصائيات الشحنات الخاصة بشحنة اليوم</h2>
+        <h2>إحصائيات خاصة بشحنة اليوم</h2>
         <ToastContainer position="top-right" autoClose={3000} />
 
         {isLoading ? (

@@ -98,10 +98,10 @@ const Expenses: React.FC = () => {
     }
   };
   return (
-    <div className="extra-expenses">
+    <div className="extra-expenses" dir="rtl">
       <ToastContainer position="top-right" autoClose={1000} />
-
-      <h2>Extra Expenses</h2>
+  
+      <h2>نفقات إضافية</h2>
       {isAdmin ? (
         <></>
       ) : (
@@ -112,16 +112,17 @@ const Expenses: React.FC = () => {
               setShowAddExpenses(!showAddExpenses);
             }}
           >
-            {showAddExpenses ? "hide form?" : "Add new expenses?"}
+            {showAddExpenses ? "إخفاء النموذج؟" : "إضافة نفقة جديدة؟"}
           </h3>
           {showAddExpenses && <AddExpenses />}
         </>
       )}
+  
       {loading ? (
         <SpinLoader />
       ) : extraExpenses.length > 0 ? (
         <div className="receipt-details-container">
-          {Expenses?.map((expense) => (
+          {extraExpenses?.map((expense) => (
             <div className="receipt-details" key={expense._id}>
               <div className="container-button-div">
                 <button
@@ -130,32 +131,36 @@ const Expenses: React.FC = () => {
                     handleDeleteExpense(expense._id);
                   }}
                 >
-                  delete
+                  حذف
                 </button>
               </div>
+  
               <div className="receipt-detail">
-                <p className="detail-name">Name:</p>
+                <p className="detail-name">الاسم:</p>
                 <p className="detail-value">{expense?.name}</p>
               </div>
+  
               <div className="receipt-detail">
-                <p className="detail-name">Value:</p>
+                <p className="detail-name">القيمة:</p>
                 <p className="detail-value">{expense?.value}</p>
               </div>
+  
               <div className="receipt-detail">
-                <p className="detail-name">Currency:</p>
+                <p className="detail-name">العملة:</p>
                 <p className="detail-value">{expense?.paymentCurrency}</p>
               </div>
-
+  
               <div className="receipt-detail">
-                <p className="detail-name">Value in USD:</p>
+                <p className="detail-name">القيمة بالدولار:</p>
                 <p className="detail-value">
                   {typeof expense.valueInUSD === "number"
                     ? expense.valueInUSD.toFixed(2)
                     : expense.valueInUSD}
                 </p>
               </div>
+  
               <div className="receipt-detail timestamp">
-                <p className="detail-name">Date:</p>
+                <p className="detail-name">التاريخ:</p>
                 <p className="detail-value">
                   {formatTimestamp(expense.timestamp)}
                 </p>
@@ -164,10 +169,11 @@ const Expenses: React.FC = () => {
           ))}
         </div>
       ) : (
-        <p>No extra expenses found for this company</p>
+        <p>لا توجد نفقات إضافية لهذه الشركة</p>
       )}
     </div>
   );
+  
 };
 
 export default Expenses;

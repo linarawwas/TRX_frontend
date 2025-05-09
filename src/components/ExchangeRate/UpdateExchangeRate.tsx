@@ -29,14 +29,15 @@ const UpdateExchangeRate: React.FC = () => {
   };
   const expensesConfig = {
     "component-related-fields": {
-      "modelName": "Exchange Rate",
-      "title": "Update Exchange Rate",
-      "button-label": "Update",
+      "modelName": "سعر الصرف",
+      "title": "تحديث سعر الصرف",
+      "button-label": "تحديث"
     },
     "model-related-fields": {
-      "exchangeRateInLBP": { "label": "Exchange Rate In LBP", "input-type": "number" },
+      "exchangeRateInLBP": { "label": "سعر الصرف بالليرة اللبنانية", "input-type": "number" }
     }
   };
+  
   return (
     <AddToModel
       modelName={expensesConfig['component-related-fields'].modelName}
