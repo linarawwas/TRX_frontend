@@ -66,7 +66,7 @@ const OrdersTable: React.FC = () => {
   }
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/orders/company/${companyId}`, {
+    fetch(`https://trx-api.linarawas.com/api/orders/company/${companyId}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,

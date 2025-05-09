@@ -39,7 +39,7 @@ const AddDiscount: React.FC = () => {
 
   // Fetch areas from the API
   useEffect(() => {
-    fetch(`http://localhost:5000/api/areas/company/${companyId}`, {
+    fetch(`https://trx-api.linarawas.com/api/areas/company/${companyId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -51,7 +51,7 @@ const AddDiscount: React.FC = () => {
 
   // Fetch exchange rate from the API
   useEffect(() => {
-    fetch(`http://localhost:5000/api/exchangeRates/6537789b6ed59ef09c18213d`, {
+    fetch(`https://trx-api.linarawas.com/api/exchangeRates/6537789b6ed59ef09c18213d`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -64,7 +64,7 @@ const AddDiscount: React.FC = () => {
   // Fetch customers based on selected area
   useEffect(() => {
     if (formData.areaId) {
-      fetch(`http://localhost:5000/api/customers/area/${formData.areaId}`, {
+      fetch(`https://trx-api.linarawas.com/api/customers/area/${formData.areaId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -96,7 +96,7 @@ const AddDiscount: React.FC = () => {
   };
 
   const handleSubmit = () => {
-    fetch(`http://localhost:5000/api/customers/${formData.customerId}`, {
+    fetch(`https://trx-api.linarawas.com/api/customers/${formData.customerId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -116,21 +116,20 @@ const AddDiscount: React.FC = () => {
         console.error('Error sending data:', error);
       });
   };
-
   return (
-    <div className='add-discount-container'>
-      <h1 className="title">Add Customer Discount</h1>
+    <div className="add-discount-container">
+      <h1 className="title">إضافة خصم للعميل</h1>
       <form>
-
+  
         <label>
-          Area:
+          المنطقة:
           <select
             value={formData.areaId}
             onChange={(e: ChangeEvent<HTMLSelectElement>) =>
               handleInputChange('areaId', e.target.value)
             }
           >
-            <option value="">Select an area</option>
+            <option value="">اختر منطقة</option>
             {areaOptions.map(area => (
               <option key={area._id} value={area._id}>
                 {area.name}
@@ -138,17 +137,16 @@ const AddDiscount: React.FC = () => {
             ))}
           </select>
         </label>
-
+  
         <label>
-          Customer:
+          العميل:
           <select
             value={formData.customerId}
             onChange={(e: ChangeEvent<HTMLSelectElement>) => {
               handleInputChange('customerId', e.target.value)
-            }
-            }
+            }}
           >
-            <option value="">Select a customer</option>
+            <option value="">اختر عميل</option>
             {customerOptions.map(customer => (
               <option key={customer._id} value={customer._id}>
                 {customer.name}
@@ -156,9 +154,9 @@ const AddDiscount: React.FC = () => {
             ))}
           </select>
         </label>
-
+  
         <label>
-          Explain Briefly:
+          شرح مختصر:
           <textarea
             value={formData.noteAboutCustomer}
             onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
@@ -166,8 +164,9 @@ const AddDiscount: React.FC = () => {
             }
           />
         </label>
+        
         <label>
-          Value After Discount:
+          القيمة بعد الخصم:
           <input
             type="number"
             value={formData.valueAfterDiscount || ''}
@@ -176,23 +175,25 @@ const AddDiscount: React.FC = () => {
             }
           />
         </label>
+        
         <label>
-          Discount Currency:
+          عملة الخصم:
           <select
             value={formData.discountCurrency}
             onChange={(e: ChangeEvent<HTMLSelectElement>) =>
               handleInputChange('discountCurrency', e.target.value)
             }
           >
-            <option value="USD">USD</option>
-            <option value="LBP">LBP</option>
+            <option value="USD">دولار أمريكي</option>
+            <option value="LBP">ليرة لبنانية</option>
           </select>
         </label>
-        <button onClick={handleSubmit}>Submit</button>
+  
+        <button onClick={handleSubmit}>إرسال</button>
       </form>
-
     </div>
   );
+  
 };
 
 export default AddDiscount;

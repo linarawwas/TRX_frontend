@@ -39,7 +39,7 @@ const CustomersForArea = (): JSX.Element => {
       try {
         if (navigator.onLine) {
           const response = await fetch(
-            `http://localhost:5000/api/customers/area/${areaId}`,
+            `https://trx-api.linarawas.com/api/customers/area/${areaId}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
