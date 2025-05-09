@@ -1,9 +1,11 @@
-.employee-landing-page {
+.employee-landing-page{
     text-align: center;
     margin: 10% 2%;
     padding: 0 2%;
 }
-
+.employee-landing-page h1{
+    text-align: center;
+}
 .employee-button {
     padding: 10px;
     background-color: #1f8ceb;

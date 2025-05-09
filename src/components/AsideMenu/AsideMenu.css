@@ -34,13 +34,6 @@
   border-radius: 10px 30px 5px 5px;
 }
 
-.sidebar-link:hover,
-.go-to-home-button:hover {
-  background-color: #0d94dd;
-  color: white;
-  font-weight: bold;
-}
-
 .button-div {
   display: flex;
   flex-flow: row wrap;

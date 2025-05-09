@@ -1,35 +1,43 @@
-
 import { useState } from 'react';
 import '../../Pages/AdminPages/AdminLandingPage/LandingPage.css';
 import AddProfits from '../Profits/AddProfits/AddProfits';
 import AddExpenses from '../Expenses/AddExpenses/AddExpenses';
-import { useDispatch } from 'react-redux';
 import StartShipment from '../EmployeeComponents/StartShipment/StartShipment';
 import { FaTimes } from 'react-icons/fa';
+
 const FeatureSection = () => {
-    const dispatch = useDispatch();
-    const [showProfitsForm, setShowProfitsForm] = useState(false)
-    const [showExpensesForm, setShowExpensesForm] = useState(false)
-    const [showShipmentForm, setShowShipmentForm] = useState(false)
-    return (
-        <>
-            <div className="feature-section">
-                <h2>Key Features</h2>
-                <ul>
-                    <li className='show-form-li' onClick={() => { setShowShipmentForm(!showShipmentForm) }}>{showShipmentForm ? <FaTimes /> : "Start a new shipment"}</li>
-                    <li className='show-form-li' onClick={() => { setShowProfitsForm(!showProfitsForm) }}>{showProfitsForm ? <FaTimes /> : "Add Extra Profits"}</li>
-                    <li className='show-form-li' onClick={() => { setShowExpensesForm(!showExpensesForm) }}>{showExpensesForm ? <FaTimes /> : "Add Expenses"}</li>
-                </ul>
-            </div>
-            {showProfitsForm && <AddProfits />}
-            {showExpensesForm && <AddExpenses />}
-            {showShipmentForm && <StartShipment />}
-            <div className="footer">
-                <p>&copy; 2023 TRX by Lina Rawas. All Rights Reserved.</p>
-            </div>
-        </>
-    );
+  const [activeForm, setActiveForm] = useState(null); // 'shipment', 'profits', 'expenses'
+
+  const toggleForm = (formName) => {
+    setActiveForm(prev => (prev === formName ? null : formName));
+  };
+
+  return (
+    <>
+      <div className="feature-section" style={{ direction: 'rtl', textAlign: 'right' }}>
+        <h2>الميزات الرئيسية</h2>
+        <ul>
+          <li className="show-form-li" onClick={() => toggleForm('shipment')}>
+            {activeForm === 'shipment' ? <FaTimes /> : 'ابدأ شحنة جديدة'}
+          </li>
+          <li className="show-form-li" onClick={() => toggleForm('profits')}>
+            {activeForm === 'profits' ? <FaTimes /> : 'أضف أرباح إضافية'}
+          </li>
+          <li className="show-form-li" onClick={() => toggleForm('expenses')}>
+            {activeForm === 'expenses' ? <FaTimes /> : 'أضف مصاريف'}
+          </li>
+        </ul>
+      </div>
+
+      {activeForm === 'shipment' && <StartShipment />}
+      {activeForm === 'profits' && <AddProfits />}
+      {activeForm === 'expenses' && <AddExpenses />}
+
+      <div className="footer" style={{ direction: 'rtl', textAlign: 'center' }}>
+      <p>© 2025 تيركس بواسطة لينة الرواّس. جميع الحقوق محفوظة.</p>
+      </div>
+    </>
+  );
 };
 
 export default FeatureSection;
-
