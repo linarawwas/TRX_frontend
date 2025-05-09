@@ -28,7 +28,7 @@ export const AddPaymentForm = (props) => {
     const handleAddPayment = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(`https://trx-api.linarawas.com//api/orders/addPayment/${orderId}`, {
+            const response = await fetch(`http://localhost:5000/api/orders/addPayment/${orderId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -40,7 +40,7 @@ export const AddPaymentForm = (props) => {
             if (response.ok) {
                 toast.success('Payment added successfully');
 
-                const updatedOrderResponse = await fetch(`https://trx-api.linarawas.com//api/orders/${orderId}`, {
+                const updatedOrderResponse = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },

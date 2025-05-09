@@ -78,7 +78,7 @@ const CurrentShipmentStat: React.FC = () => {
       setIsLoading(true); // Set loading state to true before fetching
 
       const response = await fetch(
-        `https://trx-api.linarawas.com//api/shipments/range`,
+        `http://localhost:5000/api/shipments/range`,
         {
           method: "POST",
           headers: {
@@ -192,28 +192,31 @@ const CurrentShipmentStat: React.FC = () => {
     totals.shipmentLiraExpenses;
 
   return (
-    <div className="shipments-container">
+    <div className="shipments-container" dir="rtl">
       <div className="shipments-list">
-        <h2>Here are your shipment stats for today's shipment</h2>
+        <h2>إحصائيات الشحنات الخاصة بشحنة اليوم</h2>
         <ToastContainer position="top-right" autoClose={3000} />
 
         {isLoading ? (
           <SpinLoader />
         ) : (
           <div className="totals">
-            <div>Carried: {totals.carryingForDelivery}</div>
-            <div>Delivered: {totals.calculatedDelivered}</div>
-            <div>Returned: {totals.calculatedReturned}</div>
-            <div>Lira Payments {totals.shipmentLiraPayments}</div>
-            <div>$ Payments {totals.shipmentUSDPayments}</div>
-            <div>Expenses $: {totals.shipmentUSDExpenses}</div>
-            <div>Expenses LBP: {totals.shipmentLiraExpenses}</div>
+            <div>المحمولة: {totals.carryingForDelivery}</div>
+            <div>تم التوصيل: {totals.calculatedDelivered}</div>
+            <div>المرتجعة: {totals.calculatedReturned}</div>
+            <div>المدفوعات بالليرة: {totals.shipmentLiraPayments}</div>
+            <div>المدفوعات بالدولار: {totals.shipmentUSDPayments}</div>
+            <div>المصاريف بالدولار: {totals.shipmentUSDExpenses}</div>
+            <div>المصاريف بالليرة: {totals.shipmentLiraExpenses}</div>
             <div>
-              Extra Profits $: {totals.shipmentUSDExtraProfits.toFixed(2)}
+              الأرباح الإضافية بالدولار:{" "}
+              {totals.shipmentUSDExtraProfits.toFixed(2)}
             </div>
-            <div>Extra Profits LBP: {totals.shipmentLiraExtraProfits}</div>
-            <div>Overall LBP: {LIRA_overall}</div>
-            <div>Overall $: {USD_overall}</div>
+            <div>
+              الأرباح الإضافية بالليرة: {totals.shipmentLiraExtraProfits}
+            </div>
+            <div>الإجمالي بالليرة: {LIRA_overall}</div>
+            <div>الإجمالي بالدولار: {USD_overall}</div>
           </div>
         )}
       </div>

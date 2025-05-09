@@ -35,7 +35,7 @@ const CustomerInvoices: React.FC = () => {
         try {
           //fetch from API
           const response = await axios.get(
-            `https://trx-api.linarawas.com//api/customers/reciept/${customerId}`,
+            `http://localhost:5000/api/customers/reciept/${customerId}`,
             {
               method: "GET",
               headers: {

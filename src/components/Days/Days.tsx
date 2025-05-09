@@ -16,7 +16,7 @@ const Days: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    fetch(`https://trx-api.linarawas.com//api/days/company/${companyId}`, {
+    fetch(`http://localhost:5000/api/days/company/${companyId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

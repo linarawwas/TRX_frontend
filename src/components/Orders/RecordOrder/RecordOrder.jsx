@@ -99,7 +99,7 @@ const RecordOrder = (props) => {
       if (navigator.onLine) {
         try {
           const response = await fetch(
-            `https://trx-api.linarawas.com//api/products/productType/company/${companyId}`,
+            `http://localhost:5000/api/products/productType/company/${companyId}`,
             {
               method: "POST",
               headers: {
@@ -166,7 +166,7 @@ const RecordOrder = (props) => {
     e.preventDefault();
 
     const request = {
-      url: "https://trx-api.linarawas.com//api/orders",
+      url: "http://localhost:5000/api/orders",
       options: {
         method: "POST",
         headers: {

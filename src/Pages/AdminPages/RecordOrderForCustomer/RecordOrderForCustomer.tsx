@@ -27,7 +27,7 @@ function RecordOrderForCustomer(): JSX.Element {
         // Online: Fetch from API and cache the result
         try {
           const response = await fetch(
-            `https://trx-api.linarawas.com//api/customers/discount/${customerId}`,
+            `http://localhost:5000/api/customers/discount/${customerId}`,
             {
               headers: { Authorization: `Bearer ${token}` },
             }
