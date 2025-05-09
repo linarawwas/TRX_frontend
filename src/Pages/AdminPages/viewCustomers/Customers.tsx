@@ -27,7 +27,10 @@ const Customers: React.FC = () => {
   const [showInsertBulk, setShowInsertBulk] = useState<boolean>(false);
   const [showInsertOne, setShowInsertOne] = useState<boolean>(false);
   const [showInsertInitial, setShowInsertInitial] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+
   const dispatch = useDispatch();
+
   useEffect(() => {
     dispatch(clearCustomerId());
 
@@ -47,6 +50,12 @@ const Customers: React.FC = () => {
         setLoading(false);
       });
   }, [token, companyId, showInsertBulk, showInsertOne]);
+
+  // Filter customers by the search term
+  const filteredCustomers = customers.filter((customer) =>
+    customer.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="customers-body" dir="rtl">
       <div className="customer-header">
@@ -80,8 +89,19 @@ const Customers: React.FC = () => {
           {showInsertOne && <AddCustomer />}
           {showInsertInitial && <AddCustomerInitials />}
         </div>
+
+        {/* Search Bar */}
+        <div className="search-bar">
+          <input
+            type="text"
+            placeholder="ابحث عن الزبائن"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+        </div>
       </div>
-  
+
       {loading ? (
         <SpinLoader />
       ) : (
@@ -91,15 +111,13 @@ const Customers: React.FC = () => {
               <thead>
                 <tr>
                   <th>الاسم</th>
-                  <th>العنوان</th>
                   <th>تعديل</th>
                 </tr>
               </thead>
               <tbody>
-                {customers?.map((customer) => (
+                {filteredCustomers?.map((customer) => (
                   <tr key={customer._id}>
                     <td>{customer?.name}</td>
-                    <td>{customer?.address}</td>
                     <td className="link-to-edit">
                       <Link to={`/updateCustomer/${customer._id}`}>📝</Link>
                     </td>
@@ -112,7 +130,6 @@ const Customers: React.FC = () => {
       )}
     </div>
   );
-  
 };
 
 export default Customers;

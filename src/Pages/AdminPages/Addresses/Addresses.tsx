@@ -11,14 +11,17 @@ interface Customer {
   name: string;
   phone: string;
 }
+
 export default function Addresses(): JSX.Element {
   const token: string = useSelector((state: any) => state.user.token);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [searchTerm, setSearchTerm] = useState<string>(""); // State for the search term
   const { areaId } = useParams();
   const navigate = useNavigate();
+
   useEffect(() => {
-    // Fetch days data from your API
+    // Fetch customers data from your API
     fetch(`http://localhost:5000/api/customers/area/${areaId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -27,15 +30,15 @@ export default function Addresses(): JSX.Element {
       .then((response) => response.json())
       .then((data) => {
         setCustomers(data);
-        console.log(`number of customers of this area: ${data.length}`);
-
+        console.log(`number of customers in this area: ${data.length}`);
         setLoading(false);
       })
       .catch((error) => {
-        console.error("Error fetching days:", error);
+        console.error("Error fetching customers:", error);
         setLoading(false);
       });
   }, [areaId, token]);
+
   const handleDeleteArea = async () => {
     try {
       const response = await fetch(
@@ -66,6 +69,12 @@ export default function Addresses(): JSX.Element {
       console.error("Error deleting Area:", error);
     }
   };
+
+  // Filter customers by the search term
+  const filteredCustomers = customers.filter((customer) =>
+    customer.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div
       className="address-body"
@@ -75,13 +84,15 @@ export default function Addresses(): JSX.Element {
 
       <div className="address-header">
         <h1 className="address-title">معلومات العناوين:</h1>
-        {/* <button
-          type="button"
-          onClick={handleDeleteArea}
-          className="delete-button"
-        >
-          حذف المنطقة
-        </button> */}
+
+        {/* Search Bar */}
+        <input
+          type="text"
+          placeholder="بحث بالاسم"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-bar"
+        />
       </div>
 
       {loading ? (
@@ -97,7 +108,7 @@ export default function Addresses(): JSX.Element {
             </tr>
           </thead>
           <tbody>
-            {customers.map((customer) => (
+            {filteredCustomers.map((customer) => (
               <tr key={customer._id}>
                 <td>{customer.name}</td>
                 <td>{customer.phone}</td>
