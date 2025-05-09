@@ -275,20 +275,23 @@ const RecordOrder = (props) => {
   const handleCurrencySelection = (currency) => {
     setOrderData({ ...orderData, paymentCurrency: currency });
   };
-
   return (
-    <div className="record-order-container">
+    <div
+      className="record-order-container"
+      style={{ direction: "rtl", textAlign: "right" }}
+    >
       <ToastContainer position="top-right" autoClose={2000} />
-      <h1 className="record-order-title">Record an Order</h1>
+      <h1 className="record-order-title">تسجيل طلب</h1>
+  
       <form className="record-order-form" onSubmit={handleSubmit}>
         <div className="default-product-name">
-          Your Default Product: {productName}, default price: {productPrice} $
+          المنتج الافتراضي: {productName}، السعر الافتراضي: {productPrice} $
         </div>
-        {/* Number Inputs with Up and Down Arrows */}
+  
+        {/* حقول الأرقام مع الأسهم */}
         <div className="number-inputs">
           <div className="up-down-input">
-            <p>delivered: </p>
-
+            <p>الكمية المسلّمة:</p>
             <div className="up-down-buttons">
               <button
                 className="arrow"
@@ -302,13 +305,12 @@ const RecordOrder = (props) => {
                   })
                 }
               >
-                {" "}
-                ▲{" "}
+                ▲
               </button>
               <input
                 type="number"
                 className="number-input"
-                placeholder="Delivered"
+                placeholder="الكمية المسلّمة"
                 name="delivered"
                 value={orderData.delivered}
                 onChange={handleChange}
@@ -330,10 +332,11 @@ const RecordOrder = (props) => {
               </button>
             </div>
           </div>
-          <p>checkout: {checkout.toFixed(2)} $</p>
+  
+          <p>المبلغ المستحق: {checkout.toFixed(2)} $</p>
+  
           <div className="up-down-input">
-            <p>returned: </p>
-
+            <p>الكمية المرجعة:</p>
             <div className="up-down-buttons">
               <button
                 type="button"
@@ -348,11 +351,11 @@ const RecordOrder = (props) => {
                 }
               >
                 ▲
-              </button>{" "}
+              </button>
               <input
                 type="number"
                 className="number-input"
-                placeholder="Returned"
+                placeholder="الكمية المرجعة"
                 name="returned"
                 value={orderData.returned}
                 onChange={handleChange}
@@ -374,8 +377,9 @@ const RecordOrder = (props) => {
               </button>
             </div>
           </div>
+  
           <div className="currency-buttons">
-            <p className="paid-label">paid: </p>
+            <p className="paid-label">المبلغ المدفوع:</p>
             <button
               type="button"
               className={`currency-button ${
@@ -383,7 +387,7 @@ const RecordOrder = (props) => {
               }`}
               onClick={() => handleCurrencySelection("USD")}
             >
-              USD
+              دولار
             </button>
             <button
               type="button"
@@ -392,25 +396,27 @@ const RecordOrder = (props) => {
               }`}
               onClick={() => handleCurrencySelection("LBP")}
             >
-              LBP
+              ليرة
             </button>
           </div>
-
+  
           <input
             type="number"
             className="number-input free-select"
-            placeholder="Paid"
+            placeholder="المدفوع"
             name="paid"
             value={orderData.paid}
             onChange={handleChange}
           />
         </div>
+  
         <button className="record-order-button" type="submit">
-          Record
+          تسجيل
         </button>
       </form>
     </div>
   );
+  
 };
 
 export default RecordOrder;

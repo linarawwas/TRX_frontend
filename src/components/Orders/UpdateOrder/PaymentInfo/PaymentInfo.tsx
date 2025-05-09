@@ -36,26 +36,27 @@ const PaymentInfo: React.FC<PaymentInfoProps> = ({ payments }) => {
         return <p>No payment information available.</p>; // Return a message for empty or undefined payments
     }
     return (
-        <div className="payment-receipt">
-            <h2>Payment Info</h2>
-            {payments.map((payment, index) => (
-                <div key={index} className="receipt-details">
-                    <div className='receipt-detail'>
-                        <p className='detail-name'>date </p>
-                        <p className='detail-value'>{formatTimestamp(payment?.date)}</p>
-                    </div>
-                    <div className='receipt-detail'>
-                        <p className='detail-name'>amount</p>
-                        <p className='detail-value'>{payment?.amount}</p>
-                    </div>
-                    <div className='receipt-detail'>
-                        <p className='detail-name'>currency</p>
-                        <p className='detail-value'> {payment?.currency}</p>
-                    </div>
-                </div>))}
-
+        <div className="payment-receipt" style={{ direction: "rtl", textAlign: "right" }}>
+          <h2>معلومات الدفع</h2>
+          {payments.map((payment, index) => (
+            <div key={index} className="receipt-details">
+              <div className='receipt-detail'>
+                <p className='detail-name'>التاريخ </p>
+                <p className='detail-value'>{formatTimestamp(payment?.date)}</p>
+              </div>
+              <div className='receipt-detail'>
+                <p className='detail-name'>المبلغ</p>
+                <p className='detail-value'>{payment?.amount}</p>
+              </div>
+              <div className='receipt-detail'>
+                <p className='detail-name'>العملة</p>
+                <p className='detail-value'> {payment?.currency}</p>
+              </div>
+            </div>
+          ))}
         </div>
-    );
+      );
+      
 };
 
 export default PaymentInfo;

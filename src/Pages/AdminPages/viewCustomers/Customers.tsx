@@ -52,14 +52,14 @@ const Customers: React.FC = () => {
       <div className="customer-header">
         <h2 className="customers-title">الزبائن</h2>
         <div className="customer-adding-options">
-          <button
+          {/* <button
             className="customer-adding-option"
             onClick={() => {
               setShowInsertBulk(!showInsertBulk);
             }}
           >
             {showInsertBulk ? "إخفاء النموذج" : "إضافة مجموعة؟"}
-          </button>
+          </button> */}
           <button
             className="customer-adding-option"
             onClick={() => {
@@ -68,14 +68,14 @@ const Customers: React.FC = () => {
           >
             {showInsertOne ? "عرض الزبائن" : "إضافة زبون؟"}
           </button>
-          <button
+          {/* <button
             className="customer-adding-option"
             onClick={() => {
               setShowInsertInitial(!showInsertInitial);
             }}
           >
             {showInsertInitial ? "عودة" : "إضافة زبائن أولية حسب المنطقة"}
-          </button>
+          </button> */}
           {showInsertBulk && <AddCustomers />}
           {showInsertOne && <AddCustomer />}
           {showInsertInitial && <AddCustomerInitials />}

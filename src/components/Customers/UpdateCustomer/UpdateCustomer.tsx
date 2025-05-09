@@ -170,62 +170,68 @@ function UpdateCustomer(): JSX.Element {
   };
 
   return (
-    <div className="update-container customer-info-container">
+    <div className="update-container customer-info-container" style={{ direction: "rtl", textAlign: "right" }}>
       <ToastContainer position="top-right" autoClose={1000} />
-
+  
       <div className="update-header">
-        <h1 className="update-title">Customer Information:</h1>
-        <button
+        <h1 className="update-title">معلومات الزبون:</h1>
+        {/* <button
           type="button"
           onClick={handleDeleteCustomer}
           className="delete-button"
-        >          Delete
-        </button>
+        >
+          حذف
+        </button> */}
       </div>
-
+  
       <CustomerInfo customerData={customerData} loading={loading} />
       {customerData && <CustomerInvoices />}
       {customerData && <CustomerOrders />}
+  
       <h1 className="update-title edit-button" onClick={handleFormToggle}>
-        Edit Customer ?
+        تعديل الزبون؟
       </h1>
+  
       {formVisible && (
         <form className="update-customer-form" onSubmit={handleSubmitUpdate}>
           <input
             type="text"
             name="name"
             value={updatedInfo.name}
-            placeholder="New Name"
+            placeholder="الاسم الجديد"
             onChange={handleChange}
-          ></input>
+          />
           <input
             type="text"
             name="phone"
             value={updatedInfo.phone}
-            placeholder="New Phone"
+            placeholder="رقم الهاتف الجديد"
             onChange={handleChange}
-          ></input>
+          />
           <input
             type="text"
             name="address"
             value={updatedInfo.address}
-            placeholder="New address"
-            onChange={handleChange}
-          ></input>
-          <SelectInput
-            label="Area:"
-            name="areaId"
-            value={updatedInfo.areaId._id} // Assuming 'value' holds the areaId string
-            options={areas.map((area) => ({ value: area._id, label: area.name }))}
+            placeholder="العنوان الجديد"
             onChange={handleChange}
           />
-
-          <button type="submit">Update Customer</button>
+          <SelectInput
+            label="المنطقة:"
+            name="areaId"
+            value={updatedInfo.areaId._id}
+            options={areas.map((area) => ({
+              value: area._id,
+              label: area.name,
+            }))}
+            onChange={handleChange}
+          />
+  
+          <button type="submit">تحديث الزبون</button>
         </form>
       )}
     </div>
-
   );
+  
 }
 
 export default UpdateCustomer;

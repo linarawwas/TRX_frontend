@@ -65,45 +65,45 @@ export const AddPaymentForm = (props) => {
     };
 
     return (
-        <div className="payment-form">
-            <h2 className="payment-heading">Add Payment</h2>
-            <form>
-                <div className="form-group">
-                    <label htmlFor="paymentAmount" className="form-label">
-                        Payment Amount
-                    </label>
-                    <input
-                        type="number"
-                        id="paymentAmount"
-                        name="paymentAmount"
-                        value={paymentData.paymentAmount}
-                        onChange={handlePaymentChange}
-                        className="form-input"
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="paymentCurrency" className="form-label">
-                        Payment Currency
-                    </label>
-
-                    <select
-                        id="paymentCurrency"
-                        name="paymentCurrency"
-                        value={paymentData.paymentCurrency}
-                        onChange={handlePaymentChange}
-                        className="form-input"
-                    >
-                        <option value="">choose currency</option>
-                        <option value="LBP">LBP</option>
-                        <option value="USD">USD</option>
-                    </select>
-                </div>
-                <button type="button" onClick={handleAddPayment} className="add-payment-button">
-                    Add Payment
-                </button>
-            </form>
+        <div className="payment-form" style={{ direction: "rtl", textAlign: "right" }}>
+          <h2 className="payment-heading">إضافة دفعة</h2>
+          <form>
+            <div className="form-group">
+              <label htmlFor="paymentAmount" className="form-label">
+                مبلغ الدفعة
+              </label>
+              <input
+                type="number"
+                id="paymentAmount"
+                name="paymentAmount"
+                value={paymentData.paymentAmount}
+                onChange={handlePaymentChange}
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="paymentCurrency" className="form-label">
+                عملة الدفعة
+              </label>
+              <select
+                id="paymentCurrency"
+                name="paymentCurrency"
+                value={paymentData.paymentCurrency}
+                onChange={handlePaymentChange}
+                className="form-input"
+              >
+                <option value="">اختر العملة</option>
+                <option value="LBP">ليرة لبنانية</option>
+                <option value="USD">دولار أمريكي</option>
+              </select>
+            </div>
+            <button type="button" onClick={handleAddPayment} className="add-payment-button">
+              إضافة دفعة
+            </button>
+          </form>
         </div>
-    );
+      );
+      
 };
 
 export default AddPaymentForm;

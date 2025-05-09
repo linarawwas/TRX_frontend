@@ -26,56 +26,55 @@ const OrderReceipt: React.FC<OrderReceiptProps> = ({ orderData, loading }: Order
 
         return date.toLocaleString('en-US', options);
     };
-
     return (
         <>
-            {loading ? (
-                <SpinLoader />
-            ) : orderData ? (
-                <div className='order-receipt'>
-
-                    <div className="receipt-details">
-                        <div className="receipt-detail">
-                            <p className="detail-name">Date: </p>
-                            <p className="detail-value">{formatTimestamp(orderData?.timestamp)}</p>
-                        </div>
-                        <div className="receipt-detail">
-                            <p className="detail-name">Delivered: </p>
-                            <p className="detail-value">{orderData?.delivered}</p>
-                        </div>
-                        <div className="receipt-detail">
-                            <p className="detail-name">Returned: </p>
-                            <p className="detail-value">{orderData?.returned}</p>
-                        </div>
-                        <div className="receipt-detail">
-                            <p className="detail-name">recordedBy</p>
-                            <p className="detail-value">{orderData?.recordedBy_user_name}</p>
-                        </div>
-                        <div className="receipt-detail">
-                            <p className="detail-name">
-                                Customer</p>
-                            <p className="detail-value">{orderData?.customer?.name}</p>
-                        </div>
-                        <div className="receipt-detail">
-                            <p className="detail-name">checkout: </p>
-                            <p className="detail-value">{orderData?.checkout?.toFixed(2)}</p>
-                        </div>
-                        <div className="receipt-detail">
-                            <p className="detail-name">Paid: </p>
-                            <p className="detail-value">{orderData?.paid?.toFixed(2)}</p>
-                        </div>
-                        <div className="receipt-detail">
-                            <p className="detail-name">Total : </p>
-                            <p className="detail-value">{orderData?.total?.toFixed(2)}</p>
-                        </div>
-                    </div>
+          {loading ? (
+            <SpinLoader />
+          ) : orderData ? (
+            <div className='order-receipt' style={{ direction: "rtl", textAlign: "right" }}>
+      
+              <div className="receipt-details">
+                <div className="receipt-detail">
+                  <p className="detail-name">التاريخ: </p>
+                  <p className="detail-value">{formatTimestamp(orderData?.timestamp)}</p>
                 </div>
-
-            ) : (
-                <p>Order not found</p>
-            )}
+                <div className="receipt-detail">
+                  <p className="detail-name">تم التوصيل: </p>
+                  <p className="detail-value">{orderData?.delivered}</p>
+                </div>
+                <div className="receipt-detail">
+                  <p className="detail-name">تم الإرجاع: </p>
+                  <p className="detail-value">{orderData?.returned}</p>
+                </div>
+                <div className="receipt-detail">
+                  <p className="detail-name">تم التسجيل بواسطة: </p>
+                  <p className="detail-value">{orderData?.recordedBy_user_name}</p>
+                </div>
+                <div className="receipt-detail">
+                  <p className="detail-name">العميل: </p>
+                  <p className="detail-value">{orderData?.customer?.name}</p>
+                </div>
+                <div className="receipt-detail">
+                  <p className="detail-name">السعر: </p>
+                  <p className="detail-value">{orderData?.checkout?.toFixed(2)}</p>
+                </div>
+                <div className="receipt-detail">
+                  <p className="detail-name">المدفوع: </p>
+                  <p className="detail-value">{orderData?.paid?.toFixed(2)}</p>
+                </div>
+                <div className="receipt-detail">
+                  <p className="detail-name">الإجمالي: </p>
+                  <p className="detail-value">{orderData?.total?.toFixed(2)}</p>
+                </div>
+              </div>
+            </div>
+      
+          ) : (
+            <p>الطلب غير موجود</p>
+          )}
         </>
-    );
+      );
+      
 };
 
 export default OrderReceipt;

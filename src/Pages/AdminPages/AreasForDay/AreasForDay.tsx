@@ -117,16 +117,17 @@ export default function AreasForDay(): JSX.Element {
   }, [dayId, token]);
 
   return (
-    <table className="areas-for-day-table">
+    <table className="areas-for-day-table" dir="rtl" style={{ textAlign: "right" }}>
       <thead>
         <tr>
-          <th>Areas for {dayName}</th>
+          <th>المناطق ليوم {dayName}</th>
         </tr>
       </thead>
+  
       {loading ? (
         <tbody>
           <tr>
-            <td colSpan={2}>Loading...</td>
+            <td colSpan={2}>جارٍ التحميل...</td>
           </tr>
         </tbody>
       ) : (
@@ -145,11 +146,12 @@ export default function AreasForDay(): JSX.Element {
             ))
           ) : (
             <tr>
-              <td colSpan={2}>No areas available</td>
+              <td colSpan={2}>لا توجد مناطق متاحة</td>
             </tr>
           )}
         </tbody>
       )}
     </table>
   );
+  
 }

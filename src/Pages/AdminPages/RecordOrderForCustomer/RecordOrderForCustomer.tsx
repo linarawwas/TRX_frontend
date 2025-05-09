@@ -63,12 +63,15 @@ function RecordOrderForCustomer(): JSX.Element {
   }, [customerId, token]);
 
   return (
-    <div className="record-order-for-customer-container">
+    <div
+      className="record-order-for-customer-container"
+      style={{ direction: "rtl", textAlign: "right" }}
+    >
       {customerDiscountStatus?.hasDiscount && (
         <div className="discount-banner">
-          <div>This Customer Has a Discount!</div>
+          <div>هذا الزبون لديه خصم!</div>
           <div>
-            special checkout: {customerDiscountStatus?.noteAboutCustomer}
+            ملاحظة خاصة عند الدفع: {customerDiscountStatus?.noteAboutCustomer}
           </div>
         </div>
       )}
@@ -76,6 +79,7 @@ function RecordOrderForCustomer(): JSX.Element {
       <CustomerInvoices />
     </div>
   );
+  
 }
 
 export default RecordOrderForCustomer;

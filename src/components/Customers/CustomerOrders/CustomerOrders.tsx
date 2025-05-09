@@ -86,10 +86,9 @@ const CustomerOrders: React.FC = () => {
     };
 
     return date.toLocaleString("en-US", options);
-  };
-  return (
-    <div className="Orders">
-      <h2 className="orders-by-customer-title">Orders by Customer</h2>
+  };return (
+    <div className="Orders" style={{ direction: "rtl", textAlign: "right" }}>
+      <h2 className="orders-by-customer-title">طلبات الزبون</h2>
       {loading ? (
         <SpinLoader />
       ) : customerOrders.length > 0 ? (
@@ -98,32 +97,31 @@ const CustomerOrders: React.FC = () => {
             <div className="receipt-details" key={Order._id}>
               <div className="container-button-div">
                 <button className="check-btn">
-                  {" "}
-                  <Link to={`/updateOrder/${Order._id}`}>check</Link>
+                  <Link to={`/updateOrder/${Order._id}`}>تفاصيل</Link>
                 </button>
               </div>
               <div className="receipt-detail">
-                <p className="detail-name">Delivered:</p>
+                <p className="detail-name">المُسَلَّم:</p>
                 <p className="detail-value">{Order?.delivered}</p>
               </div>
               <div className="receipt-detail">
-                <p className="detail-name">Returned:</p>
+                <p className="detail-name">المُرْجَع:</p>
                 <p className="detail-value">{Order?.returned}</p>
               </div>
               <div className="receipt-detail">
-                <p className="detail-name">checkout</p>
+                <p className="detail-name">الخروج:</p>
                 <p className="detail-value">{Order?.checkout}</p>
               </div>
               <div className="receipt-detail">
-                <p className="detail-name">paid in USD:</p>
+                <p className="detail-name">المدفوع بالدولار:</p>
                 <p className="detail-value">{Order.paid.toFixed(2)}</p>
               </div>
               <div className="receipt-detail">
-                <p className="detail-name">total:</p>
+                <p className="detail-name">المجموع:</p>
                 <p className="detail-value">{Order?.total.toFixed(2)}</p>
               </div>
               <div className="receipt-detail timestamp">
-                <p className="detail-name">Timestamp:</p>
+                <p className="detail-name">الوقت والتاريخ:</p>
                 <p className="detail-value">
                   {formatTimestamp(Order.timestamp)}
                 </p>
@@ -132,10 +130,11 @@ const CustomerOrders: React.FC = () => {
           ))}
         </div>
       ) : (
-        <p>No Orders found for this customer</p>
+        <p>لا توجد طلبات لهذا الزبون</p>
       )}
     </div>
   );
+  
 };
 
 export default CustomerOrders;

@@ -93,20 +93,22 @@ const CustomersForArea = (): JSX.Element => {
 
   return (
     <>
-      <h3 className="table-title">Customers of This Area</h3>
-      <table className="customers-for-area-table">
+      <h3 className="table-title" style={{ direction: "rtl", textAlign: "right" }}>
+        الزبائن في هذه المنطقة
+      </h3>
+      <table className="customers-for-area-table" dir="rtl" style={{ textAlign: "right" }}>
         <thead>
           <tr>
-            <th>name</th>
-            <th>Address</th>
-            <th>Phone Number</th>
-            <th>Record Order</th>
+            <th>الاسم</th>
+            <th>العنوان</th>
+            <th>رقم الهاتف</th>
+            <th>تسجيل الطلب</th>
           </tr>
         </thead>
         <tbody>
           {loading ? (
             <tr>
-              <td colSpan={4}>Loading...</td>
+              <td colSpan={4}>جارٍ التحميل...</td>
             </tr>
           ) : (
             customers.map((customer) => (
@@ -118,7 +120,7 @@ const CustomersForArea = (): JSX.Element => {
                     : customersWithEmptyOrders?.includes(customer._id)
                     ? "customer-with-empty-order"
                     : customersWithPendingOrders?.includes(customer._id)
-                    ? "customer-with-pending-order" // Add this class for pending orders
+                    ? "customer-with-pending-order"
                     : ""
                 }
               >
@@ -140,6 +142,7 @@ const CustomersForArea = (): JSX.Element => {
       </table>
     </>
   );
+  
 };
 
 export default CustomersForArea;

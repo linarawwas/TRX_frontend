@@ -64,28 +64,29 @@ function UpdateOrder(): JSX.Element {
   }, [orderId, token]);
 
   return (
-    <div className="update-container">
+    <div className="update-container" style={{ direction: "rtl", textAlign: "right" }}>
       <ToastContainer position="top-right" autoClose={1000} />
-
+  
       <div className='update-header'>
-        <h1 className="update-title">Billing Information:</h1>
-        <button
+        <h1 className="update-title">معلومات الفوترة:</h1>
+        {/* <button
           type="button"
           onClick={handleDeleteOrder}
           className="delete-button"
-        >          Delete Order
-        </button>
+        >          حذف الطلب
+        </button> */}
       </div>
       <OrderReceipt orderData={orderData} loading={loading} />
       <PaymentInfo payments={orderData?.payments} />
       <h1 className="update-title edit-button" onClick={handleFormToggle}>
-        {formVisible ? "Hide Form" : "Add New Payment ?"}
+        {formVisible ? "إخفاء النموذج" : "إضافة دفع جديد؟"}
       </h1>
       {formVisible &&
-        < AddPaymentForm orderData={orderData} orderId={orderId} setOrderData={setOrderData} />
+        <AddPaymentForm orderData={orderData} orderId={orderId} setOrderData={setOrderData} />
       }
     </div>
   );
+  
 }
 
 export default UpdateOrder;
