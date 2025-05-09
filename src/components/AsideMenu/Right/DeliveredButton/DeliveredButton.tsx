@@ -7,9 +7,12 @@ const DeliveredButton: React.FC = () => {
 
   return (
     <>
-      <div className='go-to-home-button'>Delivered: ➡️ {delivered}  </div>
+      <div className='go-to-home-button' style={{ textAlign: 'right' }}>
+        تم التسليم: ➡️ {delivered}
+      </div>
     </>
   );
+  
 };
 
 export default DeliveredButton;

@@ -44,7 +44,10 @@ const AsideMenuEmployee: React.FC = () => {
   };
 
   return (
-    <div className={`dashboard ${isMenuOpen ? "menu-open" : "menu-closed"}`}>
+    <div
+      className={`dashboard ${isMenuOpen ? "menu-open" : "menu-closed"}`}
+      style={{ direction: "rtl" }}
+    >
       <div className="aside-Menu">
         <ToastContainer position="top-right" autoClose={1000} />
 
@@ -56,7 +59,7 @@ const AsideMenuEmployee: React.FC = () => {
           <RightAsideMenu />
         </div>
 
-        <aside className="sidebar">
+        <aside className="sidebar" style={{ textAlign: "right" }}>
           <ul>
             {shipmentDefined ? (
               <li>
@@ -65,21 +68,57 @@ const AsideMenuEmployee: React.FC = () => {
                   className="sidebar-link"
                   onClick={toggleMenu}
                 >
-                  Pathway
+                  المسار
                 </Link>
               </li>
             ) : (
-              <li>Please Start Shipment</li>
+              <li>الرجاء بدء الشحنة</li>
             )}
+            <li>
+              <Link to="/areas" className="sidebar-link" onClick={toggleMenu}>
+                المناطق
+              </Link>
+            </li>
             {/* <li>
-              <Link to="/customers" className='sidebar-link' onClick={toggleMenu}>Customer</Link>
+                         <Link to="/register" className="sidebar-link" onClick={toggleMenu}>
+                           تسجيل موظف جديد
+                         </Link>
+                       </li> */}
+            <li>
+              <Link
+                to="/customers"
+                className="sidebar-link"
+                onClick={toggleMenu}
+              >
+                الزبائن
+              </Link>
             </li>
             <li>
-              <Link to="/viewOrders" className='sidebar-link' onClick={toggleMenu} >Orders</Link>
-            </li> */}
+              <Link
+                to="/Expenses"
+                className="sidebar-link"
+                onClick={toggleMenu}
+              >
+                المصاريف
+              </Link>
+            </li>
+            <li>
+              <Link to="/Profits" className="sidebar-link" onClick={toggleMenu}>
+                الأرباح
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/currentShipment"
+                className="sidebar-link"
+                onClick={toggleMenu}
+              >
+                تفاصيل الشحنة الحالية
+              </Link>
+            </li>
             <li>
               <button className="logout-button" onClick={handleLogout}>
-                Logout
+                تسجيل الخروج
               </button>
             </li>
             <button className="prev-shipment-btn" onClick={handlePrevShipment}>

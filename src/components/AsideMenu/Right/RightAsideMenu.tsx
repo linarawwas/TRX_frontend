@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import TargetButton from './TargetButton/TargetButton';
-import DeliveredButton from './DeliveredButton/DeliveredButton';
-import ReturnedButton from './ReturnedButton/ReturnedButton';
-import PaidInDollars from './PaidInDollars/PaidInDollars';
-import PaidInLira from './PaidInLira/PaidInLira';
-import { useNavigate } from 'react-router-dom';
-import { FaTimes } from 'react-icons/fa';
-import './RightAsideMenu.css';
-import ExpensesButton from './ExpensesButton/ExpensesButton';
-import ProfitsButton from './ProfitsButton/ProfitsButton';
+import React, { useState } from "react";
+import TargetButton from "./TargetButton/TargetButton";
+import DeliveredButton from "./DeliveredButton/DeliveredButton";
+import ReturnedButton from "./ReturnedButton/ReturnedButton";
+import PaidInDollars from "./PaidInDollars/PaidInDollars";
+import PaidInLira from "./PaidInLira/PaidInLira";
+import { useNavigate } from "react-router-dom";
+import { FaTimes } from "react-icons/fa";
+import "./RightAsideMenu.css";
+import ExpensesButton from "./ExpensesButton/ExpensesButton";
+import ProfitsButton from "./ProfitsButton/ProfitsButton";
 
 const RightAsideMenu: React.FC = () => {
   const [isRightMenuOpen, setIsRightMenuOpen] = useState<boolean>(false);
@@ -20,33 +20,37 @@ const RightAsideMenu: React.FC = () => {
   const navigate = useNavigate();
 
   const handleGoHome = () => {
-    navigate('/');
+    navigate("/");
   };
-
   return (
-    <aside className={`right-aside-menu ${isRightMenuOpen ? 'open' : ''}`}>
-      <div className='buttons-menu-employee right-menu-toggle'>
-        <button className='right-buttons-employee' onClick={handleGoHome}>🏠</button>
-        <button className='right-buttons-employee' onClick={toggleRightMenu}>
+    <aside
+      className={`right-aside-menu ${isRightMenuOpen ? "open" : ""}`}
+      style={{ direction: "rtl" }}
+    >
+      <div className="buttons-menu-employee right-menu-toggle">
+        <button className="right-buttons-employee" onClick={handleGoHome}>
+          🏠
+        </button>
+        <button className="right-buttons-employee" onClick={toggleRightMenu}>
           {isRightMenuOpen ? <FaTimes /> : "📊"}
         </button>
       </div>
-      <div className='button-div'>
+      <div className="button-div">
         <TargetButton />
         <DeliveredButton />
         <ReturnedButton />
-        <div className='go-to-home-button'>Cash Input: </div>
+        <div className="go-to-home-button">إدخال نقدي: </div>
         <PaidInDollars />
         <PaidInLira />
-        <div className='expenses-profits'></div>
-        <div className='expenses'>
-          <div className='go-to-home-button'>Expenses: </div>
+        <div className="expenses-profits"></div>
+        <div className="expenses">
+          <div className="go-to-home-button">المصاريف: </div>
           <ExpensesButton />
         </div>
-        <div className='profits'>
-          <div className='go-to-home-button'>Profits: </div>
-          <ProfitsButton /></div>
-
+        <div className="profits">
+          <div className="go-to-home-button">الأرباح: </div>
+          <ProfitsButton />
+        </div>
       </div>
     </aside>
   );

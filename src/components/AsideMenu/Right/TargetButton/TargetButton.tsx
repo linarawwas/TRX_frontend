@@ -7,9 +7,12 @@ const TargetButton: React.FC = () => {
 
   return (
     <>
-      <div className='go-to-home-button'>Target: 🎯 {target}</div>
+      <div className='go-to-home-button' style={{ textAlign: 'right' }}>
+        الهدف: 🎯 {target}
+      </div>
     </>
   );
+  
 };
 
 export default TargetButton;

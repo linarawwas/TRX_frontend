@@ -40,15 +40,13 @@ h1 {
   font-size: 48px;
   color: #082338;
   margin-bottom: 10px;
-  font-family: 'Times New Roman', Times, serif;
-
+  font-family: "Times New Roman", Times, serif;
 }
 
 .landing-page p {
   font-size: 18px;
   color: #082338;
   margin-bottom: 30px;
-
 }
 
 .feature-section {
@@ -57,7 +55,8 @@ h1 {
   border: 1px solid #082338;
   text-align: center;
   animation: fadeIn 1s ease;
-  margin: 30px auto 50px auto
+  margin: 30px auto 50px auto;
+  z-index: 100;
 }
 
 .feature-section ul li {

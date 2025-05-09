@@ -8,15 +8,20 @@
   border: 1px solid #082338;
   background-color: white;
   transition: right 0.3s ease-in-out;
-  z-index: 10000;
   margin-top: 100px;
+  z-index: 0;
 }
 
 .right-aside-menu.open {
   right: 0;
+  z-index: 10000;
   /* Slide in the menu when it's open */
 }
-
+.right-aside-menu.open .button-div {
+  display: block;
+  z-index: 10000;
+  /* Slide in the menu when it's open */
+}
 .buttons-menu-employee {
   z-index: 300;
   display: flex;
@@ -26,7 +31,7 @@
 }
 
 .right-aside-menu .button-div {
-  display: flex;
+  display: none;
   flex-direction: column;
   /* Align buttons in a column */
   align-items: flex-start;
@@ -34,12 +39,10 @@
   padding: 20px;
 }
 
-
-
 .right-menu-toggle {
   position: fixed;
   top: 10px;
-  right: 10px;
+  right: 100px;
   background: none;
   border: none;
   cursor: pointer;
@@ -49,7 +52,6 @@
 
 .right-menu-toggle:focus {
   border: 1px solid #082338;
-
 }
 
 .right-buttons-employee {
@@ -66,6 +68,6 @@
 .expenses,
 .profits {
   flex-basis: 100px;
-  margin:0;
-  padding:0;
+  margin: 0;
+  padding: 0;
 }

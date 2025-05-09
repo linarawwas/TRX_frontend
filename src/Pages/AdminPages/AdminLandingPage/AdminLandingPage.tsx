@@ -12,7 +12,7 @@ const AdminLandingPage: React.FC = () => {
     <div className="landing-page" dir="rtl">
       <div className="hero-section">
         <h1>مرحباً بك في تيركس، {name}</h1>
-        <p>لإدارة المخزون والشحنات</p>
+        <p>شريكك في إدارة المخزون والشحنات</p>
         <AdminFeatures />
         <CurrentShipmentStat />
       </div>

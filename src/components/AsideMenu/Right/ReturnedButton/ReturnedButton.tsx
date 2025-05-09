@@ -7,9 +7,12 @@ const ReturnedButton: React.FC = () => {
 
   return (
     <>
-      <div className='go-to-home-button'>Returned: ⬅️ {returned}</div>
+      <div className='go-to-home-button' style={{ textAlign: 'right' }}>
+        تم الإرجاع: ⬅️ {returned}
+      </div>
     </>
   );
+  
 };
 
 export default ReturnedButton;
