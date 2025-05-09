@@ -8,6 +8,20 @@ const AdminFeatures = () => {
     const [showExchangeRate, setShowExchangeRate] = useState(false);
     const [showAddDiscount, setShowAddDiscount] = useState(false);
 
+    const handleToggleExchangeRate = () => {
+        setShowExchangeRate(prev => {
+            if (!prev) setShowAddDiscount(false); // Close the other form
+            return !prev;
+        });
+    };
+
+    const handleToggleAddDiscount = () => {
+        setShowAddDiscount(prev => {
+            if (!prev) setShowExchangeRate(false); // Close the other form
+            return !prev;
+        });
+    };
+
     return (
         <>
             <div className="feature-section" dir="rtl">
@@ -15,13 +29,13 @@ const AdminFeatures = () => {
                 <ul>
                     <li
                         className='show-form-li'
-                        onClick={() => setShowExchangeRate(!showExchangeRate)}
+                        onClick={handleToggleExchangeRate}
                     >
                         {showExchangeRate ? <FaTimes /> : "تحديث سعر الصرف"}
                     </li>
                     <li
                         className='show-form-li'
-                        onClick={() => setShowAddDiscount(!showAddDiscount)}
+                        onClick={handleToggleAddDiscount}
                     >
                         {showAddDiscount ? <FaTimes /> : "منح خصم للعميل"}
                     </li>
