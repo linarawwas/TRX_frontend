@@ -59,7 +59,7 @@ const StartShipment: React.FC = () => {
         const dayName = currentDate.toLocaleDateString('en-US', { weekday: 'long' });
 
         // Perform your API request and dispatch actions here based on the current date
-        const response = await fetch(`http://localhost:5000/api/days/name/${dayName}`, {
+        const response = await fetch(`https://trx-api.linarawas.com//api/days/name/${dayName}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -95,7 +95,7 @@ const StartShipment: React.FC = () => {
   }, []);
   const handleShipmentSubmit = async (formData: any) => {
     try {
-      const response = await fetch('http://localhost:5000/api/shipments', {
+      const response = await fetch('https://trx-api.linarawas.com//api/shipments', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

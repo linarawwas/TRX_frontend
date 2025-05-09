@@ -33,7 +33,7 @@ export default function AreasForDay(): JSX.Element {
         setLoading(true);
         if (navigator.onLine) {
           const response = await fetch(
-            `http://localhost:5000/api/areas/days/${dayId}`,
+            `https://trx-api.linarawas.com//api/areas/days/${dayId}`,
             {
               method: "POST",
               headers: {
@@ -93,7 +93,7 @@ export default function AreasForDay(): JSX.Element {
 
         // Online: Fetch from API
         const response = await fetch(
-          `http://localhost:5000/api/days/${dayId}`,
+          `https://trx-api.linarawas.com//api/days/${dayId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
