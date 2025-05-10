@@ -34,7 +34,7 @@ const Customers: React.FC = () => {
   useEffect(() => {
     dispatch(clearCustomerId());
 
-    fetch(`https://trx-api.linarawas.com/api/customers/company/${companyId}`, {
+    fetch(`http://localhost:5000/api/customers/company/${companyId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

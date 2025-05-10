@@ -50,7 +50,7 @@ const CustomerOrders: React.FC = () => {
     const fetchCustomerOrders = async () => {
       try {
         const response = await axios.get(
-          `https://trx-api.linarawas.com/api/orders/customer/${customerId}`,
+          `http://localhost:5000/api/orders/customer/${customerId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -109,7 +109,7 @@ const CustomerOrders: React.FC = () => {
                 <p className="detail-value">{Order?.returned}</p>
               </div>
               <div className="receipt-detail">
-                <p className="detail-name">الخروج:</p>
+                <p className="detail-name">الحساب:</p>
                 <p className="detail-value">{Order?.checkout}</p>
               </div>
               <div className="receipt-detail">

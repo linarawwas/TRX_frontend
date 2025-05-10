@@ -1,8 +1,22 @@
-import { CLEAR_AREA_ID, CLEAR_PRODUCT_ID, CLEAR_PRODUCT_NAME, SET_PRODUCT_ID, CLEAR_CUSTOMER_ID, SET_AREA_ID, SET_CUSTOMER_ID, SET_PRODUCT_NAME, SET_PRODUCT_PRICE, CLEAR_PRODUCT_PRICE } from './actionTypes.js'; // Adjust the import path
+import {
+  CLEAR_AREA_ID,
+  CLEAR_PRODUCT_ID,
+  CLEAR_PRODUCT_NAME,
+  SET_PRODUCT_ID,
+  CLEAR_CUSTOMER_ID,
+  SET_AREA_ID,
+  SET_CUSTOMER_ID,
+  SET_PRODUCT_NAME,
+  SET_PRODUCT_PRICE,
+  CLEAR_PRODUCT_PRICE,
+  SET_CUSTOMER_NAME,
+  CLEAR_CUSTOMER_NAME
+} from './actionTypes.js';
 
 const initialState = {
   area_Id: null,
   customer_Id: null,
+  customer_name: "", // ✅ Added this
   product_id: null,
   product_name: "",
   product_price: 0,
@@ -11,54 +25,29 @@ const initialState = {
 const orderReducer = (state = initialState, action:any) => {
   switch (action.type) {
     case SET_AREA_ID:
-      return {
-        ...state,
-        area_Id: action.payload,
-      };
+      return { ...state, area_Id: action.payload };
     case SET_PRODUCT_PRICE:
-      return {
-        ...state,
-        product_price: action.payload,
-      };
+      return { ...state, product_price: action.payload };
     case SET_CUSTOMER_ID:
-      return {
-        ...state,
-        customer_Id: action.payload,
-      };
+      return { ...state, customer_Id: action.payload };
+    case SET_CUSTOMER_NAME:
+      return { ...state, customer_name: action.payload }; // ✅ Added this
     case SET_PRODUCT_ID:
-      return {
-        ...state,
-        product_id: action.payload,
-      };
+      return { ...state, product_id: action.payload };
     case SET_PRODUCT_NAME:
-      return {
-        ...state,
-        product_name: action.payload,
-      };
+      return { ...state, product_name: action.payload };
     case CLEAR_AREA_ID:
-      return {
-        ...state,
-        area_Id: null,
-      };
+      return { ...state, area_Id: null };
     case CLEAR_CUSTOMER_ID:
-      return {
-        ...state,
-        customer_Id: null,
-      };
+      return { ...state, customer_Id: null };
+    case CLEAR_CUSTOMER_NAME:
+      return { ...state, customer_name: "" }; // ✅ Added this
     case CLEAR_PRODUCT_ID:
-      return {
-        ...state,
-        customer_Id: null,
-      };
+      return { ...state, product_id: null }; // ✅ fixed incorrect clearing
     case CLEAR_PRODUCT_NAME:
-      return {
-        ...state,
-        product_name: "",
-      }; case CLEAR_PRODUCT_PRICE:
-      return {
-        ...state,
-        product_price: 0,
-      };
+      return { ...state, product_name: "" };
+    case CLEAR_PRODUCT_PRICE:
+      return { ...state, product_price: 0 };
     default:
       return state;
   }

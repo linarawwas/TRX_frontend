@@ -32,60 +32,6 @@ const RecordOrder = (props) => {
   const navigate = useNavigate();
   const token = useSelector((state) => state.user.token);
   const companyId = useSelector((state) => state.user.companyId);
-
-  // // Place the useEffect for online status listener here
-  // useEffect(() => {
-  //   const handleOnline = async () => {
-  //     console.log(
-  //       "Device is back online. Waiting 3 seconds before processing pending orders..."
-  //     );
-
-  //     await new Promise((resolve) => setTimeout(resolve, 3000)); // Delay for 3 seconds
-
-  //     const pendingRequests = await getPendingRequests(); // Fetch pending requests from IndexedDB
-
-  //     console.log(`Total pending requests: ${pendingRequests.length}`);
-
-  //     if (pendingRequests.length > 0) {
-  //       for (const request of pendingRequests) {
-  //         try {
-  //           console.log(`Processing request: ${JSON.stringify(request)}`);
-
-  //           // Reconstruct the request object properly
-  //           const response = await fetch(request.url, {
-  //             method: request.options.method,
-  //             headers: request.options.headers,
-  //             body: request.options.body
-  //               ? JSON.stringify(request.options.body)
-  //               : null,
-  //           });
-
-  //           if (response.ok) {
-  //             console.log(
-  //               "Order successfully submitted. Removing from IndexedDB."
-  //             );
-  //             await removeRequestFromDb(request.id);
-  //             toast.success("Order submitted after coming online.");
-  //           } else {
-  //             const errorData = await response.json();
-  //             console.error("Server responded with an error:", errorData);
-  //             toast.error(`Failed to sync order: ${errorData.message}`);
-  //           }
-  //         } catch (error) {
-  //           console.error("Error syncing offline order:", error);
-  //           toast.error(
-  //             `Failed to submit order after coming online: ${error.message}`
-  //           );
-  //         }
-  //       }
-  //     }
-  //   };
-
-  //   window.addEventListener("online", handleOnline);
-
-  //   // Clean up the event listener when the component unmounts
-  //   return () => window.removeEventListener("online", handleOnline);
-  // }, []);
   useEffect(() => {
     const fetchProduct = async () => {
       const cachedProduct = await getProductTypeFromDB(companyId);
@@ -99,7 +45,7 @@ const RecordOrder = (props) => {
       if (navigator.onLine) {
         try {
           const response = await fetch(
-            `https://trx-api.linarawas.com/api/products/productType/company/${companyId}`,
+            `http://localhost:5000/api/products/productType/company/${companyId}`,
             {
               method: "POST",
               headers: {
@@ -126,6 +72,7 @@ const RecordOrder = (props) => {
   }, [token, dispatch, companyId]);
 
   const customerId = useSelector((state) => state.order.customer_Id);
+  const customer_name = useSelector((state) => state.order.customer_name);
   const areaId = useSelector((state) => state.order.area_Id);
   const shipmentId = useSelector((state) => state.shipment._id);
   const customersWithPendingOrders =
@@ -166,7 +113,7 @@ const RecordOrder = (props) => {
     e.preventDefault();
 
     const request = {
-      url: "https://trx-api.linarawas.com/api/orders",
+      url: "http://localhost:5000/api/orders",
       options: {
         method: "POST",
         headers: {
@@ -281,13 +228,13 @@ const RecordOrder = (props) => {
       style={{ direction: "rtl", textAlign: "right" }}
     >
       <ToastContainer position="top-right" autoClose={2000} />
-      <h1 className="record-order-title">تسجيل طلب</h1>
-  
+      <h1 className="record-order-title">تسجيل طلب ل {customer_name}</h1>
+
       <form className="record-order-form" onSubmit={handleSubmit}>
         <div className="default-product-name">
           المنتج الافتراضي: {productName}، السعر الافتراضي: {productPrice} $
         </div>
-  
+
         {/* حقول الأرقام مع الأسهم */}
         <div className="number-inputs">
           <div className="up-down-input">
@@ -332,9 +279,9 @@ const RecordOrder = (props) => {
               </button>
             </div>
           </div>
-  
+
           <p>المبلغ المستحق: {checkout.toFixed(2)} $</p>
-  
+
           <div className="up-down-input">
             <p>الكمية المرجعة:</p>
             <div className="up-down-buttons">
@@ -377,7 +324,7 @@ const RecordOrder = (props) => {
               </button>
             </div>
           </div>
-  
+
           <div className="currency-buttons">
             <p className="paid-label">المبلغ المدفوع:</p>
             <button
@@ -399,7 +346,7 @@ const RecordOrder = (props) => {
               ليرة
             </button>
           </div>
-  
+
           <input
             type="number"
             className="number-input free-select"
@@ -409,14 +356,13 @@ const RecordOrder = (props) => {
             onChange={handleChange}
           />
         </div>
-  
+
         <button className="record-order-button" type="submit">
           تسجيل
         </button>
       </form>
     </div>
   );
-  
 };
 
 export default RecordOrder;

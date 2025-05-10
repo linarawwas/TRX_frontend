@@ -10,11 +10,12 @@ import AsideMenuEmployee from "../components/AsideMenu/Left/AsideMenuEmployee.ts
 function Layout() {
   const dispatch = useDispatch();
   const token = localStorage.getItem("token");
+  console.log("token is: ", token)
   const isAdmin = useSelector(state => state.user.isAdmin)
   useLayoutEffect(() => {  // Fetch user data to get companyId
     // Dispatch the setToken action to save the token in the Redux store
     dispatch(setToken(token));
-    fetch('https://trx-api.linarawas.com/api/users/me', {
+    fetch('http://localhost:5000/api/users/me', {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -23,10 +24,10 @@ function Layout() {
       .then(response => response.json())
       .then(userData => {
         // setIsAdmin(userData.isAdmin);
+        console.log('got user data from api')
         dispatch(setCompanyId(userData.companyId));
         dispatch(setIsAdmin(userData.isAdmin));
         dispatch(setUsername(userData.name))
-        console.log('useLayoutEffect')
       })
       .catch(error => {
         console.error('Error fetching user data:', error);

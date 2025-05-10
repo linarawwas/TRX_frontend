@@ -78,7 +78,7 @@ const CurrentShipmentStat: React.FC = () => {
       setIsLoading(true); // Set loading state to true before fetching
 
       const response = await fetch(
-        `https://trx-api.linarawas.com/api/shipments/range`,
+        `http://localhost:5000/api/shipments/range`,
         {
           method: "POST",
           headers: {

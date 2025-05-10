@@ -2,7 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import "./CustomersForArea.css";
-import { clearCustomerId, setCustomerId } from "../../../redux/Order/action";
+import {
+  clearCustomerId,
+  clearCustomerName,
+  setCustomerId,
+  setCustomerName,
+} from "../../../redux/Order/action";
 import {
   saveCustomersToDB,
   getCustomersFromDB,
@@ -34,12 +39,13 @@ const CustomersForArea = (): JSX.Element => {
 
   useEffect(() => {
     dispatch(clearCustomerId());
+    dispatch(clearCustomerName());
 
     const fetchData = async () => {
       try {
         if (navigator.onLine) {
           const response = await fetch(
-            `https://trx-api.linarawas.com/api/customers/area/${areaId}`,
+            `http://localhost:5000/api/customers/area/${areaId}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -86,17 +92,25 @@ const CustomersForArea = (): JSX.Element => {
     fetchData();
   }, [areaId, token, dispatch]);
 
-  const handleOrderState = (customerId: string) => {
+  const handleOrderState = (customerId: string, customerName: string) => {
     dispatch(setCustomerId(customerId));
+    dispatch(setCustomerName(customerName));
     navigate("/recordOrderforCustomer");
   };
 
   return (
     <>
-      <h3 className="table-title" style={{ direction: "rtl", textAlign: "right" }}>
+      <h3
+        className="table-title"
+        style={{ direction: "rtl", textAlign: "right" }}
+      >
         الزبائن في هذه المنطقة
       </h3>
-      <table className="customers-for-area-table" dir="rtl" style={{ textAlign: "right" }}>
+      <table
+        className="customers-for-area-table"
+        dir="rtl"
+        style={{ textAlign: "right" }}
+      >
         <thead>
           <tr>
             <th>الاسم</th>
@@ -130,7 +144,9 @@ const CustomersForArea = (): JSX.Element => {
                 <td>
                   <button
                     className="customer-for-area-record-button"
-                    onClick={() => handleOrderState(customer._id)}
+                    onClick={() => {
+                      handleOrderState(customer._id, customer.name);
+                    }}
                   >
                     ➡️
                   </button>
@@ -142,7 +158,6 @@ const CustomersForArea = (): JSX.Element => {
       </table>
     </>
   );
-  
 };
 
 export default CustomersForArea;
