@@ -1,0 +1,38 @@
+.digit-carousel-container {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: center;
+  gap: 10px;
+}
+
+.digit-scroll-wrapper {
+  width: 50px;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.digit-scroll.no-scroll {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.digit-option {
+  padding: 12px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 20px;
+  transition: background-color 0.2s;
+}
+
+.digit-option:hover {
+  background-color: #f0f0f0;
+}
+
+.digit-option.selected {
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+}

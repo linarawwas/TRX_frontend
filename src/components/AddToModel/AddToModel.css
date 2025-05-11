@@ -1,61 +1,71 @@
 .add-model-container {
-    padding: 10px;
-    border: 1px solid rgb(8, 20, 43);
-    width: 20%;
-    box-shadow: 1px 1px 2px #06355e;
-    margin: 10px auto;
-    border-radius: 7px;
+  padding: 10px;
+  border: 1px solid rgb(8, 20, 43);
+  width: 20%;
+  box-shadow: 1px 1px 2px #06355e;
+  margin: 10px auto;
+  border-radius: 7px;
 }
 
 .add-model-title {
-    text-align: center;
+  text-align: center;
 }
 
 .add-model-form {
-    display: flex;
-    flex-flow: column nowrap;
-    align-items: center;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
 }
 
 .add-model-form input,
 .add-model-form select {
-    padding: 10px;
-    margin: 5px;
-
+  padding: 10px;
+  margin: 5px;
 }
 
 .add-model-form button {
-    padding: 10px;
-    margin: 5px;
-    border-radius: 7px;
-    box-shadow: 1px 1px 2px #06355e;
-    color: black;
-    background-color: #06355e;
+  padding: 10px;
+  margin: 5px;
+  border-radius: 7px;
+  box-shadow: 1px 1px 2px #06355e;
+  color: black;
+  background-color: #06355e;
 }
 
 .add-model-form button:hover {
-    color: white;
-    background-color: #0d94dd;
-    cursor: pointer;
+  color: white;
+  background-color: #0d94dd;
+  cursor: pointer;
 }
 
 @media (max-width: 600px) {
+  .add-model-container {
+    padding: 4px;
+    width: 70%;
+    box-shadow: 1px 1px 2px #06355e;
+  }
 
-    .add-model-container {
-        padding: 4px;
-        width: 70%;
-        box-shadow: 1px 1px 2px #06355e
-    }
+  .add-model-title {
+    font-size: 30px;
+  }
 
-    .add-model-title {
-        font-size: 30px;
-    }
+  .add-model-form input,
+  .add-model-form select {
+    padding: 9px;
+    margin: 6px;
+    width: fit-content;
+  }
+  .slider-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 1rem 0;
+  }
 
-    .add-model-form input,
-    .add-model-form select {
-        padding: 9px;
-        margin: 6px;
-        width: fit-content;
-    }
-
+  .vertical-slider {
+    writing-mode: bt-lr; /* Bottom to top, left to right */
+    -webkit-appearance: slider-vertical;
+    height: 200px;
+    width: 40px;
+  }
 }

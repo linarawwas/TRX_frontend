@@ -1,18 +1,19 @@
-import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../../redux/store'; // Update this path with your Redux store structure
+import React, { useState, ChangeEvent, FormEvent, useEffect } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../../redux/store"; // Update this path with your Redux store structure
 import {
   setShipmentId,
-  setShipmentTarget, setDateDay,
+  setShipmentTarget,
+  setDateDay,
   setDateMonth,
   setDateYear,
   setDayId,
   clearShipmentInfo,
-} from '../../../redux/Shipment/action';
-import { useNavigate } from 'react-router-dom';
-import AddToModel from '../../AddToModel/AddToModel';
+} from "../../../redux/Shipment/action";
+import { useNavigate } from "react-router-dom";
+import AddToModel from "../../AddToModel/AddToModel";
 
 const StartShipment: React.FC = () => {
   interface ShipmentData {
@@ -26,11 +27,11 @@ const StartShipment: React.FC = () => {
   const token = useSelector((state: RootState) => state.user.token);
   const companyId = useSelector((state: RootState) => state.user.companyId);
   const [shipmentData, setShipmentData] = useState({
-    dayId: '',
+    dayId: "",
     day: null,
     month: null,
     year: null,
-    companyId: '',
+    companyId: "",
   });
 
   const updateShipmentData = (data: any) => {
@@ -56,22 +57,27 @@ const StartShipment: React.FC = () => {
         const day = currentDate.getDate();
         const year = currentDate.getFullYear();
 
-        const dayName = currentDate.toLocaleDateString('en-US', { weekday: 'long' });
-
-        // Perform your API request and dispatch actions here based on the current date
-        const response = await fetch(`http://localhost:5000/api/days/name/${dayName}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        const dayName = currentDate.toLocaleDateString("en-US", {
+          weekday: "long",
         });
 
+        // Perform your API request and dispatch actions here based on the current date
+        const response = await fetch(
+          `http://localhost:5000/api/days/name/${dayName}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
         if (!response.ok) {
-          throw new Error('Failed to fetch day information');
+          throw new Error("Failed to fetch day information");
         }
 
         const dayData = await response.json();
         if (dayData.length === 0) {
-          throw new Error('Day information not found');
+          throw new Error("Day information not found");
         }
 
         const dayId = dayData[0]._id;
@@ -83,11 +89,9 @@ const StartShipment: React.FC = () => {
           year,
         };
 
-
         updateShipmentData(shipmentData);
-
       } catch (error) {
-        console.error('Error:', error);
+        console.error("Error:", error);
       }
     };
 
@@ -95,10 +99,10 @@ const StartShipment: React.FC = () => {
   }, []);
   const handleShipmentSubmit = async (formData: any) => {
     try {
-      const response = await fetch('http://localhost:5000/api/shipments', {
-        method: 'POST',
+      const response = await fetch("http://localhost:5000/api/shipments", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
@@ -112,43 +116,44 @@ const StartShipment: React.FC = () => {
       });
 
       if (response.ok) {
-
         const shipmentDataResponse = await response.json();
-        dispatch(clearShipmentInfo())
+        dispatch(clearShipmentInfo());
         dispatch(setDayId(shipmentData.dayId));
         dispatch(setDateMonth(shipmentData.month));
         dispatch(setDateDay(shipmentData.day));
         dispatch(setDateYear(shipmentData.year));
         dispatch(setShipmentId(shipmentDataResponse._id));
         dispatch(setShipmentTarget(shipmentDataResponse.carryingForDelivery));
-        toast.success('Shipment successfully recorded.');
-        const dayId = shipmentData.dayId
-        navigate(`/areas/${dayId}`)
+        toast.success("Shipment successfully recorded.");
+        const dayId = shipmentData.dayId;
+        navigate(`/areas/${dayId}`);
       } else {
-        toast.error('Error recording Shipment');
+        toast.error("Error recording Shipment");
       }
     } catch (error: any) {
-      toast.error('Network error:', error);
+      toast.error("Network error:", error);
     }
   };
   const shipmentConfig = {
     "component-related-fields": {
-      "modelName": "الشحنات",
-      "title": "أدخل معلومات الشحنة",
-      "button-label": "بدء الشحنة"
+      modelName: "الشحنات",
+      title: "أدخل معلومات الشحنة",
+      "button-label": "بدء الشحنة",
     },
     "model-related-fields": {
-      "carryingForDelivery": { "label": "الكمية المحملة للتوصيل", "input-type": "number" }
-    }
+      carryingForDelivery: {
+        label: "الكمية المحملة للتوصيل",
+        "input-type": "digit-carousal",
+      },
+    },
   };
-  
 
   return (
     <AddToModel
-      modelName={shipmentConfig['component-related-fields'].modelName}
-      title={shipmentConfig['component-related-fields'].title}
-      buttonLabel={shipmentConfig['component-related-fields']['button-label']}
-      modelFields={shipmentConfig['model-related-fields']}
+      modelName={shipmentConfig["component-related-fields"].modelName}
+      title={shipmentConfig["component-related-fields"].title}
+      buttonLabel={shipmentConfig["component-related-fields"]["button-label"]}
+      modelFields={shipmentConfig["model-related-fields"]}
       onSubmit={handleShipmentSubmit}
     />
   );
