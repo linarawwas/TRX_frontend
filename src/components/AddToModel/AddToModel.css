@@ -28,20 +28,15 @@
   margin: 5px;
   border-radius: 7px;
   box-shadow: 1px 1px 2px #06355e;
-  color: black;
+  color: white;
+  font-weight: 100;
+  font-size: 20px;
   background-color: #06355e;
 }
-
-.add-model-form button:hover {
-  color: white;
-  background-color: #0d94dd;
-  cursor: pointer;
-}
-
 @media (max-width: 600px) {
   .add-model-container {
-    padding: 4px;
-    width: 70%;
+    padding: 30px;
+    width: fit-content;
     box-shadow: 1px 1px 2px #06355e;
   }
 
@@ -67,5 +62,10 @@
     -webkit-appearance: slider-vertical;
     height: 200px;
     width: 40px;
+  }
+  .add-model-form div {
+    text-align: center;
+    font-size: 20px;
+    padding: 5px;
   }
 }

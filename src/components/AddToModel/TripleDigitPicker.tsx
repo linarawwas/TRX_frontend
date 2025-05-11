@@ -8,9 +8,9 @@ interface TripleDigitPickerProps {
 const digits = Array.from({ length: 10 }, (_, i) => i);
 
 const TripleDigitPicker: React.FC<TripleDigitPickerProps> = ({ onChange }) => {
-  const [hundreds, setHundreds] = useState<number | null>(null);
-  const [tens, setTens] = useState<number | null>(null);
-  const [ones, setOnes] = useState<number | null>(null);
+  const [hundreds, setHundreds] = useState<number | null>(0);
+  const [tens, setTens] = useState<number | null>(0);
+  const [ones, setOnes] = useState<number | null>(0);
   const [lastSentValue, setLastSentValue] = useState<number | null>(null);
 
   // Only call onChange when the full number is valid and it has changed

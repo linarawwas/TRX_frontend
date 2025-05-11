@@ -7,7 +7,8 @@
 
 .digit-scroll-wrapper {
   width: 50px;
-  max-height: 300px;
+  max-height: 120px;
+  padding: 10px;
   overflow-y: auto;
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -32,7 +33,7 @@
 }
 
 .digit-option.selected {
-  background-color: #007bff;
+  background-color: #06355e;
   color: white;
   font-weight: bold;
 }
