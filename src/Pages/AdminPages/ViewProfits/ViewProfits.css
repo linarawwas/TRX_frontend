@@ -20,7 +20,7 @@
 
 .show-add-profits:hover {
     background-color: white;
-    color: #1f8ceb;
+    color: #06355e;
     font-weight: bold;
 }
 
@@ -57,7 +57,7 @@
 .container-button-div button {
     margin: 2px;
     padding: 5px;
-    box-shadow: 1px 1px 10px #1f8ceb;
+    box-shadow: 1px 1px 10px #06355e;
 }
 
 .delete-btn {

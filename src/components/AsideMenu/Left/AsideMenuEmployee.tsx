@@ -1,129 +1,61 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import "../AsideMenu.css";
+import { useDispatch, useSelector } from "react-redux";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useDispatch, useSelector } from "react-redux";
+
+import RightAsideMenu from "../Right/RightAsideMenu";
 import {
   clearCompanyId,
   clearToken,
   clearIsAdmin,
 } from "../../../redux/UserInfo/action";
-import RightAsideMenu from "../Right/RightAsideMenu";
 import { setShipmentFromPrev } from "../../../redux/Shipment/action";
+import "../AsideMenu.css";
 
 const AsideMenuEmployee: React.FC = () => {
-  const shipmentId: string = useSelector((state: any) => state.shipment._id);
-  const shipmentDefined: boolean =
-    shipmentId !== null && shipmentId !== undefined && shipmentId !== "";
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const dispatch = useDispatch();
-  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
-  const dayId: string = useSelector((state: any) => state.shipment.dayId);
+
+  const shipmentId = useSelector((state: any) => state.shipment._id);
+  const dayId = useSelector((state: any) => state.shipment.dayId);
+  const shipmentDefined = !!shipmentId;
 
   const handleLogout = () => {
-    toast.success("Logged Out Successfully");
-
-    // Delete the token from local storage
+    toast.success("تم تسجيل الخروج بنجاح");
     localStorage.removeItem("token");
-    setTimeout(() => {
-      window.location.reload();
-    }, 1500);
-
-    // Dispatch actions to clear token and companyId in the Redux store
+    setTimeout(() => window.location.reload(), 1500);
     dispatch(clearToken());
     dispatch(clearCompanyId());
     dispatch(clearIsAdmin());
   };
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-  const handlePrevShipment = () => {
-    dispatch(setShipmentFromPrev());
-  };
-
   return (
-    <div
-      className={`dashboard ${isMenuOpen ? "menu-open" : "menu-closed"}`}
-      style={{ direction: "rtl" }}
-    >
+    <div className={`dashboard ${isMenuOpen ? "menu-open" : "menu-closed"}`} style={{ direction: "rtl" }}>
+      <ToastContainer position="top-right" autoClose={1000} />
       <div className="aside-Menu">
-        <ToastContainer position="top-right" autoClose={1000} />
-
         <div className="button-div">
-          <button className="menu-toggle" onClick={toggleMenu}>
+          <button className="menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {isMenuOpen ? <FaTimes /> : <FaBars />}
           </button>
-
           <RightAsideMenu />
         </div>
 
         <aside className="sidebar" style={{ textAlign: "right" }}>
           <ul>
             {shipmentDefined ? (
-              <li>
-                <Link
-                  to={`/areas/${dayId}`}
-                  className="sidebar-link"
-                  onClick={toggleMenu}
-                >
-                  المسار
-                </Link>
-              </li>
+              <li><Link to={`/areas/${dayId}`} className="sidebar-link">المسار</Link></li>
             ) : (
               <li>الرجاء بدء الشحنة</li>
             )}
-            <li>
-              <Link to="/areas" className="sidebar-link" onClick={toggleMenu}>
-                المناطق
-              </Link>
-            </li>
-            {/* <li>
-                         <Link to="/register" className="sidebar-link" onClick={toggleMenu}>
-                           تسجيل موظف جديد
-                         </Link>
-                       </li> */}
-            <li>
-              <Link
-                to="/customers"
-                className="sidebar-link"
-                onClick={toggleMenu}
-              >
-                الزبائن
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/Expenses"
-                className="sidebar-link"
-                onClick={toggleMenu}
-              >
-                المصاريف
-              </Link>
-            </li>
-            <li>
-              <Link to="/Profits" className="sidebar-link" onClick={toggleMenu}>
-                الأرباح
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/currentShipment"
-                className="sidebar-link"
-                onClick={toggleMenu}
-              >
-                تفاصيل الشحنة الحالية
-              </Link>
-            </li>
-            <li>
-              <button className="logout-button" onClick={handleLogout}>
-                تسجيل الخروج
-              </button>
-            </li>
-            <button className="prev-shipment-btn" onClick={handlePrevShipment}>
-              ↩️
-            </button>
+            <li><Link to="/areas" className="sidebar-link">المناطق</Link></li>
+            <li><Link to="/customers" className="sidebar-link">الزبائن</Link></li>
+            <li><Link to="/Expenses" className="sidebar-link">المصاريف</Link></li>
+            <li><Link to="/Profits" className="sidebar-link">الأرباح</Link></li>
+            <li><Link to="/currentShipment" className="sidebar-link">تفاصيل الشحنة الحالية</Link></li>
+            <li><button className="logout-button" onClick={handleLogout}>تسجيل الخروج</button></li>
+            <li><button className="prev-shipment-btn" onClick={() => dispatch(setShipmentFromPrev())}>↩️</button></li>
           </ul>
         </aside>
       </div>

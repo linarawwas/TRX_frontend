@@ -3,7 +3,7 @@
     padding: 10px;
     border: 1px solid rgb(8, 20, 43);
     width: 20%;
-    box-shadow: 1px 1px 2px #1f8ceb;
+    box-shadow: 1px 1px 2px #06355e;
     margin: 10px auto;
     border-radius: 7px;
 }
@@ -29,9 +29,9 @@
     padding: 10px;
     margin: 5px;
     border-radius: 7px;
-    box-shadow: 1px 1px 2px #1f8ceb;
+    box-shadow: 1px 1px 2px #06355e;
     color: black;
-    background-color: #1f8ceb;
+    background-color: #06355e;
 }
 
 .add-discount-container form button:hover {
@@ -45,7 +45,7 @@
     .add-discount-container {
         padding: 4px;
         width: 70%;
-        box-shadow: 1px 1px 2px #1f8ceb
+        box-shadow: 1px 1px 2px #06355e
     }
 
     .add-discount-container .title {

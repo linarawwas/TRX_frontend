@@ -21,7 +21,6 @@
   opacity: 1;
   margin-top: 100px;
   z-index: 10000;
-
 }
 
 .sidebar-link,
@@ -59,7 +58,7 @@
   height: 50px;
   border-radius: 20px;
   border: none;
-  color: #1f8ceb;
+  color: #06355e;
   cursor: pointer;
   display: block;
   z-index: 100;
@@ -97,19 +96,13 @@
 
 .logout-button {
   padding: 10px;
-  background-color: #1f8ceb;
-  color: #082338;
+  background-color: #06355e;
+  color: white;
   border: none;
   border-radius: 20px;
   cursor: pointer;
   margin: 5px auto;
   width: 100px;
-  border: 1px solid #082338;
-}
-
-.logout-button:hover {
-  background-color: #1f8ceb;
-  color: white;
   border: 1px solid #082338;
 }
 
