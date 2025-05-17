@@ -184,7 +184,7 @@ const StartShipment: React.FC = () => {
   const shipmentConfig = {
     "component-related-fields": {
       modelName: "الشحنات",
-      title: "أدخل معلومات الشحنة",
+      title: "إنهاء الشحنة السابقة وبدء أخرى جديدة",
       "button-label": "بدء الشحنة",
     },
     "model-related-fields": {

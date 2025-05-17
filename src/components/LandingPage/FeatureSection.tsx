@@ -10,8 +10,9 @@ import {
   faWallet,
   faDollarSign,
 } from "@fortawesome/free-solid-svg-icons";
-import "./FeatureSection.css"; // We'll create this for modal styles
+import "./FeatureSection.css";
 import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
 const FeatureSection: React.FC = () => {
   const [activeForm, setActiveForm] = useState<string | null>(null);
@@ -19,15 +20,16 @@ const FeatureSection: React.FC = () => {
   const toggleForm = (form: string) =>
     setActiveForm((prev) => (prev === form ? null : form));
 
-  // Disable body scroll when modal is open
   useEffect(() => {
     document.body.style.overflow = activeForm ? "hidden" : "auto";
   }, [activeForm]);
 
   const closeModal = () => setActiveForm(null);
+
   const shipmentId = useSelector((state: any) => state.shipment._id);
   const dayId = useSelector((state: any) => state.shipment.dayId);
   const shipmentDefined = !!shipmentId;
+
   return (
     <>
       <div
@@ -35,13 +37,35 @@ const FeatureSection: React.FC = () => {
         style={{ direction: "rtl", textAlign: "right" }}
       >
         <ul>
-          <li className="show-form-li" onClick={() => toggleForm("shipment")}>
+          {/* ✅ This now links to the Areas page */}
+          {dayId && (
+            <li className="show-form-li">
+              <Link to={`/areas/${dayId}`} className="link-to-shipment">
+                <FontAwesomeIcon
+                  icon={faTruck}
+                  size="2x"
+                  className="shipment-logo"
+                />
+              </Link>
+            </li>
+          )}
+
+          {/* ✅ This now opens the shipment modal and is red + mirrored */}
+          <li
+            className="show-form-li end-shipment"
+            onClick={() => toggleForm("shipment")}
+          >
             {activeForm === "shipment" ? (
               <FaTimes />
             ) : (
-              <FontAwesomeIcon icon={faTruck} size="2x" />
+              <FontAwesomeIcon
+                icon={faTruck}
+                size="2x"
+                className="shipment-logo mirrored"
+              />
             )}
           </li>
+
           <li className="show-form-li" onClick={() => toggleForm("profits")}>
             {activeForm === "profits" ? (
               <FaTimes />
@@ -49,18 +73,12 @@ const FeatureSection: React.FC = () => {
               <FontAwesomeIcon icon={faDollarSign} size="2x" />
             )}
           </li>
+
           <li className="show-form-li" onClick={() => toggleForm("expenses")}>
             {activeForm === "expenses" ? (
               <FaTimes />
             ) : (
               <FontAwesomeIcon icon={faWallet} size="2x" />
-            )}
-          </li>
-          <li className="show-form-li" onClick={() => toggleForm("shipment")}>
-            {activeForm === "shipment" ? (
-              <FaTimes />
-            ) : (
-              <FontAwesomeIcon icon={faTruck} size="2x" />
             )}
           </li>
         </ul>
