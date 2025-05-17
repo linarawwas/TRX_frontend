@@ -1,8 +1,8 @@
-import React, { useState, useEffect, ChangeEvent } from 'react';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../redux/store';
-import { toast } from 'react-toastify';
-import './AddDiscount.css';
+import React, { useState, useEffect, ChangeEvent } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
+import { toast } from "react-toastify";
+import "./AddDiscount.css";
 interface Area {
   _id: string;
   name: string;
@@ -29,66 +29,75 @@ const AddDiscount: React.FC = () => {
   const [customerOptions, setCustomerOptions] = useState<Customer[]>([]);
   const [exchangeRate, setExchangeRate] = useState<number>(1);
   const [formData, setFormData] = useState<FormData>({
-    areaId: '',
-    customerId: '',
+    areaId: "",
+    customerId: "",
     hasDiscount: true,
-    noteAboutCustomer: '',
-    discountCurrency: 'USD',
+    noteAboutCustomer: "",
+    discountCurrency: "USD",
     valueAfterDiscount: 0,
   });
 
   // Fetch areas from the API
   useEffect(() => {
-    fetch(`http://localhost:5000/api/areas/company/${companyId}`, {
+    fetch(`https://trx-api.linarawas.com/api/areas/company/${companyId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
-      .then(response => response.json())
-      .then(data => setAreaOptions(data))
-      .catch(error => console.error('Error fetching areas:', error));
+      .then((response) => response.json())
+      .then((data) => setAreaOptions(data))
+      .catch((error) => console.error("Error fetching areas:", error));
   }, [companyId, token]);
 
   // Fetch exchange rate from the API
   useEffect(() => {
-    fetch(`http://localhost:5000/api/exchangeRates/6537789b6ed59ef09c18213d`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then(response => response.json())
-      .then(data => setExchangeRate(data.exchangeRateInLBP))
-      .catch(error => console.error('Error fetching exchange rate:', error));
+    fetch(
+      `https://trx-api.linarawas.com/api/exchangeRates/6537789b6ed59ef09c18213d`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+      .then((response) => response.json())
+      .then((data) => setExchangeRate(data.exchangeRateInLBP))
+      .catch((error) => console.error("Error fetching exchange rate:", error));
   }, []);
 
   // Fetch customers based on selected area
   useEffect(() => {
     if (formData.areaId) {
-      fetch(`http://localhost:5000/api/customers/area/${formData.areaId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then(response => response.json())
-        .then(data => setCustomerOptions(data))
-        .catch(error => console.error('Error fetching customers:', error));
+      fetch(
+        `https://trx-api.linarawas.com/api/customers/area/${formData.areaId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+        .then((response) => response.json())
+        .then((data) => setCustomerOptions(data))
+        .catch((error) => console.error("Error fetching customers:", error));
     }
   }, [formData.areaId, token]);
 
-  const handleInputChange = (field: keyof FormData, value: string | boolean) => {
-    if (field === 'discountCurrency' && value !== 'USD') {
+  const handleInputChange = (
+    field: keyof FormData,
+    value: string | boolean
+  ) => {
+    if (field === "discountCurrency" && value !== "USD") {
       // Convert valueAfterDiscount to USD using exchange rate
       console.log(exchangeRate);
 
       const convertedValue = formData.valueAfterDiscount! / exchangeRate;
-      setFormData(prevData => ({
+      setFormData((prevData) => ({
         ...prevData,
-        discountCurrency: 'USD',
+        discountCurrency: "USD",
         valueAfterDiscount: convertedValue,
       }));
       console.log(convertedValue);
     } else {
-      setFormData(prevData => ({
+      setFormData((prevData) => ({
         ...prevData,
         [field]: value,
       }));
@@ -96,104 +105,105 @@ const AddDiscount: React.FC = () => {
   };
 
   const handleSubmit = () => {
-    fetch(`http://localhost:5000/api/customers/${formData.customerId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(formData),
-    })
-      .then(response => response.json())
-      .then(data => {
+    fetch(
+      `https://trx-api.linarawas.com/api/customers/${formData.customerId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      }
+    )
+      .then((response) => response.json())
+      .then((data) => {
         // Handle success response
-        console.log('Data sent successfully:', data);
-        console.log("customer id: ", formData.customerId)
-        toast.success('Customer Discount Saved Successfully!')
+        console.log("Data sent successfully:", data);
+        console.log("customer id: ", formData.customerId);
+        toast.success("Customer Discount Saved Successfully!");
       })
-      .catch(error => {
+      .catch((error) => {
         // Handle error
-        console.error('Error sending data:', error);
+        console.error("Error sending data:", error);
       });
   };
   return (
     <div className="add-discount-container">
       <h1 className="title">إضافة خصم للعميل</h1>
       <form>
-  
         <label>
           المنطقة:
           <select
             value={formData.areaId}
             onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-              handleInputChange('areaId', e.target.value)
+              handleInputChange("areaId", e.target.value)
             }
           >
             <option value="">اختر منطقة</option>
-            {areaOptions.map(area => (
+            {areaOptions.map((area) => (
               <option key={area._id} value={area._id}>
                 {area.name}
               </option>
             ))}
           </select>
         </label>
-  
+
         <label>
           العميل:
           <select
             value={formData.customerId}
             onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-              handleInputChange('customerId', e.target.value)
+              handleInputChange("customerId", e.target.value);
             }}
           >
             <option value="">اختر عميل</option>
-            {customerOptions.map(customer => (
+            {customerOptions.map((customer) => (
               <option key={customer._id} value={customer._id}>
                 {customer.name}
               </option>
             ))}
           </select>
         </label>
-  
+
         <label>
           شرح مختصر:
           <textarea
             value={formData.noteAboutCustomer}
             onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
-              handleInputChange('noteAboutCustomer', e.target.value)
+              handleInputChange("noteAboutCustomer", e.target.value)
             }
           />
         </label>
-        
+
         <label>
           القيمة بعد الخصم:
           <input
             type="number"
-            value={formData.valueAfterDiscount || ''}
+            value={formData.valueAfterDiscount || ""}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              handleInputChange('valueAfterDiscount', e.target.value)
+              handleInputChange("valueAfterDiscount", e.target.value)
             }
           />
         </label>
-        
+
         <label>
           عملة الخصم:
           <select
             value={formData.discountCurrency}
             onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-              handleInputChange('discountCurrency', e.target.value)
+              handleInputChange("discountCurrency", e.target.value)
             }
           >
             <option value="USD">دولار أمريكي</option>
             <option value="LBP">ليرة لبنانية</option>
           </select>
         </label>
-  
+
         <button onClick={handleSubmit}>إرسال</button>
       </form>
     </div>
   );
-  
 };
 
 export default AddDiscount;

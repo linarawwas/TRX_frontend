@@ -96,7 +96,7 @@ const RecordOrder = (props) => {
     e.preventDefault();
 
     const request = {
-      url: "http://localhost:5000/api/orders",
+      url: "https://trx-api.linarawas.com/api/orders",
       options: {
         method: "POST",
         headers: {
