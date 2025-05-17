@@ -17,16 +17,15 @@ import {
 
 import AddToModel from "../../AddToModel/AddToModel";
 import { preloadShipmentData } from "../../../utils/preloadShipmentData";
+
 import "./StartShipment.css";
 
 const StartShipment: React.FC = () => {
-  // Redux + Router hooks
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = useSelector((state: RootState) => state.user.token);
   const companyId = useSelector((state: RootState) => state.user.companyId);
 
-  // Shipment initialization state
   const [shipmentData, setShipmentData] = useState({
     dayId: "",
     day: null,
@@ -35,18 +34,14 @@ const StartShipment: React.FC = () => {
     companyId: "",
   });
 
-  // Loader modal and step control
   const [showLoadingModal, setShowLoadingModal] = useState(false);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
-
-  // Error handling
   const [preloadError, setPreloadError] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
 
   const isDevMode =
     new URLSearchParams(window.location.search).get("dev") === "true";
 
-  // Loading steps displayed to the driver
   const steps = [
     "🔍 تحليل دقيق للمناطق وتوزيعها حسب الأولوية",
     "👥 تحميل معلومات الزبائن (عدد القناني، الطلبات، الخصومات)",
@@ -56,9 +51,6 @@ const StartShipment: React.FC = () => {
     "✅ ضمان الاستمرارية بدون إرسال أو شبكة",
   ];
 
-  /**
-   * Initializes shipment date and fetches corresponding dayId.
-   */
   useEffect(() => {
     const initializeDate = async () => {
       try {
@@ -68,39 +60,36 @@ const StartShipment: React.FC = () => {
         const year = now.getFullYear();
         const dayName = now.toLocaleDateString("en-US", { weekday: "long" });
 
-        const res = await fetch(
+        const response = await fetch(
           `http://localhost:5000/api/days/name/${dayName}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
 
-        if (!res.ok) throw new Error("Failed to fetch day information");
+        if (!response.ok) throw new Error("Day info fetch failed");
 
-        const dayData = await res.json();
-        if (dayData.length === 0) throw new Error("Day info not found");
+        const data = await response.json();
+        if (!data?.length) throw new Error("Day not found in DB");
 
         setShipmentData({
-          dayId: dayData[0]._id,
+          dayId: data[0]._id,
           day,
           month,
           year,
           companyId,
         });
       } catch (err) {
-        console.error("⛔ Error during day initialization:", err);
+        console.error("❌ Day initialization failed:", err);
       }
     };
 
     initializeDate();
   }, [token, companyId]);
 
-  /**
-   * Handles shipment creation and starts the loading sequence.
-   */
   const handleShipmentSubmit = async (formData: any) => {
     try {
-      const res = await fetch("http://localhost:5000/api/shipments", {
+      const response = await fetch("http://localhost:5000/api/shipments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -112,28 +101,25 @@ const StartShipment: React.FC = () => {
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to create shipment");
+      if (!response.ok) throw new Error("Shipment creation failed");
 
-      const shipment = await res.json();
+      const shipment = await response.json();
+
       dispatch(clearShipmentInfo());
       dispatch(setDayId(shipmentData.dayId));
-      dispatch(setDateMonth(shipmentData.month));
       dispatch(setDateDay(shipmentData.day));
+      dispatch(setDateMonth(shipmentData.month));
       dispatch(setDateYear(shipmentData.year));
       dispatch(setShipmentId(shipment._id));
       dispatch(setShipmentTarget(shipment.carryingForDelivery));
 
       toast.success("✅ تم تسجيل الشحنة بنجاح");
       setShowLoadingModal(true);
-    } catch (err: any) {
-      toast.error("⚠️ فشل في تسجيل الشحنة: " + err.message);
-      setShowLoadingModal(false);
+    } catch (error: any) {
+      toast.error("⚠️ فشل في تسجيل الشحنة: " + error.message);
     }
   };
 
-  /**
-   * Retry preloading shipment data after failure.
-   */
   const handleRetryPreload = async () => {
     setIsRetrying(true);
     setPreloadError(false);
@@ -141,44 +127,40 @@ const StartShipment: React.FC = () => {
       await preloadShipmentData({
         dayId: shipmentData.dayId,
         token,
-        companyId: shipmentData.companyId,
+        companyId,
       });
       navigate(`/areas/${shipmentData.dayId}`);
-    } catch (err) {
-      toast.error("❌ لا تزال عملية التحميل غير ناجحة.");
+    } catch (error) {
+      toast.error("❌ تعذر تحميل بيانات الشحنة.");
       setPreloadError(true);
     } finally {
       setIsRetrying(false);
     }
   };
 
-  /**
-   * Progresses through steps with delay and preloads data after last step.
-   */
   useEffect(() => {
     if (!showLoadingModal || currentStepIndex > steps.length) return;
 
-    const timer = setTimeout(() => {
+    const timeout = setTimeout(() => {
       if (currentStepIndex < steps.length) {
         setCurrentStepIndex((prev) => prev + 1);
       } else {
-        // Preload after last visible step
         preloadShipmentData({
           dayId: shipmentData.dayId,
           token,
-          companyId: shipmentData.companyId,
+          companyId,
         })
           .then(() => navigate(`/areas/${shipmentData.dayId}`))
           .catch((err) => {
             console.error("❌ Preloading failed:", err);
             setPreloadError(true);
             setShowLoadingModal(false);
-            toast.error("⚠️ تعذر تحميل بيانات الشحنة");
+            toast.error("⚠️ فشل في تحميل البيانات");
           });
       }
-    }, 2500);
+    }, 2000); // Customize duration as needed
 
-    return () => clearTimeout(timer);
+    return () => clearTimeout(timeout);
   }, [currentStepIndex, showLoadingModal]);
 
   const shipmentConfig = {
@@ -205,7 +187,6 @@ const StartShipment: React.FC = () => {
         onSubmit={handleShipmentSubmit}
       />
 
-      {/* Retry UI if preload fails */}
       {preloadError && (
         <div className="retry-box">
           ⚠️ لم يتم تحميل البيانات بنجاح.
@@ -216,7 +197,6 @@ const StartShipment: React.FC = () => {
         </div>
       )}
 
-      {/* Dev-only reload shortcut */}
       {isDevMode && !preloadError && (
         <div style={{ textAlign: "center", marginTop: "1rem" }}>
           <button onClick={handleRetryPreload}>
@@ -225,7 +205,6 @@ const StartShipment: React.FC = () => {
         </div>
       )}
 
-      {/* Animated shipment loading modal */}
       {showLoadingModal && (
         <div className="shipment-loading-overlay">
           <div

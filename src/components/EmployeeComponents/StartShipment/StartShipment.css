@@ -1,91 +1,60 @@
 .shipment-loading-overlay {
     position: fixed;
-    inset: 0;
-    background: radial-gradient(circle, #0c0c0c 20%, #000000 100%);
-    backdrop-filter: blur(6px);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(20, 20, 20, 0.85);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 9999;
-    color: white;
-    direction: rtl;
-    font-family: "Tajawal", sans-serif;
   }
   
   .shipment-loading-modal {
-    background: #1e1e1e;
-    padding: 2.5rem;
-    border-radius: 16px;
-    box-shadow: 0 0 30px rgba(255, 50, 50, 0.8);
-    width: 90%;
-    max-width: 550px;
+    background: #fff;
+    color: #222;
+    padding: 2rem;
+    border-radius: 12px;
+    max-width: 90%;
     text-align: right;
-    animation: fadeIn 0.6s ease-in-out;
-  }
-  
-  .shipment-loading-modal h2 {
-    color: #ff4d4d;
-    font-size: 1.6rem;
-    animation: glow 2s ease-in-out infinite;
-    margin-bottom: 0.5rem;
-  }
-  
-  .loading-intro {
-    color: #ccc;
-    margin-bottom: 1rem;
-    font-size: 1rem;
   }
   
   .animated-steps .step {
-    margin: 0.7rem 0;
-    font-size: 1.1rem;
-    opacity: 0;
-    animation: fadeInStep 10s ease-in-out forwards;
-  }
-  
-  .animated-steps .step:nth-child(1) { animation-delay: 0.5s; }
-  .animated-steps .step:nth-child(2) { animation-delay: 3s; }
-  .animated-steps .step:nth-child(3) { animation-delay: 6s; }
-  .animated-steps .step:nth-child(4) { animation-delay: 9s; }
-  .animated-steps .step:nth-child(5) { animation-delay: 12s; }
-  .animated-steps .step:nth-child(6) { animation-delay: 15s; }
-  
-  .progress-timer {
-    margin-top: 1.5rem;
-    font-size: 0.95rem;
-    color: #bbb;
-    text-align: center;
-    animation: fadeIn 2s ease-in;
-  }
-  
-  .pulse-loader {
-    margin: 2rem auto 0;
-    width: 40px;
-    height: 40px;
-    background-color: red;
-    border-radius: 50%;
-    animation: pulse 1s infinite;
-  }
-  
-  @keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+    animation: fadeInStep 0.6s ease-in;
+    margin-bottom: 0.4rem;
   }
   
   @keyframes fadeInStep {
-    0% { opacity: 0; }
-    20% { opacity: 1; }
-    80% { opacity: 1; }
-    100% { opacity: 0.5; }
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
   }
   
-  @keyframes glow {
-    0%, 100% { text-shadow: 0 0 10px red; }
-    50% { text-shadow: 0 0 25px red; }
+  .pulse-loader {
+    margin-top: 1rem;
+    width: 40px;
+    height: 40px;
+    border: 5px solid #2d89ef;
+    border-top: 5px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
   }
   
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.5); opacity: 0.5; }
+  .retry-box {
+    padding: 1rem;
+    color: red;
+    text-align: center;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
   }
   

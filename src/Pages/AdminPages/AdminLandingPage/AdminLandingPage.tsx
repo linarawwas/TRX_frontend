@@ -16,9 +16,6 @@ const AdminLandingPage: React.FC = () => {
         <AdminFeatures />
         <CurrentShipmentStat />
       </div>
-      <div className="footer">
-        <p>© 2025 تيركس بواسطة لينة الرواّس. جميع الحقوق محفوظة.</p>
-      </div>
     </div>
   );
 };
