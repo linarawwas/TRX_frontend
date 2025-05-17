@@ -1,3 +1,4 @@
+// Refactored AreasForDay.tsx to always load from IndexedDB
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -5,11 +6,9 @@ import "./AreasForDay.css";
 import { RootState } from "../../../redux/store";
 import { clearAreaId, setAreaId } from "../../../redux/Order/action";
 import {
-  saveAreasToDB,
   getAreasFromDB,
-  getDayFromDB,
-  saveDayToDB,
-} from "../../../utils/indexedDB"; // Import IndexedDB helper
+  getDayFromDB
+} from "../../../utils/indexedDB";
 
 interface Area {
   _id: string;
@@ -19,7 +18,6 @@ interface Area {
 export default function AreasForDay(): JSX.Element {
   const dispatch = useDispatch();
   const companyId = useSelector((state: RootState) => state.user.companyId);
-  const token: string = useSelector((state: RootState) => state.user.token);
   const { dayId } = useParams();
   const [areas, setAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -28,93 +26,35 @@ export default function AreasForDay(): JSX.Element {
   useEffect(() => {
     dispatch(clearAreaId());
 
-    const fetchData = async () => {
+    const loadCachedData = async () => {
       try {
         setLoading(true);
-        if (navigator.onLine) {
-          const response = await fetch(
-            `http://localhost:5000/api/areas/days/${dayId}`,
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ companyId }),
-            }
-          );
 
-          if (!response.ok) throw new Error("Network response was not ok");
+        const cachedAreas = await getAreasFromDB(dayId);
+        const cachedDay = await getDayFromDB(dayId);
 
-          const data = await response.json();
-          setAreas(data);
-          console.log("Fetched areas from API:", data);
-
-          // Save data to IndexedDB using the helper function
-          await saveAreasToDB(dayId, data);
+        if (cachedAreas) {
+          setAreas(cachedAreas);
         } else {
-          console.log("No internet connection, loading from IndexedDB");
+          console.warn("⚠️ No cached areas found for this day.");
+        }
 
-          // Load from IndexedDB using the helper function
-          const cachedData = await getAreasFromDB(dayId);
-          if (cachedData) {
-            console.log("Loaded areas from IndexedDB:", cachedData);
-            setAreas(cachedData);
-          } else {
-            console.log("No cached data found.");
-          }
+        if (cachedDay) {
+          setDayName(cachedDay.name);
+        } else {
+          console.warn("⚠️ No cached day name found.");
+          setDayName("يوم غير معروف");
         }
       } catch (error) {
-        console.error("Error fetching areas:", error);
+        console.error("❌ Failed to load from IndexedDB:", error);
+        setDayName("خطأ في التحميل");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
-  }, [dayId, companyId, token]);
-
-  useEffect(() => {
-    const fetchDay = async () => {
-      try {
-        // Check for offline mode
-        if (!navigator.onLine) {
-          console.log("Offline: Fetching day from IndexedDB");
-          const cachedDay = await getDayFromDB(dayId);
-          if (cachedDay) {
-            setDayName(cachedDay.name);
-            return;
-          } else {
-            console.warn("No cached data available for the day.");
-            setDayName("Unknown Day");
-            return;
-          }
-        }
-
-        // Online: Fetch from API
-        const response = await fetch(
-          `http://localhost:5000/api/days/${dayId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (!response.ok) throw new Error("Failed to fetch day data");
-
-        const data = await response.json();
-        setDayName(data?.name || "Unknown Day");
-
-        // Save fetched data to IndexedDB
-        await saveDayToDB(dayId, data);
-      } catch (error) {
-        console.error("Error fetching day name:", error);
-      }
-    };
-
-    fetchDay();
-  }, [dayId, token]);
+    loadCachedData();
+  }, [dayId, dispatch]);
 
   return (
     <table className="areas-for-day-table" dir="rtl" style={{ textAlign: "right" }}>
@@ -123,7 +63,7 @@ export default function AreasForDay(): JSX.Element {
           <th>المناطق ليوم {dayName}</th>
         </tr>
       </thead>
-  
+
       {loading ? (
         <tbody>
           <tr>
@@ -153,5 +93,4 @@ export default function AreasForDay(): JSX.Element {
       )}
     </table>
   );
-  
 }

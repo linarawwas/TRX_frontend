@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useSelector } from "react-redux";
 import SpinLoader from "../../UI reusables/SpinLoader/SpinLoader";
 import "./CustomerInvoices.css";
+import {
+  getCustomerInvoicesFromDB,
+  saveCustomerInvoicesToDB,
+} from "../../../utils/indexedDB"; // Ensure you implement this helper
+
 interface Sums {
   deliveredSum: number;
   returnedSum: number;
@@ -17,47 +21,28 @@ interface Sums {
 const CustomerInvoices: React.FC = () => {
   const [sums, setSums] = useState<Sums | null>(null);
   const [loading, setLoading] = useState(true);
-  const token: string = useSelector((state: any) => state.user.token);
   const customerId = useSelector((state: any) => state.order.customer_Id);
-  const deliveredInShipment = useSelector(
-    (state: any) => state.shipment.delivered
-  );
+  const deliveredInShipment = useSelector((state: any) => state.shipment.delivered);
   const liraPayments = useSelector((state: any) => state.shipment.liraPayments);
-  const dollarPayments = useSelector(
-    (state: any) => state.shipment.dollarPayments
-  );
+  const dollarPayments = useSelector((state: any) => state.shipment.dollarPayments);
 
   useEffect(() => {
-    const fetchCustomerInvoices = async () => {
+    const loadInvoiceFromCache = async () => {
       setLoading(true);
-
-      if (navigator.onLine) {
-        try {
-          //fetch from API
-          const response = await axios.get(
-            `http://localhost:5000/api/customers/reciept/${customerId}`,
-            {
-              method: "GET",
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-
-          const data = response.data;
-          setSums(data.sums);
-          setLoading(false);
-        } catch (error) {
-          console.error("Error fetching customer receipt:", error);
-          setLoading(false);
+      try {
+        const cachedData = await getCustomerInvoicesFromDB(customerId);
+        if (cachedData) {
+          setSums(cachedData);
+        } else {
+          console.warn("⚠️ No cached invoice data for this customer.");
         }
-      } else {
-        // Offline: Load from IndexedDB
-        setLoading(false);
+      } catch (err) {
+        console.error("❌ Failed to load customer invoice from cache:", err);
       }
+      setLoading(false);
     };
 
-    fetchCustomerInvoices();
+    loadInvoiceFromCache();
   }, [customerId, deliveredInShipment, liraPayments, dollarPayments]);
 
   return (
@@ -80,11 +65,10 @@ const CustomerInvoices: React.FC = () => {
           </div>
         </div>
       ) : (
-        <p>لا توجد بيانات لهذا الزبون</p>
+        <p>لا توجد بيانات محفوظة لهذا الزبون</p>
       )}
     </div>
   );
-  
 };
 
 export default CustomerInvoices;

@@ -1,3 +1,4 @@
+// Refactored RecordOrder.tsx to only use IndexedDB for product info
 import React, { useState, useEffect } from "react";
 import "./RecordOrder.css";
 import { toast, ToastContainer } from "react-toastify";
@@ -20,57 +21,38 @@ import {
   setProductPrice,
 } from "../../../redux/Order/action";
 import { useNavigate } from "react-router-dom";
-import {
-  getPendingRequests,
-  getProductTypeFromDB,
-  removeRequestFromDb,
-  saveProductTypeToDB,
-  saveRequest,
-} from "../../../utils/indexedDB";
+import { getProductTypeFromDB, saveRequest } from "../../../utils/indexedDB";
+
 const RecordOrder = (props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const token = useSelector((state) => state.user.token);
   const companyId = useSelector((state) => state.user.companyId);
-  useEffect(() => {
-    const fetchProduct = async () => {
-      const cachedProduct = await getProductTypeFromDB(companyId);
-      if (cachedProduct) {
-        dispatch(setProductId(cachedProduct.id));
-        dispatch(setProductName(cachedProduct.type));
-        dispatch(setProductPrice(cachedProduct.priceInDollars));
-        return;
-      }
 
-      if (navigator.onLine) {
-        try {
-          const response = await fetch(
-            `http://localhost:5000/api/products/productType/company/${companyId}`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({ type: "Bottles" }),
-            }
-          );
-          const productData = await response.json();
-          dispatch(setProductId(productData.id));
-          dispatch(setProductName(productData.type));
-          dispatch(setProductPrice(productData.priceInDollars));
-          saveProductTypeToDB(companyId, productData);
-        } catch (error) {
-          toast.error(`Error fetching product data: ${error.message}`);
+  useEffect(() => {
+    const loadProductFromCache = async () => {
+      try {
+        const cachedProduct = await getProductTypeFromDB(companyId);
+        if (cachedProduct) {
+          dispatch(setProductId(cachedProduct.id));
+          dispatch(setProductName(cachedProduct.type));
+          dispatch(setProductPrice(cachedProduct.priceInDollars));
+          return;
         }
-      } else {
-        toast.warn("No cached product found. Please come online to fetch it.");
+
+        console.warn("❌ No product info found in IndexedDB");
+        toast.warn(
+          "⚠️ المنتج غير متوفر في الوضع دون اتصال. يرجى الاتصال لاحقاً."
+        );
+      } catch (error) {
+        console.error("Failed to load product info from IndexedDB", error);
+        toast.error("⚠️ خطأ في تحميل بيانات المنتج من الذاكرة.");
       }
     };
 
-    fetchProduct();
-  }, [token, dispatch, companyId]);
+    loadProductFromCache();
+  }, [companyId, dispatch]);
 
+  const token = useSelector((state) => state.user.token);
   const customerId = useSelector((state) => state.order.customer_Id);
   const customer_name = useSelector((state) => state.order.customer_name);
   const areaId = useSelector((state) => state.order.area_Id);
@@ -109,6 +91,7 @@ const RecordOrder = (props) => {
     const { name, value } = e.target;
     setOrderData({ ...orderData, [name]: value });
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -124,9 +107,7 @@ const RecordOrder = (props) => {
       },
     };
 
-    // Offline Scenario: Save the order as pending and update shipment details
     if (!navigator.onLine) {
-      console.log(orderData);
       dispatch(
         setShipmentDelivered(
           deliveredInShipment + parseInt(orderData.delivered)
@@ -146,12 +127,9 @@ const RecordOrder = (props) => {
               shipmentPaymentsInLiras + parseInt(orderData.paid)
             )
           );
-
       dispatch(setShipmentPayments(totalPayments + parseInt(orderData.paid)));
-
-      // Save the order as pending and store in IndexedDB
       dispatch(addPendingOrder(customerId));
-      await saveRequest(request); // Save to IndexedDB for future submission
+      await saveRequest(request);
       toast.info(
         "You're offline. Your order will be submitted when you're back online."
       );
@@ -159,19 +137,13 @@ const RecordOrder = (props) => {
       return;
     }
 
-    // Online Scenario: Make the API request to submit the order
     try {
       const response = await fetch(request.url, request.options);
-
       if (response.ok) {
         const responseData = await response.json();
-
-        // After a successful request, remove from pending orders (if it was pending)
         if (customersWithPendingOrders.includes(customerId)) {
           dispatch(removePendingOrder(customerId));
         }
-
-        // Update shipment details based on the response
         dispatch(
           setShipmentDelivered(
             deliveredInShipment + parseInt(orderData.delivered)
@@ -195,8 +167,6 @@ const RecordOrder = (props) => {
         dispatch(
           setShipmentPayments(totalPayments + parseInt(responseData.paid))
         );
-
-        // Determine whether the order is filled or empty, and update Redux state
         if (
           parseInt(orderData.delivered) === 0 &&
           parseInt(orderData.returned) === 0 &&
@@ -206,22 +176,21 @@ const RecordOrder = (props) => {
         } else {
           dispatch(addCustomerWithFilledOrder(customerId));
         }
-
         toast.success("Order successfully recorded.");
         navigate(-1);
       } else {
         const errorData = await response.json();
-        toast.error(`Error fetching product data: ${errorData.message}`);
+        toast.error(`Error: ${errorData.message}`);
       }
     } catch (error) {
       toast.error(`Network error: ${error.message}`);
-      console.log(error);
     }
   };
 
   const handleCurrencySelection = (currency) => {
     setOrderData({ ...orderData, paymentCurrency: currency });
   };
+
   return (
     <div
       className="record-order-container"
@@ -235,14 +204,13 @@ const RecordOrder = (props) => {
           المنتج الافتراضي: {productName}، السعر الافتراضي: {productPrice} $
         </div>
 
-        {/* حقول الأرقام مع الأسهم */}
         <div className="number-inputs">
           <div className="up-down-input">
             <p>الكمية المسلّمة:</p>
             <div className="up-down-buttons">
               <button
-                className="arrow"
                 type="button"
+                className="arrow"
                 onClick={() =>
                   setOrderData({
                     ...orderData,

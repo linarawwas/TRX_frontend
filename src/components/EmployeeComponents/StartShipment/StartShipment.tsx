@@ -1,8 +1,8 @@
-import React, { useState, ChangeEvent, FormEvent, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../../redux/store"; // Update this path with your Redux store structure
+import { RootState } from "../../../redux/store";
 import {
   setShipmentId,
   setShipmentTarget,
@@ -14,6 +14,7 @@ import {
 } from "../../../redux/Shipment/action";
 import { useNavigate } from "react-router-dom";
 import AddToModel from "../../AddToModel/AddToModel";
+import { preloadShipmentData } from "../../../utils/preloadShipmentData";
 
 const StartShipment: React.FC = () => {
   interface ShipmentData {
@@ -22,6 +23,7 @@ const StartShipment: React.FC = () => {
     day: number;
     year: number;
   }
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = useSelector((state: RootState) => state.user.token);
@@ -34,6 +36,11 @@ const StartShipment: React.FC = () => {
     companyId: "",
   });
 
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [preloadError, setPreloadError] = useState(false);
+  const [isRetrying, setIsRetrying] = useState(false);
+  const isDevMode = new URLSearchParams(window.location.search).get("dev") === "true";
+
   const updateShipmentData = (data: any) => {
     setShipmentData({
       ...shipmentData,
@@ -45,12 +52,9 @@ const StartShipment: React.FC = () => {
     });
   };
 
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   useEffect(() => {
-    // Fetch and set the initial data when the component mounts
     const initializeDate = async () => {
       try {
-        // Get the current date
         const currentDate = new Date();
         setSelectedDate(currentDate);
         const month = currentDate.getMonth() + 1;
@@ -61,30 +65,22 @@ const StartShipment: React.FC = () => {
           weekday: "long",
         });
 
-        // Perform your API request and dispatch actions here based on the current date
-        const response = await fetch(
-          `http://localhost:5000/api/days/name/${dayName}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await fetch(`http://localhost:5000/api/days/name/${dayName}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch day information");
-        }
+        if (!response.ok) throw new Error("Failed to fetch day information");
 
         const dayData = await response.json();
-        if (dayData.length === 0) {
-          throw new Error("Day information not found");
-        }
+        if (dayData.length === 0) throw new Error("Day information not found");
 
         const dayId = dayData[0]._id;
 
         const shipmentData: ShipmentData = {
           dayId,
-          month: `${month}`, // Convert month to a string with leading zero if needed
+          month: `${month}`,
           day,
           year,
         };
@@ -97,6 +93,7 @@ const StartShipment: React.FC = () => {
 
     initializeDate();
   }, []);
+
   const handleShipmentSubmit = async (formData: any) => {
     try {
       const response = await fetch("http://localhost:5000/api/shipments", {
@@ -125,8 +122,19 @@ const StartShipment: React.FC = () => {
         dispatch(setShipmentId(shipmentDataResponse._id));
         dispatch(setShipmentTarget(shipmentDataResponse.carryingForDelivery));
         toast.success("Shipment successfully recorded.");
-        const dayId = shipmentData.dayId;
-        navigate(`/areas/${dayId}`);
+
+        try {
+          await preloadShipmentData({
+            dayId: shipmentData.dayId,
+            token,
+            companyId: shipmentData.companyId,
+          });
+          navigate(`/areas/${shipmentData.dayId}`);
+        } catch (preloadErr) {
+          console.error("❌ Preloading failed:", preloadErr);
+          setPreloadError(true);
+          toast.error("⚠️ Failed to preload data. Please try again.");
+        }
       } else {
         toast.error("Error recording Shipment");
       }
@@ -134,6 +142,25 @@ const StartShipment: React.FC = () => {
       toast.error("Network error:", error);
     }
   };
+
+  const handleRetryPreload = async () => {
+    setIsRetrying(true);
+    setPreloadError(false);
+    try {
+      await preloadShipmentData({
+        dayId: shipmentData.dayId,
+        token,
+        companyId: shipmentData.companyId,
+      });
+      navigate(`/areas/${shipmentData.dayId}`);
+    } catch (error) {
+      setPreloadError(true);
+      toast.error("⚠️ Still failed to fetch data.");
+    } finally {
+      setIsRetrying(false);
+    }
+  };
+
   const shipmentConfig = {
     "component-related-fields": {
       modelName: "الشحنات",
@@ -149,13 +176,30 @@ const StartShipment: React.FC = () => {
   };
 
   return (
-    <AddToModel
-      modelName={shipmentConfig["component-related-fields"].modelName}
-      title={shipmentConfig["component-related-fields"].title}
-      buttonLabel={shipmentConfig["component-related-fields"]["button-label"]}
-      modelFields={shipmentConfig["model-related-fields"]}
-      onSubmit={handleShipmentSubmit}
-    />
+    <>
+      <AddToModel
+        modelName={shipmentConfig["component-related-fields"].modelName}
+        title={shipmentConfig["component-related-fields"].title}
+        buttonLabel={shipmentConfig["component-related-fields"]["button-label"]}
+        modelFields={shipmentConfig["model-related-fields"]}
+        onSubmit={handleShipmentSubmit}
+      />
+
+      {preloadError && (
+        <div style={{ padding: "1rem", textAlign: "center", color: "red" }}>
+          ⚠️ لم يتم تحميل البيانات بنجاح.<br />
+          <button onClick={handleRetryPreload} disabled={isRetrying}>
+            {isRetrying ? "جارٍ المحاولة..." : "أعد المحاولة"}
+          </button>
+        </div>
+      )}
+
+      {isDevMode && !preloadError && (
+        <div style={{ textAlign: "center", marginTop: "1rem" }}>
+          <button onClick={handleRetryPreload}>🔁 إعادة تحميل بيانات الشحنة</button>
+        </div>
+      )}
+    </>
   );
 };
 

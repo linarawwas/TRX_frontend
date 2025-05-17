@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import CustomerInvoices from "../../../components/Customers/CustomerInvoices/CustomerInvoices";
 import RecordOrder from "../../../components/Orders/RecordOrder/RecordOrder";
 import { saveCustomerDiscountToDB, getCustomerDiscountFromDB } from "../../../utils/indexedDB"; // Adjust path as needed
+import { toast } from "react-toastify";
 
 interface CustomerData {
   hasDiscount: boolean;
@@ -20,47 +21,27 @@ function RecordOrderForCustomer(): JSX.Element {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchDiscountFromCache = async () => {
       setIsLoading(true);
-
-      if (navigator.onLine) {
-        // Online: Fetch from API and cache the result
-        try {
-          const response = await fetch(
-            `http://localhost:5000/api/customers/discount/${customerId}`,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
-
-          if (!response.ok) throw new Error("Failed to fetch");
-
-          const data: CustomerData = await response.json();
-          setCustomerDiscountStatus(data);
-
-          // Cache the fetched data
-          await saveCustomerDiscountToDB(customerId, data);
-        } catch (error) {
-          console.error("Error fetching discount data:", error);
-        }
-      } else {
-        // Offline: Load from IndexedDB
-        console.log("No internet connection, loading from IndexedDB");
-
+      try {
         const cachedDiscountData = await getCustomerDiscountFromDB(customerId);
         if (cachedDiscountData) {
           setCustomerDiscountStatus(cachedDiscountData);
           console.log("Loaded discount data from IndexedDB:", cachedDiscountData);
         } else {
-          console.log("No cached data found.");
+          console.warn("❌ No discount data found in IndexedDB");
+          toast.warn("⚠️ لم يتم العثور على بيانات الخصم في وضع عدم الاتصال.");
         }
+      } catch (error) {
+        console.error("Error loading discount from IndexedDB", error);
+        toast.error("⚠️ فشل تحميل بيانات الخصم من الذاكرة المؤقتة.");
       }
-
       setIsLoading(false);
     };
-
-    fetchData();
-  }, [customerId, token]);
+  
+    fetchDiscountFromCache();
+  }, [customerId]);
+  
 
   return (
     <div

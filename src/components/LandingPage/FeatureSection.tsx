@@ -11,6 +11,7 @@ import {
   faDollarSign,
 } from "@fortawesome/free-solid-svg-icons";
 import "./FeatureSection.css"; // We'll create this for modal styles
+import { useSelector } from "react-redux";
 
 const FeatureSection: React.FC = () => {
   const [activeForm, setActiveForm] = useState<string | null>(null);
@@ -24,7 +25,9 @@ const FeatureSection: React.FC = () => {
   }, [activeForm]);
 
   const closeModal = () => setActiveForm(null);
-
+  const shipmentId = useSelector((state: any) => state.shipment._id);
+  const dayId = useSelector((state: any) => state.shipment.dayId);
+  const shipmentDefined = !!shipmentId;
   return (
     <>
       <div
@@ -51,6 +54,13 @@ const FeatureSection: React.FC = () => {
               <FaTimes />
             ) : (
               <FontAwesomeIcon icon={faWallet} size="2x" />
+            )}
+          </li>
+          <li className="show-form-li" onClick={() => toggleForm("shipment")}>
+            {activeForm === "shipment" ? (
+              <FaTimes />
+            ) : (
+              <FontAwesomeIcon icon={faTruck} size="2x" />
             )}
           </li>
         </ul>
