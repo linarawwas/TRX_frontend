@@ -1,7 +1,7 @@
 // for profits, expenses, products, and shipments:
 
 import React, { useState, ChangeEvent, FormEvent } from "react";
-import  {  useCallback } from "react";
+import { useCallback } from "react";
 
 import "./AddToModel.css";
 import VerticalNumberPicker from "./VerticalNumberPicker";
@@ -53,17 +53,10 @@ const AddToModel: React.FC<Props> = ({
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      const response = await onSubmit(formData);
-
-      if (response.ok) {
-        console.log(`${modelName} successfully recorded.`);
-        // Additional logic specific to the model can be added here if needed
-      } else {
-        const errorData = await response.json();
-        console.error(`Error recording ${modelName}: ${errorData.error}`);
-      }
+      await onSubmit(formData); // Don't expect a return
+      console.log(`${modelName} submission complete.`);
     } catch (error: any) {
-      console.error(`Network error: ${error}`);
+      console.error(`${modelName} got an error:`, error);
     }
   };
 

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+
 import { RootState } from "../../../redux/store";
 import {
   setShipmentId,
@@ -12,22 +14,19 @@ import {
   setDayId,
   clearShipmentInfo,
 } from "../../../redux/Shipment/action";
-import { useNavigate } from "react-router-dom";
+
 import AddToModel from "../../AddToModel/AddToModel";
 import { preloadShipmentData } from "../../../utils/preloadShipmentData";
+import "./StartShipment.css";
 
 const StartShipment: React.FC = () => {
-  interface ShipmentData {
-    dayId: string;
-    month: string;
-    day: number;
-    year: number;
-  }
-
+  // Redux + Router hooks
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = useSelector((state: RootState) => state.user.token);
   const companyId = useSelector((state: RootState) => state.user.companyId);
+
+  // Shipment initialization state
   const [shipmentData, setShipmentData] = useState({
     dayId: "",
     day: null,
@@ -36,113 +35,105 @@ const StartShipment: React.FC = () => {
     companyId: "",
   });
 
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  // Loader modal and step control
+  const [showLoadingModal, setShowLoadingModal] = useState(false);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+
+  // Error handling
   const [preloadError, setPreloadError] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
-  const isDevMode = new URLSearchParams(window.location.search).get("dev") === "true";
 
-  const updateShipmentData = (data: any) => {
-    setShipmentData({
-      ...shipmentData,
-      companyId: companyId,
-      dayId: data.dayId,
-      day: data.day,
-      month: data.month,
-      year: data.year,
-    });
-  };
+  const isDevMode =
+    new URLSearchParams(window.location.search).get("dev") === "true";
 
+  // Loading steps displayed to the driver
+  const steps = [
+    "🔍 تحليل دقيق للمناطق وتوزيعها حسب الأولوية",
+    "👥 تحميل معلومات الزبائن (عدد القناني، الطلبات، الخصومات)",
+    "📦 تقدير الحمولة",
+    "🧠 تفعيل حفظ المعلومات",
+    "⚙️ تهيئة قاعدة بيانات التوصيل في وضع عدم الاتصال",
+    "✅ ضمان الاستمرارية بدون إرسال أو شبكة",
+  ];
+
+  /**
+   * Initializes shipment date and fetches corresponding dayId.
+   */
   useEffect(() => {
     const initializeDate = async () => {
       try {
-        const currentDate = new Date();
-        setSelectedDate(currentDate);
-        const month = currentDate.getMonth() + 1;
-        const day = currentDate.getDate();
-        const year = currentDate.getFullYear();
+        const now = new Date();
+        const month = now.getMonth() + 1;
+        const day = now.getDate();
+        const year = now.getFullYear();
+        const dayName = now.toLocaleDateString("en-US", { weekday: "long" });
 
-        const dayName = currentDate.toLocaleDateString("en-US", {
-          weekday: "long",
-        });
+        const res = await fetch(
+          `http://localhost:5000/api/days/name/${dayName}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
-        const response = await fetch(`http://localhost:5000/api/days/name/${dayName}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        if (!res.ok) throw new Error("Failed to fetch day information");
 
-        if (!response.ok) throw new Error("Failed to fetch day information");
+        const dayData = await res.json();
+        if (dayData.length === 0) throw new Error("Day info not found");
 
-        const dayData = await response.json();
-        if (dayData.length === 0) throw new Error("Day information not found");
-
-        const dayId = dayData[0]._id;
-
-        const shipmentData: ShipmentData = {
-          dayId,
-          month: `${month}`,
+        setShipmentData({
+          dayId: dayData[0]._id,
           day,
+          month,
           year,
-        };
-
-        updateShipmentData(shipmentData);
-      } catch (error) {
-        console.error("Error:", error);
+          companyId,
+        });
+      } catch (err) {
+        console.error("⛔ Error during day initialization:", err);
       }
     };
 
     initializeDate();
-  }, []);
+  }, [token, companyId]);
 
+  /**
+   * Handles shipment creation and starts the loading sequence.
+   */
   const handleShipmentSubmit = async (formData: any) => {
     try {
-      const response = await fetch("http://localhost:5000/api/shipments", {
+      const res = await fetch("http://localhost:5000/api/shipments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          companyId: shipmentData.companyId,
-          dayId: shipmentData.dayId,
-          day: shipmentData.day,
-          month: shipmentData.month,
-          year: shipmentData.year,
+          ...shipmentData,
           carryingForDelivery: formData.carryingForDelivery,
         }),
       });
 
-      if (response.ok) {
-        const shipmentDataResponse = await response.json();
-        dispatch(clearShipmentInfo());
-        dispatch(setDayId(shipmentData.dayId));
-        dispatch(setDateMonth(shipmentData.month));
-        dispatch(setDateDay(shipmentData.day));
-        dispatch(setDateYear(shipmentData.year));
-        dispatch(setShipmentId(shipmentDataResponse._id));
-        dispatch(setShipmentTarget(shipmentDataResponse.carryingForDelivery));
-        toast.success("Shipment successfully recorded.");
+      if (!res.ok) throw new Error("Failed to create shipment");
 
-        try {
-          await preloadShipmentData({
-            dayId: shipmentData.dayId,
-            token,
-            companyId: shipmentData.companyId,
-          });
-          navigate(`/areas/${shipmentData.dayId}`);
-        } catch (preloadErr) {
-          console.error("❌ Preloading failed:", preloadErr);
-          setPreloadError(true);
-          toast.error("⚠️ Failed to preload data. Please try again.");
-        }
-      } else {
-        toast.error("Error recording Shipment");
-      }
-    } catch (error: any) {
-      toast.error("Network error:", error);
+      const shipment = await res.json();
+      dispatch(clearShipmentInfo());
+      dispatch(setDayId(shipmentData.dayId));
+      dispatch(setDateMonth(shipmentData.month));
+      dispatch(setDateDay(shipmentData.day));
+      dispatch(setDateYear(shipmentData.year));
+      dispatch(setShipmentId(shipment._id));
+      dispatch(setShipmentTarget(shipment.carryingForDelivery));
+
+      toast.success("✅ تم تسجيل الشحنة بنجاح");
+      setShowLoadingModal(true);
+    } catch (err: any) {
+      toast.error("⚠️ فشل في تسجيل الشحنة: " + err.message);
+      setShowLoadingModal(false);
     }
   };
 
+  /**
+   * Retry preloading shipment data after failure.
+   */
   const handleRetryPreload = async () => {
     setIsRetrying(true);
     setPreloadError(false);
@@ -153,13 +144,42 @@ const StartShipment: React.FC = () => {
         companyId: shipmentData.companyId,
       });
       navigate(`/areas/${shipmentData.dayId}`);
-    } catch (error) {
+    } catch (err) {
+      toast.error("❌ لا تزال عملية التحميل غير ناجحة.");
       setPreloadError(true);
-      toast.error("⚠️ Still failed to fetch data.");
     } finally {
       setIsRetrying(false);
     }
   };
+
+  /**
+   * Progresses through steps with delay and preloads data after last step.
+   */
+  useEffect(() => {
+    if (!showLoadingModal || currentStepIndex > steps.length) return;
+
+    const timer = setTimeout(() => {
+      if (currentStepIndex < steps.length) {
+        setCurrentStepIndex((prev) => prev + 1);
+      } else {
+        // Preload after last visible step
+        preloadShipmentData({
+          dayId: shipmentData.dayId,
+          token,
+          companyId: shipmentData.companyId,
+        })
+          .then(() => navigate(`/areas/${shipmentData.dayId}`))
+          .catch((err) => {
+            console.error("❌ Preloading failed:", err);
+            setPreloadError(true);
+            setShowLoadingModal(false);
+            toast.error("⚠️ تعذر تحميل بيانات الشحنة");
+          });
+      }
+    }, 2500);
+
+    return () => clearTimeout(timer);
+  }, [currentStepIndex, showLoadingModal]);
 
   const shipmentConfig = {
     "component-related-fields": {
@@ -185,18 +205,50 @@ const StartShipment: React.FC = () => {
         onSubmit={handleShipmentSubmit}
       />
 
+      {/* Retry UI if preload fails */}
       {preloadError && (
-        <div style={{ padding: "1rem", textAlign: "center", color: "red" }}>
-          ⚠️ لم يتم تحميل البيانات بنجاح.<br />
+        <div className="retry-box">
+          ⚠️ لم يتم تحميل البيانات بنجاح.
+          <br />
           <button onClick={handleRetryPreload} disabled={isRetrying}>
             {isRetrying ? "جارٍ المحاولة..." : "أعد المحاولة"}
           </button>
         </div>
       )}
 
+      {/* Dev-only reload shortcut */}
       {isDevMode && !preloadError && (
         <div style={{ textAlign: "center", marginTop: "1rem" }}>
-          <button onClick={handleRetryPreload}>🔁 إعادة تحميل بيانات الشحنة</button>
+          <button onClick={handleRetryPreload}>
+            🔁 إعادة تحميل بيانات الشحنة
+          </button>
+        </div>
+      )}
+
+      {/* Animated shipment loading modal */}
+      {showLoadingModal && (
+        <div className="shipment-loading-overlay">
+          <div
+            className="shipment-loading-modal"
+            role="alert"
+            aria-live="assertive"
+          >
+            <h2>🚛 نظام التحميل الذكي قيد التشغيل</h2>
+            <p className="loading-intro">
+              نحن نُعدّ كل التفاصيل بدقة... الرجاء الانتظار.
+            </p>
+            <div className="animated-steps">
+              {steps.slice(0, currentStepIndex).map((step, index) => (
+                <p key={index} className="step">
+                  {step}
+                </p>
+              ))}
+            </div>
+            <div className="progress-timer">
+              الرجاء الانتظار، ⏱ قد يستغرق هذا الإعداد حتى دقيقتين
+            </div>
+            <div className="pulse-loader"></div>
+          </div>
         </div>
       )}
     </>
