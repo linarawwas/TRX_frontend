@@ -245,7 +245,7 @@ const StartShipment: React.FC = () => {
               ))}
             </div>
             <div className="progress-timer">
-              الرجاء الانتظار، ⏱ قد يستغرق هذا الإعداد حتى دقيقتين
+              الرجاء الانتظار ⏱ قد يستغرق هذا الإعداد حتى دقيقتين
             </div>
             <div className="pulse-loader"></div>
           </div>
