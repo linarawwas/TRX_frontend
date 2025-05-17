@@ -16,18 +16,17 @@ import { Link } from "react-router-dom";
 
 const FeatureSection: React.FC = () => {
   const [activeForm, setActiveForm] = useState<string | null>(null);
+
   const shipmentId = useSelector((state: any) => state.shipment._id);
   const dayId = useSelector((state: any) => state.shipment.dayId);
   const shipmentDefined = !!shipmentId;
 
-  // === Handlers ===
   const toggleForm = useCallback((form: string) => {
     setActiveForm((prev) => (prev === form ? null : form));
   }, []);
 
   const closeModal = () => setActiveForm(null);
 
-  // === Scroll Lock When Modal Open ===
   useEffect(() => {
     document.body.style.overflow = activeForm ? "hidden" : "auto";
     return () => {
@@ -37,21 +36,39 @@ const FeatureSection: React.FC = () => {
 
   return (
     <>
-      <div className="feature-section" style={{ direction: "rtl", textAlign: "right" }}>
+      <div
+        className="feature-section"
+        style={{ direction: "rtl", textAlign: "right" }}
+      >
         <ul>
-          <li className="show-form-li" onClick={() => toggleForm("shipment")}>
-            {activeForm === "shipment" ? (
-              <FaTimes aria-label="إغلاق نافذة الشحن" />
-            ) : (
-              <FontAwesomeIcon icon={faTruck} size="2x" aria-label="بدء الشحنة" />
-            )}
-          </li>
+          {/* 🔁 Now: Go to current shipment area */}
+          {dayId && typeof dayId === "string" && (
+            <li className="show-form-li"                 style={{ backgroundColor: "green" }}
+>
+              <Link
+                to={`/areas/${dayId}`}
+                className="link-to-shipment"
+                aria-label="الذهاب إلى تفاصيل الشحنة"
+                style={{ color: "white" }}
+              >
+                <FontAwesomeIcon
+                  icon={faTruck}
+                  size="2x"
+                  aria-label="تفاصيل الشحنة"
+                />
+              </Link>
+            </li>
+          )}
 
           <li className="show-form-li" onClick={() => toggleForm("profits")}>
             {activeForm === "profits" ? (
               <FaTimes aria-label="إغلاق نافذة الأرباح" />
             ) : (
-              <FontAwesomeIcon icon={faDollarSign} size="2x" aria-label="إضافة أرباح" />
+              <FontAwesomeIcon
+                icon={faDollarSign}
+                size="2x"
+                aria-label="إضافة أرباح"
+              />
             )}
           </li>
 
@@ -59,29 +76,38 @@ const FeatureSection: React.FC = () => {
             {activeForm === "expenses" ? (
               <FaTimes aria-label="إغلاق نافذة المصاريف" />
             ) : (
-              <FontAwesomeIcon icon={faWallet} size="2x" aria-label="إضافة مصاريف" />
+              <FontAwesomeIcon
+                icon={faWallet}
+                size="2x"
+                aria-label="إضافة مصاريف"
+              />
             )}
           </li>
 
-          {dayId && typeof dayId === "string" && (
-            <li className="show-form-li end-shipment">
-              <Link to={`/areas/${dayId}`} className="link-to-shipment" aria-label="الذهاب إلى تفاصيل الشحنة">
-                <FontAwesomeIcon
-                  icon={faTruck}
-                  size="2x"
-                  className="shipment-logo mirrored"
-                  style={{ color: "white" }}
-                />
-              </Link>
-            </li>
-          )}
+          {/* 🔁 Now: Open StartShipment modal */}
+          <li
+            className="show-form-li end-shipment"
+            onClick={() => toggleForm("shipment")}
+          >
+            <FontAwesomeIcon
+              icon={faTruck}
+              size="2x"
+              className="shipment-logo mirrored"
+              style={{ color: "white" }}
+              aria-label="بدء شحنة جديدة"
+            />
+          </li>
         </ul>
       </div>
 
       {activeForm && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={closeModal} aria-label="إغلاق النموذج">
+            <button
+              className="modal-close"
+              onClick={closeModal}
+              aria-label="إغلاق النموذج"
+            >
               <FaTimes />
             </button>
             {activeForm === "shipment" && <StartShipment />}
