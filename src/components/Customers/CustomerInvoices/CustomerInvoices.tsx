@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import SpinLoader from "../../UI reusables/SpinLoader/SpinLoader";
-import {
-  getCustomerInvoicesFromDB,
-} from "../../../utils/indexedDB";
+import { getCustomerInvoicesFromDB } from "../../../utils/indexedDB";
 import { getPendingRequests } from "../../../utils/indexedDB"; // Assuming this exists
-
+import "./CustomerInvoices.css";
 interface Sums {
   deliveredSum: number;
   returnedSum: number;
@@ -30,10 +28,11 @@ const CustomerInvoices: React.FC = () => {
 
         // Get pending orders for this customer only
         const pendingOrders = pendingRequests
-          .filter((r: any) =>
-            r?.url?.includes("/api/orders") &&
-            r?.options?.method === "POST" &&
-            JSON.parse(r?.options?.body || "{}")?.customerid === customerId
+          .filter(
+            (r: any) =>
+              r?.url?.includes("/api/orders") &&
+              r?.options?.method === "POST" &&
+              JSON.parse(r?.options?.body || "{}")?.customerid === customerId
           )
           .map((r: any) => JSON.parse(r.options.body));
 
@@ -68,18 +67,20 @@ const CustomerInvoices: React.FC = () => {
   }, [customerId]);
 
   return (
-    <div className="customer-receipt" style={{ direction: "rtl", textAlign: "right" }}>
-      <h2>إيصال الزبون</h2>
+    <div
+      className="customer-receipt"
+      style={{ direction: "rtl", textAlign: "right" }}
+    >
       {loading ? (
         <SpinLoader />
       ) : sums ? (
         <div className="receipt-details">
           <div className="receipt-detail">
-            <p className="detail-name">العدد المتبقي من القناني:</p>
+            <p className="detail-name">العدد المتبقي عند الزبون:</p>
             <p className="detail-value">{sums.bottlesLeft}</p>
           </div>
           <div className="receipt-detail">
-            <p className="detail-name">المجموع النهائي:</p>
+            <p className="detail-name">الحساب:</p>
             <p className="detail-value">{sums.totalSum.toFixed(2)}</p>
           </div>
         </div>

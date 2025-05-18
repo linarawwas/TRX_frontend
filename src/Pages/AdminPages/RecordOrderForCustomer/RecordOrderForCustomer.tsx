@@ -57,7 +57,6 @@ function RecordOrderForCustomer(): JSX.Element {
         </div>
       )}
       <RecordOrder customerData={customerDiscountStatus} />
-      <CustomerInvoices />
     </div>
   );
   

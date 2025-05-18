@@ -23,6 +23,7 @@ import { useNavigate } from "react-router-dom";
 import { getProductTypeFromDB, saveRequest } from "../../../utils/indexedDB";
 import SevenDigitPicker from "./SevenDigitPicker";
 import { fetchAndCacheCustomerInvoice } from "../../../utils/apiHelpers";
+import CustomerInvoices from "../../Customers/CustomerInvoices/CustomerInvoices";
 
 const RecordOrder = (props) => {
   const dispatch = useDispatch();
@@ -211,6 +212,7 @@ const RecordOrder = (props) => {
     <div className="record-order-container" style={{ direction: "rtl" }}>
       <ToastContainer position="top-right" autoClose={2000} />
       <h1 className="record-order-title">🧾 تسجيل طلب: {customerName}</h1>
+      <CustomerInvoices />
 
       <form className="record-order-form" onSubmit={handleSubmit}>
         <div className="default-product-name">
