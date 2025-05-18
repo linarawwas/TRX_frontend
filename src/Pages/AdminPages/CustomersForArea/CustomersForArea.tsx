@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import "./CustomersForAreaMobile.css"; // Use mobile-first styles
@@ -56,6 +56,18 @@ const CustomersForArea = (): JSX.Element => {
 
     loadCachedCustomers();
   }, [areaId, dispatch]);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY || 0;
+      setShowScrollTop(scrollTop > 300);
+    };
+  
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+  
 
   const handleOrderState = (customerId: string, customerName: string) => {
     dispatch(setCustomerId(customerId));
@@ -68,7 +80,7 @@ const CustomersForArea = (): JSX.Element => {
   );
 
   return (
-    <div className="customers-area-container">
+    <div className="customers-area-container" ref={containerRef}>
       <h3 className="area-title">الزبائن في هذه المنطقة</h3>
 
       <input
@@ -85,7 +97,9 @@ const CustomersForArea = (): JSX.Element => {
         <div className="customer-list">
           {filteredCustomers.length > 0 ? (
             filteredCustomers.map((customer) => {
-              const statusClass = customersWithFilledOrders?.includes(customer._id)
+              const statusClass = customersWithFilledOrders?.includes(
+                customer._id
+              )
                 ? "filled"
                 : customersWithPendingOrders?.includes(customer._id)
                 ? "pending"
@@ -106,7 +120,7 @@ const CustomersForArea = (): JSX.Element => {
                     )}
                   </div>
                   <div className="customer-details">
-                    <span>📍العنوان:  {customer.address}</span>
+                    <span>📍العنوان: {customer.address}</span>
                     <span>📞 {customer.phone}</span>
                   </div>
                 </div>
@@ -116,6 +130,15 @@ const CustomersForArea = (): JSX.Element => {
             <p className="loading-text">😕 لا يوجد نتائج مطابقة</p>
           )}
         </div>
+      )}
+      {showScrollTop && (
+        <button
+          className="scroll-to-top-btn"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+
+        >
+          ⬆️  
+        </button>
       )}
     </div>
   );

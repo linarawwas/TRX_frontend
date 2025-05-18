@@ -95,3 +95,21 @@
 .customer-search-input:focus {
   border-color: #4caf50;
 }
+.scroll-to-top-btn {
+  position: fixed;
+  bottom: 100px;
+  left: 50px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.2rem;
+  border-radius: 50px;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  transition: background-color 0.2s ease;
+}
+
+.scroll-to-top-btn:hover {
+  background-color: #3a9841;
+}
