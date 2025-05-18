@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import "./CustomersForAreaMobile.css";
+import "./CustomersForAreaMobile.css"; // Use mobile-first styles
 import {
   clearCustomerId,
   clearCustomerName,
@@ -22,6 +22,8 @@ const CustomersForArea = (): JSX.Element => {
   const navigate = useNavigate();
   const { areaId } = useParams();
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+
   const customersWithFilledOrders = useSelector(
     (state: any) => state.shipment?.CustomersWithFilledOrders
   );
@@ -31,6 +33,7 @@ const CustomersForArea = (): JSX.Element => {
   const customersWithEmptyOrders = useSelector(
     (state: any) => state.shipment?.CustomersWithEmptyOrders
   );
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -60,41 +63,59 @@ const CustomersForArea = (): JSX.Element => {
     navigate("/recordOrderforCustomer");
   };
 
-  const getStatusClass = (id: string) => {
-    if (customersWithPendingOrders?.includes(id)) return "pending";
-    if (customersWithFilledOrders?.includes(id)) return "filled";
-    if (customersWithEmptyOrders?.includes(id)) return "empty";
-    return "unknown";
-  };
+  const filteredCustomers = customers.filter((customer) =>
+    customer.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="customers-area-container">
-      <h2 className="area-title">📍 الزبائن في هذه المنطقة</h2>
+      <h3 className="area-title">الزبائن في هذه المنطقة</h3>
+
+      <input
+        type="text"
+        className="customer-search-input"
+        placeholder="🔍 ابحث عن اسم الزبون..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+
       {loading ? (
-        <p className="loading-text">⏳ جارٍ التحميل...</p>
-      ) : customers.length > 0 ? (
-        <div className="customer-list">
-          {customers.map((customer) => (
-            <div
-              key={customer._id}
-              className={`customer-card ${getStatusClass(customer._id)}`}
-              onClick={() => handleOrderState(customer._id, customer.name)}
-            >
-              <div className="customer-name">
-                {customer.name}
-                {customersWithPendingOrders?.includes(customer._id) && (
-                  <span className="badge">🚩</span>
-                )}
-              </div>
-              <div className="customer-details">
-                <span>{customer.phone}</span>
-                <span>{customer.address}</span>
-              </div>
-            </div>
-          ))}
-        </div>
+        <p className="loading-text">⏳ جارٍ تحميل الزبائن...</p>
       ) : (
-        <p className="loading-text">❌ لا توجد بيانات زبائن محفوظة</p>
+        <div className="customer-list">
+          {filteredCustomers.length > 0 ? (
+            filteredCustomers.map((customer) => {
+              const statusClass = customersWithFilledOrders?.includes(customer._id)
+                ? "filled"
+                : customersWithPendingOrders?.includes(customer._id)
+                ? "pending"
+                : customersWithEmptyOrders?.includes(customer._id)
+                ? "empty"
+                : "";
+
+              return (
+                <div
+                  key={customer._id}
+                  className={`customer-card ${statusClass}`}
+                  onClick={() => handleOrderState(customer._id, customer.name)}
+                >
+                  <div className="customer-name">
+                    {customer.name}
+                    {customersWithPendingOrders?.includes(customer._id) && (
+                      <span className="badge">🚩</span>
+                    )}
+                  </div>
+                  <div className="customer-details">
+                    <span>📍العنوان:  {customer.address}</span>
+                    <span>📞 {customer.phone}</span>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <p className="loading-text">😕 لا يوجد نتائج مطابقة</p>
+          )}
+        </div>
       )}
     </div>
   );
