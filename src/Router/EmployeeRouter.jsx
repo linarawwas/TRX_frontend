@@ -17,6 +17,7 @@ import Areas from "../Pages/AdminPages/Areas/Areas.tsx";
 import Customers from "../Pages/AdminPages/viewCustomers/Customers.tsx";
 import Addresses from "../Pages/AdminPages/Addresses/Addresses.tsx";
 import AddArea from "../components/Areas/AddArea/AddArea.tsx";
+import CreateExternalShipment from "../Pages/EmployeePages/CreateExternalShipment/CreateExternalShipment.tsx";
 function EmployeeRouter() {
   return (
     <div className="userRouter">
@@ -26,6 +27,7 @@ function EmployeeRouter() {
         <Route path="/viewOrders" element={<OrdersTable />} />
         <Route path="/customers" element={<Customers />} />
         <Route path="/updateOrder/:orderId" element={<UpdateOrder />} />
+        <Route path="/createExternalShipment" element={<CreateExternalShipment />} />
         <Route
           path="/updateCustomer/:customerId"
           element={<UpdateCustomer />}

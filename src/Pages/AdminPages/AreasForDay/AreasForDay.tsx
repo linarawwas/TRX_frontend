@@ -90,7 +90,7 @@ export default function AreasForDay(): JSX.Element {
       </div>
 
       <div className="external-shipment-container">
-        <Link to="/externalShipment" className="external-shipment-button">
+        <Link to="/createExternalShipment" className="external-shipment-button">
           🚛 تسجيل طلب توصيل خارجي
         </Link>
       </div>
