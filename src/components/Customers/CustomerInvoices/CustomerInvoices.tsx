@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import SpinLoader from "../../UI reusables/SpinLoader/SpinLoader";
-import { getCustomerInvoicesFromDB } from "../../../utils/indexedDB";
-import { getPendingRequests } from "../../../utils/indexedDB"; // Assuming this exists
+import {
+  getCustomerInvoicesFromDB,
+  getPendingRequests,
+} from "../../../utils/indexedDB";
 import "./CustomerInvoices.css";
+
 interface Sums {
   deliveredSum: number;
   returnedSum: number;
@@ -15,8 +18,17 @@ const CustomerInvoices: React.FC = () => {
   const [sums, setSums] = useState<Sums | null>(null);
   const [loading, setLoading] = useState(true);
   const customerId = useSelector((state: any) => state.order.customer_Id);
+  const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
 
-  const isOnline = navigator.onLine;
+  useEffect(() => {
+    const updateStatus = () => setIsOnline(navigator.onLine);
+    window.addEventListener("online", updateStatus);
+    window.addEventListener("offline", updateStatus);
+    return () => {
+      window.removeEventListener("online", updateStatus);
+      window.removeEventListener("offline", updateStatus);
+    };
+  }, []);
 
   useEffect(() => {
     const loadInvoiceWithOfflineAdjustments = async () => {
@@ -26,7 +38,6 @@ const CustomerInvoices: React.FC = () => {
         const cachedInvoice = await getCustomerInvoicesFromDB(customerId);
         const pendingRequests = await getPendingRequests();
 
-        // Get pending orders for this customer only
         const pendingOrders = pendingRequests
           .filter(
             (r: any) =>
@@ -53,8 +64,6 @@ const CustomerInvoices: React.FC = () => {
             bottlesLeft: delivered - returned,
             totalSum: total,
           });
-        } else {
-          console.warn("⚠️ No cached invoice for this customer.");
         }
       } catch (err) {
         console.error("❌ Error loading offline invoice:", err);
@@ -67,25 +76,22 @@ const CustomerInvoices: React.FC = () => {
   }, [customerId]);
 
   return (
-    <div
-      className="customer-receipt"
-      style={{ direction: "rtl", textAlign: "right" }}
-    >
+    <div className="customer-receipt">
+      {!isOnline && (
+        <div className="offline-warning">
+          ⚠️ هذه البيانات قد لا تكون محدثة بسبب عدم الاتصال
+        </div>
+      )}
+
       {loading ? (
         <SpinLoader />
       ) : sums ? (
-        <div className="receipt-details">
-          <div className="receipt-detail">
-            <p className="detail-name">العدد المتبقي عند الزبون:</p>
-            <p className="detail-value">{sums.bottlesLeft}</p>
-          </div>
-          <div className="receipt-detail">
-            <p className="detail-name">الحساب:</p>
-            <p className="detail-value">{sums.totalSum.toFixed(2)}</p>
-          </div>
-        </div>
+        <>
+          <p className="detail-name">🧴 القناني المتبقية {sums.bottlesLeft}</p>
+          <p className="detail-name">💵 المجموع {sums.totalSum.toFixed(2)}</p>
+        </>
       ) : (
-        <p>لا توجد بيانات محفوظة لهذا الزبون</p>
+        <p className="no-data-text">❌ لا توجد بيانات محفوظة لهذا الزبون</p>
       )}
     </div>
   );
