@@ -1,8 +1,7 @@
-// Refactored RecordOrder.tsx to only use IndexedDB for product info
-import React, { useState, useEffect } from "react";
+// RecordOrder.tsx
+import React, { useState, useEffect, useCallback } from "react";
 import "./RecordOrder.css";
 import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { useSelector, useDispatch } from "react-redux";
 import {
   addCustomerWithEmptyOrder,
@@ -10,23 +9,42 @@ import {
   addPendingOrder,
   removePendingOrder,
   setShipmentDelivered,
+  setShipmentReturned,
   setShipmentPayments,
   setShipmentPaymentsInDollars,
   setShipmentPaymentsInLiras,
-  setShipmentReturned,
 } from "../../../redux/Shipment/action.js";
 import {
   setProductId,
   setProductName,
   setProductPrice,
-} from "../../../redux/Order/action";
+} from "../../../redux/Order/action.js";
 import { useNavigate } from "react-router-dom";
 import { getProductTypeFromDB, saveRequest } from "../../../utils/indexedDB";
+import SevenDigitPicker from "./SevenDigitPicker";
+import { fetchAndCacheCustomerInvoice } from "../../../utils/apiHelpers";
 
 const RecordOrder = (props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const companyId = useSelector((state) => state.user.companyId);
+
+  const token = useSelector((state) => state.user.token);
+  const customerId = useSelector((state) => state.order.customer_Id);
+  const customerName = useSelector((state) => state.order.customer_name);
+  const areaId = useSelector((state) => state.order.area_Id);
+  const shipmentId = useSelector((state) => state.shipment._id);
+  const productName = useSelector((state) => state.order.product_name);
+  const productId = useSelector((state) => state.order.product_id);
+  const productPrice = useSelector((state) => state.order.product_price);
+  const pending =
+    useSelector((state) => state.shipment.CustomersWithPendingOrders) || [];
+  const [form, setForm] = useState({
+    delivered: 0,
+    returned: 0,
+    paidUSD: 0,
+    paidLBP: 0,
+  });
 
   useEffect(() => {
     const loadProductFromCache = async () => {
@@ -36,297 +54,207 @@ const RecordOrder = (props) => {
           dispatch(setProductId(cachedProduct.id));
           dispatch(setProductName(cachedProduct.type));
           dispatch(setProductPrice(cachedProduct.priceInDollars));
-          return;
         }
-
-        console.warn("❌ No product info found in IndexedDB");
-        toast.warn(
-          "⚠️ المنتج غير متوفر في الوضع دون اتصال. يرجى الاتصال لاحقاً."
-        );
-      } catch (error) {
-        console.error("Failed to load product info from IndexedDB", error);
-        toast.error("⚠️ خطأ في تحميل بيانات المنتج من الذاكرة.");
+      } catch (err) {
+        console.error(err);
+        toast.error("⚠️ خطأ في تحميل المنتج");
       }
     };
-
     loadProductFromCache();
   }, [companyId, dispatch]);
 
-  const token = useSelector((state) => state.user.token);
-  const customerId = useSelector((state) => state.order.customer_Id);
-  const customer_name = useSelector((state) => state.order.customer_name);
-  const areaId = useSelector((state) => state.order.area_Id);
-  const shipmentId = useSelector((state) => state.shipment._id);
-  const customersWithPendingOrders =
-    useSelector((state) => state.shipment?.CustomersWithPendingOrders) || [];
-  const productName = useSelector((state) => state.order.product_name);
-  const productId = useSelector((state) => state.order.product_id);
-  const productPrice = useSelector((state) => state.order.product_price);
-  const [orderData, setOrderData] = useState({
-    delivered: 0,
-    returned: 0,
-    customerid: customerId,
-    areaId: areaId,
-    paid: 0,
-    productId: productId,
-    paymentCurrency: "USD",
-    exchangeRate: "6537789b6ed59ef09c18213d",
-    companyId: companyId,
-    shipmentId: shipmentId,
-  });
-  let deliveredInShipment = useSelector((state) => state.shipment.delivered);
-  let returnedInShipment = useSelector((state) => state.shipment.returned);
-  let shipmentPaymentsInLiras = useSelector(
-    (state) => state.shipment.liraPayments
-  );
-  let shipmentPaymentsInDollars = useSelector(
-    (state) => state.shipment.dollarPayments
-  );
-  let totalPayments = useSelector((state) => state.shipment.payments);
-  let checkout = props.customerData?.hasDiscount
-    ? props.customerData?.valueAfterDiscount * orderData.delivered
-    : orderData.delivered * productPrice;
+  const checkout = props.customerData?.hasDiscount
+    ? props.customerData?.valueAfterDiscount * form.delivered
+    : productPrice * form.delivered;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setOrderData({ ...orderData, [name]: value });
+    setForm((prev) => ({
+      ...prev,
+      [name]: parseInt(value) || 0,
+    }));
   };
+
+  const handleLbpChange = useCallback((val) => {
+    setForm((prev) => ({ ...prev, paidLBP: val }));
+  }, []);
+
+  const handleIncrement = (field) =>
+    setForm((prev) => ({
+      ...prev,
+      [field]: Number(prev[field]) + (field === "paidLBP" ? 1000 : 1),
+    }));
+
+  const handleDecrement = (field) =>
+    setForm((prev) => ({
+      ...prev,
+      [field]: Math.max(
+        Number(prev[field]) - (field === "paidLBP" ? 1000 : 1),
+        0
+      ),
+    }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const payments = [];
+
+    if (form.paidUSD > 0) {
+      payments.push({
+        amount: form.paidUSD,
+        currency: "USD",
+        exchangeRate: "6537789b6ed59ef09c18213d",
+      });
+    }
+    if (form.paidLBP > 0) {
+      payments.push({
+        amount: form.paidLBP,
+        currency: "LBP",
+        exchangeRate: "6537789b6ed59ef09c18213d",
+      });
+    }
+
+    const orderPayload = {
+      delivered: form.delivered,
+      returned: form.returned,
+      customerid: customerId,
+      productId,
+      areaId,
+      shipmentId,
+      companyId,
+      payments,
+    };
 
     const request = {
-      url: "https://trx-api.linarawas.com/api/orders",
+      url: "http://localhost:5000/api/orders",
       options: {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(orderData),
+        body: JSON.stringify(orderPayload),
       },
     };
 
+    const dispatchSummary = (responseData) => {
+      dispatch(setShipmentDelivered(responseData.delivered));
+      dispatch(setShipmentReturned(responseData.returned));
+      dispatch(setShipmentPayments(responseData.paid));
+      dispatch(setShipmentPaymentsInLiras(responseData.SumOfPaymentsInLiras));
+      dispatch(
+        setShipmentPaymentsInDollars(responseData.SumOfPaymentsInDollars)
+      );
+    };
+
     if (!navigator.onLine) {
-      dispatch(
-        setShipmentDelivered(
-          deliveredInShipment + parseInt(orderData.delivered)
-        )
-      );
-      dispatch(
-        setShipmentReturned(returnedInShipment + parseInt(orderData.returned))
-      );
-      orderData.paymentCurrency === "USD"
-        ? dispatch(
-            setShipmentPaymentsInDollars(
-              shipmentPaymentsInDollars + parseInt(orderData.paid)
-            )
-          )
-        : dispatch(
-            setShipmentPaymentsInLiras(
-              shipmentPaymentsInLiras + parseInt(orderData.paid)
-            )
-          );
-      dispatch(setShipmentPayments(totalPayments + parseInt(orderData.paid)));
-      dispatch(addPendingOrder(customerId));
       await saveRequest(request);
-      toast.info(
-        "You're offline. Your order will be submitted when you're back online."
-      );
+      dispatch(addPendingOrder(customerId));
+      toast.info("📡 سيتم حفظ الطلب عند عودة الاتصال");
       navigate(-1);
       return;
     }
 
     try {
-      const response = await fetch(request.url, request.options);
-      if (response.ok) {
-        const responseData = await response.json();
-        if (customersWithPendingOrders.includes(customerId)) {
-          dispatch(removePendingOrder(customerId));
-        }
-        dispatch(
-          setShipmentDelivered(
-            deliveredInShipment + parseInt(orderData.delivered)
-          )
-        );
-        dispatch(
-          setShipmentReturned(returnedInShipment + parseInt(orderData.returned))
-        );
-        dispatch(
-          setShipmentPaymentsInLiras(
-            shipmentPaymentsInLiras +
-              parseInt(responseData.SumOfPaymentsInLiras)
-          )
-        );
-        dispatch(
-          setShipmentPaymentsInDollars(
-            shipmentPaymentsInDollars +
-              parseInt(responseData.SumOfPaymentsInDollars)
-          )
-        );
-        dispatch(
-          setShipmentPayments(totalPayments + parseInt(responseData.paid))
-        );
+      const res = await fetch(request.url, request.options);
+      const data = await res.json();
+      if (res.ok) {
+        dispatchSummary(data);
+        dispatch(removePendingOrder(customerId));
+        await fetchAndCacheCustomerInvoice(customerId, token); // 👈 added here
         if (
-          parseInt(orderData.delivered) === 0 &&
-          parseInt(orderData.returned) === 0 &&
-          parseInt(orderData.paid) === 0
+          !form.delivered &&
+          !form.returned &&
+          !form.paidUSD &&
+          !form.paidLBP
         ) {
           dispatch(addCustomerWithEmptyOrder(customerId));
         } else {
           dispatch(addCustomerWithFilledOrder(customerId));
         }
-        toast.success("Order successfully recorded.");
+        toast.success("✅ تم تسجيل الطلب");
         navigate(-1);
       } else {
-        const errorData = await response.json();
-        toast.error(`Error: ${errorData.message}`);
+        toast.error(`❌ ${data.message}`);
       }
-    } catch (error) {
-      toast.error(`Network error: ${error.message}`);
+    } catch (err) {
+      toast.error("❌ فشل الاتصال بالشبكة");
     }
   };
 
-  const handleCurrencySelection = (currency) => {
-    setOrderData({ ...orderData, paymentCurrency: currency });
-  };
-
   return (
-    <div
-      className="record-order-container"
-      style={{ direction: "rtl", textAlign: "right" }}
-    >
+    <div className="record-order-container" style={{ direction: "rtl" }}>
       <ToastContainer position="top-right" autoClose={2000} />
-      <h1 className="record-order-title">تسجيل طلب ل {customer_name}</h1>
+      <h1 className="record-order-title">🧾 تسجيل طلب: {customerName}</h1>
 
       <form className="record-order-form" onSubmit={handleSubmit}>
-        <div className="default-product-name">
-          المنتج الافتراضي: {productName}، السعر الافتراضي: {productPrice} $
+        {/* <div className="default-product-name">
+          المنتج: {productName} | السعر: {productPrice} $
+        </div> */}
+
+        <div className="input-group">
+          <label>📦 عدد القناني المسلّمة</label>
+          <div className="input-controls">
+            <button type="button" onClick={() => handleIncrement("delivered")}>
+              ▲
+            </button>
+            <input
+              type="number"
+              name="delivered"
+              value={form.delivered}
+              onChange={handleChange}
+            />
+            <button type="button" onClick={() => handleDecrement("delivered")}>
+              ▼
+            </button>
+          </div>
         </div>
 
-        <div className="number-inputs">
-          <div className="up-down-input">
-            <p>الكمية المسلّمة:</p>
-            <div className="up-down-buttons">
-              <button
-                type="button"
-                className="arrow"
-                onClick={() =>
-                  setOrderData({
-                    ...orderData,
-                    delivered: orderData.delivered
-                      ? parseInt(orderData.delivered) + 1
-                      : 1,
-                  })
-                }
-              >
-                ▲
-              </button>
-              <input
-                type="number"
-                className="number-input"
-                placeholder="الكمية المسلّمة"
-                name="delivered"
-                value={orderData.delivered}
-                onChange={handleChange}
-              />
-              <button
-                type="button"
-                className="arrow"
-                onClick={() =>
-                  setOrderData({
-                    ...orderData,
-                    delivered:
-                      orderData.delivered && orderData.delivered > 0
-                        ? parseInt(orderData.delivered) - 1
-                        : 0,
-                  })
-                }
-              >
-                ▼
-              </button>
-            </div>
-          </div>
-
-          <p>المبلغ المستحق: {checkout.toFixed(2)} $</p>
-
-          <div className="up-down-input">
-            <p>الكمية المرجعة:</p>
-            <div className="up-down-buttons">
-              <button
-                type="button"
-                className="arrow"
-                onClick={() =>
-                  setOrderData({
-                    ...orderData,
-                    returned: orderData.returned
-                      ? parseInt(orderData.returned) + 1
-                      : 1,
-                  })
-                }
-              >
-                ▲
-              </button>
-              <input
-                type="number"
-                className="number-input"
-                placeholder="الكمية المرجعة"
-                name="returned"
-                value={orderData.returned}
-                onChange={handleChange}
-              />
-              <button
-                type="button"
-                className="arrow"
-                onClick={() =>
-                  setOrderData({
-                    ...orderData,
-                    returned:
-                      orderData.returned && orderData.returned > 0
-                        ? parseInt(orderData.returned) - 1
-                        : 0,
-                  })
-                }
-              >
-                ▼
-              </button>
-            </div>
-          </div>
-
-          <div className="currency-buttons">
-            <p className="paid-label">المبلغ المدفوع:</p>
-            <button
-              type="button"
-              className={`currency-button ${
-                orderData.paymentCurrency === "USD" ? "selected" : ""
-              }`}
-              onClick={() => handleCurrencySelection("USD")}
-            >
-              دولار
+        <div className="input-group">
+          <label>🔁 عدد القناني المرجعة</label>
+          <div className="input-controls">
+            <button type="button" onClick={() => handleIncrement("returned")}>
+              ▲
             </button>
-            <button
-              type="button"
-              className={`currency-button ${
-                orderData.paymentCurrency === "LBP" ? "selected" : ""
-              }`}
-              onClick={() => handleCurrencySelection("LBP")}
-            >
-              ليرة
+            <input
+              type="number"
+              name="returned"
+              value={form.returned}
+              onChange={handleChange}
+            />
+            <button type="button" onClick={() => handleDecrement("returned")}>
+              ▼
+            </button>
+          </div>
+        </div>
+
+        <div className="checkout-display">
+          💰 المبلغ المطلوب: {checkout.toFixed(2)} $
+        </div>
+
+        <div className="payment-section">
+          <label>💵 المدفوع بالدولار</label>
+          <div className="input-controls">
+            <button type="button" onClick={() => handleIncrement("paidUSD")}>
+              ▲
+            </button>
+            <input type="text" name="paidUSD" value={form.paidUSD} />
+            <button type="button" onClick={() => handleDecrement("paidUSD")}>
+              ▼
             </button>
           </div>
 
-          <input
-            type="number"
-            className="number-input free-select"
-            placeholder="المدفوع"
-            name="paid"
-            value={orderData.paid}
-            onChange={handleChange}
-          />
+          <label>
+            💴 المدفوع بالليرة (اسحب عاموديا) <br></br>
+          </label>
+          <div className="picked-value-display">
+            💴 المبلغ المختار: {form.paidLBP.toLocaleString()} ل.ل
+          </div>
+
+          <SevenDigitPicker onChange={handleLbpChange} />
         </div>
 
         <button className="record-order-button" type="submit">
-          تسجيل
+          ✔️ تسجيل
         </button>
       </form>
     </div>

@@ -22,7 +22,7 @@ export default function Addresses(): JSX.Element {
 
   useEffect(() => {
     // Fetch customers data from your API
-    fetch(`https://trx-api.linarawas.com/api/customers/area/${areaId}`, {
+    fetch(`http://localhost:5000/api/customers/area/${areaId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -42,7 +42,7 @@ export default function Addresses(): JSX.Element {
   const handleDeleteArea = async () => {
     try {
       const response = await fetch(
-        `https://trx-api.linarawas.com/api/areas/${areaId}`,
+        `http://localhost:5000/api/areas/${areaId}`,
         {
           method: "DELETE",
           headers: {
