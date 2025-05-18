@@ -69,12 +69,12 @@ function UpdateOrder(): JSX.Element {
   
       <div className='update-header'>
         <h1 className="update-title">معلومات الفوترة:</h1>
-        {/* <button
+        <button
           type="button"
           onClick={handleDeleteOrder}
           className="delete-button"
         >          حذف الطلب
-        </button> */}
+        </button>
       </div>
       <OrderReceipt orderData={orderData} loading={loading} />
       <PaymentInfo payments={orderData?.payments} />
