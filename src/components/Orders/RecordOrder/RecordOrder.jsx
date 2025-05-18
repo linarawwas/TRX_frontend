@@ -178,7 +178,12 @@ const RecordOrder = (props) => {
       if (res.ok) {
         dispatchSummary(data);
         dispatch(removePendingOrder(customerId));
-        await fetchAndCacheCustomerInvoice(customerId, token);
+
+        // ✅ FIRE AND FORGET: Don't await it
+        fetchAndCacheCustomerInvoice(customerId, token).catch((err) =>
+          console.warn("⚠️ Failed to refresh invoice:", err)
+        );
+
         if (
           !form.delivered &&
           !form.returned &&
@@ -189,8 +194,9 @@ const RecordOrder = (props) => {
         } else {
           dispatch(addCustomerWithFilledOrder(customerId));
         }
+
         toast.success("✅ تم تسجيل الطلب");
-        navigate(-1);
+        navigate(-1); // ✅ Go back ASAP
       } else {
         toast.error(`❌ ${data.message}`);
       }
