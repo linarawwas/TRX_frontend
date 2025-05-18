@@ -1,24 +1,33 @@
-// Refactored AreasForDay.tsx to always load from IndexedDB
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import "./AreasForDay.css";
 import { RootState } from "../../../redux/store";
 import { clearAreaId, setAreaId } from "../../../redux/Order/action";
 import {
   getAreasFromDB,
   getDayFromDB
 } from "../../../utils/indexedDB";
+import "./AreasForDay.css";
 
 interface Area {
   _id: string;
   name: string;
 }
 
+const arabicDayMap: Record<string, string> = {
+  Sunday: "الأحد",
+  Monday: "الإثنين",
+  Tuesday: "الثلاثاء",
+  Wednesday: "الأربعاء",
+  Thursday: "الخميس",
+  Friday: "الجمعة",
+  Saturday: "السبت",
+};
+
 export default function AreasForDay(): JSX.Element {
   const dispatch = useDispatch();
-  const companyId = useSelector((state: RootState) => state.user.companyId);
   const { dayId } = useParams();
+  const companyId = useSelector((state: RootState) => state.user.companyId);
   const [areas, setAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [dayName, setDayName] = useState<string>("");
@@ -35,14 +44,11 @@ export default function AreasForDay(): JSX.Element {
 
         if (cachedAreas) {
           setAreas(cachedAreas);
-        } else {
-          console.warn("⚠️ No cached areas found for this day.");
         }
 
         if (cachedDay) {
           setDayName(cachedDay.name);
         } else {
-          console.warn("⚠️ No cached day name found.");
           setDayName("يوم غير معروف");
         }
       } catch (error) {
@@ -56,41 +62,38 @@ export default function AreasForDay(): JSX.Element {
     loadCachedData();
   }, [dayId, dispatch]);
 
-  return (
-    <table className="areas-for-day-table" dir="rtl" style={{ textAlign: "right" }}>
-      <thead>
-        <tr>
-          <th>المناطق ليوم {dayName}</th>
-        </tr>
-      </thead>
+  const translatedDayName = arabicDayMap[dayName] || dayName;
 
-      {loading ? (
-        <tbody>
-          <tr>
-            <td colSpan={2}>جارٍ التحميل...</td>
-          </tr>
-        </tbody>
-      ) : (
-        <tbody>
-          {areas?.length > 0 ? (
-            areas.map((area) => (
-              <tr key={area._id}>
-                <td>
-                  <Link to={`/customers/${area._id}`}>
-                    <button onClick={() => dispatch(setAreaId(area._id))}>
-                      {area.name}
-                    </button>
-                  </Link>
-                </td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan={2}>لا توجد مناطق متاحة</td>
-            </tr>
-          )}
-        </tbody>
-      )}
-    </table>
+  return (
+    <div className="areas-container" dir="rtl">
+      <h2 className="areas-title">🚚 اختر المنطقة ليوم {translatedDayName}</h2>
+
+      <div className="areas-list">
+        {loading ? (
+          <p className="loading-text">⏳ جارٍ التحميل...</p>
+        ) : areas.length > 0 ? (
+          areas.map((area) => (
+            <Link
+              key={area._id}
+              to={`/customers/${area._id}`}
+              className="area-card-link"
+              onClick={() => dispatch(setAreaId(area._id))}
+            >
+              <div className="area-card">
+                 {area.name}
+              </div>
+            </Link>
+          ))
+        ) : (
+          <p className="no-areas-text">😕 لا توجد مناطق محفوظة لهذا اليوم</p>
+        )}
+      </div>
+
+      <div className="external-shipment-container">
+        <Link to="/externalShipment" className="external-shipment-button">
+          🚛 تسجيل طلب توصيل خارجي
+        </Link>
+      </div>
+    </div>
   );
 }

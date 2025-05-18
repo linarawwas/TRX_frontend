@@ -1,43 +1,66 @@
-.areas-for-day-table {
+.areas-container {
+  padding: 1rem;
+  max-width: 480px;
+  margin: 0 auto;
+  direction: rtl;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.areas-title {
+  font-size: 1.5rem;
   text-align: center;
-  width: 70%;
-  border-collapse: collapse;
-  margin: 10% auto;
+  margin-bottom: 1rem;
+  color: #222;
 }
 
-.areas-for-day-table th,
-.areas-for-day-table td {
-  border: 1px solid #e0e0e0;
-  padding: 15px 5px;
+.areas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.area-card-link {
+  text-decoration: none;
+}
+
+.area-card {
+  background-color: #f4f4f4;
+  padding: 1rem;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  text-align: right;
+  color: #333;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: background 0.3s ease;
+}
+
+.area-card:hover {
+  background-color: #e0f7fa;
+}
+
+.loading-text,
+.no-areas-text {
+  text-align: center;
+  color: #888;
+  font-size: 1rem;
+}
+
+.external-shipment-container {
+  margin-top: 2rem;
   text-align: center;
 }
 
-.areas-for-day-table th {
-  font-weight: bold;
+.external-shipment-button {
+  display: inline-block;
+  background-color: #0d47a1;
+  color: white;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  text-decoration: none;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
 }
 
-.areas-for-day-table tbody tr {
-  background-color: #f8f8f8;
-}
-
-.areas-for-day-table button {
-  border: 0;
-  cursor: pointer;
-  padding: 20px;
-  border: 1px solid #082338;
-  border-radius: 20px;
-}
-
-.areas-for-day-table button:hover {
-  color: wheat;
-  background-color: black;
-  font-weight: bold;
-
-}
-
-@media only screen and (max-width: 600px) {
-
-  .areas-for-day-table {
-    margin: 35% auto;
-  }
+.external-shipment-button:hover {
+  background-color: #1565c0;
 }
