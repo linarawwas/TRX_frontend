@@ -66,12 +66,12 @@ const CustomersForArea = (): JSX.Element => {
 
   return (
     <>
-      <h3
+      {/* <h3
         className="table-title"
         style={{ direction: "rtl", textAlign: "right" }}
       >
         الزبائن في هذه المنطقة
-      </h3>
+      </h3> */}
       <table
         className="customers-for-area-table"
         dir="rtl"
@@ -105,9 +105,12 @@ const CustomersForArea = (): JSX.Element => {
                 <td>
                   {customer.name}
                   {customersWithPendingOrders?.includes(customer._id) && (
-                    <span className="pending-badge">🚩</span>
+                    <span className="pending-badge" title="طلب غير مسجل">
+                      🚩
+                    </span>
                   )}
                 </td>
+
                 <td>
                   <button
                     className="customer-for-area-record-button"

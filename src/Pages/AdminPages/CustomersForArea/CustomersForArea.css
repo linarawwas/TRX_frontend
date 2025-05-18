@@ -1,62 +1,41 @@
-.customer-for-area-record-button {
-  font-size: 20px;
-  padding: 0;
-  background-color: transparent;
-}
 
-.table-title {
-  text-align: center;
-  color: white;
-  margin: 10% 0 20px 0;
-}
 .customers-for-area-table {
-  text-align: center;
-  width: 70%;
-  border-collapse: collapse;
-  margin: 0 auto;
-}
-
-.customers-for-area-table th,
-.customers-for-area-table td {
-  border: 1px solid #e0e0e0;
-  padding: 15px 5px;
-  text-align: center;
+  width: 90%;
+  /* border-collapse: collapse; */
+  margin: 1rem auto;
+  background-color: #f9f9f9;
+  border-radius: 20px;
+  overflow: hidden;
+  font-family: "Segoe UI", sans-serif;
 }
 
 .customers-for-area-table th {
-  font-weight: bold;
+  background-color: #009879;
+  color: white;
+  text-align: center;
+  padding: 12px;
 }
 
-.customer-with-filled-order {
-  background-color: rgb(37, 134, 37);
+.customers-for-area-table td {
+  padding: 12px;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.customer-with-filled-order td {
+  background-color: #d4edda;
+}
+
+.customer-with-empty-order td {
+  background-color: #f8d7da;
+}
+
+.customer-with-pending-order td {
+  background-color: #fff3cd;
 }
 
 .pending-badge {
-  display: inline-block;
-  margin-right: 0.5rem;
-  padding: 0.1rem 0.4rem;
-  color: white;
-  font-size: 0.8rem;
-  font-weight: bold;
-  border-radius: 6px;
-  vertical-align: middle;
-}
-
-.customer-with-empty-order {
-  background-color: rgb(221, 66, 66);
-}
-.customer-with-filled-order td,
-.customer-with-empty-order td {
-  color: white;
-  font-weight: bold;
-  text-transform: capitalize;
-  text-decoration: underline;
-}
-@media only screen and (max-width: 600px) {
-  .customers-for-area-table {
-    margin: 0 auto;
-  }
-  .table-title {
-    margin: 25% 0 20px 0;
-  }
+  margin-right: 8px;
+  color: #d39e00;
+  font-size: 1.2rem;
 }
