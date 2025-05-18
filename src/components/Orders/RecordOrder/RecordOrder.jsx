@@ -28,6 +28,7 @@ const RecordOrder = (props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const companyId = useSelector((state) => state.user.companyId);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const token = useSelector((state) => state.user.token);
   const customerId = useSelector((state) => state.order.customer_Id);
@@ -69,10 +70,23 @@ const RecordOrder = (props) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: parseInt(value) || 0,
-    }));
+
+    // Allow empty input so user can delete and retype
+    if (value === "") {
+      setForm((prev) => ({ ...prev, [name]: "" }));
+      return;
+    }
+
+    // Remove any leading zeroes
+    const cleanedValue = value.replace(/^0+(?!$)/, "");
+
+    // If it's a valid number, store as number
+    if (!isNaN(cleanedValue)) {
+      setForm((prev) => ({
+        ...prev,
+        [name]: parseInt(cleanedValue),
+      }));
+    }
   };
 
   const handleLbpChange = useCallback((val) => {
@@ -96,6 +110,10 @@ const RecordOrder = (props) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (isSubmitting) return;
+    setIsSubmitting(true); // Lock button
+
     const payments = [];
 
     if (form.paidUSD > 0) {
@@ -160,7 +178,7 @@ const RecordOrder = (props) => {
       if (res.ok) {
         dispatchSummary(data);
         dispatch(removePendingOrder(customerId));
-        await fetchAndCacheCustomerInvoice(customerId, token); // 👈 added here
+        await fetchAndCacheCustomerInvoice(customerId, token);
         if (
           !form.delivered &&
           !form.returned &&
@@ -178,6 +196,8 @@ const RecordOrder = (props) => {
       }
     } catch (err) {
       toast.error("❌ فشل الاتصال بالشبكة");
+    } finally {
+      setIsSubmitting(false); // (Optional: If you want to allow retries on error)
     }
   };
 
@@ -187,9 +207,9 @@ const RecordOrder = (props) => {
       <h1 className="record-order-title">🧾 تسجيل طلب: {customerName}</h1>
 
       <form className="record-order-form" onSubmit={handleSubmit}>
-        {/* <div className="default-product-name">
+        <div className="default-product-name">
           المنتج: {productName} | السعر: {productPrice} $
-        </div> */}
+        </div>
 
         <div className="input-group">
           <label>📦 عدد القناني المسلّمة</label>
@@ -237,7 +257,12 @@ const RecordOrder = (props) => {
             <button type="button" onClick={() => handleIncrement("paidUSD")}>
               ▲
             </button>
-            <input type="text" name="paidUSD" value={form.paidUSD} />
+            <input
+              type="number"
+              name="paidUSD"
+              value={form.paidUSD}
+              onChange={handleChange}
+            />
             <button type="button" onClick={() => handleDecrement("paidUSD")}>
               ▼
             </button>
@@ -252,9 +277,20 @@ const RecordOrder = (props) => {
 
           <SevenDigitPicker onChange={handleLbpChange} />
         </div>
-
-        <button className="record-order-button" type="submit">
-          ✔️ تسجيل
+        <button
+          className="record-order-button"
+          type="submit"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <span className="loading-dots">
+              جاري التسجيل<span>.</span>
+              <span>.</span>
+              <span>.</span>
+            </span>
+          ) : (
+            "✔️ تسجيل"
+          )}
         </button>
       </form>
     </div>

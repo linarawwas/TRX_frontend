@@ -64,12 +64,16 @@ const useSyncOfflineOrders = () => {
           const response = await fetch(request.url, request.options);
 
           if (response.ok) {
-            console.log("Order synced successfully. Removing from IndexedDB...");
+            console.log(
+              "Order synced successfully. Removing from IndexedDB..."
+            );
             await removeRequestFromDb(request.id);
 
-            if (parseInt(body.delivered) === 0 &&
-                parseInt(body.returned) === 0 &&
-                parseInt(body.paid) === 0) {
+            if (
+              parseInt(body.delivered) === 0 &&
+              parseInt(body.returned) === 0 &&
+              parseInt(body.paid) === 0
+            ) {
               dispatch(addCustomerWithEmptyOrder(body.customerid));
             } else {
               dispatch(addCustomerWithFilledOrder(body.customerid));

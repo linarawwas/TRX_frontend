@@ -66,10 +66,17 @@ const CustomersForArea = (): JSX.Element => {
 
   return (
     <>
-      <h3 className="table-title" style={{ direction: "rtl", textAlign: "right" }}>
+      <h3
+        className="table-title"
+        style={{ direction: "rtl", textAlign: "right" }}
+      >
         الزبائن في هذه المنطقة
       </h3>
-      <table className="customers-for-area-table" dir="rtl" style={{ textAlign: "right" }}>
+      <table
+        className="customers-for-area-table"
+        dir="rtl"
+        style={{ textAlign: "right" }}
+      >
         <thead>
           <tr>
             <th>الاسم</th>
@@ -95,11 +102,18 @@ const CustomersForArea = (): JSX.Element => {
                     : ""
                 }
               >
-                <td>{customer.name}</td>
+                <td>
+                  {customer.name}
+                  {customersWithPendingOrders?.includes(customer._id) && (
+                    <span className="pending-badge">🚩</span>
+                  )}
+                </td>
                 <td>
                   <button
                     className="customer-for-area-record-button"
-                    onClick={() => handleOrderState(customer._id, customer.name)}
+                    onClick={() =>
+                      handleOrderState(customer._id, customer.name)
+                    }
                   >
                     ⬅️
                   </button>
