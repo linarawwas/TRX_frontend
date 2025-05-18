@@ -16,7 +16,7 @@
     color: #222;
     padding: 2rem;
     border-radius: 12px;
-    max-width: 90%;
+    max-width: 70%;
     text-align: right;
   }
   
@@ -37,10 +37,10 @@
   }
   
   .pulse-loader {
-    margin-top: 1rem;
+    margin: 1rem auto;
     width: 40px;
     height: 40px;
-    border: 5px solid #2d89ef;
+    border: 5px solid #08213e;
     border-top: 5px solid transparent;
     border-radius: 50%;
     animation: spin 1s linear infinite;
