@@ -1,10 +1,11 @@
+// CustomerOrders.tsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import SpinLoader from "../../UI reusables/SpinLoader/SpinLoader";
+import { Link } from "react-router-dom";
 import "./CustomerOrders.css";
-import { ToastContainer, toast } from "react-toastify";
-import { Link, useNavigate } from "react-router-dom";
+
 interface Payment {
   date: string;
   amount: number;
@@ -35,106 +36,80 @@ interface Order {
 }
 
 const CustomerOrders: React.FC = () => {
-  const navigate = useNavigate();
-  const customerId: string = useSelector(
-    (state: any) => state.order.customer_Id
-  );
-  const [currentPage, setCurrentPage] = useState(1);
-  const [recordsPerPage] = useState(4);
-  const [showAddOrders, setShowAddOrders] = useState<Boolean>(false);
+  const customerId: string = useSelector((state: any) => state.order.customer_Id);
   const companyId = useSelector((state: any) => state.user.companyId);
+  const token: string = useSelector((state: any) => state.user.token);
   const [customerOrders, setCustomerOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const token: string = useSelector((state: any) => state.user.token);
+
   useEffect(() => {
     const fetchCustomerOrders = async () => {
       try {
         const response = await axios.get(
           `http://localhost:5000/api/orders/customer/${customerId}`,
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
-        const data = response.data;
-        setCustomerOrders(data);
-        setLoading(false);
+        setCustomerOrders(response.data);
       } catch (error) {
-        console.error("Error fetching extra Orders:", error);
+        console.error("Error fetching orders:", error);
+      } finally {
         setLoading(false);
       }
     };
-    if (companyId) {
-      fetchCustomerOrders();
-    }
-  }, [companyId, token, showAddOrders]);
+
+    if (companyId && customerId) fetchCustomerOrders();
+  }, [companyId, customerId, token]);
+
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
-    // Adjust the received timestamp by subtracting 2 hours for the Beirut timezone
-    date.setHours(date.getHours() - 2);
-
-    const options: Intl.DateTimeFormatOptions = {
+    date.setHours(date.getHours() - 2); // Beirut offset
+    return date.toLocaleString("ar-LB", {
       timeZone: "Asia/Beirut",
       year: "numeric",
       month: "numeric",
       day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-      second: "numeric",
-      hour12: true, // Set to true for 12-hour format
-    };
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+  };
 
-    return date.toLocaleString("en-US", options);
-  };return (
-    <div className="Orders" style={{ direction: "rtl", textAlign: "right" }}>
-      <h2 className="orders-by-customer-title">طلبات الزبون</h2>
+  return (
+    <div className="customer-orders">
+      <h2 className="section-title">طلبات الزبون</h2>
       {loading ? (
         <SpinLoader />
-      ) : customerOrders.length > 0 ? (
-        <div className="receipt-details-container">
-          {customerOrders.map((Order) => (
-            <div className="receipt-details" key={Order._id}>
-              <div className="container-button-div">
-                <button className="check-btn">
-                  <Link to={`/updateOrder/${Order._id}`}>تفاصيل</Link>
-                </button>
+      ) : customerOrders.length === 0 ? (
+        <p className="no-orders">لا توجد طلبات لهذا الزبون</p>
+      ) : (
+        <div className="orders-list">
+          {customerOrders.map((order) => (
+            <div className="order-card" key={order._id}>
+              <div className="order-header">
+                <Link className="details-link" to={`/updateOrder/${order._id}`}>
+                  تفاصيل
+                </Link>
               </div>
-              <div className="receipt-detail">
-                <p className="detail-name">المُسَلَّم:</p>
-                <p className="detail-value">{Order?.delivered}</p>
-              </div>
-              <div className="receipt-detail">
-                <p className="detail-name">المُرْجَع:</p>
-                <p className="detail-value">{Order?.returned}</p>
-              </div>
-              <div className="receipt-detail">
-                <p className="detail-name">الحساب:</p>
-                <p className="detail-value">{Order?.checkout}</p>
-              </div>
-              <div className="receipt-detail">
-                <p className="detail-name">المدفوع بالدولار:</p>
-                <p className="detail-value">{Order.paid.toFixed(2)}</p>
-              </div>
-              <div className="receipt-detail">
-                <p className="detail-name">المجموع:</p>
-                <p className="detail-value">{Order?.total.toFixed(2)}</p>
-              </div>
-              <div className="receipt-detail timestamp">
-                <p className="detail-name">الوقت والتاريخ:</p>
-                <p className="detail-value">
-                  {formatTimestamp(Order.timestamp)}
-                </p>
+              <div className="order-info">
+                <div><span>المُسلَّم:</span> {order.delivered}</div>
+                <div><span>المُرْجَع:</span> {order.returned}</div>
+                <div><span>الحساب:</span> {order.checkout}</div>
+                <div><span>المدفوع بالدولار:</span> {order.paid.toFixed(2)}</div>
+                <div><span>المجموع:</span> {order.total.toFixed(2)}</div>
+                <div className="timestamp">
+                  <span>الوقت والتاريخ:</span>
+                  <div>{formatTimestamp(order.timestamp)}</div>
+                </div>
               </div>
             </div>
           ))}
         </div>
-      ) : (
-        <p>لا توجد طلبات لهذا الزبون</p>
       )}
     </div>
   );
-  
 };
 
 export default CustomerOrders;

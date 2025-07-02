@@ -123,16 +123,12 @@ function UpdateCustomer() {
         <h1>معلومات الزبون:</h1>
       </div>
 
-        <CustomerInfo customerData={customerData} loading={loading} />
+      <CustomerInfo customerData={customerData} loading={loading} />
 
       {customerData && (
         <>
-          <div className="update-card">
-            <CustomerInvoices />
-          </div>
-          <div className="update-card">
-            <CustomerOrders />
-          </div>
+          <CustomerInvoices />
+          <CustomerOrders />
         </>
       )}
 
