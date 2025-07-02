@@ -1,11 +1,8 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-import RightAsideMenu from "../Right/RightAsideMenu";
 import {
   clearCompanyId,
   clearToken,
@@ -46,7 +43,6 @@ const AsideMenuEmployee: React.FC = () => {
           >
             {isMenuOpen ? <FaTimes /> : <FaBars />}
           </button>
-          <RightAsideMenu />
         </div>
 
         <aside className="sidebar" style={{ textAlign: "right" }}>
