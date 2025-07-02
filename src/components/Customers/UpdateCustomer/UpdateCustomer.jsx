@@ -15,6 +15,7 @@ import CustomerInvoices from "../CustomerInvoices/CustomerInvoices";
 import CustomerOrders from "../CustomerOrders/CustomerOrders";
 import CustomerInfo from "../CustomerInfo/CustomerInfo";
 import { setCustomerId } from "../../../redux/Order/action";
+import { fetchAndCacheCustomerInvoice } from "../../../utils/apiHelpers";
 
 function UpdateCustomer() {
   const dispatch = useDispatch();
@@ -63,6 +64,11 @@ function UpdateCustomer() {
         const data = await res.json();
         setCustomerData(data);
         setOriginalData(data);
+
+        // ✅ Add this
+        fetchAndCacheCustomerInvoice(customerId, token).catch((err) =>
+          console.warn("⚠️ Failed to cache invoice in UpdateCustomer:", err)
+        );
       }
     } catch (err) {
       console.error("Fetch error:", err);
@@ -127,7 +133,7 @@ function UpdateCustomer() {
 
       {customerData && (
         <>
-          <CustomerInvoices />
+          <CustomerInvoices customerId={customerId} />
           <CustomerOrders />
         </>
       )}

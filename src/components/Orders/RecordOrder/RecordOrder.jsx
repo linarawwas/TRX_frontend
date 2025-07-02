@@ -188,7 +188,7 @@ const RecordOrder = (props) => {
     <div className="record-order-container" style={{ direction: "rtl" }}>
       <ToastContainer position="top-right" autoClose={2000} />
       <h1 className="record-order-title">🧾 تسجيل طلب: {customerName}</h1>
-      <CustomerInvoices />
+<CustomerInvoices customerId={customerId} />
       <form className="record-order-form" onSubmit={handleSubmit}>
         <div className="default-product-name">المنتج: {productName} | {productPrice} $</div>
 

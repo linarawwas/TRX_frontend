@@ -14,10 +14,10 @@ interface Sums {
   totalSum: number;
 }
 
-const CustomerInvoices: React.FC = () => {
+const CustomerInvoices: React.FC<{ customerId: string }> = ({ customerId }) => {
   const [sums, setSums] = useState<Sums | null>(null);
   const [loading, setLoading] = useState(true);
-  const customerId = useSelector((state: any) => state.order.customer_Id);
+  // const customerId = useSelector((state: any) => state.order.customer_Id);
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
 
   useEffect(() => {
@@ -29,6 +29,7 @@ const CustomerInvoices: React.FC = () => {
       window.removeEventListener("offline", updateStatus);
     };
   }, []);
+  console.log("🔍 Received customerId in CustomerInvoices:", customerId);
 
   useEffect(() => {
     const loadInvoiceWithOfflineAdjustments = async () => {
