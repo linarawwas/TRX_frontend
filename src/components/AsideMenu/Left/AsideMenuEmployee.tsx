@@ -66,12 +66,12 @@ const AsideMenuEmployee: React.FC = () => {
             />
             <SidebarItem to="/areas" icon="🌍" label="المناطق" />
             <SidebarItem to="/customers" icon="👥" label="الزبائن" />
-            <SidebarItem to="/Expenses" icon="🧾" label="المصاريف" />
-            <SidebarItem to="/Profits" icon="💰" label="الأرباح" />
+            {/* <SidebarItem to="/Expenses" icon="🧾" label="المصاريف" />
+            <SidebarItem to="/Profits" icon="💰" label="الأرباح" /> */}
             <SidebarItem
               to="/currentShipment"
               icon="📦"
-              label="تفاصيل الشحنة الحالية"
+              label="بيانات الشحنات"
             />
             <li>
               <button className="logout-button" onClick={handleLogout}>
