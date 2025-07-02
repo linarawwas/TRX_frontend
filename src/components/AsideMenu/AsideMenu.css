@@ -6,9 +6,10 @@
 
 .button-div {
   display: flex;
-  flex-flow: row wrap;
-  justify-content: space-between;
+  flex-flow: row-reverse nowrap;
+  justify-content: flex-end; /* aligns right in row-reverse */
   align-items: center;
+  gap: 10px;
   width: 95vw;
   margin-top: 20px;
 }
@@ -127,6 +128,18 @@
   width: 70px;
   border-radius: 20px;
   cursor: pointer;
+}
+.home-toggle {
+  background: transparent;
+  font-size: 20px;
+  margin: 10px 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 20px;
+  border: none;
+  color: #06355e;
+  cursor: pointer;
+  z-index: 100;
 }
 
 /* === Mobile === */

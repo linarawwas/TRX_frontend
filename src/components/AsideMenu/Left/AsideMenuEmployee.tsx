@@ -11,10 +11,12 @@ import {
 import { setShipmentFromPrev } from "../../../redux/Shipment/action";
 import "../AsideMenu.css";
 import { SidebarItem } from "./SidebarItem";
+import { useNavigate } from "react-router-dom";
 
 const AsideMenuEmployee: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const shipmentId = useSelector((state: any) => state.shipment._id);
   const dayId = useSelector((state: any) => state.shipment.dayId);
@@ -28,7 +30,9 @@ const AsideMenuEmployee: React.FC = () => {
     dispatch(clearCompanyId());
     dispatch(clearIsAdmin());
   };
-
+  const handleGoHome = () => {
+    navigate("/");
+  };
   return (
     <div
       className={`dashboard ${isMenuOpen ? "menu-open" : "menu-closed"}`}
@@ -37,6 +41,13 @@ const AsideMenuEmployee: React.FC = () => {
       <ToastContainer position="top-right" autoClose={1000} />
       <div className="aside-Menu">
         <div className="button-div">
+          <button
+            className="home-toggle"
+            onClick={handleGoHome}
+            title="الصفحة الرئيسية"
+          >
+            🏠
+          </button>
           <button
             className="menu-toggle"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
