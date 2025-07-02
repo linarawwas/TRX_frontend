@@ -91,7 +91,7 @@ const CustomerInvoices: React.FC = () => {
           <p className="detail-name">💵 المجموع {sums.totalSum.toFixed(2)}</p>
         </>
       ) : (
-        <p className="no-data-text">❌ لا توجد بيانات محفوظة لهذا الزبون</p>
+        <p className="no-data-text">❌ لا توجد تفاصيل لهذا الزبون</p>
       )}
     </div>
   );

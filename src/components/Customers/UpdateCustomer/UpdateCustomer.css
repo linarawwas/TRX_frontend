@@ -16,24 +16,19 @@
   color: #082338;
 }
 
-/* Info and Order Card Style */
-.update-card {
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  margin: 20px 0;
-  padding: 20px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-}
-
 /* Form */
 .update-customer-form {
   margin-top: 20px;
+  text-align: center;
+  border: 3px solid #dcdcdc;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  padding: 10px;
+  margin-bottom: 1rem;
 }
 
 .update-customer-form input,
 .update-customer-form select {
-  width: 100%;
+  width: 80%;
   padding: 10px;
   margin: 10px 0;
   border: 1px solid #ccc;
@@ -42,32 +37,19 @@
 }
 
 .update-customer-form button {
-  width: 100%;
+  width: 90%;
   padding: 12px;
   margin-top: 10px;
-  background-color: #06355e;
   color: #fff;
   border: none;
   border-radius: 5px;
-  font-size: 16px;
+  font-size: 10px;
   cursor: pointer;
 }
-
-.update-customer-form button:hover {
-  background-color: #0d94dd;
-}
-
-/* Edit Toggle */
 .update-toggle {
   text-align: center;
-  color: #06355e;
   margin: 20px 0;
   font-weight: bold;
-  cursor: pointer;
-}
-
-.update-toggle:hover {
-  text-decoration: underline;
 }
 
 /* Mobile Responsive */

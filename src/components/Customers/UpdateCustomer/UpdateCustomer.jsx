@@ -162,7 +162,7 @@ function UpdateCustomer() {
             placeholder="العنوان الجديد"
             onChange={handleChange}
           />
-
+          <br></br>
           <SelectInput
             label="المنطقة:"
             name="areaId"

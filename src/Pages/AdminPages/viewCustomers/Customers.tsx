@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Carousel } from "react-responsive-carousel";
-import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { Link } from "react-router-dom";
 import "./Customers.css";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,8 +20,6 @@ const Customers: React.FC = () => {
   const companyId: string = useSelector((state: any) => state.user.companyId);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [currentPage, setCurrentPage] = useState<number>(0);
-  const [selectedItem, setSelectedItem] = useState<number>(0);
   const [showInsertBulk, setShowInsertBulk] = useState<boolean>(false);
   const [showInsertOne, setShowInsertOne] = useState<boolean>(false);
   const [showInsertInitial, setShowInsertInitial] = useState<boolean>(false);
@@ -51,7 +47,6 @@ const Customers: React.FC = () => {
       });
   }, [token, companyId, showInsertBulk, showInsertOne]);
 
-  // Filter customers by the search term
   const filteredCustomers = customers.filter((customer) =>
     customer.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -61,14 +56,6 @@ const Customers: React.FC = () => {
       <div className="customer-header">
         <h2 className="customers-title">الزبائن</h2>
         <div className="customer-adding-options">
-          {/* <button
-            className="customer-adding-option"
-            onClick={() => {
-              setShowInsertBulk(!showInsertBulk);
-            }}
-          >
-            {showInsertBulk ? "إخفاء النموذج" : "إضافة مجموعة؟"}
-          </button> */}
           <button
             className="customer-adding-option"
             onClick={() => {
@@ -77,20 +64,14 @@ const Customers: React.FC = () => {
           >
             {showInsertOne ? "عرض الزبائن" : "إضافة زبون؟"}
           </button>
-          {/* <button
-            className="customer-adding-option"
-            onClick={() => {
-              setShowInsertInitial(!showInsertInitial);
-            }}
-          >
-            {showInsertInitial ? "عودة" : "إضافة زبائن أولية حسب المنطقة"}
-          </button> */}
-          {showInsertBulk && <AddCustomers />}
-          {showInsertOne && <AddCustomer />}
-          {showInsertInitial && <AddCustomerInitials />}
+
+          {showInsertOne && (
+            <div className="customer-form-wrapper">
+              <AddCustomer />
+            </div>
+          )}
         </div>
 
-        {/* Search Bar */}
         <div className="search-bar">
           <input
             type="text"
@@ -107,24 +88,22 @@ const Customers: React.FC = () => {
       ) : (
         <div>
           {!showInsertOne && (
-            <table className="customers-table">
-              <thead>
-                <tr>
-                  <th>الاسم</th>
-                  <th>تعديل</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredCustomers?.map((customer) => (
-                  <tr key={customer._id}>
-                    <td>{customer?.name}</td>
-                    <td className="link-to-edit">
-                      <Link to={`/updateCustomer/${customer._id}`}>📝</Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="customer-card-list">
+              {filteredCustomers.map((customer) => (
+                <Link
+                  to={`/updateCustomer/${customer._id}`}
+                  className="customer-card-link"
+                  title={`تعديل ${customer.name}`}
+                >
+                  <div className="customer-card">
+                    <div className="customer-card-content">
+                      <span className="customer-name">{customer.name}</span>
+                      <span className="edit-customer-icon">📝</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
           )}
         </div>
       )}

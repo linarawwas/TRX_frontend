@@ -1,28 +1,37 @@
-.order-receipt .receipt-details {
-    width: 70%;
-    border: 1px solid #192D40;
-    margin: 1px auto;
-
+.order-receipt {
+  width: 80%;
 }
 
-.order-receipt .receipt-detail {
-    display: flex;
-    justify-content: space-around;
-    border-top: 1px solid #192D40;
-
+.receipt-details {
+  border: 1px solid #192D40;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  background-color: #fff;
 }
 
-.order-receipt .receipt-detail p {
-    font-family: Georgia, 'Times New Roman', Times, serif;
+.receipt-detail {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 15px;
+  border-top: 1px solid #ccc;
 }
 
-.customer-receipt h2 {
-    text-align: center;
-    margin: 20px auto;
+.receipt-detail:first-child {
+  border-top: none;
+}
+
+.detail-name {
+  font-weight: bold;
+  color: #082338;
+}
+
+.detail-value {
+  color: #192D40;
 }
 
 @media (max-width: 600px) {
-    .order-receipt .receipt-details {
-        width: 80%;
-    }
+  .receipt-details {
+    width: 95%;
+  }
 }
