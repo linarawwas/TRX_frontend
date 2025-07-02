@@ -20,6 +20,7 @@ function App() {
   const dispatch = useDispatch();
   const token = localStorage.getItem("token");
   const companyId = localStorage.getItem("companyId");
+  console.log("isAdmin", localStorage.getItem("isAdmin"));
   const isAdmin = JSON.parse(localStorage.getItem("isAdmin") || "false");
   const username = localStorage.getItem("username");
 
