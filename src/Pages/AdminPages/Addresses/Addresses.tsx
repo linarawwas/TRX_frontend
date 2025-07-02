@@ -16,12 +16,11 @@ export default function Addresses(): JSX.Element {
   const token: string = useSelector((state: any) => state.user.token);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [searchTerm, setSearchTerm] = useState<string>(""); // State for the search term
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const { areaId } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch customers data from your API
     fetch(`http://localhost:5000/api/customers/area/${areaId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -30,7 +29,6 @@ export default function Addresses(): JSX.Element {
       .then((response) => response.json())
       .then((data) => {
         setCustomers(data);
-        console.log(`number of customers in this area: ${data.length}`);
         setLoading(false);
       })
       .catch((error) => {
@@ -39,88 +37,54 @@ export default function Addresses(): JSX.Element {
       });
   }, [areaId, token]);
 
-  const handleDeleteArea = async () => {
-    try {
-      const response = await fetch(
-        `http://localhost:5000/api/areas/${areaId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        toast.success("Area deleted successfully");
-
-        setTimeout(() => {
-          navigate("/areas");
-        }, 1500);
-      } else {
-        toast.error("Error deleting Area");
-
-        // Handle errors here
-        console.error("Error deleting Area");
-      }
-    } catch (error) {
-      toast.error("Error deleting Area");
-
-      console.error("Error deleting Area:", error);
-    }
-  };
-
-  // Filter customers by the search term
   const filteredCustomers = customers.filter((customer) =>
     customer.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <div
-      className="address-body"
-      style={{ direction: "rtl", textAlign: "right" }}
-    >
+    <div className="address-card-body" dir="rtl">
       <ToastContainer position="top-right" autoClose={1000} />
 
-      <div className="address-header">
-        <h1 className="address-title">معلومات العناوين:</h1>
-
-        {/* Search Bar */}
+      <div className="address-card-header">
+        <h2 className="address-card-title">عناوين الزبائن</h2>
         <input
           type="text"
           placeholder="بحث بالاسم"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-bar"
+          className="address-card-search-bar"
         />
       </div>
 
       {loading ? (
-        <p className="loading">جارٍ التحميل...</p>
+        <p className="address-card-loading">جارٍ التحميل...</p>
+      ) : filteredCustomers.length === 0 ? (
+        <p className="address-card-empty">لا يوجد زبائن بهذه المواصفات</p>
       ) : (
-        <table className="address-table">
-          <thead>
-            <tr>
-              <th>الاسم</th>
-              <th>الهاتف</th>
-              <th>العنوان</th>
-              <th>المزيد</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredCustomers.map((customer) => (
-              <tr key={customer._id}>
-                <td>{customer.name}</td>
-                <td>{customer.phone}</td>
-                <td>{customer.address}</td>
-
-                <td>
-                  <Link to={`/updateCustomer/${customer._id}`}>تعديل</Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="address-card-list">
+          {filteredCustomers.map((customer) => (
+            <Link
+              to={`/updateCustomer/${customer._id}`}
+              className="address-card-link"
+              key={customer._id}
+            >
+              <div className="address-card">
+                <p>
+                  <span className="address-card-label">الاسم:</span>{" "}
+                  {customer.name}
+                </p>
+                <p>
+                  <span className="address-card-label">الهاتف:</span>{" "}
+                  {customer.phone}
+                </p>
+                <p>
+                  <span className="address-card-label">العنوان:</span>{" "}
+                  {customer.address}
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
       )}
     </div>
   );

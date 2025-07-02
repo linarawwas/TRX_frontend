@@ -1,61 +1,77 @@
-/* daysTable.css */
 .areas-body {
-  margin: 10% auto;
-}
-
-.loading {
-  text-align: center;
-}
-
-.areas-header {
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: center;
-  align-items: center;
-  margin: 2%;
-}
-
-.areas-header button {
-  margin: 10px;
-  border: 1px solid #082338;
-  border-radius: 30px;
-  background-color: #06355e;
-  color: white;
-  text-transform: uppercase;
-  font-weight: bold;
-  cursor: pointer;
-  width: 130px;
-  padding: 10px;
+  padding: 20px 10px;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
 .areas-title {
-  text-align: center;
   color: #082338;
-  text-decoration: underline;
+  font-size: 24px;
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
-.areas-div {
-  height: 50vh;
-  margin-top: 50px;
-  margin-bottom: 40px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
+.toggle-form-btn {
+  background-color: #06355e;
+  color: white;
+  padding: 10px 20px;
+  border: 1px solid #082338;
+  border-radius: 25px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s ease;
+  display: block;
+  margin: 10px auto 20px auto;
 }
 
-.areas-div .area-link {
+.toggle-form-btn:hover {
+  background-color: #0d94dd;
+}
+
+/* 🔲 Area Grid */
+.areas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+  padding: 10px;
+  text-align: center;
+}
+
+.area-box {
   text-decoration: none;
   color: #082338;
-  padding: 15px;
-  border-radius: 20px;
+  background-color: white;
   border: 1px solid #082338;
-  margin:30px;
+  border-radius: 15px;
+  padding: 12px;
+  font-size: 16px;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
-@media only screen and (max-width: 600px) {
-  .areas-body {
-    margin-top: 0;
-    padding-top: 25%;
-    padding-bottom: 10%;
+.area-box:hover {
+  background-color: #f0f4f8;
+}
+
+.add-area-form {
+  margin-top: 30px;
+  padding: 10px;
+}
+
+/* 📱 Mobile friendly */
+@media (max-width: 600px) {
+  .areas-title {
+    font-size: 20px;
+  }
+
+  .toggle-form-btn {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+
+  .area-box {
+    font-size: 15px;
+    padding: 10px;
   }
 }

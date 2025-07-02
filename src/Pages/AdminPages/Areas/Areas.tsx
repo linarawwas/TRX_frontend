@@ -18,8 +18,6 @@ export default function Areas(): JSX.Element {
 
   const [areas, setAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [selectedItem, setSelectedItem] = useState<number>(0);
-  const [currentPage, setCurrentPage] = useState<number>(0);
   const [formVisible, setFormVisible] = useState<boolean>(false);
 
   const handleFormToggle = () => {
@@ -51,32 +49,32 @@ export default function Areas(): JSX.Element {
   }, [token, formVisible]);
 
   return (
-    <div className="areas-body" dir="rtl">
-      <div className="areas-header">
-        <h2 className="areas-title">مناطق التوزيع</h2>
-        <button onClick={handleFormToggle}>
-          {formVisible ? "عرض المناطق" : "إضافة منطقة جديدة؟"}
-        </button>
-      </div>
-  
-      {loading ? (
-        <SpinLoader />
-      ) : (
-        <>
-          <div className="areas-div">
-            {!formVisible &&
-              areas?.map((area) => (
-                <div key={area._id}>
-                  <Link to={`/addresses/${area._id}`} className="area-link">
-                    {area.name}
-                  </Link>
-                </div>
-              ))}
-          </div>
-          <div className="add-area-div">{formVisible && <AddArea />}</div>
-        </>
+   <div className="areas-body" dir="rtl">
+  <div className="areas-header">
+    <h2 className="areas-title">مناطق التوزيع</h2>
+    <button className="toggle-form-btn" onClick={handleFormToggle}>
+      {formVisible ? "عرض المناطق" : "➕ إضافة منطقة جديدة؟"}
+    </button>
+  </div>
+
+  {loading ? (
+    <SpinLoader />
+  ) : (
+    <>
+      {!formVisible && (
+        <div className="areas-grid">
+          {areas.map((area) => (
+            <Link to={`/addresses/${area._id}`} key={area._id} className="area-box">
+              {area.name}
+            </Link>
+          ))}
+        </div>
       )}
-    </div>
+      {formVisible && <div className="add-area-form"><AddArea /></div>}
+    </>
+  )}
+</div>
+
   );
   
 }
