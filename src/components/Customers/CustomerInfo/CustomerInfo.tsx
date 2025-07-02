@@ -1,45 +1,46 @@
-import React from 'react';
-import SpinLoader from '../../UI reusables/SpinLoader/SpinLoader';
-import './CustomerInfo.css'
+import React from "react";
+import SpinLoader from "../../UI reusables/SpinLoader/SpinLoader";
+import "./CustomerInfo.css";
+
 interface CustomerInfoProps {
-    customerData: any; // Change 'any' to the type of your orderData if available
-    loading: boolean;
+  customerData: any;
+  loading: boolean;
 }
 
-const CustomerInfo: React.FC<CustomerInfoProps> = ({ customerData, loading }: CustomerInfoProps) => {
-    return (
-        <>
-          {loading ? (
-            <SpinLoader />
-          ) : customerData ? (
-            <div className="receipt-details customer-info-details" style={{ direction: "rtl", textAlign: "right" }}>
-              <div className="receipt-detail">
-                <p className="detail-name">الاسم</p>
-                <p className="detail-value">{customerData?.name}</p>
-              </div>
-              <div className="receipt-detail">
-                <p className="detail-name">الهاتف:</p>
-                <p className="detail-value">{customerData?.phone}</p>
-              </div>
-              {/* <div className="receipt-detail">
-                <p className="detail-name">معرف المنطقة:</p>
-                <p className="detail-value area-id"> {customerData?.areaId?._id}</p>
-              </div> */}
-              <div className="receipt-detail">
-                <p className="detail-name">اسم المنطقة:</p>
-                <p className="detail-value"> {customerData?.areaId?.name}</p>
-              </div>
-              <div className="receipt-detail">
-                <p className="detail-name">العنوان</p>
-                <p className="detail-value">{customerData?.address}</p>
-              </div>
-            </div>
-          ) : (
-            <p>الطلب غير موجود</p>
-          )}
-        </>
-      );
-      
+const CustomerInfo: React.FC<CustomerInfoProps> = ({
+  customerData,
+  loading,
+}) => {
+  return (
+    <div className="customer-info-card">
+      {loading ? (
+        <SpinLoader />
+      ) : customerData ? (
+        <div className="customer-info-grid">
+          <div className="customer-info-row">
+            <span className="customer-info-label">الاسم:</span>
+            <span className="customer-info-value">{customerData.name}</span>
+          </div>
+          <div className="customer-info-row">
+            <span className="customer-info-label">الهاتف:</span>
+            <span className="customer-info-value">{customerData.phone}</span>
+          </div>
+          <div className="customer-info-row">
+            <span className="customer-info-label">المنطقة:</span>
+            <span className="customer-info-value">
+              {customerData.areaId?.name}
+            </span>
+          </div>
+          <div className="customer-info-row">
+            <span className="customer-info-label">العنوان:</span>
+            <span className="customer-info-value">{customerData.address}</span>
+          </div>
+        </div>
+      ) : (
+        <p className="customer-info-error">البيانات غير متوفرة</p>
+      )}
+    </div>
+  );
 };
 
 export default CustomerInfo;

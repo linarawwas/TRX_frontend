@@ -1,36 +1,55 @@
-.update-customer-form {
-  max-width: 400px;
-  margin: 30px auto;
-  border: 1px solid #083323;
+/* Container and Title */
+.update-customer-container {
+  direction: rtl;
+  text-align: right;
   padding: 5%;
+  background-color: #f9f9f9;
 }
 
-.update-customer-form input {
-  width: 100%;
-  padding: 10px;
-  margin: 10px 0;
+.update-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.update-header h1 {
+  font-size: 22px;
+  color: #082338;
+}
+
+/* Info and Order Card Style */
+.update-card {
+  background: #fff;
   border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 16px;
+  border-radius: 10px;
+  margin: 20px 0;
+  padding: 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
+/* Form */
+.update-customer-form {
+  margin-top: 20px;
+}
+
+.update-customer-form input,
 .update-customer-form select {
   width: 100%;
   padding: 10px;
   margin: 10px 0;
   border: 1px solid #ccc;
   border-radius: 5px;
-  font-size: 16px;
+  font-size: 15px;
 }
 
 .update-customer-form button {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
+  margin-top: 10px;
   background-color: #06355e;
-  color: #082338;
+  color: #fff;
   border: none;
   border-radius: 5px;
-  font-size: 18px;
+  font-size: 16px;
   cursor: pointer;
 }
 
@@ -38,65 +57,28 @@
   background-color: #0d94dd;
 }
 
-.update-customer-form button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-.update-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.delete-button {
-  background-color: #ff5555;
-  color: #082338;
-  border: none;
-  border-radius: 5px;
-  padding: 5px 10px;
-  font-size: 16px;
+/* Edit Toggle */
+.update-toggle {
+  text-align: center;
+  color: #06355e;
+  margin: 20px 0;
+  font-weight: bold;
   cursor: pointer;
 }
 
-.delete-button:hover {
-  background-color: #cc0000;
-}
-
-.edit-button:hover {
-  cursor: pointer;
+.update-toggle:hover {
   text-decoration: underline;
 }
 
-div .receipt-details {
-  margin: 0 auto;
-}
-
-.update-title {
-  text-align: center;
-  margin: 0 auto;
-}
-
-@media (max-width: 600px) {
-  .customer-info-container div .receipt-details {
-    width: 60%;
-    margin-bottom: 20px;
+/* Mobile Responsive */
+@media screen and (max-width: 600px) {
+  .update-customer-form input,
+  .update-customer-form select {
+    font-size: 14px;
+    padding: 8px;
   }
 
-  .customer-info-container .update-customer-form {
-    width: 60%;
-    padding: 5%;
-  }
-
-  .customer-info-container .update-customer-form input {
-    width: 70%;
-    margin: 2px;
-  }
-
-  .customer-info-container div .receipt-details .receipt-detail .area-id {
-    font-size: 8px;
-    text-wrap: wrap;
-    text-align: center;
+  .update-header h1 {
+    font-size: 20px;
   }
 }

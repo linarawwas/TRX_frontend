@@ -1,0 +1,59 @@
+.customer-info-card {
+  background-color: #fff;
+  border: 1px solid #dcdcdc;
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  direction: rtl;
+  text-align: right;
+  font-family: "Cairo", sans-serif;
+}
+
+.customer-info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.customer-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px dashed #ccc;
+  padding-bottom: 6px;
+}
+
+.customer-info-label {
+  font-weight: bold;
+  color: #06355e;
+  font-size: 15px;
+  min-width: 80px;
+}
+
+.customer-info-value {
+  font-size: 15px;
+  color: #333;
+  word-break: break-word;
+  flex: 1;
+  text-align: left;
+}
+
+.customer-info-error {
+  color: red;
+  text-align: center;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+/* Responsive */
+@media screen and (max-width: 600px) {
+  .customer-info-card {
+    padding: 15px;
+  }
+
+  .customer-info-label,
+  .customer-info-value {
+    font-size: 14px;
+  }
+}
