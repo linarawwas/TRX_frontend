@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
 export default function LoginForm(): JSX.Element {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const { email, password } = formData;
+
+  useEffect(() => {
+    document.documentElement.setAttribute("dir", "rtl"); // Set right-to-left
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -13,7 +17,7 @@ export default function LoginForm(): JSX.Element {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!email || !password) {
-      return toast.error("Please enter both email and password");
+      return toast.error("يرجى إدخال البريد الإلكتروني وكلمة المرور");
     }
 
     try {
@@ -27,15 +31,15 @@ export default function LoginForm(): JSX.Element {
       const data = await response.json();
 
       if (response.ok) {
-        toast.success("Logged in successfully");
+        toast.success("تم تسجيل الدخول بنجاح");
         localStorage.setItem("token", data.token);
         setTimeout(() => window.location.reload(), 1000);
       } else {
-        toast.error(data?.message || "Invalid credentials");
+        toast.error(data?.message || "بيانات الدخول غير صحيحة");
       }
     } catch (err) {
       console.error(err);
-      toast.error("Login failed. Please try again.");
+      toast.error("حدث خطأ أثناء تسجيل الدخول. حاول مرة أخرى.");
     }
   };
 
@@ -44,7 +48,7 @@ export default function LoginForm(): JSX.Element {
       <input
         type="email"
         name="email"
-        placeholder="Email"
+        placeholder="البريد الإلكتروني"
         value={email}
         onChange={handleChange}
         required
@@ -53,7 +57,7 @@ export default function LoginForm(): JSX.Element {
         <input
           type={showPassword ? "text" : "password"}
           name="password"
-          placeholder="Password"
+          placeholder="كلمة المرور"
           value={password}
           onChange={handleChange}
           required
@@ -63,11 +67,11 @@ export default function LoginForm(): JSX.Element {
           className="toggle-password"
           onClick={() => setShowPassword((prev) => !prev)}
         >
-          {showPassword ? "Hide" : "Show"}
+          {showPassword ? "إخفاء" : "إظهار"}
         </button>
       </div>
       <button type="submit" className="login-button">
-        🔒 Login Securely
+        🔒 تسجيل الدخول
       </button>
     </form>
   );

@@ -43,8 +43,7 @@ const FeatureSection: React.FC = () => {
         <ul>
           {/* 🔁 Now: Go to current shipment area */}
           {dayId && typeof dayId === "string" && (
-            <li className="show-form-li"                 style={{ backgroundColor: "green" }}
->
+            <li className="show-form-li" style={{ backgroundColor: "green" }}>
               <Link
                 to={`/areas/${dayId}`}
                 className="link-to-shipment"
