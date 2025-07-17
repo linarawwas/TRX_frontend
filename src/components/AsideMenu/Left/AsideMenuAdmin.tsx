@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "../AsideMenu.css";
+import "../AsideMenu.css"; // You will update this CSS too
 import { FaBars, FaTimes } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -11,26 +11,20 @@ import {
   clearToken,
   clearIsAdmin,
 } from "../../../redux/UserInfo/action";
+
 const AsideMenuAdmin: React.FC = () => {
   const dispatch = useDispatch();
   const shipmentId: string = useSelector((state: any) => state.shipment._id);
-  const shipmentDefined: boolean =
-    shipmentId !== null && shipmentId !== undefined && shipmentId !== "";
   const dayId: string = useSelector((state: any) => state.shipment.dayId);
+
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
-  const [Loading, setLoading] = useState<boolean>(false);
 
   const navigate = useNavigate();
+
   const handleLogout = () => {
-    toast.success("Logged Out Successfully");
-
-    // Delete the token from local storage
+    toast.success("تم تسجيل الخروج بنجاح");
     localStorage.removeItem("token");
-    // setTimeout(() => {
     window.location.reload();
-    // }, 3000);
-
-    // Dispatch actions to clear token and companyId in the Redux store
     dispatch(clearToken());
     dispatch(clearCompanyId());
     dispatch(clearIsAdmin());
@@ -41,76 +35,44 @@ const AsideMenuAdmin: React.FC = () => {
   };
 
   return (
-    <div className={`dashboard ${isMenuOpen ? "menu-open" : "menu-closed"}`} dir="rtl">
-      <div className="aside-Menu">
-        <ToastContainer position="top-right" autoClose={1000} />
-  
-        <div className="button-div">
-          <button className="menu-toggle" onClick={toggleMenu}>
-            {isMenuOpen ? <FaTimes /> : <FaBars />}
-          </button>
-          <img
-            className="logo"
-            src={logo}
-            alt="الشعار"
-            onClick={() => {
-              navigate("/");
-            }}
-          />
-        </div>
-  
-        <aside className="sidebar">
-          <ul>
-            <li>
-              <Link to="/areas" className="sidebar-link" onClick={toggleMenu}>
-                المناطق
-              </Link>
-            </li>
-            {/* <li>
-              <Link to="/register" className="sidebar-link" onClick={toggleMenu}>
-                تسجيل موظف جديد
-              </Link>
-            </li> */}
-            <li>
-              <Link to="/customers" className="sidebar-link" onClick={toggleMenu}>
-                الزبائن
-              </Link>
-            </li>
-            <li>
-              <Link to="/Expenses" className="sidebar-link" onClick={toggleMenu}>
-                المصاريف
-              </Link>
-            </li>
-            <li>
-              <Link to="/Profits" className="sidebar-link" onClick={toggleMenu}>
-                الأرباح
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/currentShipment"
-                className="sidebar-link"
-                onClick={toggleMenu}
-              >
-                تفاصيل الشحنة الحالية
-              </Link>
-            </li>
-            <li>
-              <Link to="/Products" className="sidebar-link" onClick={toggleMenu}>
-                المنتجات
-              </Link>
-            </li>
-            <li>
-              <button className="logout-button" onClick={handleLogout}>
-                تسجيل الخروج
-              </button>
-            </li>
-          </ul>
-        </aside>
+    <div dir="rtl">
+      <ToastContainer position="top-right" autoClose={1000} />
+
+      {/* Top Nav */}
+      <div className="top-navbar">
+        <button className="menu-toggle" onClick={toggleMenu}>
+          {isMenuOpen ? <FaTimes /> : <FaBars />}
+        </button>
+        <h1 className="page-title">مرحباً لينة</h1>
+        <img
+          className="logo-icon"
+          src={logo}
+          alt="الشعار"
+          onClick={() => navigate("/")}
+        />
       </div>
+{isMenuOpen && (
+  <div className="menu-overlay" onClick={toggleMenu}></div>
+)}
+      {/* Sidebar Drawer */}
+      <aside className={`sidebar-drawer ${isMenuOpen ? "open" : ""}`} dir="rtl">
+        <nav className="menu-section">
+          <Link to="/areas" onClick={toggleMenu}>المناطق</Link>
+          <Link to="/customers" onClick={toggleMenu}>الزبائن</Link>
+          <Link to="/Expenses" onClick={toggleMenu}>المصاريف</Link>
+          <Link to="/Profits" onClick={toggleMenu}>الأرباح</Link>
+          <Link to="/currentShipment" onClick={toggleMenu}>تفاصيل الشحنة الحالية</Link>
+          <Link to="/Products" onClick={toggleMenu}>المنتجات</Link>
+        </nav>
+
+        <div className="menu-footer">
+          <button className="logout-btn" onClick={handleLogout}>
+            تسجيل الخروج
+          </button>
+        </div>
+      </aside>
     </div>
   );
-  
 };
 
 export default AsideMenuAdmin;
