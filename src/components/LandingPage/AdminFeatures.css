@@ -1,0 +1,16 @@
+.admin-feature-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.admin-feature-section div {
+  border: 1px solid black;
+  padding: 10px;
+  border-radius: 20px;
+  margin: 5px;
+  width: fit-content;
+  background-color: rgb(12, 36, 73);
+  color: white;
+  font-weight: bold;
+  font-size: 1.5rem;
+}
