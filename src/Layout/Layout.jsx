@@ -10,8 +10,7 @@ import {
   setToken,
   setUsername,
 } from "../redux/UserInfo/action.js";
-import AsideMenuAdmin from "../components/AsideMenu/Left/AsideMenuAdmin.tsx";
-import AsideMenuEmployee from "../components/AsideMenu/Left/AsideMenuEmployee.tsx";
+import AsideMenu from "../components/AsideMenu/Left/UnifiedAsideMenu";
 function Layout() {
   const dispatch = useDispatch();
   const token = localStorage.getItem("token");
@@ -45,7 +44,8 @@ function Layout() {
   }, []);
   return (
     <Fragment>
-      {isAdmin ? <AsideMenuAdmin /> : <AsideMenuEmployee />}
+      {/* {isAdmin ? <AsideMenuAdmin /> : <AsideMenuEmployee />} */}
+      <AsideMenu />
       {isAdmin ? <AdminRouter /> : <EmployeeRouter />}
     </Fragment>
   );
