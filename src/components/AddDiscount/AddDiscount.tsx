@@ -52,7 +52,7 @@ const AddDiscount: React.FC = () => {
   // Fetch exchange rate from the API
   useEffect(() => {
     fetch(
-      `http://localhost:5000/api/exchangeRates/6537789b6ed59ef09c18213d`,
+      `http://localhost:5000/api/exchangeRates/6878aa9ac9f1a18731a5b8a4`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

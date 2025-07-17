@@ -8,7 +8,7 @@ import AddToModel from '../../AddToModel/AddToModel';
 
 const AddExpenses: React.FC = () => {
 
-  const exchangeRate = '6537789b6ed59ef09c18213d';
+  const exchangeRate = '6878aa9ac9f1a18731a5b8a4';
   const companyId = useSelector((state: RootState) => state.user.companyId);
   const shipmentId = useSelector((state: RootState) => state.shipment._id);
   const token = useSelector((state: RootState) => state.user.token);

@@ -177,14 +177,14 @@ export default function CreateExternalShipment(): JSX.Element {
         payments.push({
           amount: parseFloat(form.paidUSD.toString()),
           currency: "USD",
-          exchangeRate: "6537789b6ed59ef09c18213d",
+          exchangeRate: "6878aa9ac9f1a18731a5b8a4",
         });
       }
       if (parseFloat(form.paidLBP.toString()) > 0) {
         payments.push({
           amount: parseFloat(form.paidLBP.toString()),
           currency: "LBP",
-          exchangeRate: "6537789b6ed59ef09c18213d",
+          exchangeRate: "6878aa9ac9f1a18731a5b8a4",
         });
       }
 

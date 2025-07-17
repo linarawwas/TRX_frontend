@@ -108,14 +108,14 @@ const RecordOrder = (props) => {
       payments.push({
         amount: form.paidUSD,
         currency: "USD",
-        exchangeRate: "6537789b6ed59ef09c18213d",
+        exchangeRate: "6878aa9ac9f1a18731a5b8a4",
       });
     }
     if (form.paidLBP > 0) {
       payments.push({
         amount: form.paidLBP,
         currency: "LBP",
-        exchangeRate: "6537789b6ed59ef09c18213d",
+        exchangeRate: "6878aa9ac9f1a18731a5b8a4",
       });
     }
 
@@ -147,7 +147,9 @@ const RecordOrder = (props) => {
       dispatch(setShipmentReturned(responseData.returned));
       dispatch(setShipmentPayments(responseData.paid));
       dispatch(setShipmentPaymentsInLiras(responseData.SumOfPaymentsInLiras));
-      dispatch(setShipmentPaymentsInDollars(responseData.SumOfPaymentsInDollars));
+      dispatch(
+        setShipmentPaymentsInDollars(responseData.SumOfPaymentsInDollars)
+      );
     };
 
     if (!navigator.onLine) {
@@ -167,7 +169,12 @@ const RecordOrder = (props) => {
         fetchAndCacheCustomerInvoice(customerId, token).catch((err) =>
           console.warn("⚠️ Failed to refresh invoice:", err)
         );
-        if (!form.delivered && !form.returned && !form.paidUSD && !form.paidLBP) {
+        if (
+          !form.delivered &&
+          !form.returned &&
+          !form.paidUSD &&
+          !form.paidLBP
+        ) {
           dispatch(addCustomerWithEmptyOrder(customerId));
         } else {
           dispatch(addCustomerWithFilledOrder(customerId));
@@ -187,10 +194,13 @@ const RecordOrder = (props) => {
   return (
     <div className="record-order-container" style={{ direction: "rtl" }}>
       <ToastContainer position="top-right" autoClose={2000} />
+
       <h1 className="record-order-title">🧾 تسجيل طلب: {customerName}</h1>
-<CustomerInvoices customerId={customerId} />
+      <CustomerInvoices customerId={customerId} />
       <form className="record-order-form" onSubmit={handleSubmit}>
-        <div className="default-product-name">المنتج: {productName} | {productPrice} $</div>
+        <div className="default-product-name">
+          المنتج: {productName} | {productPrice} $
+        </div>
 
         {["delivered", "returned", "paidUSD"].map((field) => (
           <div key={field} className="input-group">
@@ -202,14 +212,25 @@ const RecordOrder = (props) => {
                 : "💵 المدفوع بالدولار"}
             </label>
             <div className="input-controls">
-              <button type="button" onClick={() => handleIncrement(field)}>▲</button>
-              <input type="number" name={field} value={form[field]} onChange={handleChange} />
-              <button type="button" onClick={() => handleDecrement(field)}>▼</button>
+              <button type="button" onClick={() => handleIncrement(field)}>
+                ▲
+              </button>
+              <input
+                type="number"
+                name={field}
+                value={form[field]}
+                onChange={handleChange}
+              />
+              <button type="button" onClick={() => handleDecrement(field)}>
+                ▼
+              </button>
             </div>
           </div>
         ))}
 
-        <div className="checkout-display">💰 المبلغ المطلوب: {checkout.toFixed(2)} $</div>
+        <div className="checkout-display">
+          💰 المبلغ المطلوب: {checkout.toFixed(2)} $
+        </div>
 
         <div className="payment-section">
           <label>💴 المدفوع بالليرة (اسحب عاموديا)</label>
@@ -219,10 +240,16 @@ const RecordOrder = (props) => {
           <SevenDigitPicker onChange={handleLbpChange} />
         </div>
 
-        <button className="record-order-button" type="submit" disabled={isSubmitting}>
+        <button
+          className="record-order-button"
+          type="submit"
+          disabled={isSubmitting}
+        >
           {isSubmitting ? (
             <span className="loading-dots">
-              جاري التسجيل<span>.</span><span>.</span><span>.</span>
+              جاري التسجيل<span>.</span>
+              <span>.</span>
+              <span>.</span>
             </span>
           ) : (
             "✔️ تسجيل"

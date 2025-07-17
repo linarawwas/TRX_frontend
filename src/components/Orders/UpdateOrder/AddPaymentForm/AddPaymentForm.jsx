@@ -9,7 +9,7 @@ const AddPaymentForm = ({ orderId, orderData, setOrderData }) => {
   const [paymentData, setPaymentData] = useState({
     paymentAmount: '',
     paymentCurrency: '',
-    exchangeRateId: '6537789b6ed59ef09c18213d',
+    exchangeRateId: '6878aa9ac9f1a18731a5b8a4',
   });
 
   const handlePaymentChange = (e) => {
