@@ -19,16 +19,16 @@ import { fetchAndCacheCustomerInvoice } from "../../../utils/apiHelpers";
 
 function UpdateCustomer() {
   const dispatch = useDispatch();
-  const token = useSelector((state) => state.user.token);
-  const companyId = useSelector((state) => state.user.companyId);
+  const token = useSelector((state: any) => state.user.token);
+  const companyId = useSelector((state: any) => state.user.companyId);
   const navigate = useNavigate();
   const { customerId } = useParams();
-  dispatch(setCustomerId(customerId));
 
   const [areas, setAreas] = useState([]);
   const [customerData, setCustomerData] = useState(null);
   const [originalData, setOriginalData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [invoiceReady, setInvoiceReady] = useState(false);
   const [formVisible, setFormVisible] = useState(false);
   const [updatedInfo, setUpdatedInfo] = useState({
     _id: "",
@@ -42,6 +42,12 @@ function UpdateCustomer() {
     discountCurrency: "",
     noteAboutCustomer: "",
   });
+
+  useEffect(() => {
+    if (customerId) {
+      dispatch(setCustomerId(customerId));
+    }
+  }, [customerId, dispatch]);
 
   const fetchAreas = () => {
     fetch(`http://localhost:5000/api/areas/company/${companyId}`, {
@@ -65,13 +71,12 @@ function UpdateCustomer() {
         setCustomerData(data);
         setOriginalData(data);
 
-        // ✅ Add this
-        fetchAndCacheCustomerInvoice(customerId, token).catch((err) =>
-          console.warn("⚠️ Failed to cache invoice in UpdateCustomer:", err)
-        );
+        await fetchAndCacheCustomerInvoice(customerId, token);
+        setInvoiceReady(true);
       }
     } catch (err) {
       console.error("Fetch error:", err);
+      setInvoiceReady(true); // Proceed even if invoice fetch fails
     } finally {
       setLoading(false);
     }
@@ -82,14 +87,14 @@ function UpdateCustomer() {
     fetchCustomer();
   }, [fetchCustomer]);
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     if (name === "phone" && !/^\d*$/.test(value))
       return toast.error("أدخل أرقام فقط");
     setUpdatedInfo({ ...updatedInfo, [name]: value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const updated = {
       ...originalData,
@@ -131,9 +136,9 @@ function UpdateCustomer() {
 
       <CustomerInfo customerData={customerData} loading={loading} />
 
-      {customerData && (
+      {customerData && invoiceReady && (
         <>
-          <CustomerInvoices customerId={customerId} />
+          <CustomerInvoices customerId={customerId!} />
           <CustomerOrders />
         </>
       )}
@@ -168,7 +173,7 @@ function UpdateCustomer() {
             placeholder="العنوان الجديد"
             onChange={handleChange}
           />
-          <br></br>
+          <br />
           <SelectInput
             label="المنطقة:"
             name="areaId"

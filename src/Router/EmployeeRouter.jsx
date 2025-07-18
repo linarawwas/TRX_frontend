@@ -9,7 +9,7 @@ import AddProfits from "../components/Profits/AddProfits/AddProfits.tsx";
 import RecordOrderForCustomer from "../Pages/AdminPages/RecordOrderForCustomer/RecordOrderForCustomer.tsx";
 import OrdersTable from "../Pages/AdminPages/OrdersTable/OrdersTable.tsx";
 import UpdateOrder from "../components/Orders/UpdateOrder/UpdateOrder.tsx";
-import UpdateCustomer from "../components/Customers/UpdateCustomer/UpdateCustomer.jsx";
+import UpdateCustomer from "../components/Customers/UpdateCustomer/UpdateCustomer.tsx";
 import CustomersForArea from "../Pages/AdminPages/CustomersForArea/CustomersForArea.tsx";
 import ShipmentsList from "../Pages/AdminPages/Shipment/ShipmentsList.tsx";
 import Register from "../components/Auth/Register.tsx";

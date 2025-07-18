@@ -11,7 +11,7 @@ import CustomersForArea from '../Pages/AdminPages/CustomersForArea/CustomersForA
 import AddArea from '../components/Areas/AddArea/AddArea.tsx';
 import Login from '../Pages/SharedPages/Login/Login.tsx';
 import UpdateOrder from '../components/Orders/UpdateOrder/UpdateOrder.tsx';
-import UpdateCustomer from '../components/Customers/UpdateCustomer/UpdateCustomer.jsx';
+import UpdateCustomer from '../components/Customers/UpdateCustomer/UpdateCustomer.tsx';
 import AddExpenses from '../components/Expenses/AddExpenses/AddExpenses.tsx';
 import AddProfits from '../components/Profits/AddProfits/AddProfits.tsx';
 import AddCustomers from '../components/Customers/AddCustomers/AddCustomers.tsx';
