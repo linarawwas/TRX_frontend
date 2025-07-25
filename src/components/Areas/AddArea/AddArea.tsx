@@ -17,7 +17,7 @@ function AddArea(): JSX.Element {
   const [days, setDays] = useState<Day[]>([]);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/days`, {
+    fetch(`https://trx-api.linarawas.com/api/days`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((response) => response.json())
@@ -30,7 +30,7 @@ function AddArea(): JSX.Element {
     const newArea = { name, dayId, companyId };
 
     try {
-      const response = await fetch("http://localhost:5000/api/areas", {
+      const response = await fetch("https://trx-api.linarawas.com/api/areas", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

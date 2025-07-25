@@ -10,7 +10,7 @@ const UpdateExchangeRate: React.FC = () => {
   const dispatch = useDispatch();
   const handleSubmit = async (formData: any) => {
     try {
-      const response = await fetch('http://localhost:5000/api/exchangeRates/6878aa9ac9f1a18731a5b8a4', {
+      const response = await fetch('https://trx-api.linarawas.com/api/exchangeRates/6878aa9ac9f1a18731a5b8a4', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

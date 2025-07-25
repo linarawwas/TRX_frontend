@@ -54,7 +54,7 @@ export default function CreateExternalShipment(): JSX.Element {
   const fetchAreas = async () => {
     try {
       const res = await fetchWithAuth(
-        `http://localhost:5000/api/areas/company/${companyId}`
+        `https://trx-api.linarawas.com/api/areas/company/${companyId}`
       );
       const data = await res.json();
       setAreas(data);
@@ -66,7 +66,7 @@ export default function CreateExternalShipment(): JSX.Element {
   const fetchCustomers = async (areaId: string) => {
     try {
       const res = await fetchWithAuth(
-        `http://localhost:5000/api/customers/area/${areaId}`
+        `https://trx-api.linarawas.com/api/customers/area/${areaId}`
       );
       const data = await res.json();
       setCustomers(data);
@@ -143,7 +143,7 @@ export default function CreateExternalShipment(): JSX.Element {
       const dayName = now.toLocaleDateString("en-US", { weekday: "long" });
 
       const dayRes = await fetchWithAuth(
-        `http://localhost:5000/api/days/name/${dayName}`
+        `https://trx-api.linarawas.com/api/days/name/${dayName}`
       );
       const dayData = await dayRes.json();
       const dayId = dayData?.[0]?._id;
@@ -160,7 +160,7 @@ export default function CreateExternalShipment(): JSX.Element {
         carryingForDelivery: parseInt(form.delivered.toString()) || 0,
       };
 
-      const shipmentRes = await fetch("http://localhost:5000/api/shipments", {
+      const shipmentRes = await fetch("https://trx-api.linarawas.com/api/shipments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -198,7 +198,7 @@ export default function CreateExternalShipment(): JSX.Element {
         payments,
       };
 
-      const orderRes = await fetch("http://localhost:5000/api/orders", {
+      const orderRes = await fetch("https://trx-api.linarawas.com/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

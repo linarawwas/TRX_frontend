@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { toast } from "react-toastify";
 import "./AddDiscount.css";
+
 interface Area {
   _id: string;
   name: string;
@@ -18,8 +19,8 @@ interface FormData {
   customerId: string;
   hasDiscount: boolean;
   noteAboutCustomer: string;
-  discountCurrency: string;
-  valueAfterDiscount: number;
+  discountCurrency: string; // "USD" | "LBP"
+  valueAfterDiscount: number | ""; // can be empty string for blank input
 }
 
 const AddDiscount: React.FC = () => {
@@ -28,117 +29,149 @@ const AddDiscount: React.FC = () => {
   const [areaOptions, setAreaOptions] = useState<Area[]>([]);
   const [customerOptions, setCustomerOptions] = useState<Customer[]>([]);
   const [exchangeRate, setExchangeRate] = useState<number>(1);
+  const [loading, setLoading] = useState(false);
+
   const [formData, setFormData] = useState<FormData>({
     areaId: "",
     customerId: "",
     hasDiscount: true,
     noteAboutCustomer: "",
     discountCurrency: "USD",
-    valueAfterDiscount: 0,
+    valueAfterDiscount: "",
   });
 
-  // Fetch areas from the API
+  // Fetch areas
   useEffect(() => {
-    fetch(`http://localhost:5000/api/areas/company/${companyId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    fetch(`https://trx-api.linarawas.com/api/areas/company/${companyId}`, {
+      headers: { Authorization: `Bearer ${token}` },
     })
-      .then((response) => response.json())
-      .then((data) => setAreaOptions(data))
-      .catch((error) => console.error("Error fetching areas:", error));
+      .then((res) => res.json())
+      .then(setAreaOptions)
+      .catch((error) => toast.error("خطأ في تحميل المناطق"));
   }, [companyId, token]);
 
-  // Fetch exchange rate from the API
+  // Fetch exchange rate
   useEffect(() => {
-    fetch(
-      `http://localhost:5000/api/exchangeRates/6878aa9ac9f1a18731a5b8a4`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    )
-      .then((response) => response.json())
+    fetch(`https://trx-api.linarawas.com/api/exchangeRates/6878aa9ac9f1a18731a5b8a4`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
       .then((data) => setExchangeRate(data.exchangeRateInLBP))
-      .catch((error) => console.error("Error fetching exchange rate:", error));
-  }, []);
+      .catch((error) => toast.error("خطأ في تحميل سعر الصرف"));
+  }, [token]);
 
-  // Fetch customers based on selected area
+  // Fetch customers by area
   useEffect(() => {
     if (formData.areaId) {
-      fetch(
-        `http://localhost:5000/api/customers/area/${formData.areaId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-        .then((response) => response.json())
-        .then((data) => setCustomerOptions(data))
-        .catch((error) => console.error("Error fetching customers:", error));
+      fetch(`https://trx-api.linarawas.com/api/customers/area/${formData.areaId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => res.json())
+        .then(setCustomerOptions)
+        .catch((error) => toast.error("خطأ في تحميل العملاء"));
     }
   }, [formData.areaId, token]);
 
+  // Input change for text/select fields
   const handleInputChange = (
     field: keyof FormData,
     value: string | boolean
   ) => {
-    if (field === "discountCurrency" && value !== "USD") {
-      // Convert valueAfterDiscount to USD using exchange rate
-      console.log(exchangeRate);
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
 
-      const convertedValue = formData.valueAfterDiscount! / exchangeRate;
-      setFormData((prevData) => ({
-        ...prevData,
+  // Input change for the value (number) field
+  const handleValueChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setFormData((prev) => ({
+      ...prev,
+      valueAfterDiscount: val === "" ? "" : parseFloat(val),
+    }));
+  };
+
+  // Submission
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    if (!formData.areaId || !formData.customerId) {
+      toast.error("يرجى اختيار المنطقة والعميل");
+      setLoading(false);
+      return;
+    }
+    if (
+      formData.valueAfterDiscount === "" ||
+      isNaN(Number(formData.valueAfterDiscount))
+    ) {
+      toast.error("يرجى إدخال قيمة الخصم بشكل صحيح");
+      setLoading(false);
+      return;
+    }
+    let dollarValue = 0;
+    if (formData.discountCurrency === "USD") {
+      dollarValue =
+        typeof formData.valueAfterDiscount === "number"
+          ? formData.valueAfterDiscount
+          : 0;
+    } else if (formData.discountCurrency === "LBP") {
+      dollarValue =
+        typeof formData.valueAfterDiscount === "number"
+          ? formData.valueAfterDiscount / exchangeRate
+          : 0;
+    }
+
+    // Round to 2 decimals
+    dollarValue = Math.round(dollarValue * 100) / 100;
+
+    // Prepare payload, always send as USD to backend
+    const payload = {
+      ...formData,
+      valueAfterDiscount: dollarValue,
+      discountCurrency: "USD",
+    };
+    console.log(payload);
+    try {
+      const res = await fetch(
+        `https://trx-api.linarawas.com/api/customers/${formData.customerId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+      if (!res.ok) throw new Error("Network error");
+      const data = await res.json();
+      toast.success("تم حفظ الخصم بنجاح!");
+      setFormData({
+        areaId: "",
+        customerId: "",
+        hasDiscount: true,
+        noteAboutCustomer: "",
         discountCurrency: "USD",
-        valueAfterDiscount: convertedValue,
-      }));
-      console.log(convertedValue);
-    } else {
-      setFormData((prevData) => ({
-        ...prevData,
-        [field]: value,
-      }));
+        valueAfterDiscount: "",
+      });
+    } catch (error) {
+      toast.error("فشل حفظ الخصم. حاول مرة أخرى.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleSubmit = () => {
-    fetch(
-      `http://localhost:5000/api/customers/${formData.customerId}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
-      }
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        // Handle success response
-        console.log("Data sent successfully:", data);
-        console.log("customer id: ", formData.customerId);
-        toast.success("Customer Discount Saved Successfully!");
-      })
-      .catch((error) => {
-        // Handle error
-        console.error("Error sending data:", error);
-      });
-  };
   return (
     <div className="add-discount-container">
       <h1 className="title">إضافة خصم للعميل</h1>
-      <form>
+      <form onSubmit={handleSubmit}>
         <label>
           المنطقة:
           <select
             value={formData.areaId}
-            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-              handleInputChange("areaId", e.target.value)
-            }
+            onChange={(e) => handleInputChange("areaId", e.target.value)}
           >
             <option value="">اختر منطقة</option>
             {areaOptions.map((area) => (
@@ -153,9 +186,7 @@ const AddDiscount: React.FC = () => {
           العميل:
           <select
             value={formData.customerId}
-            onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-              handleInputChange("customerId", e.target.value);
-            }}
+            onChange={(e) => handleInputChange("customerId", e.target.value)}
           >
             <option value="">اختر عميل</option>
             {customerOptions.map((customer) => (
@@ -170,7 +201,7 @@ const AddDiscount: React.FC = () => {
           شرح مختصر:
           <textarea
             value={formData.noteAboutCustomer}
-            onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+            onChange={(e) =>
               handleInputChange("noteAboutCustomer", e.target.value)
             }
           />
@@ -180,10 +211,14 @@ const AddDiscount: React.FC = () => {
           القيمة بعد الخصم:
           <input
             type="number"
-            value={formData.valueAfterDiscount || ""}
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              handleInputChange("valueAfterDiscount", e.target.value)
+            step="0.01"
+            min="0"
+            value={
+              formData.valueAfterDiscount === ""
+                ? ""
+                : formData.valueAfterDiscount
             }
+            onChange={handleValueChange}
           />
         </label>
 
@@ -191,7 +226,7 @@ const AddDiscount: React.FC = () => {
           عملة الخصم:
           <select
             value={formData.discountCurrency}
-            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+            onChange={(e) =>
               handleInputChange("discountCurrency", e.target.value)
             }
           >
@@ -200,7 +235,9 @@ const AddDiscount: React.FC = () => {
           </select>
         </label>
 
-        <button onClick={handleSubmit}>إرسال</button>
+        <button type="submit" disabled={loading}>
+          {loading ? "يتم الإرسال..." : "إرسال"}
+        </button>
       </form>
     </div>
   );
