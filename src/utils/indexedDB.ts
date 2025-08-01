@@ -2,7 +2,7 @@ import { openDB } from "idb";
 
 // DB config
 const DB_NAME = "MyDatabase";
-const DB_VERSION = 11;
+const DB_VERSION = 12;
 
 // Store names
 const REQUESTS_STORE = "requests";
@@ -27,22 +27,30 @@ export async function initializeDB() {
       }
 
       if (!db.objectStoreNames.contains(AREAS_STORE_NAME)) {
-        const store = db.createObjectStore(AREAS_STORE_NAME, { keyPath: "_id" });
+        const store = db.createObjectStore(AREAS_STORE_NAME, {
+          keyPath: "_id",
+        });
         store.createIndex("by_day", "dayId");
       }
 
       if (!db.objectStoreNames.contains(CUSTOMERS_STORE_NAME)) {
-        const store = db.createObjectStore(CUSTOMERS_STORE_NAME, { keyPath: "_id" });
+        const store = db.createObjectStore(CUSTOMERS_STORE_NAME, {
+          keyPath: "_id",
+        });
         store.createIndex("by_area", "areaId");
       }
 
       if (!db.objectStoreNames.contains(DISCOUNT_STORE_NAME)) {
-        const store = db.createObjectStore(DISCOUNT_STORE_NAME, { keyPath: "customerId" });
+        const store = db.createObjectStore(DISCOUNT_STORE_NAME, {
+          keyPath: "customerId",
+        });
         store.createIndex("by_customer", "customerId");
       }
 
       if (!db.objectStoreNames.contains(PRODUCTS_STORE_NAME)) {
-        const store = db.createObjectStore(PRODUCTS_STORE_NAME, { keyPath: "companyId" });
+        const store = db.createObjectStore(PRODUCTS_STORE_NAME, {
+          keyPath: "companyId",
+        });
         store.createIndex("by_company", "companyId");
       }
 
@@ -58,7 +66,9 @@ export async function initializeDB() {
       }
 
       if (!db.objectStoreNames.contains(CUSTOMER_INVOICES_STORE)) {
-        db.createObjectStore(CUSTOMER_INVOICES_STORE, { keyPath: "customerId" });
+        db.createObjectStore(CUSTOMER_INVOICES_STORE, {
+          keyPath: "customerId",
+        });
       }
     },
   });
@@ -121,7 +131,9 @@ export async function getAreasFromDB(dayId: string) {
     if (store.indexNames.contains("by_day")) {
       return await store.index("by_day").getAll(dayId);
     } else {
-      console.warn("⚠️ Index 'by_day' not found. Falling back to manual filter.");
+      console.warn(
+        "⚠️ Index 'by_day' not found. Falling back to manual filter."
+      );
       const all = await store.getAll();
       return all.filter((area: any) => area.dayId === dayId);
     }
@@ -131,15 +143,38 @@ export async function getAreasFromDB(dayId: string) {
   }
 }
 
-// === CUSTOMERS ===
 export async function saveCustomersToDB(areaId: string, customers: any[]) {
   const db = await openDB(DB_NAME, DB_VERSION);
+
+  // 🛑 Get existing IDs BEFORE opening the write transaction
+  const existing = await getCustomersFromDB(areaId);
+  const existingIds = new Set(existing.map((c) => c._id));
+
   const tx = db.transaction(CUSTOMERS_STORE_NAME, "readwrite");
-  for (const customer of customers) {
-    await tx.store.put(withTimestamp({ ...customer, areaId }));
+  const store = tx.store;
+
+  try {
+    console.log(`🧹 Deleting ${existing.length} old customers for area ${areaId}`);
+    for (const c of existing) {
+      store.delete(c._id); // ❗ no await here
+    }
+
+    console.log(`💾 Saving ${customers.length} new customers to area ${areaId}`);
+    for (const customer of customers) {
+      store.put({
+        ...customer,
+        areaId,
+        lastUpdated: new Date().toISOString(),
+      }); // ❗ no await here
+    }
+
+    await tx.done;
+    console.log(`✅ Customers for area ${areaId} saved to IndexedDB`);
+  } catch (err) {
+    console.error("❌ Failed to save customers to IndexedDB:", err);
   }
-  await tx.done;
 }
+
 
 export async function getCustomersFromDB(areaId: string) {
   const db = await openDB(DB_NAME, DB_VERSION);
@@ -150,7 +185,9 @@ export async function getCustomersFromDB(areaId: string) {
     if (store.indexNames.contains("by_area")) {
       return await store.index("by_area").getAll(areaId);
     } else {
-      console.warn("⚠️ Index 'by_area' not found. Falling back to manual filter.");
+      console.warn(
+        "⚠️ Index 'by_area' not found. Falling back to manual filter."
+      );
       const all = await store.getAll();
       return all.filter((c: any) => c.areaId === areaId);
     }
@@ -161,7 +198,10 @@ export async function getCustomersFromDB(areaId: string) {
 }
 
 // === DISCOUNTS ===
-export async function saveCustomerDiscountToDB(customerId: string, discount: any) {
+export async function saveCustomerDiscountToDB(
+  customerId: string,
+  discount: any
+) {
   const db = await openDB(DB_NAME, DB_VERSION);
   await db.put(DISCOUNT_STORE_NAME, withTimestamp({ customerId, discount }));
 }
@@ -199,7 +239,11 @@ export async function getDayFromDB(dayId: string) {
 export async function saveCustomerInvoicesToDB(customerId: string, data: any) {
   const db = await openDB(DB_NAME, DB_VERSION);
   const tx = db.transaction(CUSTOMER_INVOICES_STORE, "readwrite");
-  await tx.store.put({ customerId, ...data, lastUpdated: new Date().toISOString() });
+  await tx.store.put({
+    customerId,
+    ...data,
+    lastUpdated: new Date().toISOString(),
+  });
   await tx.done;
 }
 

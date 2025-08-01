@@ -23,22 +23,23 @@ import { getProductTypeFromDB, saveRequest } from "../../../utils/indexedDB";
 import SevenDigitPicker from "./SevenDigitPicker";
 import { fetchAndCacheCustomerInvoice } from "../../../utils/apiHelpers";
 import CustomerInvoices from "../../Customers/CustomerInvoices/CustomerInvoices";
+import axios from "axios"; // NEW
 
 const RecordOrder = (props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const companyId = useSelector((state) => state.user.companyId);
+  const companyId = useSelector((s) => s.user.companyId);
+  const token = useSelector((s) => s.user.token);
+  const customerId = useSelector((s) => s.order.customer_Id);
+  const customerName = useSelector((s) => s.order.customer_name);
+  const customerPhone = useSelector((s) => s.order.customer_phone); // make sure you store this
+  const areaId = useSelector((s) => s.order.area_Id);
+  const shipmentId = useSelector((s) => s.shipment._id);
+  const productName = useSelector((s) => s.order.product_name);
+  const productId = useSelector((s) => s.order.product_id);
+  const productPrice = useSelector((s) => s.order.product_price);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const token = useSelector((state) => state.user.token);
-  const customerId = useSelector((state) => state.order.customer_Id);
-  const customerName = useSelector((state) => state.order.customer_name);
-  const areaId = useSelector((state) => state.order.area_Id);
-  const shipmentId = useSelector((state) => state.shipment._id);
-  const productName = useSelector((state) => state.order.product_name);
-  const productId = useSelector((state) => state.order.product_id);
-  const productPrice = useSelector((state) => state.order.product_price);
-
   const [form, setForm] = useState({
     delivered: 0,
     returned: 0,
@@ -46,23 +47,24 @@ const RecordOrder = (props) => {
     paidLBP: 0,
   });
 
+  /* ---------- cache default product ---------- */
   useEffect(() => {
-    const loadProductFromCache = async () => {
+    (async () => {
       try {
-        const cachedProduct = await getProductTypeFromDB(companyId);
-        if (cachedProduct) {
-          dispatch(setProductId(cachedProduct.id));
-          dispatch(setProductName(cachedProduct.type));
-          dispatch(setProductPrice(cachedProduct.priceInDollars));
+        const cached = await getProductTypeFromDB(companyId);
+        if (cached) {
+          dispatch(setProductId(cached.id));
+          dispatch(setProductName(cached.type));
+          dispatch(setProductPrice(cached.priceInDollars));
         }
       } catch (err) {
         console.error(err);
         toast.error("⚠️ خطأ في تحميل المنتج");
       }
-    };
-    loadProductFromCache();
+    })();
   }, [companyId, dispatch]);
 
+  /* ---------- helpers ---------- */
   const checkout = props.customerData?.hasDiscount
     ? props.customerData?.valueAfterDiscount * form.delivered
     : productPrice * form.delivered;
@@ -70,54 +72,49 @@ const RecordOrder = (props) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (value === "") {
-      setForm((prev) => ({ ...prev, [name]: "" }));
+      setForm((p) => ({ ...p, [name]: "" }));
       return;
     }
-    const cleanedValue = value.replace(/^0+(?!$)/, "");
-    if (!isNaN(cleanedValue)) {
-      setForm((prev) => ({ ...prev, [name]: parseInt(cleanedValue) }));
-    }
+    const cleaned = value.replace(/^0+(?!$)/, "");
+    if (!isNaN(cleaned)) setForm((p) => ({ ...p, [name]: parseInt(cleaned) }));
   };
 
-  const handleLbpChange = useCallback((val) => {
-    setForm((prev) => ({ ...prev, paidLBP: val }));
-  }, []);
+  const handleLbpChange = useCallback(
+    (val) => setForm((p) => ({ ...p, paidLBP: val })),
+    []
+  );
 
-  const handleIncrement = (field) =>
-    setForm((prev) => ({
-      ...prev,
-      [field]: Number(prev[field]) + (field === "paidLBP" ? 1000 : 1),
+  const inc = (field) =>
+    setForm((p) => ({
+      ...p,
+      [field]: Number(p[field]) + (field === "paidLBP" ? 1000 : 1),
+    }));
+  const dec = (field) =>
+    setForm((p) => ({
+      ...p,
+      [field]: Math.max(Number(p[field]) - (field === "paidLBP" ? 1000 : 1), 0),
     }));
 
-  const handleDecrement = (field) =>
-    setForm((prev) => ({
-      ...prev,
-      [field]: Math.max(
-        Number(prev[field]) - (field === "paidLBP" ? 1000 : 1),
-        0
-      ),
-    }));
-
+  /* ---------- main submit ---------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSubmitting) return;
     setIsSubmitting(true);
 
+    /* build payments payload */
     const payments = [];
-    if (form.paidUSD > 0) {
+    if (form.paidUSD > 0)
       payments.push({
         amount: form.paidUSD,
         currency: "USD",
         exchangeRate: "6878aa9ac9f1a18731a5b8a4",
       });
-    }
-    if (form.paidLBP > 0) {
+    if (form.paidLBP > 0)
       payments.push({
         amount: form.paidLBP,
         currency: "LBP",
         exchangeRate: "6878aa9ac9f1a18731a5b8a4",
       });
-    }
 
     const orderPayload = {
       delivered: form.delivered,
@@ -142,33 +139,38 @@ const RecordOrder = (props) => {
       },
     };
 
-    const dispatchSummary = (responseData) => {
-      dispatch(setShipmentDelivered(responseData.delivered));
-      dispatch(setShipmentReturned(responseData.returned));
-      dispatch(setShipmentPayments(responseData.paid));
-      dispatch(setShipmentPaymentsInLiras(responseData.SumOfPaymentsInLiras));
-      dispatch(
-        setShipmentPaymentsInDollars(responseData.SumOfPaymentsInDollars)
-      );
+    /* inner helper to update Redux numbers */
+    const dispatchSummary = (d) => {
+      dispatch(setShipmentDelivered(d.delivered));
+      dispatch(setShipmentReturned(d.returned));
+      dispatch(setShipmentPayments(d.paid));
+      dispatch(setShipmentPaymentsInLiras(d.SumOfPaymentsInLiras));
+      dispatch(setShipmentPaymentsInDollars(d.SumOfPaymentsInDollars));
     };
 
+    /* OFFLINE branch ---------------------------------------------------- */
     if (!navigator.onLine) {
       await saveRequest(request);
       dispatch(addPendingOrder(customerId));
       toast.info("📡 سيتم حفظ الطلب عند عودة الاتصال");
+      /* OPTION: you could also queue a WhatsApp job for your backend here */
       navigate(-1);
       return;
     }
 
+    /* ONLINE branch ----------------------------------------------------- */
     try {
       const res = await fetch(request.url, request.options);
       const data = await res.json();
+
       if (res.ok) {
         dispatchSummary(data);
         dispatch(removePendingOrder(customerId));
         fetchAndCacheCustomerInvoice(customerId, token).catch((err) =>
           console.warn("⚠️ Failed to refresh invoice:", err)
         );
+
+        /* mark customer in shipment lists */
         if (
           !form.delivered &&
           !form.returned &&
@@ -179,7 +181,37 @@ const RecordOrder = (props) => {
         } else {
           dispatch(addCustomerWithFilledOrder(customerId));
         }
+
         toast.success("✅ تم تسجيل الطلب");
+
+        /* ------- NEW: fire Cloud-API WhatsApp template from backend ------ */
+        // try {
+        //   await axios.post(
+        //     "/api/orders/sendWhatsapp", // backend route, see notes
+        //     {
+        //       to: 9613248982, // "9613248982" hard-code for testing
+        //       templateName: "order_delivered", // must be approved in WABA
+        //       langCode: "ar",
+        //       parameters: [
+        //         customerName, // {{1}}
+        //         form.delivered.toString(), // {{2}}
+        //         form.returned.toString(), // {{3}}
+        //         form.paidUSD.toString(), // {{4}}
+        //         form.paidLBP.toLocaleString(), // {{5}}
+        //         checkout.toFixed(2), // {{6}}
+        //       ],
+        //     },
+        //     { timeout: 8000 }
+        //   );
+        // } catch (waErr) {
+        //   console.error(
+        //     "WhatsApp send failed:",
+        //     waErr?.response?.data || waErr
+        //   );
+        //   toast.warn("⚠️ لم تُرسل رسالة واتساب (راجع الاتصال)");
+        // }
+        /* ---------------------------------------------------------------- */
+
         navigate(-1);
       } else {
         toast.error(`❌ ${data.message}`);
@@ -191,12 +223,13 @@ const RecordOrder = (props) => {
     }
   };
 
+  /* ---------------- Render UI (unchanged) ---------------- */
   return (
     <div className="record-order-container" style={{ direction: "rtl" }}>
       <ToastContainer position="top-right" autoClose={2000} />
-
       <h1 className="record-order-title">🧾 تسجيل طلب: {customerName}</h1>
       <CustomerInvoices customerId={customerId} />
+
       <form className="record-order-form" onSubmit={handleSubmit}>
         <div className="default-product-name">
           المنتج: {productName} | {productPrice} $
@@ -212,7 +245,7 @@ const RecordOrder = (props) => {
                 : "💵 المدفوع بالدولار"}
             </label>
             <div className="input-controls">
-              <button type="button" onClick={() => handleIncrement(field)}>
+              <button type="button" onClick={() => inc(field)}>
                 ▲
               </button>
               <input
@@ -221,7 +254,7 @@ const RecordOrder = (props) => {
                 value={form[field]}
                 onChange={handleChange}
               />
-              <button type="button" onClick={() => handleDecrement(field)}>
+              <button type="button" onClick={() => dec(field)}>
                 ▼
               </button>
             </div>

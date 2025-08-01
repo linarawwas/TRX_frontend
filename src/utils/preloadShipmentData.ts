@@ -19,10 +19,10 @@ export async function preloadShipmentData({
   try {
     // === Step 1: Fetch core data in parallel ===
     const [dayRes, areasRes, productRes] = await Promise.all([
-      fetch(`https://trx-api.linarawas.com/api/days/${dayId}`, {
+      fetch(`http://localhost:5000/api/days/${dayId}`, {
         headers: { Authorization: `Bearer ${token}` },
       }),
-      fetch(`https://trx-api.linarawas.com/api/areas/days/${dayId}`, {
+      fetch(`http://localhost:5000/api/areas/days/${dayId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -31,7 +31,7 @@ export async function preloadShipmentData({
         body: JSON.stringify({ companyId }),
       }),
       fetch(
-        `https://trx-api.linarawas.com/api/products/productType/company/${companyId}`,
+        `http://localhost:5000/api/products/productType/company/${companyId}`,
         {
           method: "POST",
           headers: {
@@ -59,26 +59,37 @@ export async function preloadShipmentData({
     // === Step 3: Load customers and their data in parallel per area ===
     for (const area of areas) {
       const customersRes = await fetch(
-        `https://trx-api.linarawas.com/api/customers/area/${area._id}`,
+        `http://localhost:5000/api/customers/area/${area._id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
       const customers = await customersRes.json();
-      await saveCustomersToDB(area._id, customers);
+
+      if (!Array.isArray(customers)) {
+        console.error(
+          `❌ Expected array for customers in area ${area._id}, got:`,
+          customers
+        );
+      } else {
+        console.log(
+          `📥 Received ${customers.length} customers for area ${area._id}`
+        );
+        await saveCustomersToDB(area._id, customers);
+      }
 
       // Collect discount and invoice promises per customer
       const customerTasks = customers.map(async (customer: any) => {
         try {
           const [discountRes, invoiceRes] = await Promise.all([
             fetch(
-              `https://trx-api.linarawas.com/api/customers/discount/${customer._id}`,
+              `http://localhost:5000/api/customers/discount/${customer._id}`,
               {
                 headers: { Authorization: `Bearer ${token}` },
               }
             ),
             fetch(
-              `https://trx-api.linarawas.com/api/customers/reciept/${customer._id}`,
+              `http://localhost:5000/api/customers/reciept/${customer._id}`,
               {
                 headers: { Authorization: `Bearer ${token}` },
               }

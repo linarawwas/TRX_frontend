@@ -50,7 +50,7 @@ function UpdateCustomer() {
   }, [customerId, dispatch]);
 
   const fetchAreas = () => {
-    fetch(`https://trx-api.linarawas.com/api/areas/company/${companyId}`, {
+    fetch(`http://localhost:5000/api/areas/company/${companyId}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -61,7 +61,7 @@ function UpdateCustomer() {
   const fetchCustomer = useCallback(async () => {
     try {
       const res = await fetch(
-        `https://trx-api.linarawas.com/api/customers/${customerId}`,
+        `http://localhost:5000/api/customers/${customerId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -104,7 +104,7 @@ function UpdateCustomer() {
 
     try {
       const res = await fetch(
-        `https://trx-api.linarawas.com/api/customers/${customerId}`,
+        `http://localhost:5000/api/customers/${customerId}`,
         {
           method: "PUT",
           headers: {
