@@ -128,7 +128,7 @@ const RecordOrder = (props) => {
     };
 
     const request = {
-      url: "https://trx-api.linarawas.com/api/orders",
+      url: "http://localhost:5000/api/orders",
       options: {
         method: "POST",
         headers: {
@@ -183,35 +183,6 @@ const RecordOrder = (props) => {
         }
 
         toast.success("✅ تم تسجيل الطلب");
-
-        /* ------- NEW: fire Cloud-API WhatsApp template from backend ------ */
-        // try {
-        //   await axios.post(
-        //     "/api/orders/sendWhatsapp", // backend route, see notes
-        //     {
-        //       to: 9613248982, // "9613248982" hard-code for testing
-        //       templateName: "order_delivered", // must be approved in WABA
-        //       langCode: "ar",
-        //       parameters: [
-        //         customerName, // {{1}}
-        //         form.delivered.toString(), // {{2}}
-        //         form.returned.toString(), // {{3}}
-        //         form.paidUSD.toString(), // {{4}}
-        //         form.paidLBP.toLocaleString(), // {{5}}
-        //         checkout.toFixed(2), // {{6}}
-        //       ],
-        //     },
-        //     { timeout: 8000 }
-        //   );
-        // } catch (waErr) {
-        //   console.error(
-        //     "WhatsApp send failed:",
-        //     waErr?.response?.data || waErr
-        //   );
-        //   toast.warn("⚠️ لم تُرسل رسالة واتساب (راجع الاتصال)");
-        // }
-        /* ---------------------------------------------------------------- */
-
         navigate(-1);
       } else {
         toast.error(`❌ ${data.message}`);

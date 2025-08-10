@@ -113,3 +113,65 @@
 .scroll-to-top-btn:hover {
   background-color: #3a9841;
 }
+/* Sections */
+.section { margin-bottom: 1rem; }
+
+/* Accordion header (sticky feel for quick access while scrolling) */
+.accordion-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1rem;
+  border-radius: 12px;
+  background: #eef7f0;
+  border: 1px solid #d4ead9;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,.04);
+}
+
+.accordion-title {
+  font-weight: 700;
+  color: #2e7d32;
+}
+
+.accordion-arrow {
+  width: 10px;
+  height: 10px;
+  border-inline-start: 2px solid #2e7d32;
+  border-bottom: 2px solid #2e7d32;
+  transform: rotate(-45deg);
+  transition: transform .2s ease;
+  margin-inline-start: .5rem;
+}
+.accordion-header.collapsed .accordion-arrow {
+  transform: rotate(135deg); /* points down when collapsed (RTL-friendly) */
+}
+
+/* Accordion panel slide */
+.accordion-panel {
+  overflow: hidden;
+  transition: grid-template-rows .25s ease, padding .2s ease;
+  display: grid;
+  grid-template-rows: 1fr;
+}
+.accordion-panel--hidden {
+  grid-template-rows: 0fr;
+  padding: 0;
+}
+.accordion-panel--visible {
+  grid-template-rows: 1fr;
+  padding-top: .6rem;
+}
+.accordion-panel > * { min-height: 0; }
+
+.muted { color: #777; text-align: center; padding: .75rem 0; }
+
+/* Optional: section header for active list */
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin: .25rem 0 .5rem;
+}
+.section-title { font-weight: 700; color: #333; }
+
+/* Keep your existing card styles… */

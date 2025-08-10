@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
-import './ShipmentsList.css';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import { useSelector } from 'react-redux';
-import { ToastContainer, toast } from 'react-toastify';
-import { RootState } from '../../../redux/store';
-import SpinLoader from '../../../components/UI reusables/SpinLoader/SpinLoader';
+import React, { useState } from "react";
+import "./ShipmentsList.css";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { useSelector } from "react-redux";
+import { ToastContainer, toast } from "react-toastify";
+import { RootState } from "../../../redux/store";
+import SpinLoader from "../../../components/UI reusables/SpinLoader/SpinLoader";
 // import SpinLoader from '../../components/UI reusables/SpinLoader/SpinLoader';
 // import { RootState } from '../../redux/store';
-
 
 interface ShipmentData {
   _id: string;
@@ -40,9 +39,16 @@ const ShipmentsList: React.FC = () => {
     toast.error(errorMessage);
   };
 
-
-  const [fromDate, setFromDate] = useState<DateObject>({ day: null, month: null, year: null });
-  const [toDate, setToDate] = useState<DateObject>({ day: null, month: null, year: null });
+  const [fromDate, setFromDate] = useState<DateObject>({
+    day: null,
+    month: null,
+    year: null,
+  });
+  const [toDate, setToDate] = useState<DateObject>({
+    day: null,
+    month: null,
+    year: null,
+  });
   const companyId = useSelector((state: RootState) => state.user.companyId);
 
   const formatDateObject = (dateObject: DateObject): DateObject => {
@@ -69,45 +75,65 @@ const ShipmentsList: React.FC = () => {
 
   const indexOfLastShipment = currentPage * shipmentsPerPage;
   const indexOfFirstShipment = indexOfLastShipment - shipmentsPerPage;
-  const currentShipments = shipments.slice(indexOfFirstShipment, indexOfLastShipment);
+  const currentShipments = shipments.slice(
+    indexOfFirstShipment,
+    indexOfLastShipment
+  );
 
   const fetchShipments = async () => {
     const formattedFromDate = formatDateObject(fromDate);
     const formattedToDate = formatDateObject(toDate);
 
-    if (!formattedFromDate.day || !formattedFromDate.month || !formattedFromDate.year ||
-      !formattedToDate.day || !formattedToDate.month || !formattedToDate.year) {
-      console.error('Please select both From and To dates.');
+    if (
+      !formattedFromDate.day ||
+      !formattedFromDate.month ||
+      !formattedFromDate.year ||
+      !formattedToDate.day ||
+      !formattedToDate.month ||
+      !formattedToDate.year
+    ) {
+      console.error("Please select both From and To dates.");
       return;
     }
     try {
       setIsLoading(true); // Set loading state to true before fetching
 
-      const response = await fetch(`http://localhost:5000/api/shipments/range`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ companyId:companyId, fromDate: formattedFromDate, toDate: formattedToDate }),
-      });
+      const response = await fetch(
+        `http://localhost:5000/api/shipments/range`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            companyId: companyId,
+            fromDate: formattedFromDate,
+            toDate: formattedToDate,
+          }),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch shipments');
+        throw new Error("Failed to fetch shipments");
       }
 
       const { shipments: fetchedShipments } = await response.json();
+      console.log("🔵 Raw fetchedShipments:", fetchedShipments);
+      console.log(
+        "🔵 Types of shipmentLiraExtraProfits in fetchedShipments:",
+        fetchedShipments.map((s) => typeof s.shipmentLiraExtraProfits)
+      );
+
       setShipments(fetchedShipments);
     } catch (error) {
-      console.error('Error fetching shipments:', error);
-      notifyError('Failed to fetch shipments. Please try again.');
+      console.error("Error fetching shipments:", error);
+      notifyError("Failed to fetch shipments. Please try again.");
     } finally {
       setIsLoading(false); // Set loading state to false after fetching (success or error)
     }
   };
-  const paginate = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
-  };
+
   const calculateTotals = () => {
     const totals: Record<string, number> = {
       carryingForDelivery: 0,
@@ -123,32 +149,53 @@ const ShipmentsList: React.FC = () => {
       LIRA_overall: 0,
     };
 
-    shipments.forEach((shipment) => {
-      totals.carryingForDelivery += Number(shipment.carryingForDelivery) || 0;
-      totals.calculatedDelivered += Number(shipment.calculatedDelivered ) || 0;
-      totals.calculatedReturned += Number(shipment.calculatedReturned ) || 0;
-      totals.shipmentLiraPayments += Number(shipment.shipmentLiraPayments ) || 0;
-      totals.shipmentUSDPayments += Number(shipment.shipmentUSDPayments ) || 0;
-      totals.shipmentLiraExtraProfits += Number(shipment.shipmentLiraExtraProfits ) || 0;
-      totals.shipmentUSDExtraProfits += Number(shipment.shipmentUSDExtraProfits ) || 0;
-      totals.shipmentLiraExpenses += Number(shipment.shipmentLiraExpenses ) || 0;
-      totals.shipmentUSDExpenses += Number(shipment.shipmentUSDExpenses ) || 0
+    shipments.forEach((shipment, idx) => {
+      console.log(
+        `🟡 [${idx}] shipmentLiraExtraProfits type:`,
+        typeof shipment.shipmentLiraExtraProfits,
+        "value:",
+        shipment.shipmentLiraExtraProfits
+      );
 
+      totals.carryingForDelivery += Number(shipment.carryingForDelivery) || 0;
+      totals.calculatedDelivered += Number(shipment.calculatedDelivered) || 0;
+      totals.calculatedReturned += Number(shipment.calculatedReturned) || 0;
+      totals.shipmentLiraPayments += Number(shipment.shipmentLiraPayments) || 0;
+      totals.shipmentUSDPayments += Number(shipment.shipmentUSDPayments) || 0;
+      totals.shipmentLiraExtraProfits +=
+        Number(shipment.shipmentLiraExtraProfits) || 0;
+      totals.shipmentUSDExtraProfits +=
+        Number(shipment.shipmentUSDExtraProfits) || 0;
+      totals.shipmentLiraExpenses += Number(shipment.shipmentLiraExpenses) || 0;
+      totals.shipmentUSDExpenses += Number(shipment.shipmentUSDExpenses) || 0;
     });
 
     return totals;
   };
 
   const totals = calculateTotals(); // Calculate totals based on the current shipments
-  const USD_overall = totals.shipmentUSDPayments + totals.shipmentUSDExtraProfits - totals.shipmentUSDExpenses;
-  const LIRA_overall = totals.shipmentLiraPayments + totals.shipmentLiraExtraProfits - totals.shipmentLiraExpenses;
+  const USD_overall =
+    totals.shipmentUSDPayments +
+    totals.shipmentUSDExtraProfits -
+    totals.shipmentUSDExpenses;
+  const LIRA_overall =
+    totals.shipmentLiraPayments +
+    totals.shipmentLiraExtraProfits -
+    totals.shipmentLiraExpenses;
+  console.log("🔴 Rendering with totals:", totals);
+  console.log(
+    "🔴 LIRA_overall value:",
+    LIRA_overall,
+    "type:",
+    typeof LIRA_overall
+  );
 
   return (
     <div className="shipments-container" dir="rtl">
       <div className="shipments-list">
         <h2>قائمة الشحنات</h2>
         <ToastContainer position="top-right" autoClose={3000} />
-  
+
         {/* Date Pickers */}
         <div className="date-pickers">
           <DatePicker
@@ -183,7 +230,7 @@ const ShipmentsList: React.FC = () => {
           />
           <button onClick={fetchShipments}>تحديد</button>
         </div>
-  
+
         {isLoading ? (
           <SpinLoader />
         ) : (
@@ -195,8 +242,12 @@ const ShipmentsList: React.FC = () => {
             <div>مدفوعات الدولار: {totals.shipmentUSDPayments}</div>
             <div>النفقات بالدولار: {totals.shipmentUSDExpenses}</div>
             <div>النفقات بالليرة: {totals.shipmentLiraExpenses}</div>
-            <div>الأرباح الإضافية بالدولار: {totals.shipmentUSDExtraProfits}</div>
-            <div>الأرباح الإضافية بالليرة: {totals.shipmentLiraExtraProfits}</div>
+            <div>
+              الأرباح الإضافية بالدولار: {totals.shipmentUSDExtraProfits}
+            </div>
+            <div>
+              الأرباح الإضافية بالليرة: {totals.shipmentLiraExtraProfits}
+            </div>
             <div>إجمالي بالليرة: {LIRA_overall}</div>
             <div>إجمالي بالدولار: {USD_overall}</div>
           </div>
@@ -208,53 +259,52 @@ const ShipmentsList: React.FC = () => {
             currentShipments.map((shipment) => (
               <li className="single-shipment-info" key={shipment._id}>
                 <div className="shipment-info-field">
-                  <strong>التاريخ:</strong> {shipment.date.day}/{shipment?.date.month}/{shipment.date.year}
+                  <strong>التاريخ:</strong> {shipment.date.day}/
+                  {shipment?.date.month}/{shipment.date.year}
                 </div>
                 <div className="shipment-info-field">
-                  <strong>مجموع الشحنات للتوصيل:</strong> {shipment?.carryingForDelivery}
+                  <strong>مجموع الشحنات للتوصيل:</strong>{" "}
+                  {shipment?.carryingForDelivery}
                 </div>
                 <div className="shipment-info-field">
-                  <strong>مجموع الشحنات المُسلمة:</strong> {shipment?.calculatedDelivered}
+                  <strong>مجموع الشحنات المُسلمة:</strong>{" "}
+                  {shipment?.calculatedDelivered}
                 </div>
                 <div className="shipment-info-field">
-                  <strong>مجموع الشحنات المُعادت:</strong> {shipment?.calculatedReturned}
+                  <strong>مجموع الشحنات المُعادت:</strong>{" "}
+                  {shipment?.calculatedReturned}
                 </div>
                 <div className="shipment-info-field">
-                  <strong>مدفوعات الليرة:</strong> {shipment?.shipmentLiraPayments}
+                  <strong>مدفوعات الليرة:</strong>{" "}
+                  {shipment?.shipmentLiraPayments}
                 </div>
                 <div className="shipment-info-field">
-                  <strong>مدفوعات الدولار:</strong> {shipment?.shipmentUSDPayments}
+                  <strong>مدفوعات الدولار:</strong>{" "}
+                  {shipment?.shipmentUSDPayments}
                 </div>
                 <div className="shipment-info-field">
-                  <strong>النفقات بالليرة:</strong> {shipment?.shipmentLiraExpenses}
+                  <strong>النفقات بالليرة:</strong>{" "}
+                  {shipment?.shipmentLiraExpenses}
                 </div>
                 <div className="shipment-info-field">
-                  <strong>النفقات بالدولار:</strong> {shipment?.shipmentUSDExpenses}
+                  <strong>النفقات بالدولار:</strong>{" "}
+                  {shipment?.shipmentUSDExpenses}
                 </div>
                 <div className="shipment-info-field">
-                  <strong>الأرباح الإضافية بالدولار:</strong> {shipment?.shipmentUSDExtraProfits}
+                  <strong>الأرباح الإضافية بالدولار:</strong>{" "}
+                  {shipment?.shipmentUSDExtraProfits}
                 </div>
                 <div className="shipment-info-field">
-                  <strong>الأرباح الإضافية بالليرة:</strong> {shipment?.shipmentLiraExtraProfits}
+                  <strong>الأرباح الإضافية بالليرة:</strong>{" "}
+                  {shipment?.shipmentLiraExtraProfits}
                 </div>
               </li>
             ))
           )}
         </ul>
-  
-        {/* Pagination */}
-        <ul className="pagination">
-          {Array.from({ length: Math.ceil(shipments.length / shipmentsPerPage) }, (_, index) => (
-            <li key={index} onClick={() => paginate(index + 1)} className="pagination-item">
-              {index + 1}
-            </li>
-          ))}
-        </ul>
       </div>
     </div>
   );
-  
 };
 
 export default ShipmentsList;
-
