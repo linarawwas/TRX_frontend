@@ -20,7 +20,7 @@ import {
   setProductName,
   setProductPrice,
 } from "../../../redux/Order/action.js";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { getProductTypeFromDB, saveRequest } from "../../../utils/indexedDB";
 import SevenDigitPicker from "./LbpKeypad";
 import { fetchAndCacheCustomerInvoice } from "../../../utils/apiHelpers";
@@ -208,9 +208,9 @@ const RecordOrder = (props) => {
           المنتج: {productName} • {productPrice}$
         </div>
       </header>
-
-      {/* compact summary pill (optional) */}
-      <CustomerInvoices customerId={customerId} />
+      <Link to={`/updateCustomer/${customerId}`}>
+        <CustomerInvoices customerId={customerId} />
+      </Link>
 
       <form className="roc-grid" onSubmit={handleSubmit}>
         {/* Steppers row */}

@@ -8,7 +8,7 @@ type Props = {
   onConfirm: (value: number) => void;
 };
 
-const QUICK = [1000, 10000, 50000, 100000, 250000, 500000, 1000000];
+const QUICK = [1000,5000, 10000, 50000, 100000, 250000, 500000, 1000000];
 
 export default function LbpKeypad({ open, initialValue, onClose, onConfirm }: Props) {
   const [val, setVal] = useState<number>(initialValue || 0);
