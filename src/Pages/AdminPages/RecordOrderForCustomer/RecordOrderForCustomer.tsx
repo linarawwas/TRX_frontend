@@ -56,15 +56,21 @@ function RecordOrderForCustomer(): JSX.Element {
       style={{ direction: "rtl", textAlign: "right" }}
     >
       {" "}
-      <div className="back-button-container">
-        <button
-          className="back-button"
-          onClick={() => navigate(-1)}
-          type="button"
-        >
-          ← الرجوع
-        </button>
-      </div>
+<div className="back-row">
+  <button
+    type="button"
+    className="back-pill"
+    onClick={() => navigate(-1)}
+    aria-label="الرجوع"
+  >
+    {/* chevron points right for RTL */}
+    <svg className="back-icon" viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+      <path d="M10 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+    <span className="back-text">الرجوع</span>
+  </button>
+</div>
+
       {customerDiscountStatus?.hasDiscount && (
         <div className="discount-banner">
           <div>هذا الزبون لديه خصم!</div>

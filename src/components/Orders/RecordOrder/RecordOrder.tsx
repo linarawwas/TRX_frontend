@@ -203,7 +203,7 @@ const RecordOrder = (props) => {
       <ToastContainer position="top-right" autoClose={2000} />
 
       <header className="roc-header">
-        <h2 className="roc-title">تسجيل طلب: {customerName}</h2>
+        <h2 className="roc-title">{customerName}</h2>
         <div className="roc-product">
           المنتج: {productName} • {productPrice}$
         </div>
