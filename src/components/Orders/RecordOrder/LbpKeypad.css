@@ -1,0 +1,40 @@
+.lbp-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.35);
+  display: flex; align-items: flex-end; z-index: 1000;
+}
+.lbp-sheet {
+  width: 100%; max-width: 480px; margin: 0 auto;
+  background: #fff; border-top-left-radius: 16px; border-top-right-radius: 16px;
+  box-shadow: 0 -6px 20px rgba(0,0,0,.2);
+  padding: .6rem .8rem 1rem;
+}
+.lbp-handle {
+  width: 42px; height: 4px; background: #ddd; border-radius: 999px;
+  margin: 0 auto .4rem;
+}
+.lbp-header { text-align: center; margin-bottom: .4rem; }
+.lbp-value { font-weight: 800; margin-top: .1rem; }
+
+.lbp-quick {
+  display: flex; gap: .4rem; flex-wrap: wrap; justify-content: center;
+  margin-bottom: .5rem;
+}
+.lbp-chip {
+  border: 1px solid #e0e0e0; border-radius: 999px;
+  background: #f7f7f7; padding: .35rem .6rem; font-size: .95rem; cursor: pointer;
+}
+.lbp-chip.danger { background: #ffecec; border-color: #ffc8c8; }
+
+.lbp-pad {
+  display: grid; gap: .4rem;
+  grid-template-columns: repeat(3, 1fr);
+}
+.lbp-key {
+  height: 52px; border-radius: 12px; border: 1px solid #e0e0e0;
+  background: #fafafa; font-size: 1.3rem; cursor: pointer;
+}
+.lbp-key.wide { grid-column: span 1; }
+.lbp-key.confirm { background: #4caf50; color: #fff; border-color: #4caf50; }
+@media (min-width: 380px) {
+  .lbp-key.wide { grid-column: span 2; }
+}

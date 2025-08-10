@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from "react";
 import "./RecordOrder.css";
 import { toast, ToastContainer } from "react-toastify";
 import { useSelector, useDispatch } from "react-redux";
+import LbpKeypad from "./LbpKeypad";
+
 import {
   addCustomerWithEmptyOrder,
   addCustomerWithFilledOrder,
@@ -20,7 +22,7 @@ import {
 } from "../../../redux/Order/action.js";
 import { useNavigate } from "react-router-dom";
 import { getProductTypeFromDB, saveRequest } from "../../../utils/indexedDB";
-import SevenDigitPicker from "./SevenDigitPicker";
+import SevenDigitPicker from "./LbpKeypad";
 import { fetchAndCacheCustomerInvoice } from "../../../utils/apiHelpers";
 import CustomerInvoices from "../../Customers/CustomerInvoices/CustomerInvoices";
 import axios from "axios"; // NEW
@@ -38,6 +40,7 @@ const RecordOrder = (props) => {
   const productName = useSelector((s) => s.order.product_name);
   const productId = useSelector((s) => s.order.product_id);
   const productPrice = useSelector((s) => s.order.product_price);
+  const [showLbpPad, setShowLbpPad] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState({
@@ -198,68 +201,127 @@ const RecordOrder = (props) => {
   return (
     <div className="record-order-container" style={{ direction: "rtl" }}>
       <ToastContainer position="top-right" autoClose={2000} />
-      <h1 className="record-order-title">🧾 تسجيل طلب: {customerName}</h1>
+
+      <header className="roc-header">
+        <h2 className="roc-title">تسجيل طلب: {customerName}</h2>
+        <div className="roc-product">
+          المنتج: {productName} • {productPrice}$
+        </div>
+      </header>
+
+      {/* compact summary pill (optional) */}
       <CustomerInvoices customerId={customerId} />
 
-      <form className="record-order-form" onSubmit={handleSubmit}>
-        <div className="default-product-name">
-          المنتج: {productName} | {productPrice} $
-        </div>
-
-        {["delivered", "returned", "paidUSD"].map((field) => (
-          <div key={field} className="input-group">
-            <label>
-              {field === "delivered"
-                ? "📦 عدد القناني المسلّمة"
-                : field === "returned"
-                ? "🔁 عدد القناني المرجعة"
-                : "💵 المدفوع بالدولار"}
-            </label>
-            <div className="input-controls">
-              <button type="button" onClick={() => inc(field)}>
-                ▲
-              </button>
-              <input
-                type="number"
-                name={field}
-                value={form[field]}
-                onChange={handleChange}
-              />
-              <button type="button" onClick={() => dec(field)}>
-                ▼
-              </button>
+      <form className="roc-grid" onSubmit={handleSubmit}>
+        {/* Steppers row */}
+        <div className="roc-steppers">
+          {["delivered", "returned", "paidUSD"].map((field) => (
+            <div key={field} className="roc-stepper">
+              <div className="roc-stepper-label">
+                {field === "delivered"
+                  ? "المسلّمة"
+                  : field === "returned"
+                  ? "المرجعة"
+                  : "الدولار"}
+              </div>
+              <div className="roc-stepper-ctrl">
+                <button
+                  type="button"
+                  onClick={() => dec(field)}
+                  aria-label="طرح"
+                >
+                  −
+                </button>
+                <input
+                  type="number"
+                  name={field}
+                  value={form[field]}
+                  onChange={handleChange}
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                />
+                <button
+                  type="button"
+                  onClick={() => inc(field)}
+                  aria-label="إضافة"
+                >
+                  +
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
-
-        <div className="checkout-display">
-          💰 المبلغ المطلوب: {checkout.toFixed(2)} $
+          ))}
         </div>
 
-        <div className="payment-section">
-          <label>💴 المدفوع بالليرة (اسحب عاموديا)</label>
-          <div className="picked-value-display">
-            💴 المبلغ المختار: {form.paidLBP.toLocaleString()} ل.ل
-          </div>
-          <SevenDigitPicker onChange={handleLbpChange} />
+        {/* Checkout line */}
+        <div className="roc-checkout">
+          <span>المطلوب:</span>
+          <strong>{checkout.toFixed(2)} $</strong>
         </div>
 
-        <button
-          className="record-order-button"
-          type="submit"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? (
-            <span className="loading-dots">
-              جاري التسجيل<span>.</span>
-              <span>.</span>
-              <span>.</span>
-            </span>
-          ) : (
-            "✔️ تسجيل"
-          )}
-        </button>
+        {/* LBP quick input */}
+        <div className="roc-lbp">
+          <label className="roc-lbp-label">المدفوع بالليرة</label>
+          <button
+            type="button"
+            className="roc-lbp-field"
+            onClick={() => setShowLbpPad(true)}
+            aria-label="إدخال المبلغ بالليرة"
+          >
+            {form.paidLBP ? form.paidLBP.toLocaleString() : "—"} ل.ل
+          </button>
+
+          {/* quick chips visible inline for + common amounts */}
+          <div className="roc-chip-row">
+            {[1000, 10000, 50000, 100000].map((v) => (
+              <button
+                type="button"
+                key={v}
+                className="roc-chip"
+                onClick={() => handleLbpChange(form.paidLBP + v)}
+              >
+                +{v.toLocaleString()}
+              </button>
+            ))}
+            <button
+              type="button"
+              className="roc-chip roc-chip-clear"
+              onClick={() => handleLbpChange(0)}
+            >
+              مسح
+            </button>
+          </div>
+        </div>
+
+        {/* sticky submit */}
+        <div className="roc-submit">
+          <button
+            className="record-order-button"
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <span className="loading-dots">
+                جاري التسجيل<span>.</span>
+                <span>.</span>
+                <span>.</span>
+              </span>
+            ) : (
+              "تسجيل ✔️"
+            )}
+          </button>
+        </div>
       </form>
+
+      {/* LBP keypad bottom sheet */}
+      <LbpKeypad
+        open={showLbpPad}
+        initialValue={form.paidLBP}
+        onClose={() => setShowLbpPad(false)}
+        onConfirm={(val) => {
+          handleLbpChange(val);
+          setShowLbpPad(false);
+        }}
+      />
     </div>
   );
 };

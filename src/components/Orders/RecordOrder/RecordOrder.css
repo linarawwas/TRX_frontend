@@ -1,160 +1,120 @@
-/* RecordOrder.css */
-
 .record-order-container {
-  padding: 1rem;
-  font-family: "Arial", sans-serif;
-  background-color: #fefefe;
+  padding: .6rem .8rem;
+  background: #fefefe;
   color: #111;
   max-width: 420px;
-  margin: 0 auto 20px auto;
+  margin: 0 auto;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  display: flex;            /* mobile-first: simple column */
+  flex-direction: column;
 }
 
-.record-order-title {
-  text-align: center;
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-}
+/* header */
+.roc-header { text-align: center; margin-bottom: .2rem; }
+.roc-title { font-size: clamp(1rem, 3.8vw, 1.2rem); margin: 0; }
+.roc-product { font-size: clamp(.85rem, 3.3vw, .95rem); color: #444; }
 
-.default-product-name {
-  font-size: 1rem;
-  color: #444;
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-.input-group {
-  margin-bottom: 0.5rem;
-}
-
-.input-group label {
-  font-size: 1.2rem;
-  display: block;
-  text-align: center;
-  margin-bottom: 0.5rem;
-  font-weight: bold;
-}
-
-.input-controls {
+/* grid body -> stack on mobile */
+.roc-grid {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+/* Mobile-first: stack -> 2 cols -> 3 cols */
+.roc-steppers {
+  display: grid;
+  grid-template-columns: 1fr;              /* phones */
+  gap: 8px;
+}
+
+@media (min-width: 360px) {                /* small phones in landscape / mid phones */
+  .roc-steppers { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 520px) {                /* wider screens / desktop narrow */
+  .roc-steppers { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Keep each card from overflowing when grid wraps */
+.roc-stepper { min-width: 0; }
+
+/* Controls: make input flexible between fixed buttons */
+.roc-stepper-ctrl {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) 38px; /* input shrinks/grows */
   align-items: center;
-  gap: 1rem;
+  gap: 6px;
 }
 
-.input-controls button {
-  width: 50px;
-  height: 50px;
-  font-size: 1.5rem;
-  background-color: #eee;
-  border: none;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
+@media (min-width: 400px) {
+  .roc-stepper-ctrl { grid-template-columns: 44px minmax(0, 1fr) 44px; }
 }
 
-.input-controls button:active {
-  background-color: #ccc;
+.roc-stepper-ctrl button {
+  height: 38px; width: 38px;
+  border: none; border-radius: 10px;
+  background: #f0f0f0; font-size: 20px; cursor: pointer;
 }
 
-.input-controls input {
-  width: 60px;
-  text-align: center;
-  font-size: 1.4rem;
-  background-color: #f8f8f8;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  height: 50px;
+@media (min-width: 400px) {
+  .roc-stepper-ctrl button { height: 44px; width: 44px; font-size: 22px; }
 }
 
-.checkout-display {
-  font-size: 1.2rem;
-  font-weight: bold;
-  text-align: center;
-  /* margin: 1rem 0; */
-  color: #222;
+.roc-stepper-ctrl input {
+  height: 38px;
+  border: 1px solid #ddd; border-radius: 8px;
+  text-align: center; font-size: 1.05rem;
+  background: #fafafa; width: 100%; /* fill available space */
 }
 
-.payment-section {
-  margin-top: 1rem;
+@media (min-width: 400px) {
+  .roc-stepper-ctrl input { height: 44px; }
 }
 
-.payment-section label {
-  font-size: 1.1rem;
-  display: block;
-  text-align: center;
-  margin: 0.3rem 0;
-  font-weight: bold;
+
+/* checkout */
+.roc-checkout {
+  display: flex; justify-content: space-between; align-items: center;
+  background: #fff; border: 1px solid #e6e6e6; border-radius: 10px;
+  padding: .6rem .8rem; font-size: 1.05rem; font-weight: 700;
 }
 
-.payment-section input {
-  width: 60px;
-  height: 50px;
-  font-size: 1.4rem;
-  text-align: center;
-  background-color: #f8f8f8;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+/* LBP section */
+.roc-lbp { display: grid; gap: .4rem; }
+.roc-lbp-label { font-weight: 700; text-align: right; font-size: .95rem; }
+.roc-lbp-field {
+  width: 100%; text-align: center; padding: .6rem .8rem;
+  background: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 10px;
+  font-weight: 800; font-size: 1.05rem; cursor: pointer;
 }
+.roc-chip-row { display: flex; gap: .5rem; flex-wrap: wrap; }
+.roc-chip {
+  border: 1px solid #ddd; background: #fff; padding: .35rem .6rem;
+  border-radius: 999px; font-size: .9rem; cursor: pointer;
+}
+.roc-chip-clear { background: #ffecec; border-color: #ffc8c8; }
 
+/* sticky submit */
+.roc-submit {
+  position: sticky;
+  bottom: .5rem;
+  margin-top: .4rem;
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 5;
+}
 .record-order-button {
   width: 100%;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  padding: 1rem;
-  font-size: 1.4rem;
-  border-radius: 8px;
-  margin-top: 1.5rem;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  transition: background-color 0.3s ease;
+  background-color: #4caf50; color: #fff; border: none;
+  padding: .9rem; font-size: 1.2rem; border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.12);
 }
+.record-order-button:disabled { background:#999; box-shadow:none; }
 
-.record-order-button:active {
-  background-color: #388e3c;
-}
-.record-order-button:disabled {
-  background-color: #999;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.loading-dots {
-  display: inline-flex;
-  gap: 2px;
-  align-items: center;
-  font-size: 1.3rem;
-}
-
-.loading-dots span {
-  animation: blink 1.4s infinite;
-}
-
-.loading-dots span:nth-child(2) {
-  animation-delay: 0.2s;
-}
-.loading-dots span:nth-child(3) {
-  animation-delay: 0.4s;
-}
-
-@keyframes blink {
-  0%,
-  100% {
-    opacity: 0.2;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-.picked-value-display {
-  margin-top: 0.5rem;
-  text-align: center;
-  font-size: 1rem;
-  font-weight: bold;
-  color: #222;
-  background-color: #e8f5e9;
-  padding: 0.4rem 1rem;
-  border-radius: 8px;
-  border: 1px solid #c8e6c9;
-}
+/* keep your loading dots from before */
+.loading-dots { display:inline-flex; gap:2px; align-items:center; font-size:1.1rem; }
+.loading-dots span { animation: blink 1.4s infinite; }
+.loading-dots span:nth-child(2){ animation-delay:.2s; }
+.loading-dots span:nth-child(3){ animation-delay:.4s; }
+@keyframes blink { 0%,100%{opacity:.2} 50%{opacity:1} }
