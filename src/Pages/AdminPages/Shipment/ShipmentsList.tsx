@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import "./ShipmentsList.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -6,17 +6,11 @@ import { useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import { RootState } from "../../../redux/store";
 import SpinLoader from "../../../components/UI reusables/SpinLoader/SpinLoader";
-// import SpinLoader from '../../components/UI reusables/SpinLoader/SpinLoader';
-// import { RootState } from '../../redux/store';
 
 interface ShipmentData {
   _id: string;
   dayId: string;
-  date: {
-    day: number;
-    month: number;
-    year: number;
-  };
+  date: { day: number; month: number; year: number };
   companyId: string;
   carryingForDelivery: number;
   calculatedDelivered: number;
@@ -35,10 +29,6 @@ interface DateObject {
 }
 
 const ShipmentsList: React.FC = () => {
-  const notifyError = (errorMessage: string) => {
-    toast.error(errorMessage);
-  };
-
   const [fromDate, setFromDate] = useState<DateObject>({
     day: null,
     month: null,
@@ -49,93 +39,66 @@ const ShipmentsList: React.FC = () => {
     month: null,
     year: null,
   });
-  const companyId = useSelector((state: RootState) => state.user.companyId);
-
-  const formatDateObject = (dateObject: DateObject): DateObject => {
-    const { day, month, year } = dateObject;
-    return {
-      day: day || null,
-      month: month || null,
-      year: year || null,
-    };
-  };
-  const dateObjectToDate = (dateObj: DateObject): Date | null => {
-    if (dateObj.day && dateObj.month && dateObj.year) {
-      return new Date(dateObj.year, dateObj.month - 1, dateObj.day);
-    }
-    return null;
-  };
-
-  const token = useSelector((state: any) => state.user.token);
   const [isLoading, setIsLoading] = useState(false);
-
   const [shipments, setShipments] = useState<ShipmentData[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [shipmentsPerPage] = useState(1);
 
-  const indexOfLastShipment = currentPage * shipmentsPerPage;
-  const indexOfFirstShipment = indexOfLastShipment - shipmentsPerPage;
-  const currentShipments = shipments.slice(
-    indexOfFirstShipment,
-    indexOfLastShipment
-  );
+  const token = useSelector((s: any) => s.user.token);
+  const companyId = useSelector((s: RootState) => s.user.companyId);
+
+  const notifyError = (m: string) => toast.error(m);
+
+  const formatDateObject = (d: DateObject): DateObject => ({
+    day: d.day || null,
+    month: d.month || null,
+    year: d.year || null,
+  });
+  const dateObjectToDate = (d: DateObject): Date | null =>
+    d.day && d.month && d.year ? new Date(d.year, d.month - 1, d.day) : null;
+
+  const formatUSD = (n: number) =>
+    `$ ${Number(n || 0).toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
+  const formatLBP = (n: number) =>
+    `${Number(n || 0).toLocaleString("en-US")} ل.ل`;
+  const formatDMY = (s: ShipmentData) =>
+    `${s.date.day}/${s.date.month}/${s.date.year}`;
 
   const fetchShipments = async () => {
-    const formattedFromDate = formatDateObject(fromDate);
-    const formattedToDate = formatDateObject(toDate);
-
+    const fFrom = formatDateObject(fromDate);
+    const fTo = formatDateObject(toDate);
     if (
-      !formattedFromDate.day ||
-      !formattedFromDate.month ||
-      !formattedFromDate.year ||
-      !formattedToDate.day ||
-      !formattedToDate.month ||
-      !formattedToDate.year
+      !fFrom.day ||
+      !fFrom.month ||
+      !fFrom.year ||
+      !fTo.day ||
+      !fTo.month ||
+      !fTo.year
     ) {
-      console.error("Please select both From and To dates.");
+      notifyError("اختر تاريخي البداية والنهاية.");
       return;
     }
     try {
-      setIsLoading(true); // Set loading state to true before fetching
-
-      const response = await fetch(
-        `http://localhost:5000/api/shipments/range`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            companyId: companyId,
-            fromDate: formattedFromDate,
-            toDate: formattedToDate,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch shipments");
-      }
-
-      const { shipments: fetchedShipments } = await response.json();
-      console.log("🔵 Raw fetchedShipments:", fetchedShipments);
-      console.log(
-        "🔵 Types of shipmentLiraExtraProfits in fetchedShipments:",
-        fetchedShipments.map((s) => typeof s.shipmentLiraExtraProfits)
-      );
-
-      setShipments(fetchedShipments);
-    } catch (error) {
-      console.error("Error fetching shipments:", error);
-      notifyError("Failed to fetch shipments. Please try again.");
+      setIsLoading(true);
+      const res = await fetch(`http://localhost:5000/api/shipments/range`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ companyId, fromDate: fFrom, toDate: fTo }),
+      });
+      if (!res.ok) throw new Error("Failed to fetch shipments");
+      const { shipments: fetched } = await res.json();
+      setShipments(fetched || []);
+    } catch (e) {
+      console.error(e);
+      notifyError("تعذّر جلب الشحنات. يرجى المحاولة لاحقاً.");
     } finally {
-      setIsLoading(false); // Set loading state to false after fetching (success or error)
+      setIsLoading(false);
     }
   };
 
-  const calculateTotals = () => {
-    const totals: Record<string, number> = {
+  const totals = useMemo(() => {
+    const t = {
       carryingForDelivery: 0,
       calculatedDelivered: 0,
       calculatedReturned: 0,
@@ -145,164 +108,222 @@ const ShipmentsList: React.FC = () => {
       shipmentUSDExtraProfits: 0,
       shipmentLiraExpenses: 0,
       shipmentUSDExpenses: 0,
-      USD_overall: 0,
-      LIRA_overall: 0,
     };
-
-    shipments.forEach((shipment, idx) => {
-      console.log(
-        `🟡 [${idx}] shipmentLiraExtraProfits type:`,
-        typeof shipment.shipmentLiraExtraProfits,
-        "value:",
-        shipment.shipmentLiraExtraProfits
-      );
-
-      totals.carryingForDelivery += Number(shipment.carryingForDelivery) || 0;
-      totals.calculatedDelivered += Number(shipment.calculatedDelivered) || 0;
-      totals.calculatedReturned += Number(shipment.calculatedReturned) || 0;
-      totals.shipmentLiraPayments += Number(shipment.shipmentLiraPayments) || 0;
-      totals.shipmentUSDPayments += Number(shipment.shipmentUSDPayments) || 0;
-      totals.shipmentLiraExtraProfits +=
-        Number(shipment.shipmentLiraExtraProfits) || 0;
-      totals.shipmentUSDExtraProfits +=
-        Number(shipment.shipmentUSDExtraProfits) || 0;
-      totals.shipmentLiraExpenses += Number(shipment.shipmentLiraExpenses) || 0;
-      totals.shipmentUSDExpenses += Number(shipment.shipmentUSDExpenses) || 0;
+    shipments.forEach((s) => {
+      t.carryingForDelivery += Number(s.carryingForDelivery) || 0;
+      t.calculatedDelivered += Number(s.calculatedDelivered) || 0;
+      t.calculatedReturned += Number(s.calculatedReturned) || 0;
+      t.shipmentLiraPayments += Number(s.shipmentLiraPayments) || 0;
+      t.shipmentUSDPayments += Number(s.shipmentUSDPayments) || 0;
+      t.shipmentLiraExtraProfits += Number(s.shipmentLiraExtraProfits) || 0;
+      t.shipmentUSDExtraProfits += Number(s.shipmentUSDExtraProfits) || 0;
+      t.shipmentLiraExpenses += Number(s.shipmentLiraExpenses) || 0;
+      t.shipmentUSDExpenses += Number(s.shipmentUSDExpenses) || 0;
     });
+    const USD_overall =
+      t.shipmentUSDPayments + t.shipmentUSDExtraProfits - t.shipmentUSDExpenses;
+    const LIRA_overall =
+      t.shipmentLiraPayments +
+      t.shipmentLiraExtraProfits -
+      t.shipmentLiraExpenses;
+    return { ...t, USD_overall, LIRA_overall };
+  }, [shipments]);
 
-    return totals;
+  // Quick ranges (optional)
+  const setQuickRange = (days: number) => {
+    const end = new Date();
+    const start = new Date();
+    start.setDate(end.getDate() - (days - 1));
+    setFromDate({
+      day: start.getDate(),
+      month: start.getMonth() + 1,
+      year: start.getFullYear(),
+    });
+    setToDate({
+      day: end.getDate(),
+      month: end.getMonth() + 1,
+      year: end.getFullYear(),
+    });
   };
 
-  const totals = calculateTotals(); // Calculate totals based on the current shipments
-  const USD_overall =
-    totals.shipmentUSDPayments +
-    totals.shipmentUSDExtraProfits -
-    totals.shipmentUSDExpenses;
-  const LIRA_overall =
-    totals.shipmentLiraPayments +
-    totals.shipmentLiraExtraProfits -
-    totals.shipmentLiraExpenses;
-  console.log("🔴 Rendering with totals:", totals);
-  console.log(
-    "🔴 LIRA_overall value:",
-    LIRA_overall,
-    "type:",
-    typeof LIRA_overall
-  );
-
   return (
-    <div className="shipments-container" dir="rtl">
-      <div className="shipments-list">
-        <h2>قائمة الشحنات</h2>
-        <ToastContainer position="top-right" autoClose={3000} />
+    <div className="ship-page" dir="rtl">
+      <ToastContainer position="top-right" autoClose={2500} />
+      <header className="ship-header">
+        <h1 className="ship-title">قائمة الشحنات</h1>
+      </header>
 
-        {/* Date Pickers */}
-        <div className="date-pickers">
-          <DatePicker
-            selected={dateObjectToDate(fromDate)}
-            onChange={(date: Date | null) => {
-              if (date) {
-                setFromDate({
-                  day: date.getDate(),
-                  month: date.getMonth() + 1,
-                  year: date.getFullYear(),
-                });
-              } else {
-                setFromDate({ day: null, month: null, year: null });
+      {/* Filter bar */}
+      <section className="filter-card">
+        <div className="filters">
+          <div className="picker">
+            <label>من</label>
+            <DatePicker
+              selected={dateObjectToDate(fromDate)}
+              onChange={(d) =>
+                setFromDate(
+                  d
+                    ? {
+                        day: d.getDate(),
+                        month: d.getMonth() + 1,
+                        year: d.getFullYear(),
+                      }
+                    : { day: null, month: null, year: null }
+                )
               }
-            }}
-            placeholderText="اختر تاريخ البداية"
-          />
-          <DatePicker
-            selected={dateObjectToDate(toDate)}
-            onChange={(date: Date | null) => {
-              if (date) {
-                setToDate({
-                  day: date.getDate(),
-                  month: date.getMonth() + 1,
-                  year: date.getFullYear(),
-                });
-              } else {
-                setToDate({ day: null, month: null, year: null });
+              placeholderText="اختر تاريخ البداية"
+              dateFormat="dd/MM/yyyy"
+            />
+          </div>
+          <div className="picker">
+            <label>إلى</label>
+            <DatePicker
+              selected={dateObjectToDate(toDate)}
+              onChange={(d) =>
+                setToDate(
+                  d
+                    ? {
+                        day: d.getDate(),
+                        month: d.getMonth() + 1,
+                        year: d.getFullYear(),
+                      }
+                    : { day: null, month: null, year: null }
+                )
               }
-            }}
-            placeholderText="اختر تاريخ النهاية"
-          />
-          <button onClick={fetchShipments}>تحديد</button>
+              placeholderText="اختر تاريخ النهاية"
+              dateFormat="dd/MM/yyyy"
+            />
+          </div>
+          <button className="btn-primary" onClick={fetchShipments}>
+            عرض
+          </button>
         </div>
 
+        <div className="quick-row">
+          <button className="chip" onClick={() => setQuickRange(1)}>
+            اليوم
+          </button>
+          <button className="chip" onClick={() => setQuickRange(7)}>
+            آخر 7 أيام
+          </button>
+          {/* <button className="chip" onClick={() => setQuickRange(30)}>آخر 30 يوماً</button> */}
+        </div>
+      </section>
+
+      {/* KPIs */}
+
+      <section className="kpi-grid">
+        {isLoading ? (
+          Array.from({ length: 6 }).map((_, i) => (
+            <div className="kpi" key={i}>
+              <div className="skeleton skeleton-label" />
+              <div className="skeleton skeleton-value" />
+            </div>
+          ))
+        ) : (
+          <>
+            <div className="kpi">
+              <div className="kpi-label">عدد الشحنات</div>
+              <div className="kpi-value">
+                {shipments.length.toLocaleString("en-US")}
+              </div>
+            </div>
+            <div className="kpi">
+              <div className="kpi-label">المُسلّمة</div>
+              <div className="kpi-value">
+                {totals.calculatedDelivered.toLocaleString("en-US")}
+              </div>
+            </div>
+            <div className="kpi">
+              <div className="kpi-label">المُعادة</div>
+              <div className="kpi-value">
+                {totals.calculatedReturned.toLocaleString("en-US")}
+              </div>
+            </div>
+            <div className="kpi accent">
+              <div className="kpi-label">إجمالي بالدولار</div>
+              <div className="kpi-value">{formatUSD(totals.USD_overall)}</div>
+            </div>
+            <div className="kpi accent">
+              <div className="kpi-label">إجمالي بالليرة</div>
+              <div className="kpi-value">{formatLBP(totals.LIRA_overall)}</div>
+            </div>
+            <div className="kpi">
+              <div className="kpi-label">ليرة (مدفوعات)</div>
+              <div className="kpi-value">
+                {formatLBP(totals.shipmentLiraPayments)}
+              </div>
+            </div>
+            <div className="kpi">
+              <div className="kpi-label">دولار (مدفوعات)</div>
+              <div className="kpi-value">
+                {formatUSD(totals.shipmentUSDPayments)}
+              </div>
+            </div>
+            <div className="kpi">
+              <div className="kpi-label">نفقات $</div>
+              <div className="kpi-value">
+                {formatUSD(totals.shipmentUSDExpenses)}
+              </div>
+            </div>
+          </>
+        )}
+      </section>
+
+      {/* Shipments list */}
+      <section className="cards">
         {isLoading ? (
           <SpinLoader />
+        ) : shipments.length === 0 ? (
+          <div className="empty">لا توجد شحنات ضمن المدى الزمني المحدد.</div>
         ) : (
-          <div className="totals">
-            <div>مجموع الشحنات للتوصيل: {totals.carryingForDelivery}</div>
-            <div>مجموع الشحنات المُسلمة: {totals.calculatedDelivered}</div>
-            <div>مجموع الشحنات المُعادت: {totals.calculatedReturned}</div>
-            <div>مدفوعات الليرة: {totals.shipmentLiraPayments}</div>
-            <div>مدفوعات الدولار: {totals.shipmentUSDPayments}</div>
-            <div>النفقات بالدولار: {totals.shipmentUSDExpenses}</div>
-            <div>النفقات بالليرة: {totals.shipmentLiraExpenses}</div>
-            <div>
-              الأرباح الإضافية بالدولار: {totals.shipmentUSDExtraProfits}
-            </div>
-            <div>
-              الأرباح الإضافية بالليرة: {totals.shipmentLiraExtraProfits}
-            </div>
-            <div>إجمالي بالليرة: {LIRA_overall}</div>
-            <div>إجمالي بالدولار: {USD_overall}</div>
-          </div>
+          shipments.map((s) => (
+            <article className="ship-card" key={s._id}>
+              <header className="ship-card-head">
+                <div className="ship-date">التاريخ: {formatDMY(s)}</div>
+              </header>
+              <div className="ship-grid">
+                <div className="item">
+                  <span>للتوصيل</span>
+                  <strong>{s.carryingForDelivery}</strong>
+                </div>
+                <div className="item">
+                  <span>مُسلّمة</span>
+                  <strong>{s.calculatedDelivered}</strong>
+                </div>
+                <div className="item">
+                  <span>مُعادة</span>
+                  <strong>{s.calculatedReturned}</strong>
+                </div>
+                <div className="item">
+                  <span>مدفوعات ل.ل</span>
+                  <strong>{formatLBP(s.shipmentLiraPayments)}</strong>
+                </div>
+                <div className="item">
+                  <span>مدفوعات $</span>
+                  <strong>{formatUSD(s.shipmentUSDPayments)}</strong>
+                </div>
+                <div className="item">
+                  <span>نفقات ل.ل</span>
+                  <strong>{formatLBP(s.shipmentLiraExpenses)}</strong>
+                </div>
+                <div className="item">
+                  <span>نفقات $</span>
+                  <strong>{formatUSD(s.shipmentUSDExpenses)}</strong>
+                </div>
+                <div className="item">
+                  <span>أرباح إضافية ل.ل</span>
+                  <strong>{formatLBP(s.shipmentLiraExtraProfits)}</strong>
+                </div>
+                <div className="item">
+                  <span>أرباح إضافية $</span>
+                  <strong>{formatUSD(s.shipmentUSDExtraProfits)}</strong>
+                </div>
+              </div>
+            </article>
+          ))
         )}
-        <ul className="shipment-info-box">
-          {isLoading ? (
-            <SpinLoader />
-          ) : (
-            currentShipments.map((shipment) => (
-              <li className="single-shipment-info" key={shipment._id}>
-                <div className="shipment-info-field">
-                  <strong>التاريخ:</strong> {shipment.date.day}/
-                  {shipment?.date.month}/{shipment.date.year}
-                </div>
-                <div className="shipment-info-field">
-                  <strong>مجموع الشحنات للتوصيل:</strong>{" "}
-                  {shipment?.carryingForDelivery}
-                </div>
-                <div className="shipment-info-field">
-                  <strong>مجموع الشحنات المُسلمة:</strong>{" "}
-                  {shipment?.calculatedDelivered}
-                </div>
-                <div className="shipment-info-field">
-                  <strong>مجموع الشحنات المُعادت:</strong>{" "}
-                  {shipment?.calculatedReturned}
-                </div>
-                <div className="shipment-info-field">
-                  <strong>مدفوعات الليرة:</strong>{" "}
-                  {shipment?.shipmentLiraPayments}
-                </div>
-                <div className="shipment-info-field">
-                  <strong>مدفوعات الدولار:</strong>{" "}
-                  {shipment?.shipmentUSDPayments}
-                </div>
-                <div className="shipment-info-field">
-                  <strong>النفقات بالليرة:</strong>{" "}
-                  {shipment?.shipmentLiraExpenses}
-                </div>
-                <div className="shipment-info-field">
-                  <strong>النفقات بالدولار:</strong>{" "}
-                  {shipment?.shipmentUSDExpenses}
-                </div>
-                <div className="shipment-info-field">
-                  <strong>الأرباح الإضافية بالدولار:</strong>{" "}
-                  {shipment?.shipmentUSDExtraProfits}
-                </div>
-                <div className="shipment-info-field">
-                  <strong>الأرباح الإضافية بالليرة:</strong>{" "}
-                  {shipment?.shipmentLiraExtraProfits}
-                </div>
-              </li>
-            ))
-          )}
-        </ul>
-      </div>
+      </section>
     </div>
   );
 };

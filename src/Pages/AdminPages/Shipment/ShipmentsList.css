@@ -1,142 +1,220 @@
-.shipments-container {
-  margin-top: 6%;
+:root {
+  --ink: #0a2538;
+  --muted: #6b7280;
+  --bg: #f8fafb;
+  --card: #ffffff;
+  --stroke: #e5e7eb;
+  --accent: #4caf50;
+  --accent-soft: #e8f5e9;
+}
+
+.ship-page {
+  background: var(--bg);
+  min-height: 100dvh;
+  padding: 12px;
+  box-sizing: border-box;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.ship-header {
+  text-align: center;
+  margin-bottom: 8px;
+}
+.ship-title {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(18px, 4.5vw, 22px);
+  font-weight: 800;
+}
+
+/* Filter card */
+.filter-card {
+  background: var(--card);
+  border: 1px solid var(--stroke);
+  border-radius: 14px;
+  padding: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  margin-bottom: 10px;
+}
+.filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+  align-items: end;
+}
+.picker label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-inline: 6px;
+}
+.filters .react-datepicker-wrapper {
+  width: 100%;
+}
+.filters input {
+  width: 100%;
+  height: 40px;
+  border: 1px solid var(--stroke);
+  border-radius: 10px;
+  padding: 0 10px;
+  background: #fff;
+  color: #111;
+  font-size: 14px;
+}
+
+.btn-primary {
+  height: 40px;
+  border: none;
+  background: var(--ink);
+  color: #fff;
+  border-radius: 10px;
+  padding: 0 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+.quick-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.chip {
+  border: 1px solid var(--stroke);
+  background: #fff;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: #111;
+  cursor: pointer;
+}
+
+/* KPI grid */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 8px 0 12px;
+}
+.kpi {
+  background: var(--card);
+  border: 1px solid var(--stroke);
+  border-radius: 14px;
+  padding: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+.kpi-label {
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+.kpi-value {
+  font-weight: 900;
+  color: var(--ink);
+  font-size: 16px;
+}
+.kpi.accent {
+  background: var(--accent-soft);
+  border-color: #c8e6c9;
+}
+
+/* Cards list */
+.cards {
+  display: grid;
+  gap: 10px;
+}
+.empty {
+  background: #fff;
+  border: 1px dashed var(--stroke);
+  padding: 16px;
+  text-align: center;
+  border-radius: 12px;
+  color: var(--muted);
+}
+.ship-card {
+  background: var(--card);
+  border: 1px solid var(--stroke);
+  border-radius: 16px;
+  padding: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+.ship-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.ship-date {
+  font-weight: 800;
+  color: var(--ink);
+  font-size: 14px;
+}
+
+/* grid of metrics inside a shipment card */
+.ship-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+@media (min-width: 420px) {
+  .ship-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.item {
+  background: #f9fbfc;
+  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  padding: 8px;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  gap: 2px;
 }
-
-.shipments-list {
-  width: 80%;
-  padding-bottom: 10px;
-  border-radius: 5px;
-  margin-bottom: 100px;
+.item span {
+  color: var(--muted);
+  font-size: 12px;
 }
-
-.shipments-list h2 {
-  text-align: center;
-  margin-bottom: 10px;
- color: #082338;
-  text-decoration: underline;
-}
-
-.shipments-list ul {
-  list-style: none;
-  padding: 0;
-}
-
-.shipments-list li {
-  padding: 10px 0;
-}
-
-.shipments-list button {
-  border: 1px solid #082338;
-  padding: 10px;
-  border-radius: 30px;
-  background-color: #06355e;
- color: #082338;
-  font-weight: bold;
-  cursor: pointer;
-
-}
-
-.shipments-list button:hover {
-  background-color: #0d94dd;
-  color: black;
-  box-shadow: 1px 1px 10px 10px rgb(20, 20, 19);
-
-}
-
-/* Pagination */
-.pagination {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.pagination-item {
-  width: 5%;
-  text-align: center;
-  margin: 5px;
-  border-radius: 20px;
-  border: 1px solid #082338;
-  cursor: pointer;
-}
-
-.pagination-item:hover {
-   background-color: #0d94dd;
-   color: white;
-}
-
-.loader-container {
-  width: 100%;
-  height: 30px;
-  /* Adjust height as needed */
-}
-
-/* CSS for a simple spinner animation */
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.spinner {
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  border-left-color: #082338;
-  border-radius: 50%;
-  margin: 100px auto;
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite;
-}
-
-.date-pickers {
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: space-around;
-  padding: 20px;
-  margin: 60px auto;
-  border: 1px solid #082338;
-}
-
-.shipment-info-box {
-  border: 1px solid #082338;
-  padding-left: 10px;
-  border-radius: 20px;
-}
-.shipment-info-field {
-  padding: 10px 20px;
- color: #082338;
-  font-family: 'Times New Roman', Times, serif;
-  font-size: 20px;
-}
-
-.totals {
-  display: flex;
-  justify-content: space-around;
-}
-
-.totals div {
-  border: 1px solid #082338;
+.item strong {
+  color: var(--ink);
   font-size: 14px;
- color: #082338;
-  font-family: 'Times New Roman', Times, serif;
-  padding: 7px;
-  margin: 5px;
-  border-radius: 20px;
 }
-@media (max-width: 600px) {
-  .shipments-container {
-    margin-top: 0;
-    padding: 5% 0;
-    height: 100%;
-   }
-  .totals,.pagination {
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: space-evenly;
-  }
 
+/* react-datepicker RTL fixes */
+.react-datepicker {
+  font-family: inherit;
+}
+.react-datepicker__triangle {
+  display: none;
+}
+.react-datepicker__header {
+  padding: 8px;
+}
+.react-datepicker__day-name,
+.react-datepicker__day {
+  width: 2rem;
+  line-height: 2rem;
+}
+.skeleton {
+  background: linear-gradient(90deg, #f2f4f7 25%, #e9eef2 37%, #f2f4f7 63%);
+  border-radius: 8px;
+  animation: shimmer 1.2s infinite linear;
+  width: 100%;
+}
+.skeleton-label {
+  height: 12px;
+  margin-bottom: 8px;
+}
+.skeleton-value {
+  height: 22px;
+}
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: 200px 0;
+  }
 }
