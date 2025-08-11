@@ -78,7 +78,7 @@ const CurrentShipmentStat: React.FC = () => {
       setIsLoading(true); // Set loading state to true before fetching
 
       const response = await fetch(
-        `http://localhost:5000/api/shipments/range`,
+        `https://trx-api.linarawas.com/api/shipments/range`,
         {
           method: "POST",
           headers: {
@@ -190,6 +190,10 @@ const CurrentShipmentStat: React.FC = () => {
     totals.shipmentLiraPayments +
     totals.shipmentLiraExtraProfits -
     totals.shipmentLiraExpenses;
+// Broadcast today totals for the dashboard ring & KPIs
+React.useEffect(() => {
+  window.dispatchEvent(new CustomEvent('trx:todayTotals', { detail: totals }));
+}, [totals]);
 
   return (
     <div className="shipments-container" dir="rtl">

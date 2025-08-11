@@ -10,7 +10,7 @@ import {
 import AddToModel from "../../AddToModel/AddToModel";
 
 const AddProfits: React.FC = () => {
-  const exchangeRate = "6878aa9ac9f1a18731a5b8a4";
+  const exchangeRate = "6537789b6ed59ef09c18213d";
   const companyId = useSelector((state: RootState) => state.user.companyId);
   const shipmentId = useSelector((state: RootState) => state.shipment._id);
   const token = useSelector((state: RootState) => state.user.token);
@@ -23,7 +23,7 @@ const AddProfits: React.FC = () => {
   );
   const handleSubmit = async (formData: any) => {
     try {
-      const response = await fetch("http://localhost:5000/api/extraProfits", {
+      const response = await fetch("https://trx-api.linarawas.com/api/extraProfits", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

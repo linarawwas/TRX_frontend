@@ -8,7 +8,7 @@ import logo from "../../../images/logo.jpeg";
 import {
   clearCompanyId,
   clearToken,
-  clearIsAdmin, 
+  clearIsAdmin,
 } from "../../../redux/UserInfo/action";
 import { setShipmentFromPrev } from "../../../redux/Shipment/action";
 import "../UnifiedAsideMenu.css";
@@ -58,7 +58,7 @@ const AsideMenu: React.FC = () => {
       <aside className={`sidebar-drawer ${isMenuOpen ? "open" : ""}`} dir="rtl">
         <nav className="menu-section">
           {/* Common Links */}
-          {shipmentDefined && (
+          {shipmentDefined && !isAdmin && (
             <Link to={`/areas/${dayId}`} onClick={toggleMenu}>
               🛣️ المسار
             </Link>

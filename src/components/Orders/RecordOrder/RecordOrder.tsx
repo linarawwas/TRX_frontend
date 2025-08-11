@@ -110,13 +110,13 @@ const RecordOrder = (props) => {
       payments.push({
         amount: form.paidUSD,
         currency: "USD",
-        exchangeRate: "6878aa9ac9f1a18731a5b8a4",
+        exchangeRate: "6537789b6ed59ef09c18213d",
       });
     if (form.paidLBP > 0)
       payments.push({
         amount: form.paidLBP,
         currency: "LBP",
-        exchangeRate: "6878aa9ac9f1a18731a5b8a4",
+        exchangeRate: "6537789b6ed59ef09c18213d",
       });
 
     const orderPayload = {
@@ -131,7 +131,7 @@ const RecordOrder = (props) => {
     };
 
     const request = {
-      url: "http://localhost:5000/api/orders",
+      url: "https://trx-api.linarawas.com/api/orders",
       options: {
         method: "POST",
         headers: {
