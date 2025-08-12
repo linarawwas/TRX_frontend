@@ -90,3 +90,13 @@
     font-size: 1.25rem;
   }
 }
+/* CustomerOrders.css additions */
+.payment-row { margin: .25rem 0 .5rem; }
+.payment-meta { font-size: .85rem; color: #666; display:flex; gap:.5rem }
+.mini { font-size: .9rem; color: #333; display:flex; gap:.5rem; align-items:center }
+.subtitle { font-weight: 600; margin-top: .5rem; margin-bottom:.25rem }
+.sum-line, .calc-line, .total-line { display:flex; gap:.5rem; align-items:baseline; }
+.divider { height:1px; background:#eee; margin:.5rem 0; }
+.muted { color:#777; margin-inline-start:.25rem; }
+.total-line.due strong { color:#b45309; }       /* amber-700 */
+.total-line.credit strong { color:#047857; }    /* emerald-700 */

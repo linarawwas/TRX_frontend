@@ -22,10 +22,8 @@ import {
 } from "../../../redux/Order/action.js";
 import { Link, useNavigate } from "react-router-dom";
 import { getProductTypeFromDB, saveRequest } from "../../../utils/indexedDB";
-import SevenDigitPicker from "./LbpKeypad";
 import { fetchAndCacheCustomerInvoice } from "../../../utils/apiHelpers";
 import CustomerInvoices from "../../Customers/CustomerInvoices/CustomerInvoices";
-import axios from "axios"; // NEW
 
 const RecordOrder = (props) => {
   const dispatch = useDispatch();
@@ -98,36 +96,29 @@ const RecordOrder = (props) => {
       [field]: Math.max(Number(p[field]) - (field === "paidLBP" ? 1000 : 1), 0),
     }));
 
-  /* ---------- main submit ---------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSubmitting) return;
     setIsSubmitting(true);
 
-    /* build payments payload */
+    // build payments WITHOUT any exchange-rate fields
     const payments = [];
-    if (form.paidUSD > 0)
-      payments.push({
-        amount: form.paidUSD,
-        currency: "USD",
-        exchangeRate: "6537789b6ed59ef09c18213d",
-      });
-    if (form.paidLBP > 0)
-      payments.push({
-        amount: form.paidLBP,
-        currency: "LBP",
-        exchangeRate: "6537789b6ed59ef09c18213d",
-      });
+    if (form.paidUSD > 0) {
+      payments.push({ amount: Number(form.paidUSD), currency: "USD" });
+    }
+    if (form.paidLBP > 0) {
+      payments.push({ amount: Number(form.paidLBP), currency: "LBP" });
+    }
 
+    // server-managed tenancy: do NOT send companyId
+    // do NOT send areaId (not used by the endpoint)
     const orderPayload = {
-      delivered: form.delivered,
-      returned: form.returned,
+      delivered: Number(form.delivered),
+      returned: Number(form.returned),
       customerid: customerId,
-      productId,
-      areaId,
-      shipmentId,
-      companyId,
-      payments,
+      productId,      // numeric code
+      shipmentId,     // ObjectId
+      payments,       // [{amount,currency}]
     };
 
     const request = {
@@ -142,7 +133,6 @@ const RecordOrder = (props) => {
       },
     };
 
-    /* inner helper to update Redux numbers */
     const dispatchSummary = (d) => {
       dispatch(setShipmentDelivered(d.delivered));
       dispatch(setShipmentReturned(d.returned));
@@ -151,17 +141,14 @@ const RecordOrder = (props) => {
       dispatch(setShipmentPaymentsInDollars(d.SumOfPaymentsInDollars));
     };
 
-    /* OFFLINE branch ---------------------------------------------------- */
     if (!navigator.onLine) {
       await saveRequest(request);
       dispatch(addPendingOrder(customerId));
       toast.info("📡 سيتم حفظ الطلب عند عودة الاتصال");
-      /* OPTION: you could also queue a WhatsApp job for your backend here */
       navigate(-1);
       return;
     }
 
-    /* ONLINE branch ----------------------------------------------------- */
     try {
       const res = await fetch(request.url, request.options);
       const data = await res.json();
@@ -169,33 +156,24 @@ const RecordOrder = (props) => {
       if (res.ok) {
         dispatchSummary(data);
         dispatch(removePendingOrder(customerId));
-        fetchAndCacheCustomerInvoice(customerId, token).catch((err) =>
-          console.warn("⚠️ Failed to refresh invoice:", err)
-        );
-
-        /* mark customer in shipment lists */
-        if (
-          !form.delivered &&
-          !form.returned &&
-          !form.paidUSD &&
-          !form.paidLBP
-        ) {
+        fetchAndCacheCustomerInvoice(customerId, token).catch(() => {});
+        if (!form.delivered && !form.returned && !form.paidUSD && !form.paidLBP) {
           dispatch(addCustomerWithEmptyOrder(customerId));
         } else {
           dispatch(addCustomerWithFilledOrder(customerId));
         }
-
         toast.success("✅ تم تسجيل الطلب");
         navigate(-1);
       } else {
-        toast.error(`❌ ${data.message}`);
+        toast.error(`❌ ${data.error || data.message || "فشل إنشاء الطلب"}`);
       }
-    } catch (err) {
+    } catch (_err) {
       toast.error("❌ فشل الاتصال بالشبكة");
     } finally {
       setIsSubmitting(false);
     }
   };
+
 
   /* ---------------- Render UI (unchanged) ---------------- */
   return (

@@ -4,31 +4,27 @@ import { RootState } from "../../redux/store";
 import { toast } from "react-toastify";
 import "./AddDiscount.css";
 
-interface Area {
-  _id: string;
-  name: string;
-}
+interface Area { _id: string; name: string; }
+interface Customer { _id: string; name: string; }
 
-interface Customer {
-  _id: string;
-  name: string;
-}
+type DiscountCurrency = "USD" | "LBP";
 
 interface FormData {
   areaId: string;
   customerId: string;
   hasDiscount: boolean;
   noteAboutCustomer: string;
-  discountCurrency: string; // "USD" | "LBP"
-  valueAfterDiscount: number | ""; // can be empty string for blank input
+  discountCurrency: DiscountCurrency; // input currency (UI only)
+  valueAfterDiscount: number | "";    // user input
 }
 
 const AddDiscount: React.FC = () => {
   const companyId = useSelector((state: RootState) => state.user.companyId);
   const token = useSelector((state: RootState) => state.user.token);
+
   const [areaOptions, setAreaOptions] = useState<Area[]>([]);
   const [customerOptions, setCustomerOptions] = useState<Customer[]>([]);
-  const [exchangeRate, setExchangeRate] = useState<number>(1);
+  const [exchangeRate, setExchangeRate] = useState<number | null>(null); // LBP per 1 USD (read-only)
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
@@ -40,6 +36,12 @@ const AddDiscount: React.FC = () => {
     valueAfterDiscount: "",
   });
 
+  // Helpers
+  const fmtRate = (r: number | null) =>
+    r ? `${r.toLocaleString("ar-LB")} ل.ل / 1$` : "—";
+
+  const toNumber = (v: number | "") => (typeof v === "number" ? v : 0);
+
   // Fetch areas
   useEffect(() => {
     fetch(`http://localhost:5000/api/areas/company/${companyId}`, {
@@ -47,43 +49,41 @@ const AddDiscount: React.FC = () => {
     })
       .then((res) => res.json())
       .then(setAreaOptions)
-      .catch((error) => toast.error("خطأ في تحميل المناطق"));
+      .catch(() => toast.error("خطأ في تحميل المناطق"));
   }, [companyId, token]);
 
-  // Fetch exchange rate
+  // Fetch company exchange rate (read-only, server-managed)
   useEffect(() => {
-    fetch(`http://localhost:5000/api/exchangeRates/6537789b6ed59ef09c18213d`, {
+    fetch(`http://localhost:5000/api/exchange-rate`, {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then((res) => res.json())
-      .then((data) => setExchangeRate(data.exchangeRateInLBP))
-      .catch((error) => toast.error("خطأ في تحميل سعر الصرف"));
+      .then(async (res) => {
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        setExchangeRate(data.exchangeRateInLBP ?? null);
+      })
+      .catch(() => {
+        setExchangeRate(null);
+        // Only warn if user chooses LBP later and we still have no rate
+      });
   }, [token]);
 
   // Fetch customers by area
   useEffect(() => {
-    if (formData.areaId) {
-      fetch(`http://localhost:5000/api/customers/area/${formData.areaId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((res) => res.json())
-        .then(setCustomerOptions)
-        .catch((error) => toast.error("خطأ في تحميل العملاء"));
-    }
+    if (!formData.areaId) return;
+    fetch(`http://localhost:5000/api/customers/area/${formData.areaId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then(setCustomerOptions)
+      .catch(() => toast.error("خطأ في تحميل العملاء"));
   }, [formData.areaId, token]);
 
-  // Input change for text/select fields
-  const handleInputChange = (
-    field: keyof FormData,
-    value: string | boolean
-  ) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+  // Input handlers
+  const handleInputChange = (field: keyof FormData, value: string | boolean) => {
+    setFormData((prev) => ({ ...prev, [field]: value as any }));
   };
 
-  // Input change for the value (number) field
   const handleValueChange = (e: ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setFormData((prev) => ({
@@ -92,9 +92,16 @@ const AddDiscount: React.FC = () => {
     }));
   };
 
-  // Submission
+  // Derived preview: when user enters LBP, show the USD equivalent (read-only)
+  const usdPreview =
+    formData.discountCurrency === "LBP" && exchangeRate && exchangeRate > 0
+      ? toNumber(formData.valueAfterDiscount) / exchangeRate
+      : null;
+
+  // Submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     setLoading(true);
 
     if (!formData.areaId || !formData.customerId) {
@@ -102,37 +109,38 @@ const AddDiscount: React.FC = () => {
       setLoading(false);
       return;
     }
-    if (
-      formData.valueAfterDiscount === "" ||
-      isNaN(Number(formData.valueAfterDiscount))
-    ) {
+
+    if (formData.valueAfterDiscount === "" || isNaN(Number(formData.valueAfterDiscount))) {
       toast.error("يرجى إدخال قيمة الخصم بشكل صحيح");
       setLoading(false);
       return;
     }
-    let dollarValue = 0;
+
+    // Always store discount in USD for backend consistency
+    let valueAfterDiscountUSD = 0;
     if (formData.discountCurrency === "USD") {
-      dollarValue =
-        typeof formData.valueAfterDiscount === "number"
-          ? formData.valueAfterDiscount
-          : 0;
-    } else if (formData.discountCurrency === "LBP") {
-      dollarValue =
-        typeof formData.valueAfterDiscount === "number"
-          ? formData.valueAfterDiscount / exchangeRate
-          : 0;
+      valueAfterDiscountUSD = toNumber(formData.valueAfterDiscount);
+    } else {
+      // LBP input -> need a server-managed rate to convert
+      if (!exchangeRate || exchangeRate <= 0) {
+        toast.error("لا يمكن التحويل من ليرة إلى دولار لأن سعر الصرف غير متاح حالياً");
+        setLoading(false);
+        return;
+      }
+      valueAfterDiscountUSD = toNumber(formData.valueAfterDiscount) / exchangeRate;
     }
 
-    // Round to 2 decimals
-    dollarValue = Math.round(dollarValue * 100) / 100;
+    // Normalize to 2 decimals
+    valueAfterDiscountUSD = Math.round(valueAfterDiscountUSD * 100) / 100;
 
-    // Prepare payload, always send as USD to backend
+    // Payload to backend (always USD)
     const payload = {
-      ...formData,
-      valueAfterDiscount: dollarValue,
-      discountCurrency: "USD",
+      hasDiscount: formData.hasDiscount,
+      noteAboutCustomer: formData.noteAboutCustomer,
+      discountCurrency: "USD",            // always normalized
+      valueAfterDiscount: valueAfterDiscountUSD, // USD value
     };
-    console.log(payload);
+
     try {
       const res = await fetch(
         `http://localhost:5000/api/customers/${formData.customerId}`,
@@ -146,8 +154,10 @@ const AddDiscount: React.FC = () => {
         }
       );
       if (!res.ok) throw new Error("Network error");
-      const data = await res.json();
+
+      await res.json();
       toast.success("تم حفظ الخصم بنجاح!");
+
       setFormData({
         areaId: "",
         customerId: "",
@@ -156,7 +166,7 @@ const AddDiscount: React.FC = () => {
         discountCurrency: "USD",
         valueAfterDiscount: "",
       });
-    } catch (error) {
+    } catch {
       toast.error("فشل حفظ الخصم. حاول مرة أخرى.");
     } finally {
       setLoading(false);
@@ -164,7 +174,7 @@ const AddDiscount: React.FC = () => {
   };
 
   return (
-    <div className="add-discount-container">
+    <div className="add-discount-container" dir="rtl">
       <h1 className="title">إضافة خصم للعميل</h1>
       <form onSubmit={handleSubmit}>
         <label>
@@ -175,9 +185,7 @@ const AddDiscount: React.FC = () => {
           >
             <option value="">اختر منطقة</option>
             {areaOptions.map((area) => (
-              <option key={area._id} value={area._id}>
-                {area.name}
-              </option>
+              <option key={area._id} value={area._id}>{area.name}</option>
             ))}
           </select>
         </label>
@@ -187,12 +195,11 @@ const AddDiscount: React.FC = () => {
           <select
             value={formData.customerId}
             onChange={(e) => handleInputChange("customerId", e.target.value)}
+            disabled={!formData.areaId}
           >
             <option value="">اختر عميل</option>
-            {customerOptions.map((customer) => (
-              <option key={customer._id} value={customer._id}>
-                {customer.name}
-              </option>
+            {customerOptions.map((c) => (
+              <option key={c._id} value={c._id}>{c.name}</option>
             ))}
           </select>
         </label>
@@ -201,39 +208,43 @@ const AddDiscount: React.FC = () => {
           شرح مختصر:
           <textarea
             value={formData.noteAboutCustomer}
-            onChange={(e) =>
-              handleInputChange("noteAboutCustomer", e.target.value)
-            }
+            onChange={(e) => handleInputChange("noteAboutCustomer", e.target.value)}
+            placeholder="مثال: زبون يدفع آخر الشهر"
           />
         </label>
 
-        <label>
-          القيمة بعد الخصم:
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            value={
-              formData.valueAfterDiscount === ""
-                ? ""
-                : formData.valueAfterDiscount
-            }
-            onChange={handleValueChange}
-          />
-        </label>
+        <div className="row">
+          <label className="grow">
+            القيمة بعد الخصم:
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              value={formData.valueAfterDiscount === "" ? "" : formData.valueAfterDiscount}
+              onChange={handleValueChange}
+              inputMode="decimal"
+            />
+          </label>
 
-        <label>
-          عملة الخصم:
-          <select
-            value={formData.discountCurrency}
-            onChange={(e) =>
-              handleInputChange("discountCurrency", e.target.value)
-            }
-          >
-            <option value="USD">دولار أمريكي</option>
-            <option value="LBP">ليرة لبنانية</option>
-          </select>
-        </label>
+          <label>
+            عملة الإدخال:
+            <select
+              value={formData.discountCurrency}
+              onChange={(e) => handleInputChange("discountCurrency", e.target.value as DiscountCurrency)}
+            >
+              <option value="USD">دولار</option>
+              <option value="LBP">ليرة</option>
+            </select>
+          </label>
+        </div>
+
+        {/* Read-only context about rate & preview when LBP */}
+        <div className="hint">
+          <div>سعر الصرف (قراءة فقط): <strong>{fmtRate(exchangeRate)}</strong></div>
+          {formData.discountCurrency === "LBP" && formData.valueAfterDiscount !== "" && exchangeRate ? (
+            <div>المعادِل بالدولار: <strong>{(usdPreview ?? 0).toFixed(2)} $</strong></div>
+          ) : null}
+        </div>
 
         <button type="submit" disabled={loading}>
           {loading ? "يتم الإرسال..." : "إرسال"}

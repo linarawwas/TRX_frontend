@@ -1,23 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import SpinLoader from "../../UI reusables/SpinLoader/SpinLoader";
 import {
   getCustomerInvoicesFromDB,
   getPendingRequests,
 } from "../../../utils/indexedDB";
 import "./CustomerInvoices.css";
+import { fmtLBP, fmtUSD, fmtRateLBP, usdToLbp } from "../../../utils/money";
 
 interface Sums {
   deliveredSum: number;
   returnedSum: number;
   bottlesLeft: number;
-  totalSum: number;
+  totalSumUSD: number;     // outstanding in USD
+  lastRateLBP?: number;    // optional: from last order snapshot
 }
 
 const CustomerInvoices: React.FC<{ customerId: string }> = ({ customerId }) => {
   const [sums, setSums] = useState<Sums | null>(null);
   const [loading, setLoading] = useState(true);
-  // const customerId = useSelector((state: any) => state.order.customer_Id);
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
 
   useEffect(() => {
@@ -29,16 +29,15 @@ const CustomerInvoices: React.FC<{ customerId: string }> = ({ customerId }) => {
       window.removeEventListener("offline", updateStatus);
     };
   }, []);
-  console.log("🔍 Received customerId in CustomerInvoices:", customerId);
 
   useEffect(() => {
     const loadInvoiceWithOfflineAdjustments = async () => {
       setLoading(true);
-
       try {
-        const cachedInvoice = await getCustomerInvoicesFromDB(customerId);
+        const cachedInvoice: any = await getCustomerInvoicesFromDB(customerId);
         const pendingRequests = await getPendingRequests();
 
+        // Pending "create order" bodies for this customer (no server totals yet)
         const pendingOrders = pendingRequests
           .filter(
             (r: any) =>
@@ -50,37 +49,48 @@ const CustomerInvoices: React.FC<{ customerId: string }> = ({ customerId }) => {
 
         if (cachedInvoice) {
           let delivered = cachedInvoice.deliveredSum || 0;
-          let returned = cachedInvoice.returnedSum || 0;
-          let total = cachedInvoice.totalSum || 0;
+          let returned  = cachedInvoice.returnedSum || 0;
+          // outstanding balance (USD) from cache – don't add pending guess
+          const totalUSD = cachedInvoice.totalSum || 0;
 
+          // safely adjust bottles with offline pending (we know delivered/returned inputs)
           for (const order of pendingOrders) {
             delivered += order.delivered || 0;
-            returned += order.returned || 0;
-            total += order.total || 0;
+            returned  += order.returned  || 0;
           }
+
+          // try to surface last known rate (if your cached invoice stores it)
+          const lastRate = cachedInvoice.lastRateLBP || undefined;
 
           setSums({
             deliveredSum: delivered,
             returnedSum: returned,
             bottlesLeft: delivered - returned,
-            totalSum: total,
+            totalSumUSD: totalUSD,
+            lastRateLBP: lastRate,
           });
+        } else {
+          setSums(null);
         }
       } catch (err) {
         console.error("❌ Error loading offline invoice:", err);
+        setSums(null);
       }
-
       setLoading(false);
     };
 
     loadInvoiceWithOfflineAdjustments();
   }, [customerId]);
 
+  const lbpEquivalent = sums?.lastRateLBP
+    ? usdToLbp(sums.totalSumUSD, sums.lastRateLBP)
+    : null;
+
   return (
-    <div className="customer-receipt">
+    <div className="customer-receipt" dir="rtl">
       {!isOnline && (
         <div className="offline-warning">
-          ⚠️ هذه البيانات قد لا تكون محدثة بسبب عدم الاتصال
+          ⚠️ قد لا تكون الأرقام النهائية محدثة بسبب عدم الاتصال
         </div>
       )}
 
@@ -88,8 +98,16 @@ const CustomerInvoices: React.FC<{ customerId: string }> = ({ customerId }) => {
         <SpinLoader />
       ) : sums ? (
         <>
-          <p className="detail-name">🧴 القناني المتبقية {sums.bottlesLeft}</p>
-          <p className="detail-name">💵 المجموع {sums.totalSum.toFixed(2)}</p>
+          <p className="detail-name">🧴 القناني المتبقية: <strong>{sums.bottlesLeft}</strong></p>
+          <p className="detail-name">
+            💵 الرصيد المستحق: <strong>{fmtUSD(sums.totalSumUSD)}</strong>
+            {lbpEquivalent != null && (
+              <em className="muted"> ({fmtLBP(lbpEquivalent)})</em>
+            )}
+          </p>
+          {sums.lastRateLBP ? (
+            <p className="rate-hint">سعر الصرف المرجعي للفاتورة: {fmtRateLBP(sums.lastRateLBP)}</p>
+          ) : null}
         </>
       ) : (
         <p className="no-data-text">❌ لا توجد تفاصيل لهذا الزبون</p>

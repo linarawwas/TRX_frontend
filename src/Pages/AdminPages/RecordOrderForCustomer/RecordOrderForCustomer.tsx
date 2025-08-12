@@ -9,6 +9,7 @@ import {
 } from "../../../utils/indexedDB"; // Adjust path as needed
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import DiscountCard from "./DiscountCard";
 
 interface CustomerData {
   hasDiscount: boolean;
@@ -56,28 +57,38 @@ function RecordOrderForCustomer(): JSX.Element {
       style={{ direction: "rtl", textAlign: "right" }}
     >
       {" "}
-<div className="back-row">
-  <button
-    type="button"
-    className="back-pill"
-    onClick={() => navigate(-1)}
-    aria-label="الرجوع"
-  >
-    {/* chevron points right for RTL */}
-    <svg className="back-icon" viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-      <path d="M10 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-    <span className="back-text">الرجوع</span>
-  </button>
-</div>
-
+      <div className="back-row">
+        <button
+          type="button"
+          className="back-pill"
+          onClick={() => navigate(-1)}
+          aria-label="الرجوع"
+        >
+          {/* chevron points right for RTL */}
+          <svg
+            className="back-icon"
+            viewBox="0 0 24 24"
+            focusable="false"
+            aria-hidden="true"
+          >
+            <path
+              d="M10 6l6 6-6 6"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <span className="back-text">الرجوع</span>
+        </button>
+      </div>
       {customerDiscountStatus?.hasDiscount && (
-        <div className="discount-banner">
-          <div>هذا الزبون لديه خصم!</div>
-          <div>
-            ملاحظة خاصة عند الدفع: {customerDiscountStatus?.noteAboutCustomer}
-          </div>
-        </div>
+        <DiscountCard
+          unitPriceUSD={customerDiscountStatus.valueAfterDiscount}
+          note={customerDiscountStatus.noteAboutCustomer}
+          /* rateLBP={companyRateInLBP} // optional if you have it */
+        />
       )}
       <RecordOrder customerData={customerDiscountStatus} />
     </div>

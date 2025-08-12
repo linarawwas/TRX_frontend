@@ -50,6 +50,17 @@ const ProgressRing: React.FC<{ value: number; total: number; label?: string }> =
 
 const AdminLandingPage: React.FC = () => {
   const name = useSelector((s: RootState) => s.user.username);
+// at top
+function shallowEqual(a: any, b: any) {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  const ka = Object.keys(a), kb = Object.keys(b);
+  if (ka.length !== kb.length) return false;
+  for (const k of ka) {
+    if (a[k] !== b[k]) return false;
+  }
+  return true;
+}
 
   // Pull totals from CurrentShipmentStat via custom event fallback (simple, decoupled)
   // Emit from CurrentShipmentStat using: window.dispatchEvent(new CustomEvent('trx:todayTotals', { detail: totalsLike }))
@@ -64,12 +75,16 @@ const AdminLandingPage: React.FC = () => {
     shipmentLiraExtraProfits: 0,
     shipmentUSDExtraProfits: 0,
   });
+React.useEffect(() => {
+  const handler = (e: any) => {
+    const next = e.detail ?? {};
+    // Only update if changed
+    setToday(prev => (shallowEqual(prev, next) ? prev : next));
+  };
+  window.addEventListener("trx:todayTotals", handler);
+  return () => window.removeEventListener("trx:todayTotals", handler);
+}, []);
 
-  React.useEffect(() => {
-    const handler = (e: any) => setToday(e.detail);
-    window.addEventListener("trx:todayTotals", handler);
-    return () => window.removeEventListener("trx:todayTotals", handler);
-  }, []);
 
   const USD_overall = useMemo(
     () => today.shipmentUSDPayments + today.shipmentUSDExtraProfits - today.shipmentUSDExpenses,
