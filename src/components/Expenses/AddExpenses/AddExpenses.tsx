@@ -1,75 +1,112 @@
-import React from 'react';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../../redux/store'; // Update this path with your Redux store structure
-import { setShipmentExpensesInLiras, setShipmentExpensesInUSD } from '../../../redux/Shipment/action';
-import AddToModel from '../../AddToModel/AddToModel';
+import React from "react";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../../redux/store";
+import {
+  setShipmentExpensesInLiras,
+  setShipmentExpensesInUSD,
+} from "../../../redux/Shipment/action";
+import AddToModel from "../../AddToModel/AddToModel";
+
+type ExpenseForm = {
+  name: string;
+  value: number | string;       // AddToModel may pass string
+  paymentCurrency: "USD" | "LBP";
+};
 
 const AddExpenses: React.FC = () => {
-
-  const exchangeRate = '6537789b6ed59ef09c18213d';
-  const companyId = useSelector((state: RootState) => state.user.companyId);
   const shipmentId = useSelector((state: RootState) => state.shipment._id);
   const token = useSelector((state: RootState) => state.user.token);
   const dispatch = useDispatch();
-  const shipmentExpensesInLiras = useSelector((state: any) => state.shipment.expensesInLiras)
-  const shipmentExpensesInUSD = useSelector((state: any) => state.shipment.expensesInUSD)
-  const handleSubmit = async (formData: any) => {
+
+  const expensesLbp = useSelector((s: any) => s.shipment.expensesInLiras) ?? 0;
+  const expensesUsd = useSelector((s: any) => s.shipment.expensesInUSD) ?? 0;
+
+  const handleSubmit = async (formData: ExpenseForm) => {
     try {
-      const response = await fetch('http://localhost:5000/api/expenses', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ ...formData, companyId, shipmentId, exchangeRate }),
-      });
-      if (response.ok) {
-        toast.success('Expenses successfully recorded.');
-        if (formData.paymentCurrency === 'USD') {
-          dispatch(setShipmentExpensesInUSD(parseInt(shipmentExpensesInUSD) + parseInt(formData.value)))
-        } else {
-          dispatch(setShipmentExpensesInLiras(parseInt(shipmentExpensesInLiras) + parseInt(formData.value)))
-        }
-      } else {
-        const errorData = await response.json();
-        toast.error(`Error recording Expenses: ${errorData.error}`);
+      // Normalize payload
+      const valueNum = Number(formData.value);
+      if (!formData.name?.trim()) {
+        toast.error("يرجى إدخال اسم المصروف");
+        return;
+      }
+      if (!Number.isFinite(valueNum) || valueNum < 0) {
+        toast.error("قيمة غير صالحة");
+        return;
+      }
+      if (!shipmentId) {
+        toast.error("لا توجد شحنة محددة");
+        return;
       }
 
-      return response;
-    } catch (error: any) {
-      toast.error(`Network error: ${error}`);
-      throw error;
+      // Server-managed tenancy + exchange rate: do NOT send companyId or exchangeRate
+      const payload = {
+        name: formData.name.trim(),
+        value: valueNum,
+        paymentCurrency:
+          formData.paymentCurrency === "LBP" ? "LBP" : "USD",
+        shipmentId,
+      };
+
+      const res = await fetch("http://localhost:5000/api/expenses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        toast.error(`خطأ في تسجيل المصروف: ${data.error || res.statusText}`);
+        return;
+      }
+
+      // Update local shipment totals
+      if (payload.paymentCurrency === "USD") {
+        dispatch(setShipmentExpensesInUSD(Number(expensesUsd) + valueNum));
+      } else {
+        dispatch(setShipmentExpensesInLiras(Number(expensesLbp) + valueNum));
+      }
+
+      toast.success("تم تسجيل المصروف بنجاح");
+      return res;
+    } catch (err: any) {
+      toast.error(`خطأ في الشبكة: ${err?.message || err}`);
+      throw err;
     }
   };
+
   const expensesConfig = {
     "component-related-fields": {
-      "modelName": "المصاريف",
-      "title": "إضافة مصاريف",
-      "button-label": "إضافة مصاريف"
+      modelName: "المصاريف",
+      title: "إضافة مصاريف",
+      "button-label": "إضافة مصاريف",
     },
     "model-related-fields": {
-      "name": { "label": "الاسم", "input-type": "text" },
-      "value": { "label": "القيمة", "input-type": "number" },
-      "paymentCurrency": { 
-        "label": "عملة الدفع", 
-        "input-type": "selectOption", 
-        "options": [
-          { "value": "USD", "label": "دولار أمريكي" },
-          { "value": "LBP", "label": "ليرة لبنانية" }
-        ]
-      }
-    }
+      name: { label: "الاسم", "input-type": "text" },
+      value: { label: "القيمة", "input-type": "number" },
+      paymentCurrency: {
+        label: "عملة الدفع",
+        "input-type": "selectOption",
+        options: [
+          { value: "USD", label: "دولار أمريكي" },
+          { value: "LBP", label: "ليرة لبنانية" },
+        ],
+      },
+    },
   };
-  
+
   return (
     <AddToModel
-      modelName={expensesConfig['component-related-fields'].modelName}
-      title={expensesConfig['component-related-fields'].title}
-      buttonLabel={expensesConfig['component-related-fields']['button-label']}
-      modelFields={expensesConfig['model-related-fields']}
-      onSubmit={handleSubmit}  />
+      modelName={expensesConfig["component-related-fields"].modelName}
+      title={expensesConfig["component-related-fields"].title}
+      buttonLabel={expensesConfig["component-related-fields"]["button-label"]}
+      modelFields={expensesConfig["model-related-fields"]}
+      onSubmit={handleSubmit}
+    />
   );
 };
 
