@@ -20,7 +20,7 @@ const AddPaymentForm = ({ orderId, orderData, setOrderData }) => {
   const handleAddPayment = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`https://trx-api.linarawas.com/api/orders/addPayment/${orderId}`, {
+      const response = await fetch(`http://localhost:5000/api/orders/addPayment/${orderId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -32,7 +32,7 @@ const AddPaymentForm = ({ orderId, orderData, setOrderData }) => {
       if (response.ok) {
         toast.success('تمت إضافة الدفعة بنجاح');
 
-        const updated = await fetch(`https://trx-api.linarawas.com/api/orders/${orderId}`, {
+        const updated = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 

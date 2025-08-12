@@ -21,7 +21,7 @@ export default function Addresses(): JSX.Element {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`https://trx-api.linarawas.com/api/customers/area/${areaId}`, {
+    fetch(`http://localhost:5000/api/customers/area/${areaId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

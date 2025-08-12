@@ -1,18 +1,66 @@
+.mirrored {
+  transform: scaleX(-1);
+}
+.feature-section {
+  margin: 8px 10px 16px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+.feature-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.show-form-li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #0a2538;
+  color: #fff;
+  border-radius: 14px;
+  padding: 10px 8px;
+  cursor: pointer;
+  min-height: 84px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+.show-form-li svg {
+  pointer-events: none;
+}
+.show-form-li::after {
+  content: attr(data-label);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.show-form-li.end-shipment {
+  background: #ef4444;
+}
+.link-to-shipment {
+  color: #fff;
+  text-decoration: none;
+}
+
+/* Modal (kept from you) */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0;
   background: rgba(0, 0, 0, 0.6);
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
 .modal-content {
-  background: white;
+  background: #fff;
   border-radius: 12px;
   padding: 2rem;
   max-width: 90%;
@@ -21,7 +69,6 @@
   position: relative;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
-
 .modal-close {
   position: absolute;
   top: 1rem;
@@ -30,15 +77,4 @@
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-}
-.end-shipment {
-  background-color: red;
-}
-
-.shipment-logo {
-  color: white;
-}
-
-.mirrored {
-  transform: scaleX(-1);
 }

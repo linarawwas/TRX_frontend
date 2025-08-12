@@ -23,7 +23,7 @@ const AddProfits: React.FC = () => {
   );
   const handleSubmit = async (formData: any) => {
     try {
-      const response = await fetch("https://trx-api.linarawas.com/api/extraProfits", {
+      const response = await fetch("http://localhost:5000/api/extraProfits", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -22,7 +22,7 @@ function UpdateOrder(): JSX.Element {
   const handleDeleteOrder = async (): Promise<void> => {
     try {
       const response = await fetch(
-        `https://trx-api.linarawas.com/api/orders/${orderId}`,
+        `http://localhost:5000/api/orders/${orderId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
@@ -41,7 +41,7 @@ function UpdateOrder(): JSX.Element {
   };
 
   useEffect(() => {
-    fetch(`https://trx-api.linarawas.com/api/orders/${orderId}`, {
+    fetch(`http://localhost:5000/api/orders/${orderId}`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,

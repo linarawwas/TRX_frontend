@@ -131,7 +131,7 @@ const RecordOrder = (props) => {
     };
 
     const request = {
-      url: "https://trx-api.linarawas.com/api/orders",
+      url: "http://localhost:5000/api/orders",
       options: {
         method: "POST",
         headers: {
