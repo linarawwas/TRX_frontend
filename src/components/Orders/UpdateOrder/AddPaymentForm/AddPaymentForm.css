@@ -1,66 +1,42 @@
+/* Add to AddPaymentForm.css */
+
 .payment-form {
-  width: 90%;
-  max-width: 450px;
-  margin: 20px auto;
-  padding: 20px 25px;
-  border: 1px solid #082338;
-  border-radius: 10px;
-  background-color: #fefefe;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  position: relative;
 }
 
-.payment-heading {
-  text-align: center;
-  color: #082338;
-  margin-bottom: 20px;
-  font-weight: bold;
+.payment-progress {
+  position: absolute;
+  top: 0;
+  inset-inline: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #4f46e5, #0ea5e9, #10b981);
+  background-size: 300% 100%;
+  animation: payBar 1.2s linear infinite;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+@keyframes payBar {
+  0% { background-position: 0% 0; }
+  100% { background-position: -300% 0; }
 }
 
-.form-group {
-  margin-bottom: 20px;
-  text-align: right;
+.is-submitting {
+  pointer-events: none; /* block duplicate clicks */
 }
 
-.form-label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: bold;
-  color: #082338;
+.add-payment-button.loading {
+  opacity: 0.9;
+  pointer-events: none;
 }
 
-.form-input {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 15px;
-  box-sizing: border-box;
+.btn-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #fff;
+  border-top-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  margin-inline-end: 6px;
+  animation: spin .8s linear infinite;
 }
-
-.form-input:focus {
-  border-color: #0d94dd;
-  outline: none;
-}
-
-.add-payment-button {
-  width: 100%;
-  padding: 12px;
-  background-color: #06355e;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.add-payment-button:hover {
-  background-color: #0d94dd;
-}
-
-@media (max-width: 480px) {
-  .payment-form {
-    padding: 15px;
-  }
-}
+@keyframes spin { to { transform: rotate(360deg); } }

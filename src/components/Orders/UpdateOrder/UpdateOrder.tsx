@@ -61,10 +61,7 @@ function UpdateOrder(): JSX.Element {
   return (
     <div className="update-order-container" style={{ direction: "rtl" }}>
       <ToastContainer position="top-right" autoClose={1000} />
-      {/* <div className="order-header"> */}
-        <h2>معلومات الفاتورة</h2>
-        {/* <button className="delete-button" onClick={handleDeleteOrder}>حذف الطلب</button> */}
-      {/* </div> */}
+      <h2>معلومات الفاتورة</h2>
       <OrderReceipt orderData={orderData} loading={loading} />
       <PaymentInfo payments={orderData?.payments} />
       <h2 className="toggle-form-title" onClick={handleFormToggle}>
