@@ -33,8 +33,9 @@ const overBy = target > 0 ? Math.max(0, delivered - target) : 0;   // how many a
         <span className={`chev ${open ? "up" : "down"}`} />
       </button>
 
-<div id="today-panel" className={`snap-panel ${open ? "open" : ""}`}>
-  <div className="progress">
+      <div id="today-panel" className={`snap-panel ${open ? "open" : ""}`}>
+        {/* Progress */}
+<div className="progress">
     <div className="progress-head">
       <div>الهدف: <strong>{target}</strong></div>
       <div>
@@ -52,8 +53,29 @@ const overBy = target > 0 ? Math.max(0, delivered - target) : 0;   // how many a
       <span>المُعاد: {returned}</span>
     </div>
   </div>
-</div>
 
+        {/* KPIs */}
+        <div className="kpis">
+          <div className="kpi">
+            <span className="kpi-label">نقدية اليوم</span>
+            <span className="kpi-value">
+              ${paidUSD.toLocaleString("en-US")} • {paidLBP.toLocaleString("en-US")} ل.ل
+            </span>
+          </div>
+          <div className="kpi">
+            <span className="kpi-label">المصاريف</span>
+            <span className="kpi-value">
+              ${expUSD.toLocaleString("en-US")} • {expLBP.toLocaleString("en-US")} ل.ل
+            </span>
+          </div>
+          <div className="kpi">
+            <span className="kpi-label">الأرباح الإضافية</span>
+            <span className="kpi-value">
+              ${profUSD.toLocaleString("en-US")} • {profLBP.toLocaleString("en-US")} ل.ل
+            </span>
+          </div>
+        </div>
+      </div>
     </section>
   );
 };
