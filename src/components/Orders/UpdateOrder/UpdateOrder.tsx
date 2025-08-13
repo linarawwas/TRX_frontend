@@ -7,6 +7,37 @@ import { useSelector } from "react-redux";
 import "./UpdateOrder.css";
 import AddPaymentForm from "./AddPaymentForm/AddPaymentForm";
 import OrderReceipt from "./OrderReceipt/OrderReceipt";
+/** Lightweight bottom-sheet */
+const PaymentSheet: React.FC<{
+  title?: string;
+  onClose: () => void;
+  children: React.ReactNode;
+}> = ({ title = "إضافة دفعة", onClose, children }) => {
+  React.useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  return (
+    <div className="sheet-backdrop" role="presentation" onClick={onClose}>
+      <div
+        className="sheet-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="sheet-handle" aria-hidden="true" />
+        <div className="sheet-head">
+          <div className="sheet-title">{title}</div>
+          <button className="sheet-close" onClick={onClose} aria-label="إغلاق">✕</button>
+        </div>
+        <div className="sheet-body">{children}</div>
+      </div>
+    </div>
+  );
+};
 
 function UpdateOrder(): JSX.Element {
   const token = useSelector((state: any) => state.user.token);
@@ -14,28 +45,7 @@ function UpdateOrder(): JSX.Element {
   const { orderId } = useParams();
   const [orderData, setOrderData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [formVisible, setFormVisible] = useState(false);
-
-  const handleFormToggle = () => setFormVisible((v) => !v);
-
-  const handleDeleteOrder = async (): Promise<void> => {
-    try {
-      const response = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (response.ok) {
-        toast.success("تم حذف الطلب بنجاح");
-        setTimeout(() => navigate("/viewOrders"), 1200);
-      } else {
-        const e = await response.json().catch(() => ({}));
-        toast.error(e?.error || "فشل حذف الطلب");
-      }
-    } catch {
-      toast.error("حدث خطأ أثناء الحذف");
-    }
-  };
+  const [showSheet, setShowSheet] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -59,7 +69,10 @@ function UpdateOrder(): JSX.Element {
   }, [orderId, token]);
 
   const title = useMemo(
-    () => (orderData?.customer?.name ? `فاتورة: ${orderData.customer.name}` : "معلومات الفاتورة"),
+    () =>
+      orderData?.customer?.name
+        ? `فاتورة: ${orderData.customer.name}`
+        : "معلومات الفاتورة",
     [orderData]
   );
 
@@ -67,22 +80,46 @@ function UpdateOrder(): JSX.Element {
     <div className="update-order-container" dir="rtl">
       <ToastContainer position="top-right" autoClose={1200} />
       <div className="uo-header">
-        <button className="uo-back" onClick={() => navigate(-1)} aria-label="رجوع">↩︎</button>
+        <button
+          className="uo-back"
+          onClick={() => navigate(-1)}
+          aria-label="رجوع"
+        >
+          ↩︎
+        </button>
         <h2 className="uo-title">{title}</h2>
         <div className="uo-actions">
-          <button className="uo-print" onClick={() => window.print()} aria-label="طباعة">🖨️ طباعة</button>
-          <button className="uo-delete" onClick={handleDeleteOrder} aria-label="حذف">🗑️ حذف</button>
+          <button
+            className="uo-print"
+            onClick={() => window.print()}
+            aria-label="طباعة"
+          >
+            🖨️ طباعة
+          </button>
         </div>
       </div>
 
       <OrderReceipt orderData={orderData} loading={loading} />
 
-      <h2 className="toggle-form-title" onClick={handleFormToggle}>
-        {formVisible ? "إخفاء نموذج الدفع" : "إضافة دفعة جديدة؟"}
-      </h2>
+      {/* Floating action button */}
+      <button
+        className="uo-fab"
+        onClick={() => setShowSheet(true)}
+        aria-label="إضافة دفعة"
+      >
+        +
+      </button>
 
-      {formVisible && orderId && (
-        <AddPaymentForm orderData={orderData} orderId={orderId} setOrderData={setOrderData} />
+      {/* Bottom sheet */}
+      {showSheet && orderId && (
+        <PaymentSheet onClose={() => setShowSheet(false)}>
+          <AddPaymentForm
+            orderData={orderData}
+            orderId={orderId}
+            setOrderData={setOrderData}
+            onSuccess={() => setShowSheet(false)}
+          />
+        </PaymentSheet>
       )}
     </div>
   );

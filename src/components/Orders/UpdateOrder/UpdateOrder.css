@@ -23,7 +23,9 @@
   gap: 6px;
 }
 
-.uo-back, .uo-print, .uo-delete {
+.uo-back,
+.uo-print,
+.uo-delete {
   border: 0;
   background: #f3f4f6;
   color: #082338;
@@ -33,8 +35,14 @@
   font-weight: 700;
 }
 
-.uo-delete { background: #fee2e2; color: #991b1b; }
-.uo-print { background: #ecfeff; color: #155e75; }
+.uo-delete {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.uo-print {
+  background: #ecfeff;
+  color: #155e75;
+}
 
 .toggle-form-title {
   margin-top: 12px;
@@ -60,5 +68,114 @@
     margin: 0;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+  }
+}
+/* existing styles remain … */
+
+.uo-actions {
+  display: inline-flex;
+  gap: 6px;
+}
+.uo-delete {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.uo-print {
+  background: #ecfeff;
+  color: #155e75;
+}
+
+/* Floating add button */
+.uo-fab {
+  position: fixed;
+  inset-inline-end: 16px;
+  inset-block-end: 18px;
+  width: 52px;
+  height: 52px;
+  border-radius: 9999px;
+  border: none;
+  background: linear-gradient(135deg, #0ea5e9, #6366f1);
+  color: #fff;
+  font-size: 28px;
+  line-height: 0;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 10px 24px rgba(2, 18, 33, 0.2);
+  cursor: pointer;
+  z-index: 50;
+}
+
+/* Bottom sheet */
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 18, 33, 0.45);
+  backdrop-filter: blur(2px);
+  display: grid;
+  place-items: end center;
+  z-index: 60;
+}
+.sheet-panel {
+  width: 100%;
+  max-width: 520px;
+  background: #fff;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  box-shadow: 0 -8px 26px rgba(2, 18, 33, 0.25);
+  animation: sheetIn 0.2s ease-out;
+}
+@keyframes sheetIn {
+  from {
+    transform: translateY(12%);
+    opacity: 0.8;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.sheet-handle {
+  width: 56px;
+  height: 5px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  margin: 8px auto 2px;
+}
+.sheet-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  padding: 8px 14px;
+}
+.sheet-title {
+  font-weight: 800;
+  color: #082338;
+}
+.sheet-close {
+  border: none;
+  background: #f3f4f6;
+  color: #082338;
+  border-radius: 10px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+.sheet-body {
+  padding: 10px 14px 16px;
+}
+
+/* Print: hide interactive UI */
+@media print {
+  .uo-header,
+  .uo-fab,
+  .sheet-backdrop,
+  .Toastify,
+  .update-order-container > :not(.print-area) {
+    display: none !important;
+  }
+  .print-area {
+    display: block !important;
+  }
+  @page {
+    margin: 8mm;
   }
 }
