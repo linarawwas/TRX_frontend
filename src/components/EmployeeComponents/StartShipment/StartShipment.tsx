@@ -24,20 +24,19 @@ const StartShipment: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = useSelector((state: RootState) => state.user.token);
-  const companyId = useSelector((state: RootState) => state.user.companyId);
 
-  const [shipmentData, setShipmentData] = useState({
-    dayId: "",
-    day: null,
-    month: null,
-    year: null,
-    companyId: "",
-  });
+  const [shipmentData, setShipmentData] = useState<{
+    dayId: string;
+    day: number | null;
+    month: number | null;
+    year: number | null;
+  }>({ dayId: "", day: null, month: null, year: null });
 
   const [showLoadingModal, setShowLoadingModal] = useState(false);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [preloadError, setPreloadError] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isDevMode =
     new URLSearchParams(window.location.search).get("dev") === "true";
@@ -51,22 +50,36 @@ const StartShipment: React.FC = () => {
     "✅ ضمان الاستمرارية بدون إرسال أو شبكة",
   ];
 
+  // Beirut-local date helpers
+  function getBeirutParts() {
+    const now = new Date();
+    const ymd = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Beirut",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    })
+      .format(now)
+      .split("-");
+    const year = parseInt(ymd[0], 10);
+    const month = parseInt(ymd[1], 10);
+    const day = parseInt(ymd[2], 10);
+    const weekday = new Intl.DateTimeFormat("en-US", {
+      timeZone: "Asia/Beirut",
+      weekday: "long",
+    }).format(now);
+    return { year, month, day, weekday };
+  }
+
   useEffect(() => {
     const initializeDate = async () => {
       try {
-        const now = new Date();
-        const month = now.getMonth() + 1;
-        const day = now.getDate();
-        const year = now.getFullYear();
-        const dayName = now.toLocaleDateString("en-US", { weekday: "long" });
+        const { year, month, day, weekday } = getBeirutParts();
 
         const response = await fetch(
-          `http://localhost:5000/api/days/name/${dayName}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          `http://localhost:5000/api/days/name/${weekday}`,
+          { headers: { Authorization: `Bearer ${token}` } }
         );
-
         if (!response.ok) throw new Error("Day info fetch failed");
 
         const data = await response.json();
@@ -77,34 +90,63 @@ const StartShipment: React.FC = () => {
           day,
           month,
           year,
-          companyId,
         });
       } catch (err) {
         console.error("❌ Day initialization failed:", err);
+        toast.error("تعذر تحديد يوم العمل");
       }
     };
 
     initializeDate();
-  }, [token, companyId]);
+  }, [token]);
 
   const handleShipmentSubmit = async (formData: any) => {
+    if (isSubmitting) return;
+    if (
+      !shipmentData.dayId ||
+      !shipmentData.day ||
+      !shipmentData.month ||
+      !shipmentData.year
+    ) {
+      toast.error("بيانات التاريخ غير مكتملة");
+      return;
+    }
+
+    const carrying = Number(formData.carryingForDelivery || 0);
+    if (!Number.isFinite(carrying) || carrying < 0) {
+      toast.error("الكمية المحملة للتوصيل غير صالحة");
+      return;
+    }
+
+    setIsSubmitting(true);
     try {
+      // ✅ Backend derives companyId/sequence/dateKey/dateStamp
+      const payload = {
+        dayId: shipmentData.dayId,
+        type: 1, // 1 = normal
+        carryingForDelivery: carrying,
+        date: {
+          day: shipmentData.day,
+          month: shipmentData.month,
+          year: shipmentData.year,
+        },
+      };
+
       const response = await fetch("http://localhost:5000/api/shipments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          ...shipmentData,
-          carryingForDelivery: formData.carryingForDelivery,
-        }),
+        body: JSON.stringify(payload),
       });
 
-      if (!response.ok) throw new Error("Shipment creation failed");
+      const shipment = await response.json().catch(() => ({}));
+      if (!response.ok || !shipment?._id) {
+        throw new Error(shipment?.error || "Shipment creation failed");
+      }
 
-      const shipment = await response.json();
-
+      // Push into Redux
       dispatch(clearShipmentInfo());
       dispatch(setDayId(shipmentData.dayId));
       dispatch(setDateDay(shipmentData.day));
@@ -116,7 +158,10 @@ const StartShipment: React.FC = () => {
       toast.success("✅ تم تسجيل الشحنة بنجاح");
       setShowLoadingModal(true);
     } catch (error: any) {
-      toast.error("⚠️ فشل في تسجيل الشحنة: " + error.message);
+      console.error(error);
+      toast.error("⚠️ فشل في تسجيل الشحنة: " + (error?.message || ""));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -124,10 +169,10 @@ const StartShipment: React.FC = () => {
     setIsRetrying(true);
     setPreloadError(false);
     try {
+      // If your preloadShipmentData still needs companyId, keep passing it.
       await preloadShipmentData({
         dayId: shipmentData.dayId,
         token,
-        companyId,
       });
       navigate(`/areas/${shipmentData.dayId}`);
     } catch (error) {
@@ -148,7 +193,6 @@ const StartShipment: React.FC = () => {
         preloadShipmentData({
           dayId: shipmentData.dayId,
           token,
-          companyId,
         })
           .then(() => navigate(`/areas/${shipmentData.dayId}`))
           .catch((err) => {
@@ -158,16 +202,16 @@ const StartShipment: React.FC = () => {
             toast.error("⚠️ فشل في تحميل البيانات");
           });
       }
-    }, 2000); // Customize duration as needed
+    }, 1200);
 
     return () => clearTimeout(timeout);
-  }, [currentStepIndex, showLoadingModal]);
+  }, [currentStepIndex, showLoadingModal, shipmentData.dayId, token, navigate]);
 
   const shipmentConfig = {
     "component-related-fields": {
       modelName: "الشحنات",
       title: "إنهاء الشحنة السابقة وبدء أخرى جديدة",
-      "button-label": "بدء الشحنة",
+      "button-label": isSubmitting ? "جارٍ الإنشاء…" : "بدء الشحنة",
     },
     "model-related-fields": {
       carryingForDelivery: {

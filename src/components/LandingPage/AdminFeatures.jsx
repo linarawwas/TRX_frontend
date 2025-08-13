@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FaTimes } from "react-icons/fa";
-import UpdateExchangeRate from "../ExchangeRate/UpdateExchangeRate";
+// import UpdateExchangeRate from "../ExchangeRate/UpdateExchangeRate";
 import AddDiscount from "../AddDiscount/AddDiscount";
 import "./AdminFeatures.css";
 
@@ -47,7 +47,7 @@ const AdminFeatures = () => {
       {showExchangeRate && (
         <div className="modal-overlay" onClick={handleToggleExchangeRate}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <UpdateExchangeRate />
+            {/* <UpdateExchangeRate /> */}
           </div>
         </div>
       )}

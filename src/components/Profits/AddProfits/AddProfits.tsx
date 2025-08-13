@@ -2,67 +2,85 @@ import React from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../../redux/store"; // Update this path with your Redux store structure
+import { RootState } from "../../../redux/store";
 import {
   setShipmentProfitsInLiras,
   setShipmentProfitsInUSD,
 } from "../../../redux/Shipment/action";
 import AddToModel from "../../AddToModel/AddToModel";
 
+type ProfitForm = {
+  name: string;
+  value: number | string;          // AddToModel may send strings
+  paymentCurrency: "USD" | "LBP";
+};
+
 const AddProfits: React.FC = () => {
-  const exchangeRate = "6537789b6ed59ef09c18213d";
-  const companyId = useSelector((state: RootState) => state.user.companyId);
-  const shipmentId = useSelector((state: RootState) => state.shipment._id);
-  const token = useSelector((state: RootState) => state.user.token);
+  const shipmentId = useSelector((s: RootState) => s.shipment._id);
+  const token = useSelector((s: RootState) => s.user.token);
   const dispatch = useDispatch();
-  const shipmentProfitsInLiras = useSelector(
-    (state: any) => state.shipment.profitsInLiras
-  );
-  const shipmentProfitsInUSD = useSelector(
-    (state: any) => state.shipment.profitsInUSD
-  );
-  const handleSubmit = async (formData: any) => {
+
+  const profitsLBP = useSelector((s: any) => s.shipment.profitsInLiras) ?? 0;
+  const profitsUSD = useSelector((s: any) => s.shipment.profitsInUSD) ?? 0;
+
+  const handleSubmit = async (formData: ProfitForm) => {
     try {
-      const response = await fetch("http://localhost:5000/api/extraProfits", {
+      // normalize + validate
+      const valueNum = Number(formData.value);
+      const currency =
+        String(formData.paymentCurrency).toUpperCase() === "LBP" ? "LBP" : "USD";
+
+      if (!formData.name?.trim()) {
+        toast.error("يرجى إدخال اسم الربح");
+        return;
+      }
+      if (!Number.isFinite(valueNum) || valueNum < 0) {
+        toast.error("قيمة غير صالحة");
+        return;
+      }
+      if (!shipmentId) {
+        toast.error("لا توجد شحنة محددة");
+        return;
+      }
+
+      // Do NOT send companyId or exchangeRate; backend derives them
+      const payload = {
+        name: formData.name.trim(),
+        value: valueNum,
+        paymentCurrency: currency,
+        shipmentId,
+      };
+
+      const res = await fetch("http://localhost:5000/api/extraProfits", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          ...formData,
-          value: Number(formData.value), // <-- force number!
-          companyId,
-          shipmentId,
-          exchangeRate,
-        }),
+        body: JSON.stringify(payload),
       });
-      if (response.ok) {
-        toast.success("Profits successfully recorded.");
-        if (formData.paymentCurrency === "USD") {
-          dispatch(
-            setShipmentProfitsInUSD(
-              parseInt(shipmentProfitsInUSD) + parseInt(formData.value)
-            )
-          );
-        } else {
-          dispatch(
-            setShipmentProfitsInLiras(
-              parseInt(shipmentProfitsInLiras) + parseInt(formData.value)
-            )
-          );
-        }
-      } else {
-        const errorData = await response.json();
-        toast.error(`Error recording Profits: ${errorData.error}`);
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        toast.error(`فشل تسجيل الربح: ${data.error || res.statusText}`);
+        return;
       }
 
-      return response;
-    } catch (error: any) {
-      toast.error(`Network error: ${error}`);
-      throw error;
+      // update live shipment totals
+      if (currency === "USD") {
+        dispatch(setShipmentProfitsInUSD(Number(profitsUSD) + valueNum));
+      } else {
+        dispatch(setShipmentProfitsInLiras(Number(profitsLBP) + valueNum));
+      }
+
+      toast.success("تم تسجيل الربح الإضافي");
+      return res;
+    } catch (err: any) {
+      toast.error(`خطأ في الشبكة: ${err?.message || err}`);
+      throw err;
     }
   };
+
   const profitsConfig = {
     "component-related-fields": {
       modelName: "الأرباح الإضافية",
