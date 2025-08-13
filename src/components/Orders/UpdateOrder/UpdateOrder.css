@@ -1,22 +1,64 @@
 .update-order-container {
-  padding: 20px;
-  font-family: "Arial", sans-serif;
+  padding: 12px;
+  font-family: system-ui, -apple-system, "Segoe UI", "Arial", sans-serif;
+}
+
+.uo-header {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.uo-title {
+  margin: 0;
+  font-size: 18px;
+  color: #082338;
   text-align: center;
 }
-/* .delete-button {
-  background-color: #861212;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-} */
 
-/* .toggle-form-title {
-  text-align: center;
-  margin: 20px 0;
+.uo-actions {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.uo-back, .uo-print, .uo-delete {
+  border: 0;
+  background: #f3f4f6;
+  color: #082338;
+  border-radius: 10px;
+  padding: 8px 10px;
   cursor: pointer;
-  font-size: 1.1rem;
-  color: #06355e;
-  text-decoration: underline;
-} */
+  font-weight: 700;
+}
+
+.uo-delete { background: #fee2e2; color: #991b1b; }
+.uo-print { background: #ecfeff; color: #155e75; }
+
+.toggle-form-title {
+  margin-top: 12px;
+  font-size: 15px;
+  color: #0f4a6a;
+  text-align: center;
+  cursor: pointer;
+}
+
+/* Print: only show receipt content (OrderReceipt sets a class) */
+@media print {
+  .uo-header,
+  .toggle-form-title,
+  .payment-form,
+  .Toastify,
+  .update-order-container > :not(.print-area) {
+    display: none !important;
+  }
+  .print-area {
+    display: block !important;
+  }
+  body {
+    margin: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "../../UI reusables/UpdateSingleRecord/UpdateSingleRecord.css";
 import { toast, ToastContainer } from "react-toastify";
@@ -7,7 +7,6 @@ import { useSelector } from "react-redux";
 import "./UpdateOrder.css";
 import AddPaymentForm from "./AddPaymentForm/AddPaymentForm";
 import OrderReceipt from "./OrderReceipt/OrderReceipt";
-import PaymentInfo from "./PaymentInfo/PaymentInfo";
 
 function UpdateOrder(): JSX.Element {
   const token = useSelector((state: any) => state.user.token);
@@ -17,62 +16,73 @@ function UpdateOrder(): JSX.Element {
   const [loading, setLoading] = useState<boolean>(true);
   const [formVisible, setFormVisible] = useState(false);
 
-  const handleFormToggle = () => setFormVisible(!formVisible);
+  const handleFormToggle = () => setFormVisible((v) => !v);
 
   const handleDeleteOrder = async (): Promise<void> => {
     try {
-      const response = await fetch(
-        `http://localhost:5000/api/orders/${orderId}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       if (response.ok) {
         toast.success("تم حذف الطلب بنجاح");
-        setTimeout(() => navigate("/viewOrders"), 1500);
+        setTimeout(() => navigate("/viewOrders"), 1200);
       } else {
-        toast.error("فشل حذف الطلب");
+        const e = await response.json().catch(() => ({}));
+        toast.error(e?.error || "فشل حذف الطلب");
       }
-    } catch (error) {
+    } catch {
       toast.error("حدث خطأ أثناء الحذف");
     }
   };
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/orders/${orderId}`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
+    (async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data?.error || "failed");
         setOrderData(data);
-        setLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("Error:", err);
+        toast.error("تعذر تحميل الطلب");
+      } finally {
         setLoading(false);
-      });
+      }
+    })();
   }, [orderId, token]);
 
+  const title = useMemo(
+    () => (orderData?.customer?.name ? `فاتورة: ${orderData.customer.name}` : "معلومات الفاتورة"),
+    [orderData]
+  );
+
   return (
-    <div className="update-order-container" style={{ direction: "rtl" }}>
-      <ToastContainer position="top-right" autoClose={1000} />
-      <h2>معلومات الفاتورة</h2>
+    <div className="update-order-container" dir="rtl">
+      <ToastContainer position="top-right" autoClose={1200} />
+      <div className="uo-header">
+        <button className="uo-back" onClick={() => navigate(-1)} aria-label="رجوع">↩︎</button>
+        <h2 className="uo-title">{title}</h2>
+        <div className="uo-actions">
+          <button className="uo-print" onClick={() => window.print()} aria-label="طباعة">🖨️ طباعة</button>
+          <button className="uo-delete" onClick={handleDeleteOrder} aria-label="حذف">🗑️ حذف</button>
+        </div>
+      </div>
+
       <OrderReceipt orderData={orderData} loading={loading} />
-      <PaymentInfo payments={orderData?.payments} />
+
       <h2 className="toggle-form-title" onClick={handleFormToggle}>
-        {formVisible ? "إخفاء النموذج" : "إضافة دفع جديد؟"}
+        {formVisible ? "إخفاء نموذج الدفع" : "إضافة دفعة جديدة؟"}
       </h2>
-      {formVisible && (
-        <AddPaymentForm
-          orderData={orderData}
-          orderId={orderId}
-          setOrderData={setOrderData}
-        />
+
+      {formVisible && orderId && (
+        <AddPaymentForm orderData={orderData} orderId={orderId} setOrderData={setOrderData} />
       )}
     </div>
   );
