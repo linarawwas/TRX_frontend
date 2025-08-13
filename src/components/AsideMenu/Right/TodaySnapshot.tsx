@@ -15,10 +15,11 @@ const TodaySnapshot: React.FC = () => {
   const profUSD = useSelector((s: any) => s.shipment.profitsInUSD) || 0;
   const profLBP = useSelector((s: any) => s.shipment.profitsInLiras) || 0;
 
-  const pct = useMemo(() => {
-    const t = Math.max(target, delivered + returned); // fallback when no target
-    return t ? Math.min(100, Math.round((delivered / t) * 100)) : 0;
-  }, [target, delivered, returned]);
+// percent vs target (never uses "returned")
+const pctRaw = target > 0 ? (delivered / target) * 100 : 0;
+const pctForBar = Math.min(100, Math.max(0, Math.round(pctRaw))); // bar width (cap 100)
+const pctDisplay = Math.max(0, Math.round(pctRaw));                // text (can be >100)
+const overBy = target > 0 ? Math.max(0, delivered - target) : 0;   // how many above target
 
   return (
     <section className="snap-card" dir="rtl">
@@ -32,44 +33,27 @@ const TodaySnapshot: React.FC = () => {
         <span className={`chev ${open ? "up" : "down"}`} />
       </button>
 
-      <div id="today-panel" className={`snap-panel ${open ? "open" : ""}`}>
-        {/* Progress */}
-        <div className="progress">
-          <div className="progress-head">
-            <div>الهدف: <strong>{target}</strong></div>
-            <div>تم التسليم: <strong>{delivered}</strong></div>
-          </div>
-          <div className="bar">
-            <div className="bar-fill" style={{ width: `${pct}%` }} />
-          </div>
-          <div className="progress-foot">
-            <span>{pct}% من الهدف</span>
-            <span>المُعاد: {returned}</span>
-          </div>
-        </div>
-
-        {/* KPIs */}
-        <div className="kpis">
-          <div className="kpi">
-            <span className="kpi-label">نقدية اليوم</span>
-            <span className="kpi-value">
-              ${paidUSD.toLocaleString("en-US")} • {paidLBP.toLocaleString("en-US")} ل.ل
-            </span>
-          </div>
-          <div className="kpi">
-            <span className="kpi-label">المصاريف</span>
-            <span className="kpi-value">
-              ${expUSD.toLocaleString("en-US")} • {expLBP.toLocaleString("en-US")} ل.ل
-            </span>
-          </div>
-          <div className="kpi">
-            <span className="kpi-label">الأرباح الإضافية</span>
-            <span className="kpi-value">
-              ${profUSD.toLocaleString("en-US")} • {profLBP.toLocaleString("en-US")} ل.ل
-            </span>
-          </div>
-        </div>
+<div id="today-panel" className={`snap-panel ${open ? "open" : ""}`}>
+  <div className="progress">
+    <div className="progress-head">
+      <div>الهدف: <strong>{target}</strong></div>
+      <div>
+        تم التسليم: <strong>{delivered}</strong>
+        {overBy > 0 && <span className="over-badge">+{overBy}</span>}
       </div>
+    </div>
+
+    <div className="bar">
+      <div className="bar-fill" style={{ width: `${pctForBar}%` }} />
+    </div>
+
+    <div className="progress-foot">
+      <span>{pctDisplay}% من الهدف</span>
+      <span>المُعاد: {returned}</span>
+    </div>
+  </div>
+</div>
+
     </section>
   );
 };

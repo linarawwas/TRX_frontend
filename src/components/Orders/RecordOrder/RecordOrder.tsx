@@ -40,6 +40,12 @@ const RecordOrder = (props) => {
   const productPrice = useSelector((s) => s.order.product_price);
   const [showLbpPad, setShowLbpPad] = useState(false);
 
+  // NEW: pull current shipment totals so we can increment them
+  const shipmentDelivered = useSelector((s) => s.shipment.delivered) ?? 0;
+  const shipmentReturned = useSelector((s) => s.shipment.returned) ?? 0;
+  const shipmentUsd = useSelector((s) => s.shipment.dollarPayments) ?? 0;
+  const shipmentLbp = useSelector((s) => s.shipment.liraPayments) ?? 0;
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState({
     delivered: 0,
@@ -101,24 +107,24 @@ const RecordOrder = (props) => {
     if (isSubmitting) return;
     setIsSubmitting(true);
 
-    // build payments WITHOUT any exchange-rate fields
-    const payments = [];
-    if (form.paidUSD > 0) {
-      payments.push({ amount: Number(form.paidUSD), currency: "USD" });
-    }
-    if (form.paidLBP > 0) {
-      payments.push({ amount: Number(form.paidLBP), currency: "LBP" });
-    }
+    // normalize inputs
+    const dDelivered = Number(form.delivered) || 0;
+    const dReturned = Number(form.returned) || 0;
+    const payUSD = Number(form.paidUSD) || 0;
+    const payLBP = Number(form.paidLBP) || 0;
 
-    // server-managed tenancy: do NOT send companyId
-    // do NOT send areaId (not used by the endpoint)
+    // build payments WITHOUT exchange-rate fields
+    const payments = [];
+    if (payUSD > 0) payments.push({ amount: payUSD, currency: "USD" });
+    if (payLBP > 0) payments.push({ amount: payLBP, currency: "LBP" });
+
     const orderPayload = {
-      delivered: Number(form.delivered),
-      returned: Number(form.returned),
+      delivered: dDelivered,
+      returned: dReturned,
       customerid: customerId,
-      productId,      // numeric code
-      shipmentId,     // ObjectId
-      payments,       // [{amount,currency}]
+      productId, // numeric code
+      shipmentId, // ObjectId
+      payments,
     };
 
     const request = {
@@ -133,47 +139,69 @@ const RecordOrder = (props) => {
       },
     };
 
-    const dispatchSummary = (d) => {
-      dispatch(setShipmentDelivered(d.delivered));
-      dispatch(setShipmentReturned(d.returned));
-      dispatch(setShipmentPayments(d.paid));
-      dispatch(setShipmentPaymentsInLiras(d.SumOfPaymentsInLiras));
-      dispatch(setShipmentPaymentsInDollars(d.SumOfPaymentsInDollars));
-    };
-
+    // ------- OFFLINE: queue + optimistic local increments -------
     if (!navigator.onLine) {
       await saveRequest(request);
       dispatch(addPendingOrder(customerId));
+
+      // increment local shipment counters so driver sees instant feedback
+      if (dDelivered)
+        dispatch(setShipmentDelivered(shipmentDelivered + dDelivered));
+      if (dReturned)
+        dispatch(setShipmentReturned(shipmentReturned + dReturned));
+      if (payUSD) dispatch(setShipmentPaymentsInDollars(shipmentUsd + payUSD));
+      if (payLBP) dispatch(setShipmentPaymentsInLiras(shipmentLbp + payLBP));
+
+      // tag the customer in lists
+      if (!dDelivered && !dReturned && !payUSD && !payLBP) {
+        dispatch(addCustomerWithEmptyOrder(customerId));
+      } else {
+        dispatch(addCustomerWithFilledOrder(customerId));
+      }
+
       toast.info("📡 سيتم حفظ الطلب عند عودة الاتصال");
       navigate(-1);
+      setIsSubmitting(false);
       return;
     }
 
+    // ------- ONLINE: submit then increment locally -------
     try {
       const res = await fetch(request.url, request.options);
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
-      if (res.ok) {
-        dispatchSummary(data);
-        dispatch(removePendingOrder(customerId));
-        fetchAndCacheCustomerInvoice(customerId, token).catch(() => {});
-        if (!form.delivered && !form.returned && !form.paidUSD && !form.paidLBP) {
-          dispatch(addCustomerWithEmptyOrder(customerId));
-        } else {
-          dispatch(addCustomerWithFilledOrder(customerId));
-        }
-        toast.success("✅ تم تسجيل الطلب");
-        navigate(-1);
-      } else {
+      if (!res.ok) {
         toast.error(`❌ ${data.error || data.message || "فشل إنشاء الطلب"}`);
+        return;
       }
-    } catch (_err) {
+
+      // increment local shipment counters by the deltas we just sent
+      if (dDelivered)
+        dispatch(setShipmentDelivered(shipmentDelivered + dDelivered));
+      if (dReturned)
+        dispatch(setShipmentReturned(shipmentReturned + dReturned));
+      if (payUSD) dispatch(setShipmentPaymentsInDollars(shipmentUsd + payUSD));
+      if (payLBP) dispatch(setShipmentPaymentsInLiras(shipmentLbp + payLBP));
+
+      // clean up pending state if any & refresh customer invoice cache
+      dispatch(removePendingOrder(customerId));
+      fetchAndCacheCustomerInvoice(customerId, token).catch(() => {});
+
+      // mark the customer as filled/empty
+      if (!dDelivered && !dReturned && !payUSD && !payLBP) {
+        dispatch(addCustomerWithEmptyOrder(customerId));
+      } else {
+        dispatch(addCustomerWithFilledOrder(customerId));
+      }
+
+      toast.success("✅ تم تسجيل الطلب");
+      navigate(-1);
+    } catch {
       toast.error("❌ فشل الاتصال بالشبكة");
     } finally {
       setIsSubmitting(false);
     }
   };
-
 
   /* ---------------- Render UI (unchanged) ---------------- */
   return (

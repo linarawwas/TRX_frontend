@@ -48,3 +48,4 @@
 }
 .kpi-label{ color: var(--muted); font-size: 12px; }
 .kpi-value{ color: var(--ink); font-weight: 800; font-size: 14px; }
+.over-badge{margin-inline-start:6px;padding:2px 8px;border-radius:9999px;background:#10b981;color:#fff;font-size:12px;font-weight:700}
