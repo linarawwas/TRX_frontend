@@ -32,8 +32,6 @@ const RecordOrder = (props) => {
   const token = useSelector((s) => s.user.token);
   const customerId = useSelector((s) => s.order.customer_Id);
   const customerName = useSelector((s) => s.order.customer_name);
-  const customerPhone = useSelector((s) => s.order.customer_phone); // make sure you store this
-  const areaId = useSelector((s) => s.order.area_Id);
   const shipmentId = useSelector((s) => s.shipment._id);
   const productName = useSelector((s) => s.order.product_name);
   const productId = useSelector((s) => s.order.product_id);

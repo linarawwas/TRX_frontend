@@ -98,18 +98,19 @@ const shipmentReducer = (state = initialState, action) => {
     case ADD_PENDING_ORDER:
       return {
         ...state,
-        CustomersWithPendingOrders: [
-          ...state.CustomersWithPendingOrders,
-          action.payload,
-        ],
+        CustomersWithPendingOrders: Array.from(
+          new Set([...state.CustomersWithPendingOrders, String(action.payload)])
+        ),
       };
+
     case REMOVE_PENDING_ORDER:
       return {
         ...state,
         CustomersWithPendingOrders: state.CustomersWithPendingOrders.filter(
-          (id) => id !== action.payload
+          (id) => String(id) !== String(action.payload)
         ),
       };
+
     case SET_SHIPMENT_FROM_PREV:
       return {
         ...state,
