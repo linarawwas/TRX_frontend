@@ -217,7 +217,8 @@ const StartShipment: React.FC = () => {
     "model-related-fields": {
       carryingForDelivery: {
         label: "الكمية المحملة للتوصيل",
-        "input-type": "numberPicker",
+        "input-type": "digit-carousal",
+
         min: 0,
       },
     },
