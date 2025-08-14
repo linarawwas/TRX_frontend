@@ -161,3 +161,22 @@
   }
   .add-model-title { font-size: 16px; }
 }
+/* AddToModel.css additions for confirm sheet */
+.confirm-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.35);
+  display: grid; place-items: end center; z-index: 40;
+}
+.confirm-card {
+  width: min(560px, 94vw); background: #fff; border-radius: 16px 16px 0 0;
+  padding: 14px 14px 12px; box-shadow: 0 -8px 30px rgba(0,0,0,.18);
+  animation: slideUp .18s ease-out;
+}
+@keyframes slideUp { from { transform: translateY(16px); opacity: .6; } to { transform:none; opacity:1; } }
+
+.confirm-title { margin: 4px 4px 10px; color:#082338; text-align:center; }
+.confirm-note { margin: 0 0 8px; color:#555; }
+.confirm-list { display: grid; gap: 6px; max-height: 38vh; overflow:auto; padding: 6px; border:1px solid #eee; border-radius:10px; }
+.confirm-row { display:flex; justify-content:space-between; gap:10px; font-size:.95rem; }
+.confirm-key { color:#0f4a6a; font-weight:700; }
+.confirm-val { color:#082338; }
+.confirm-actions { display:flex; justify-content: space-between; gap:.5rem; margin-top: .75rem; }

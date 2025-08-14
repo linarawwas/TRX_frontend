@@ -1,5 +1,4 @@
-// for profits, expenses, products, and shipments:
-
+// AddToModel.tsx
 import React, { useState, useCallback, ChangeEvent, FormEvent, useMemo, useRef } from "react";
 import "./AddToModel.css";
 import VerticalNumberPicker from "./VerticalNumberPicker";
@@ -9,16 +8,11 @@ interface FieldConfig {
   label: string;
   "input-type": "text" | "number" | "slider" | "selectOption" | "numberPicker" | "tripleDigit";
   options?: { value: string | number | boolean; label: string }[];
-  required?: boolean;            // default: true
+  required?: boolean;
   placeholder?: string;
-  min?: number;
-  max?: number;
-  step?: number;
+  min?: number; max?: number; step?: number;
 }
-
-interface ModelFields {
-  [key: string]: FieldConfig;
-}
+interface ModelFields { [key: string]: FieldConfig; }
 
 interface Props {
   modelName: string;
@@ -27,9 +21,11 @@ interface Props {
   modelFields: ModelFields;
   onSubmit: (data: Record<string, any>) => Promise<any>;
   initialValues?: Record<string, string | number | boolean>;
-  validate?: (data: Record<string, any>) => string | null; // return error message or null
+  validate?: (data: Record<string, any>) => string | null;
   onSuccess?: (result: any) => void;
   onCancel?: () => void;
+  /** Optional builder to customize confirm content (title/body) */
+  confirmBuilder?: (data: Record<string, any>) => { title?: string; body?: React.ReactNode } | null;
 }
 
 const AddToModel: React.FC<Props> = ({
@@ -42,13 +38,14 @@ const AddToModel: React.FC<Props> = ({
   validate,
   onSuccess,
   onCancel,
+  confirmBuilder,
 }) => {
   const [formData, setFormData] = useState<Record<string, any>>({ ...initialValues });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
+  const [showConfirm, setShowConfirm] = useState(false);
   const inFlight = useRef(false);
 
-  // Autofocus first field name
   const firstFieldName = useMemo(() => Object.keys(modelFields)[0] ?? "", [modelFields]);
 
   const setField = useCallback((name: string, value: any) => {
@@ -59,8 +56,6 @@ const AddToModel: React.FC<Props> = ({
     const { name, value, type } = e.target;
     const cfg = modelFields[name];
     if (!cfg) return;
-
-    // Normalize numbers
     if (cfg["input-type"] === "number") {
       setField(name, value === "" ? "" : Number(value));
     } else if (type === "select-one") {
@@ -74,7 +69,6 @@ const AddToModel: React.FC<Props> = ({
     setField(fieldName, val);
   }, [setField]);
 
-  // Build payload with numeric normalization where applicable
   const buildPayload = useCallback(() => {
     const payload: Record<string, any> = {};
     for (const [name, cfg] of Object.entries(modelFields)) {
@@ -88,10 +82,9 @@ const AddToModel: React.FC<Props> = ({
     return payload;
   }, [formData, modelFields]);
 
-  // Basic required check (can be overridden with validate())
   const validateLocal = useCallback((): string | null => {
     for (const [name, cfg] of Object.entries(modelFields)) {
-      const required = cfg.required !== false; // default true
+      const required = cfg.required !== false;
       if (!required) continue;
       const v = formData[name];
       if (v === undefined || v === null || v === "") {
@@ -103,38 +96,34 @@ const AddToModel: React.FC<Props> = ({
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (isSubmitting || inFlight.current) return; // hard guard
+    if (isSubmitting || inFlight.current) return;
 
-    // Validation
     setStatusMsg(null);
     const localErr = validateLocal();
-    if (localErr) {
-      setStatusMsg(localErr);
-      return;
-    }
-    const customErr = validate?.(formData) ?? null;
-    if (customErr) {
-      setStatusMsg(customErr);
-      return;
-    }
+    if (localErr) { setStatusMsg(localErr); return; }
 
-    // Lock UI
+    const customErr = validate?.(formData) ?? null;
+    if (customErr) { setStatusMsg(customErr); return; }
+
+    // ✅ Pass validation → open confirm sheet instead of sending
+    setShowConfirm(true);
+  };
+
+  const actuallySend = async () => {
+    if (isSubmitting || inFlight.current) return;
     setIsSubmitting(true);
     inFlight.current = true;
     setStatusMsg("جارٍ الحفظ...");
-
     try {
       const payload = buildPayload();
       const result = await onSubmit(payload);
       setStatusMsg("تم الحفظ بنجاح ✅");
       onSuccess?.(result);
-
-      // Optional: reset fields after success (comment out if you prefer to keep values)
       setFormData({});
+      setShowConfirm(false);
     } catch (error: any) {
       setStatusMsg(error?.message || "حدث خطأ غير متوقع. حاول مجددًا.");
     } finally {
-      // keep the success message visible for a moment
       setTimeout(() => {
         setIsSubmitting(false);
         inFlight.current = false;
@@ -143,15 +132,32 @@ const AddToModel: React.FC<Props> = ({
     }
   };
 
+  // Default confirm body: compact summary table
+  const defaultConfirm = () => (
+    <>
+      <p className="confirm-note">راجع القيم قبل الإرسال:</p>
+      <div className="confirm-list">
+        {Object.entries(modelFields).map(([k, cfg]) => (
+          <div key={k} className="confirm-row">
+            <div className="confirm-key">{cfg.label}</div>
+            <div className="confirm-val">{String(formData[k] ?? "—")}</div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+
+  const confirmContent = confirmBuilder?.(formData) || {};
+  const confirmTitle = confirmContent.title ?? `تأكيد ${modelName}`;
+  const confirmBody  = confirmContent.body  ?? defaultConfirm();
+
   return (
     <div className={`add-model-container ${isSubmitting ? "submitting" : ""}`} dir="rtl" aria-busy={isSubmitting}>
-      {/* Progress bar */}
       {isSubmitting && <div className="submit-bar" aria-hidden="true" />}
 
       <h1 className="add-model-title">{title}</h1>
 
       <form className="add-model-form" onSubmit={handleSubmit}>
-        {/* Status line for SR/visual feedback */}
         {statusMsg && (
           <div className="status-line" role="status" aria-live="polite">
             {isSubmitting && <span className="spinner" aria-hidden="true" />}
@@ -244,7 +250,6 @@ const AddToModel: React.FC<Props> = ({
             );
           }
 
-          // default: triple digit picker
           return (
             <div key={fieldName} className="field">
               <span className="field-label">
@@ -260,20 +265,11 @@ const AddToModel: React.FC<Props> = ({
 
         <div className="actions">
           {onCancel && (
-            <button
-              type="button"
-              className="btn secondary"
-              onClick={onCancel}
-              disabled={isSubmitting}
-            >
+            <button type="button" className="btn secondary" onClick={onCancel} disabled={isSubmitting}>
               إلغاء
             </button>
           )}
-          <button
-            className={`btn primary ${isSubmitting ? "loading" : ""}`}
-            type="submit"
-            disabled={isSubmitting}
-          >
+          <button className={`btn primary ${isSubmitting ? "loading" : ""}`} type="submit" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <span className="spinner" aria-hidden="true" />
@@ -285,6 +281,24 @@ const AddToModel: React.FC<Props> = ({
           </button>
         </div>
       </form>
+
+      {/* Confirm Sheet */}
+      {showConfirm && (
+        <div className="confirm-overlay" role="dialog" aria-modal="true">
+          <div className="confirm-card" dir="rtl">
+            <h3 className="confirm-title">{confirmTitle}</h3>
+            <div className="confirm-body">{confirmBody}</div>
+            <div className="confirm-actions">
+              <button className="btn secondary" onClick={() => setShowConfirm(false)} disabled={isSubmitting}>
+                تعديل
+              </button>
+              <button className="btn primary" onClick={actuallySend} disabled={isSubmitting}>
+                تأكيد الإرسال
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

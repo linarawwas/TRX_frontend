@@ -1,51 +1,142 @@
-:root{
-  --ink:#0a2538; --muted:#6b7280; --card:#fff; --stroke:#e5e7eb;
-  --accent:#4caf50; --accent-soft:#e8f5e9;
+:root {
+  --ink: #0a2538;
+  --muted: #6b7280;
+  --card: #fff;
+  --stroke: #e5e7eb;
+  --accent: #4caf50;
+  --accent-soft: #e8f5e9;
 }
 
-.snap-card{
+.snap-card {
   background: var(--card);
-  border:1px solid var(--stroke);
+  border: 1px solid var(--stroke);
   border-radius: 16px;
   padding: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,.05);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   margin: 8px 10px 12px;
 }
 
-.snap-toggle{
+.snap-toggle {
   width: 100%;
-  display:flex; align-items:center; justify-content:space-between;
-  background:#fff; border:none; cursor:pointer;
-  padding: 8px 6px; border-radius: 10px;
-  font-weight: 900; color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border: none;
+  cursor: pointer;
+  padding: 8px 6px;
+  border-radius: 10px;
+  font-weight: 900;
+  color: var(--ink);
 }
-.chev{ width:10px; height:10px; border-inline-start:2px solid var(--ink); border-top:2px solid var(--ink); transform: rotate(-45deg); transition:.15s; }
-.chev.up{ transform: rotate(135deg); }
-.chev.down{ transform: rotate(-45deg); }
+.chev {
+  width: 10px;
+  height: 10px;
+  border-inline-start: 2px solid var(--ink);
+  border-top: 2px solid var(--ink);
+  transform: rotate(-45deg);
+  transition: 0.15s;
+}
+.chev.up {
+  transform: rotate(135deg);
+}
+.chev.down {
+  transform: rotate(-45deg);
+}
 
-.snap-panel{ display:grid; gap:10px; margin-top:8px; }
-.snap-panel:not(.open){ display:none; }
+.snap-panel {
+  display: grid;
+  gap: 10px;
+  margin-top: 8px;
+}
+.snap-panel:not(.open) {
+  display: none;
+}
 
-.progress-head, .progress-foot{
-  display:flex; justify-content:space-between; font-size: 13px; color: var(--ink);
+.progress-head,
+.progress-foot {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--ink);
 }
-.bar{
-  height: 12px; background:#f3f4f6; border-radius: 999px; overflow: hidden;
-  border:1px solid var(--stroke);
+.bar {
+  height: 12px;
+  background: #f3f4f6;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--stroke);
 }
-.bar-fill{
-  height: 100%; background: linear-gradient(90deg, var(--accent) 0%, #68d391 100%);
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent) 0%, #68d391 100%);
   width: 0;
-  transition: width .3s ease;
+  transition: width 0.3s ease;
 }
 
-.kpis{ display:grid; gap:8px; grid-template-columns: 1fr; }
-@media(min-width:430px){ .kpis{ grid-template-columns: 1fr 1fr 1fr; } }
-
-.kpi{
-  background: #f9fbfc; border:1px solid var(--stroke); border-radius: 12px;
-  padding: 10px; display:flex; flex-direction:column; gap:2px;
+.kpis {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr;
 }
-.kpi-label{ color: var(--muted); font-size: 12px; }
-.kpi-value{ color: var(--ink); font-weight: 800; font-size: 14px; }
-.over-badge{margin-inline-start:6px;padding:2px 8px;border-radius:9999px;background:#10b981;color:#fff;font-size:12px;font-weight:700}
+@media (min-width: 430px) {
+  .kpis {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+.kpi {
+  background: #f9fbfc;
+  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.kpi-label {
+  color: var(--muted);
+  font-size: 12px;
+}
+.kpi-value {
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 14px;
+}
+.over-badge {
+  margin-inline-start: 6px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: #10b981;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+/* TodaySnapshot.css additions */
+.progress.reached .bar-fill {
+  filter: saturate(1.2);
+}
+.over-badge {
+  margin-inline-start: 0.4rem;
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 0.05rem 0.35rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+.target-lock {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  background: #ecfeff;
+  border: 1px solid #67e8f9;
+  color: #0e7490;
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  font-weight: 700;
+}
+.lock-emoji {
+  font-size: 1.1rem;
+}

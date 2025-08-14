@@ -207,6 +207,7 @@ const StartShipment: React.FC = () => {
     return () => clearTimeout(timeout);
   }, [currentStepIndex, showLoadingModal, shipmentData.dayId, token, navigate]);
 
+  // StartShipment.tsx (only changes shown)
   const shipmentConfig = {
     "component-related-fields": {
       modelName: "الشحنات",
@@ -216,9 +217,38 @@ const StartShipment: React.FC = () => {
     "model-related-fields": {
       carryingForDelivery: {
         label: "الكمية المحملة للتوصيل",
-        "input-type": "digit-carousal",
+        "input-type": "numberPicker",
+        min: 0,
       },
     },
+  };
+
+  // Confirmation content tailored for shipments
+  const buildShipmentConfirm = (data: Record<string, any>) => {
+    const qty = Number(data.carryingForDelivery || 0);
+    return {
+      title: "تأكيد بدء الشحنة",
+      body: (
+        <div className="confirm-block">
+          <p style={{ marginTop: 0 }}>
+            هل أنت متأكد من بدء الشحنة بـ <strong>{qty}</strong> قنينة كهدف
+            للتسليم؟
+          </p>
+          <p
+            style={{
+              color: "#7a2e2e",
+              background: "#fff1f2",
+              border: "1px solid #fecdd3",
+              padding: "8px 10px",
+              borderRadius: "10px",
+            }}
+          >
+            <strong>تنبيه:</strong> لن تتمكن من تسليم أكثر من هذا الهدف ضمن هذه
+            الشحنة. عند الوصول، ستحتاج لبدء شحنة جديدة.
+          </p>
+        </div>
+      ),
+    };
   };
 
   return (
@@ -229,6 +259,7 @@ const StartShipment: React.FC = () => {
         buttonLabel={shipmentConfig["component-related-fields"]["button-label"]}
         modelFields={shipmentConfig["model-related-fields"]}
         onSubmit={handleShipmentSubmit}
+        confirmBuilder={buildShipmentConfirm} // 👈 add this
       />
 
       {preloadError && (
