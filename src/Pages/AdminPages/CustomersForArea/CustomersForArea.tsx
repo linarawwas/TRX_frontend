@@ -1,3 +1,4 @@
+// CustomersForAreaMobile.tsx
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -15,12 +16,23 @@ interface Customer {
   name: string;
   address: string;
   phone: string;
+  sequence?: number | null; // ⬅️ add this
 }
 
 const COMPLETED_KEY = (areaId?: string) =>
   `trx.completed.collapsed.${areaId ?? "unknown"}`;
 const PENDING_KEY = (areaId?: string) =>
   `trx.pending.collapsed.${areaId ?? "unknown"}`;
+
+// stable sort helper: sequence asc, nulls last, then name
+const bySequenceThenName = (a: Customer, b: Customer) => {
+  const sa =
+    typeof a.sequence === "number" ? a.sequence! : Number.POSITIVE_INFINITY;
+  const sb =
+    typeof b.sequence === "number" ? b.sequence! : Number.POSITIVE_INFINITY;
+  if (sa !== sb) return sa - sb;
+  return (a.name || "").localeCompare(b.name || "", "ar");
+};
 
 const CustomersForArea = (): JSX.Element => {
   const dispatch = useDispatch();
@@ -42,7 +54,7 @@ const CustomersForArea = (): JSX.Element => {
     (state: any) => state.shipment?.CustomersWithEmptyOrders ?? []
   );
 
-  // Load cached customers
+  // Load cached customers (and sort by sequence)
   useEffect(() => {
     dispatch(clearCustomerId());
     dispatch(clearCustomerName());
@@ -50,9 +62,15 @@ const CustomersForArea = (): JSX.Element => {
       try {
         setLoading(true);
         const cached = await getCustomersFromDB(areaId!);
-        if (cached) setCustomers(cached);
+        if (cached) {
+          const sorted = [...cached].sort(bySequenceThenName);
+          setCustomers(sorted);
+        } else {
+          setCustomers([]);
+        }
       } catch (e) {
         console.error("❌ IndexedDB load error:", e);
+        setCustomers([]);
       } finally {
         setLoading(false);
       }
@@ -80,7 +98,7 @@ const CustomersForArea = (): JSX.Element => {
   });
   const [pendingCollapsed, setPendingCollapsed] = useState<boolean>(() => {
     const saved = sessionStorage.getItem(PENDING_KEY(areaId));
-    return saved ? saved === "true" : false; // default expanded (high visibility)
+    return saved ? saved === "true" : false; // default expanded
   });
 
   useEffect(() => {
@@ -106,6 +124,7 @@ const CustomersForArea = (): JSX.Element => {
       const emptySet = new Set((customersWithEmptyOrders ?? []).map(norm));
       const pendingSet = new Set((customersWithPendingOrders ?? []).map(norm));
 
+      // We already sorted `customers`; just preserve that order
       const completed: Array<{ c: Customer; statusClass: "filled" | "empty" }> =
         [];
       const active: Array<{ c: Customer; statusClass: "" }> = [];
@@ -115,7 +134,6 @@ const CustomersForArea = (): JSX.Element => {
         if (!matches(c)) continue;
         const id = String(c._id);
 
-        // Pending gets highest priority
         if (pendingSet.has(id)) {
           pending.push({ c });
           continue;
@@ -165,9 +183,7 @@ const CustomersForArea = (): JSX.Element => {
           </div>
         </div>
       )}
-
       <h3 className="area-title">الزبائن في هذه المنطقة</h3>
-
       <input
         type="text"
         className="customer-search-input"
@@ -176,7 +192,6 @@ const CustomersForArea = (): JSX.Element => {
         onChange={(e) => setSearchTerm(e.target.value)}
         inputMode="search"
       />
-
       {loading ? (
         <p className="loading-text">⏳ جارٍ تحميل الزبائن...</p>
       ) : (
@@ -310,7 +325,6 @@ const CustomersForArea = (): JSX.Element => {
           </section>
         </>
       )}
-
       {showScrollTop && (
         <button
           className="scroll-to-top-btn"
@@ -319,7 +333,7 @@ const CustomersForArea = (): JSX.Element => {
         >
           ⬆️
         </button>
-      )}
+      )}{" "}
     </div>
   );
 };
