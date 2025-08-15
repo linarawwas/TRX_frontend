@@ -14,18 +14,19 @@ interface Customer {
 }
 
 export default function Addresses(): JSX.Element {
-  const token: string = useSelector((state: any) => state.user.token);
-  const companyId: string = useSelector((state: any) => state.user.companyId);
+  const token: string = useSelector((s: any) => s.user.token);
+  const companyId: string = useSelector((s: any) => s.user.companyId);
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
   const { areaId } = useParams();
 
-  // Reorder mode state
+  // Reorder mode
   const [reorderMode, setReorderMode] = useState(false);
   const [orderIds, setOrderIds] = useState<string[]>([]);
+
+  // DnD refs (desktop only)
   const dragIndex = useRef<number | null>(null);
-  const overIndex = useRef<number | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -36,7 +37,7 @@ export default function Addresses(): JSX.Element {
         });
         const data: Customer[] = await res.json();
 
-        // sort by sequence (nulls last), then by name as tie-breaker
+        // Order by sequence (nulls last) then name
         const sorted = [...data].sort((a, b) => {
           const sa = a.sequence ?? Number.POSITIVE_INFINITY;
           const sb = b.sequence ?? Number.POSITIVE_INFINITY;
@@ -46,90 +47,104 @@ export default function Addresses(): JSX.Element {
 
         setCustomers(sorted);
         setOrderIds(sorted.map((c) => c._id));
-      } catch (error) {
-        console.error("Error fetching customers:", error);
+      } catch (e) {
+        console.error("Error fetching customers:", e);
       } finally {
         setLoading(false);
       }
     })();
   }, [areaId, token]);
 
-  const filteredCustomers = useMemo(() => {
+  const filtered = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
-    const base = customers;
-    const list = q
-      ? base.filter((c) => (c.name || "").toLowerCase().includes(q))
-      : base;
-    return list;
+    return q ? customers.filter(c => (c.name || "").toLowerCase().includes(q)) : customers;
   }, [customers, searchTerm]);
 
-  // ---- DnD handlers (HTML5, no libs) ----
-  const onDragStart = (index: number) => (e: React.DragEvent) => {
-    dragIndex.current = index;
+  /* ---------- DnD (desktop) ---------- */
+  const onDragStart = (visibleIdx: number) => (e: React.DragEvent) => {
+    if (!reorderMode) return;
+    dragIndex.current = visibleIdx;
     e.dataTransfer.effectAllowed = "move";
-    e.currentTarget.classList.add("dragging");
+    (e.currentTarget as HTMLElement).classList.add("dragging");
   };
-
-  const onDragOver = (index: number) => (e: React.DragEvent) => {
+  const onDragOver = (visibleIdx: number) => (e: React.DragEvent) => {
+    if (!reorderMode) return;
     e.preventDefault();
-    overIndex.current = index;
     e.dataTransfer.dropEffect = "move";
   };
-
-  const onDragEnd = (index: number) => (e: React.DragEvent) => {
-    e.currentTarget.classList.remove("dragging");
+  const onDragEnd = () => (e: React.DragEvent) => {
+    (e.currentTarget as HTMLElement).classList.remove("dragging");
   };
-
-  const onDrop = (index: number) => (e: React.DragEvent) => {
+  const onDrop = (visibleIdx: number) => (e: React.DragEvent) => {
+    if (!reorderMode) return;
     e.preventDefault();
-    e.stopPropagation();
     const from = dragIndex.current;
-    const to = index;
-    dragIndex.current = null;
-    overIndex.current = null;
-    if (from == null || to == null || from === to) return;
+    if (from == null || from === visibleIdx) return;
 
-    // reorder orderIds according to visible list
-    const visibleIds = filteredCustomers.map((c) => c._id);
-    const full = [...orderIds];
-
-    // we need to move the item in the full array based on positions within the visible subset
+    // map visible indices to ids
+    const visibleIds = filtered.map(c => c._id);
     const movingId = visibleIds[from];
+    const targetId = visibleIds[visibleIdx];
     if (!movingId) return;
 
-    // remove from full
-    const fromFull = full.indexOf(movingId);
-    if (fromFull === -1) return;
-    full.splice(fromFull, 1);
+    setOrderIds(prev => {
+      const full = [...prev];
+      const fromFull = full.indexOf(movingId);
+      if (fromFull === -1) return prev;
+      full.splice(fromFull, 1);
+      const toFull = full.indexOf(targetId);
+      if (toFull === -1) full.push(movingId); else full.splice(toFull, 0, movingId);
+      return full;
+    });
 
-    // find target id in visible, then position in full
-    const targetId = visibleIds[to];
-    let toFull = targetId ? full.indexOf(targetId) : -1;
+    setCustomers(prev => {
+      const arr = [...prev];
+      const fromIdx = arr.findIndex(c => c._id === movingId);
+      const [item] = arr.splice(fromIdx, 1);
+      if (!targetId) arr.push(item);
+      else {
+        const toIdx = arr.findIndex(c => c._id === targetId);
+        arr.splice(toIdx, 0, item);
+      }
+      return arr;
+    });
 
-    if (toFull === -1) {
-      // dropping past the last visible -> place at end
-      full.push(movingId);
-    } else {
-      // insert before target (feel free to change to after)
-      full.splice(toFull, 0, movingId);
-    }
-
-    setOrderIds(full);
-
-    // also update customers array for immediate visual feedback
-    const nextCustomers = [...customers];
-    const fromIdxInCustomers = nextCustomers.findIndex((c) => c._id === movingId);
-    nextCustomers.splice(fromIdxInCustomers, 1);
-    if (!targetId) {
-      nextCustomers.push(customers.find((c) => c._id === movingId)!);
-    } else {
-      const toIdxInCustomers = nextCustomers.findIndex((c) => c._id === targetId);
-      nextCustomers.splice(toIdxInCustomers, 0, customers.find((c) => c._id === movingId)!);
-    }
-    setCustomers(nextCustomers);
+    dragIndex.current = null;
   };
 
-  const applyReorder = async () => {
+  /* ---------- Mobile-friendly controls (Up/Down) ---------- */
+  const moveItem = (id: string, dir: "up" | "down") => {
+    setOrderIds(prev => {
+      const idx = prev.indexOf(id);
+      if (idx < 0) return prev;
+      const newIdx = dir === "up" ? Math.max(0, idx - 1) : Math.min(prev.length - 1, idx + 1);
+      if (newIdx === idx) return prev;
+      const next = [...prev];
+      next.splice(idx, 1);
+      next.splice(newIdx, 0, id);
+      return next;
+    });
+    setCustomers(prev => {
+      const idx = prev.findIndex(c => c._id === id);
+      if (idx < 0) return prev;
+      const newIdx = dir === "up" ? Math.max(0, idx - 1) : Math.min(prev.length - 1, idx + 1);
+      if (newIdx === idx) return prev;
+      const arr = [...prev];
+      const [item] = arr.splice(idx, 1);
+      arr.splice(newIdx, 0, item);
+      return arr;
+    });
+  };
+
+  /* ---------- Apply / Cancel ---------- */
+  const applyReorder = async (e?: React.MouseEvent | React.FormEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    if (!areaId || !companyId) {
+      toast.error("بيانات غير مكتملة (areaId/companyId)");
+      return;
+    }
+
     try {
       const res = await fetch(
         `http://localhost:5000/api/areas/${areaId}/reorder?companyId=${companyId}`,
@@ -153,34 +168,21 @@ export default function Addresses(): JSX.Element {
       }
       toast.success("تم حفظ الترتيب الجديد");
       setReorderMode(false);
-      // refresh to pick up new sequence numbers from server
-      // (we could avoid this since we already have the order, but good to sync)
-      const fresh = await fetch(`http://localhost:5000/api/customers/area/${areaId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const freshData: Customer[] = await fresh.json();
-      const sorted = [...freshData].sort((a, b) => {
-        const sa = a.sequence ?? Number.POSITIVE_INFINITY;
-        const sb = b.sequence ?? Number.POSITIVE_INFINITY;
-        if (sa !== sb) return sa - sb;
-        return (a.name || "").localeCompare(b.name || "", "ar");
-      });
-      setCustomers(sorted);
-      setOrderIds(sorted.map((c) => c._id));
-    } catch (e: any) {
-      toast.error(e?.message || "تعذر الاتصال");
+    } catch (err: any) {
+      console.error("applyReorder error:", err);
+      toast.error(err?.message || "تعذر الاتصال");
     }
   };
 
-  const cancelReorder = () => {
-    // rebuild orderIds from current customers
-    setOrderIds(customers.map((c) => c._id));
+  const cancelReorder = (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    setOrderIds(customers.map(c => c._id));
     setReorderMode(false);
   };
 
   return (
     <div className="address-card-body" dir="rtl">
-      <ToastContainer position="top-right" autoClose={1000} />
+      <ToastContainer position="top-right" autoClose={1500} />
 
       <div className="address-card-header">
         <h2 className="address-card-title">عناوين الزبائن</h2>
@@ -192,11 +194,12 @@ export default function Addresses(): JSX.Element {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="address-card-search-bar"
-            disabled={reorderMode} /* lock search during reorder to avoid confusion */
+            disabled={reorderMode}
           />
           <button
+            type="button"
             className={`reorder-toggle ${reorderMode ? "on" : ""}`}
-            onClick={() => setReorderMode((v) => !v)}
+            onClick={() => setReorderMode(v => !v)}
           >
             {reorderMode ? "إنهاء إعادة الترتيب" : "إعادة الترتيب"}
           </button>
@@ -205,64 +208,87 @@ export default function Addresses(): JSX.Element {
 
       {loading ? (
         <p className="address-card-loading">جارٍ التحميل...</p>
-      ) : filteredCustomers.length === 0 ? (
+      ) : filtered.length === 0 ? (
         <p className="address-card-empty">لا يوجد زبائن بهذه المواصفات</p>
       ) : (
         <div className={`address-card-list ${reorderMode ? "reorder" : ""}`}>
-          {filteredCustomers.map((customer, i) => (
-            <div
-              key={customer._id}
-              className={`address-card ${reorderMode ? "draggable" : ""}`}
-              draggable={reorderMode}
-              onDragStart={onDragStart(i)}
-              onDragOver={onDragOver(i)}
-              onDragEnd={onDragEnd(i)}
-              onDrop={onDrop(i)}
-              title={reorderMode ? "اسحب لإعادة الترتيب" : ""}
-            >
-              {/* sequence + handle in reorder mode */}
-              {reorderMode && (
-                <div className="seq-col">
-                  <div className="seq-num">{customer.sequence ?? "—"}</div>
-                  <div className="drag-handle" aria-hidden>≡</div>
-                </div>
-              )}
+          {filtered.map((customer, i) => {
+            const CardContent = (
+              <>
+                {reorderMode && (
+                  <div className="seq-col" aria-hidden>
+                    <div className="seq-num">{customer.sequence ?? "—"}</div>
+                    <div className="drag-handle">≡</div>
+                    <div className="move-buttons">
+                      <button
+                        type="button"
+                        className="mv-btn"
+                        onClick={(e) => (e.stopPropagation(), moveItem(customer._id, "up"))}
+                        aria-label="تحريك لأعلى"
+                      >
+                        ▲
+                      </button>
+                      <button
+                        type="button"
+                        className="mv-btn"
+                        onClick={(e) => (e.stopPropagation(), moveItem(customer._id, "down"))}
+                        aria-label="تحريك لأسفل"
+                      >
+                        ▼
+                      </button>
+                    </div>
+                  </div>
+                )}
 
-              <Link to={`/updateCustomer/${customer._id}`} className="address-card-link">
-                <p>
-                  <span className="address-card-label">الاسم:</span>{" "}
-                  {customer.name}
-                </p>
-                <p>
-                  <span className="address-card-label">الهاتف:</span>{" "}
-                  {customer.phone}
-                </p>
-                <p>
-                  <span className="address-card-label">العنوان:</span>{" "}
-                  {customer.address}
-                </p>
+                <p><span className="address-card-label">الاسم:</span> {customer.name}</p>
+                <p><span className="address-card-label">الهاتف:</span> {customer.phone}</p>
+                <p><span className="address-card-label">العنوان:</span> {customer.address}</p>
                 {!reorderMode && (
                   <p className="address-card-seq">
                     <span className="address-card-label">الترتيب:</span>{" "}
                     {customer.sequence ?? "—"}
                   </p>
                 )}
-              </Link>
-            </div>
-          ))}
+              </>
+            );
+
+            return (
+              <div
+                key={customer._id}
+                className={`address-card ${reorderMode ? "draggable" : ""}`}
+                draggable={reorderMode && !("ontouchstart" in window)}  // disable native DnD on touch
+                onDragStart={onDragStart(i)}
+                onDragOver={onDragOver(i)}
+                onDragEnd={onDragEnd()}
+                onDrop={onDrop(i)}
+                title={reorderMode ? "اسحب (سطح مكتب) أو استخدم الأسهم لإعادة الترتيب" : ""}
+              >
+                {reorderMode ? (
+                  <div className="address-card-link">{CardContent}</div>
+                ) : (
+                  <Link to={`/updateCustomer/${customer._id}`} className="address-card-link">
+                    {CardContent}
+                  </Link>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
 
-      {/* sticky apply/cancel when in reorder mode */}
+      {/* Fixed save bar to guarantee clicks land */}
       {reorderMode && (
-        <div className="apply-bar" role="region" aria-live="polite">
-          <div className="apply-hint">اسحب البطاقات لترتيبها ثم اضغط حفظ</div>
+        <form className="apply-bar" onSubmit={applyReorder}>
+          <div className="apply-hint">رتّب البطاقات ثم اضغط حفظ</div>
           <div className="apply-actions">
-            <button className="btn-cancel" onClick={cancelReorder}>إلغاء</button>
-            <button className="btn-apply" onClick={applyReorder}>حفظ الترتيب</button>
+            <button type="button" className="btn-cancel" onClick={cancelReorder}>إلغاء</button>
+            <button type="submit" className="btn-apply">حفظ الترتيب</button>
           </div>
-        </div>
+        </form>
       )}
+
+      {/* spacer so fixed bar doesn't cover content */}
+      {reorderMode && <div style={{ height: 72 }} aria-hidden />}
     </div>
   );
 }
