@@ -17,6 +17,9 @@ import CustomerInfo from "../CustomerInfo/CustomerInfo";
 import { setCustomerId } from "../../../redux/Order/action";
 import { fetchAndCacheCustomerInvoice } from "../../../utils/apiHelpers";
 
+type Area = { _id: string; name: string };
+type CustomerLite = { _id: string; name: string; sequence?: number | null };
+
 function UpdateCustomer() {
   const dispatch = useDispatch();
   const token = useSelector((state: any) => state.user.token);
@@ -24,12 +27,13 @@ function UpdateCustomer() {
   const navigate = useNavigate();
   const { customerId } = useParams();
 
-  const [areas, setAreas] = useState([]);
-  const [customerData, setCustomerData] = useState(null);
-  const [originalData, setOriginalData] = useState(null);
+  const [areas, setAreas] = useState<Area[]>([]);
+  const [customerData, setCustomerData] = useState<any>(null);
+  const [originalData, setOriginalData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [invoiceReady, setInvoiceReady] = useState(false);
   const [formVisible, setFormVisible] = useState(false);
+
   const [updatedInfo, setUpdatedInfo] = useState({
     _id: "",
     name: "",
@@ -43,10 +47,13 @@ function UpdateCustomer() {
     noteAboutCustomer: "",
   });
 
+  // NEW: data for sequence placement UI
+  const [areaCustomers, setAreaCustomers] = useState<CustomerLite[]>([]);
+  const [posTarget, setPosTarget] = useState<string>("__END__"); // __START__ | __END__ | <customerId>
+  const [isPlacing, setIsPlacing] = useState(false);
+
   useEffect(() => {
-    if (customerId) {
-      dispatch(setCustomerId(customerId));
-    }
+    if (customerId) dispatch(setCustomerId(customerId));
   }, [customerId, dispatch]);
 
   const fetchAreas = () => {
@@ -62,21 +69,34 @@ function UpdateCustomer() {
     try {
       const res = await fetch(
         `http://localhost:5000/api/customers/${customerId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      if (res.ok) {
-        const data = await res.json();
-        setCustomerData(data);
-        setOriginalData(data);
+      if (!res.ok) throw new Error("Failed to fetch customer");
+      const data = await res.json();
+      setCustomerData(data);
+      setOriginalData(data);
 
-        await fetchAndCacheCustomerInvoice(customerId, token);
-        setInvoiceReady(true);
+      await fetchAndCacheCustomerInvoice(customerId!, token);
+      setInvoiceReady(true);
+
+      // also load customers in the same area (ordered by sequence; fallback to client sort)
+      if (data?.areaId?._id) {
+        const listRes = await fetch(
+          `http://localhost:5000/api/customers/area/${data.areaId._id}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        const list: CustomerLite[] = await listRes.json();
+        const sorted = [...list].sort((a, b) => {
+          const sa = a.sequence ?? Number.POSITIVE_INFINITY;
+          const sb = b.sequence ?? Number.POSITIVE_INFINITY;
+          if (sa !== sb) return sa - sb;
+          return a.name.localeCompare(b.name, "ar");
+        });
+        setAreaCustomers(sorted);
       }
     } catch (err) {
       console.error("Fetch error:", err);
-      setInvoiceReady(true); // Proceed even if invoice fetch fails
+      setInvoiceReady(true);
     } finally {
       setLoading(false);
     }
@@ -126,6 +146,69 @@ function UpdateCustomer() {
     }
   };
 
+  // ====== NEW: place this customer within the area order ======
+  const applyPlacement = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!customerData?.areaId?._id) {
+      toast.error("لا يوجد منطقة لهذا الزبون");
+      return;
+    }
+    const areaId = customerData.areaId._id;
+
+    // Build a new order: remove this id, then insert at chosen spot
+    const current = areaCustomers.map((c) => c._id);
+    const mine = String(customerId);
+    const without = current.filter((id) => id !== mine);
+
+    let nextOrder: string[] = [];
+    if (posTarget === "__START__") {
+      nextOrder = [mine, ...without];
+    } else if (posTarget === "__END__") {
+      nextOrder = [...without, mine];
+    } else {
+      const idx = without.indexOf(posTarget);
+      if (idx === -1) {
+        // fallback to end if target not found
+        nextOrder = [...without, mine];
+      } else {
+        nextOrder = [...without.slice(0, idx + 1), mine, ...without.slice(idx + 1)];
+      }
+    }
+
+    setIsPlacing(true);
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/areas/${areaId}/reorder?companyId=${companyId}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            orderedCustomerIds: nextOrder,
+            force: true,
+            startAt: 1,
+          }),
+        }
+      );
+
+      const data = await res.json().catch(() => ({} as any));
+      if (!res.ok) {
+        toast.error(data?.error || "تعذر تحديث الترتيب");
+        return;
+      }
+
+      toast.success("تم تحديث ترتيب الزبائن في هذه المنطقة");
+      // refresh local list & customer info
+      await fetchCustomer();
+    } catch (err: any) {
+      toast.error(err?.message || "خطأ في الشبكة");
+    } finally {
+      setIsPlacing(false);
+    }
+  };
+
   return (
     <div className="update-customer-container">
       <ToastContainer position="top-right" autoClose={1000} />
@@ -143,10 +226,39 @@ function UpdateCustomer() {
         </>
       )}
 
-      <div
-        className="update-toggle"
-        onClick={() => setFormVisible(!formVisible)}
-      >
+      {/* --- Quick placement in area order (admin convenience) --- */}
+      {customerData?.areaId?._id && (
+        <form className="sequence-form" onSubmit={applyPlacement}>
+          <div className="sequence-form__title">تغيير الترتيب داخل المنطقة</div>
+          <div className="sequence-form__row">
+            <label className="sequence-form__label">الموضع:</label>
+            <select
+              className="sequence-form__select"
+              value={posTarget}
+              onChange={(e) => setPosTarget(e.target.value)}
+              disabled={isPlacing}
+            >
+              <option value="__START__">في بداية القائمة</option>
+              <option value="__END__">في نهاية القائمة (افتراضي)</option>
+              <optgroup label="ضعه بعد:">
+                {areaCustomers
+                  .filter((c) => c._id !== customerId)
+                  .map((c) => (
+                    <option key={c._id} value={c._id}>
+                      {c.sequence ? `#${c.sequence} — ` : ""}
+                      {c.name}
+                    </option>
+                  ))}
+              </optgroup>
+            </select>
+          </div>
+          <button className="sequence-form__btn" type="submit" disabled={isPlacing}>
+            {isPlacing ? "جارٍ التطبيق…" : "تطبيق"}
+          </button>
+        </form>
+      )}
+
+      <div className="update-toggle" onClick={() => setFormVisible(!formVisible)}>
         تعديل الزبون؟
       </div>
 
@@ -178,10 +290,7 @@ function UpdateCustomer() {
             label="المنطقة:"
             name="areaId"
             value={updatedInfo.areaId._id}
-            options={areas.map((area) => ({
-              value: area._id,
-              label: area.name,
-            }))}
+            options={areas.map((area) => ({ value: area._id, label: area.name }))}
             onChange={handleChange}
           />
 

@@ -53,3 +53,107 @@
   text-align: right;
   font-size: 15px;
 }
+/* toolbar */
+.address-toolbar {
+  width: 85%;
+  max-width: 520px;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.reorder-toggle {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #06355e;
+  background: #fff;
+  color: #06355e;
+  font-weight: 800;
+  cursor: pointer;
+}
+.reorder-toggle.on {
+  background: #06355e;
+  color: #fff;
+}
+
+/* list in reorder mode */
+.address-card-list.reorder .address-card {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  align-items: center;
+}
+
+.seq-col {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+}
+.seq-num {
+  min-width: 28px;
+  height: 28px;
+  line-height: 28px;
+  text-align: center;
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  color: #1e1b4b;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 13px;
+}
+.drag-handle {
+  user-select: none;
+  font-size: 20px;
+  margin:1px;
+  color: #666;
+}
+
+/* visual feedback while dragging */
+.address-card.draggable.dragging {
+  opacity: 0.75;
+  transform: scale(0.99);
+}
+
+/* sticky apply bar */
+.apply-bar {
+  position: sticky;
+  bottom: 0;
+  background: #ffffff;
+  border-top: 1px solid #e8e8e8;
+  box-shadow: 0 -6px 16px rgba(0, 0, 0, 0.06);
+  padding: 10px 12px;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.apply-hint {
+  font-weight: 700;
+  color: #082338;
+}
+
+.apply-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.btn-cancel,
+.btn-apply {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 0;
+  cursor: pointer;
+  font-weight: 800;
+}
+.btn-cancel {
+  background: #f3f4f6;
+  color: #111;
+}
+.btn-apply {
+  background: #4caf50;
+  color: #fff;
+}
