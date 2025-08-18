@@ -55,13 +55,13 @@ export async function preloadShipmentData({
     // Product “Bottles” — prefer company-less GET; fallback to legacy company route if needed
     const productResPromise = (async () => {
       // Preferred: server infers tenant
-      const r1 = await fetch(
-        `http://localhost:5000/api/products/type?name=Bottles`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      if (r1.ok) return r1;
+      // const r1 = await fetch(
+      //   `http://localhost:5000/api/products/type?name=Bottles`,
+      //   { headers: { Authorization: `Bearer ${token}` } }
+      // );
+      // if (r1.ok) return r1;
 
-      // Fallback legacy (only if companyId is provided)
+      // // Fallback legacy (only if companyId is provided)
       if (companyId) {
         const r2 = await fetch(
           `http://localhost:5000/api/products/productType/company/${companyId}`,
@@ -113,7 +113,7 @@ export async function preloadShipmentData({
     await Promise.all([
       saveDayToDB(dayId, dayData),
       saveAreasToDB(dayId, areas),
-      saveProductTypeToDB(companyId || "tenant", productData),
+      saveProductTypeToDB(companyId, productData),
     ]);
 
     // === Step 2: For each area, fetch customers and cache their (discount + invoice) ===

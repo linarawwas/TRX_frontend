@@ -25,9 +25,9 @@ export const setProductId = (product_id) => ({
   type: SET_PRODUCT_ID,
   payload: product_id,
 });
-export const setProductName = (productName) => ({
+export const setProductName = (product_name) => ({
   type: SET_PRODUCT_NAME,
-  payload: productName,
+  payload: product_name,
 });
 export const setProductPrice = (product_price) => ({
   type: SET_PRODUCT_PRICE,

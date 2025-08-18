@@ -2,7 +2,7 @@ import { openDB } from "idb";
 
 // DB config
 const DB_NAME = "MyDatabase";
-const DB_VERSION = 12;
+const DB_VERSION = 13;
 
 // Store names
 const REQUESTS_STORE = "requests";
@@ -154,12 +154,16 @@ export async function saveCustomersToDB(areaId: string, customers: any[]) {
   const store = tx.store;
 
   try {
-    console.log(`🧹 Deleting ${existing.length} old customers for area ${areaId}`);
+    console.log(
+      `🧹 Deleting ${existing.length} old customers for area ${areaId}`
+    );
     for (const c of existing) {
       store.delete(c._id); // ❗ no await here
     }
 
-    console.log(`💾 Saving ${customers.length} new customers to area ${areaId}`);
+    console.log(
+      `💾 Saving ${customers.length} new customers to area ${areaId}`
+    );
     for (const customer of customers) {
       store.put({
         ...customer,
@@ -174,7 +178,6 @@ export async function saveCustomersToDB(areaId: string, customers: any[]) {
     console.error("❌ Failed to save customers to IndexedDB:", err);
   }
 }
-
 
 export async function getCustomersFromDB(areaId: string) {
   const db = await openDB(DB_NAME, DB_VERSION);
@@ -213,15 +216,54 @@ export async function getCustomerDiscountFromDB(customerId: string) {
 }
 
 // === PRODUCTS ===
-export async function saveProductTypeToDB(companyId: string, productType: any) {
+// If your store has a keyPath (e.g. "key"), keep it.
+// If your store has NO keyPath, pass the key as the *third* argument to put()/get().
+// indexedDB.ts (or wherever your IDB helpers live)
+const PRODUCT_KEY_FALLBACK = "tenant";
+const companyKey = (companyId?: string | null) =>
+  (companyId && String(companyId)) || PRODUCT_KEY_FALLBACK;
+
+export async function saveProductTypeToDB(
+  companyId: string | undefined,
+  product: { id: number; type: string; priceInDollars: number } | any
+) {
   const db = await openDB(DB_NAME, DB_VERSION);
-  await db.put(PRODUCTS_STORE_NAME, withTimestamp({ companyId, productType }));
+  const key = companyKey(companyId);
+
+  // If your store has keyPath: 'key'
+  await db.put(PRODUCTS_STORE_NAME, {
+    key,
+    product,
+    ts: Date.now(),
+  });
+
+  // If your store has NO keyPath, use:
+  // await db.put(PRODUCTS_STORE_NAME, { product, ts: Date.now() }, key);
 }
 
-export async function getProductTypeFromDB(companyId: string) {
+export async function getProductTypeFromDB(
+  companyId: string | undefined
+): Promise<any | null> {
   const db = await openDB(DB_NAME, DB_VERSION);
-  const result = await db.get(PRODUCTS_STORE_NAME, companyId);
-  return result?.productType || null;
+  const key = companyKey(companyId);
+
+  // If keyPath store
+  let row = await db.get(PRODUCTS_STORE_NAME, key);
+  // If NO keyPath store, use:
+  // let row = await db.get(PRODUCTS_STORE_NAME, key);
+
+  // Back-compat: try 'tenant' if not found under company key
+  if (!row && key !== PRODUCT_KEY_FALLBACK) {
+    row = await db.get(PRODUCTS_STORE_NAME, PRODUCT_KEY_FALLBACK);
+  }
+  // Older cache format used { productType: string } — normalize
+  if (!row) return null;
+
+  // Normalize possible shapes
+  if (row.product) return row.product;
+  if (row.productType) return row.productType; // legacy
+  console.log(row, "heres the product");
+  return row;
 }
 
 // === DAYS ===

@@ -33,19 +33,20 @@ const RecordOrder = (props) => {
   const customerName = useSelector((s) => s.order.customer_name);
   const shipmentId = useSelector((s) => s.shipment._id);
 
-  const productName = useSelector((s) => s.order.product_name);
+  const product_name = useSelector((s) => s.order.product_name);
+  console.log(product_name, "this is product_name");
   const productId = useSelector((s) => s.order.product_id);
   const productPrice = useSelector((s) => s.order.product_price);
 
   // Shipment totals (for incremental updates)
   const shipmentDelivered = useSelector((s) => s.shipment.delivered) ?? 0;
-  const shipmentReturned  = useSelector((s) => s.shipment.returned) ?? 0;
-  const shipmentUsd       = useSelector((s) => s.shipment.dollarPayments) ?? 0;
-  const shipmentLbp       = useSelector((s) => s.shipment.liraPayments) ?? 0;
+  const shipmentReturned = useSelector((s) => s.shipment.returned) ?? 0;
+  const shipmentUsd = useSelector((s) => s.shipment.dollarPayments) ?? 0;
+  const shipmentLbp = useSelector((s) => s.shipment.liraPayments) ?? 0;
 
   // Target enforcement
-  const target            = useSelector((s) => s.shipment.target) ?? 0;
-  const remaining         = Math.max(0, (target || 0) - (shipmentDelivered || 0));
+  const target = useSelector((s) => s.shipment.target) ?? 0;
+  const remaining = Math.max(0, (target || 0) - (shipmentDelivered || 0));
 
   const [showLbpPad, setShowLbpPad] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -64,6 +65,7 @@ const RecordOrder = (props) => {
       try {
         const cached = await getProductTypeFromDB(companyId);
         if (cached) {
+          console.log("product is in indexed db");
           dispatch(setProductId(cached.id));
           dispatch(setProductName(cached.type));
           dispatch(setProductPrice(cached.priceInDollars));
@@ -77,7 +79,8 @@ const RecordOrder = (props) => {
 
   /* ---------- helpers ---------- */
   const checkout = props.customerData?.hasDiscount
-    ? (props.customerData?.valueAfterDiscount || 0) * (Number(form.delivered) || 0)
+    ? (props.customerData?.valueAfterDiscount || 0) *
+      (Number(form.delivered) || 0)
     : (productPrice || 0) * (Number(form.delivered) || 0);
 
   const handleChange = (e) => {
@@ -208,12 +211,15 @@ const RecordOrder = (props) => {
 
     // normalize inputs
     const dDelivered = Number(form.delivered) || 0;
-    const dReturned  = Number(form.returned)  || 0;
-    const payUSD     = Number(form.paidUSD)   || 0;
-    const payLBP     = Number(form.paidLBP)   || 0;
+    const dReturned = Number(form.returned) || 0;
+    const payUSD = Number(form.paidUSD) || 0;
+    const payLBP = Number(form.paidLBP) || 0;
 
     // if target reached or user tried > remaining → show modal
-    if (target > 0 && (remaining === 0 ? dDelivered > 0 : dDelivered > remaining)) {
+    if (
+      target > 0 &&
+      (remaining === 0 ? dDelivered > 0 : dDelivered > remaining)
+    ) {
       setOverModal({ want: dDelivered });
       return;
     }
@@ -228,8 +234,8 @@ const RecordOrder = (props) => {
       delivered: dDelivered,
       returned: dReturned,
       customerid: customerId,
-      productId,      // numeric code
-      shipmentId,     // ObjectId
+      productId, // numeric code
+      shipmentId, // ObjectId
       payments,
     };
 
@@ -250,7 +256,7 @@ const RecordOrder = (props) => {
       <header className="roc-header">
         <h2 className="roc-title">{customerName}</h2>
         <div className="roc-product">
-          المنتج: {productName} • {productPrice}$
+          المنتج: {product_name} • {productPrice}$
         </div>
       </header>
 
@@ -265,7 +271,13 @@ const RecordOrder = (props) => {
           <div className="roc-stepper">
             <div className="roc-stepper-label">المسلّمة</div>
             <div className="roc-stepper-ctrl">
-              <button type="button" onClick={() => dec("delivered")} aria-label="طرح">−</button>
+              <button
+                type="button"
+                onClick={() => dec("delivered")}
+                aria-label="طرح"
+              >
+                −
+              </button>
               <input
                 type="number"
                 name="delivered"
@@ -274,10 +286,21 @@ const RecordOrder = (props) => {
                 inputMode="numeric"
                 pattern="[0-9]*"
               />
-              <button type="button" onClick={() => inc("delivered")} aria-label="إضافة">+</button>
+              <button
+                type="button"
+                onClick={() => inc("delivered")}
+                aria-label="إضافة"
+              >
+                +
+              </button>
             </div>
             <div className={`roc-hint ${remaining === 0 ? "locked" : ""}`}>
-              المتبقي في هذه الشحنة: <strong>{remaining}</strong> {remaining === 0 && <>• <span className="lock">مغلق</span></>}
+              المتبقي في هذه الشحنة: <strong>{remaining}</strong>{" "}
+              {remaining === 0 && (
+                <>
+                  • <span className="lock">مغلق</span>
+                </>
+              )}
             </div>
           </div>
 
@@ -285,7 +308,13 @@ const RecordOrder = (props) => {
           <div className="roc-stepper">
             <div className="roc-stepper-label">المرجعة</div>
             <div className="roc-stepper-ctrl">
-              <button type="button" onClick={() => dec("returned")} aria-label="طرح">−</button>
+              <button
+                type="button"
+                onClick={() => dec("returned")}
+                aria-label="طرح"
+              >
+                −
+              </button>
               <input
                 type="number"
                 name="returned"
@@ -294,7 +323,13 @@ const RecordOrder = (props) => {
                 inputMode="numeric"
                 pattern="[0-9]*"
               />
-              <button type="button" onClick={() => inc("returned")} aria-label="إضافة">+</button>
+              <button
+                type="button"
+                onClick={() => inc("returned")}
+                aria-label="إضافة"
+              >
+                +
+              </button>
             </div>
           </div>
 
@@ -302,7 +337,13 @@ const RecordOrder = (props) => {
           <div className="roc-stepper">
             <div className="roc-stepper-label">الدولار</div>
             <div className="roc-stepper-ctrl">
-              <button type="button" onClick={() => dec("paidUSD")} aria-label="طرح">−</button>
+              <button
+                type="button"
+                onClick={() => dec("paidUSD")}
+                aria-label="طرح"
+              >
+                −
+              </button>
               <input
                 type="number"
                 name="paidUSD"
@@ -311,7 +352,13 @@ const RecordOrder = (props) => {
                 inputMode="numeric"
                 pattern="[0-9]*"
               />
-              <button type="button" onClick={() => inc("paidUSD")} aria-label="إضافة">+</button>
+              <button
+                type="button"
+                onClick={() => inc("paidUSD")}
+                aria-label="إضافة"
+              >
+                +
+              </button>
             </div>
           </div>
         </div>
@@ -357,10 +404,16 @@ const RecordOrder = (props) => {
 
         {/* sticky submit */}
         <div className="roc-submit">
-          <button className="record-order-button" type="submit" disabled={isSubmitting}>
+          <button
+            className="record-order-button"
+            type="submit"
+            disabled={isSubmitting}
+          >
             {isSubmitting ? (
               <span className="loading-dots">
-                جاري التسجيل<span>.</span><span>.</span><span>.</span>
+                جاري التسجيل<span>.</span>
+                <span>.</span>
+                <span>.</span>
               </span>
             ) : (
               "تسجيل ✔️"
@@ -386,10 +439,18 @@ const RecordOrder = (props) => {
           <div className="confirm-card" dir="rtl">
             <h3 className="confirm-title">تجاوز الهدف غير مسموح</h3>
             <div className="confirm-body">
-              <p>الهدف لهذه الشحنة: <strong>{target}</strong></p>
-              <p>المسلّم حتى الآن: <strong>{shipmentDelivered}</strong></p>
-              <p>المتبقي: <strong>{remaining}</strong></p>
-              <p>طلبت تسليم: <strong>{overModal.want}</strong></p>
+              <p>
+                الهدف لهذه الشحنة: <strong>{target}</strong>
+              </p>
+              <p>
+                المسلّم حتى الآن: <strong>{shipmentDelivered}</strong>
+              </p>
+              <p>
+                المتبقي: <strong>{remaining}</strong>
+              </p>
+              <p>
+                طلبت تسليم: <strong>{overModal.want}</strong>
+              </p>
               <p className="confirm-warning">
                 لا يمكنك تسليم أكثر من المتبقي ضمن هذه الشحنة.
               </p>
@@ -414,8 +475,10 @@ const RecordOrder = (props) => {
                   const dReturned = Number(form.returned) || 0;
 
                   const payments = [];
-                  if (payUSD > 0) payments.push({ amount: payUSD, currency: "USD" });
-                  if (payLBP > 0) payments.push({ amount: payLBP, currency: "LBP" });
+                  if (payUSD > 0)
+                    payments.push({ amount: payUSD, currency: "USD" });
+                  if (payLBP > 0)
+                    payments.push({ amount: payLBP, currency: "LBP" });
 
                   setOverModal(null);
                   actuallySubmit({
@@ -439,10 +502,7 @@ const RecordOrder = (props) => {
               >
                 ابدأ شحنة جديدة
               </button>
-              <button
-                className="btn ghost"
-                onClick={() => setOverModal(null)}
-              >
+              <button className="btn ghost" onClick={() => setOverModal(null)}>
                 تعديل
               </button>
             </div>
