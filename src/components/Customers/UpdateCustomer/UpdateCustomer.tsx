@@ -16,6 +16,7 @@ import CustomerOrders from "../CustomerOrders/CustomerOrders";
 import CustomerInfo from "../CustomerInfo/CustomerInfo";
 import { setCustomerId } from "../../../redux/Order/action";
 import { fetchAndCacheCustomerInvoice } from "../../../utils/apiHelpers";
+import AreaSequencePicker from "../../AreaSequencePicker/AreaSequencePicker";
 
 type Area = { _id: string; name: string };
 type CustomerLite = { _id: string; name: string; sequence?: number | null };
@@ -107,7 +108,9 @@ function UpdateCustomer() {
     fetchCustomer();
   }, [fetchCustomer]);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     if (name === "phone" && !/^\d*$/.test(value))
       return toast.error("أدخل أرقام فقط");
@@ -171,7 +174,11 @@ function UpdateCustomer() {
         // fallback to end if target not found
         nextOrder = [...without, mine];
       } else {
-        nextOrder = [...without.slice(0, idx + 1), mine, ...without.slice(idx + 1)];
+        nextOrder = [
+          ...without.slice(0, idx + 1),
+          mine,
+          ...without.slice(idx + 1),
+        ];
       }
     }
 
@@ -227,38 +234,23 @@ function UpdateCustomer() {
       )}
 
       {/* --- Quick placement in area order (admin convenience) --- */}
+      {/* Reusable sequence placement (apply-now mode) */}
       {customerData?.areaId?._id && (
-        <form className="sequence-form" onSubmit={applyPlacement}>
-          <div className="sequence-form__title">تغيير الترتيب داخل المنطقة</div>
-          <div className="sequence-form__row">
-            <label className="sequence-form__label">الموضع:</label>
-            <select
-              className="sequence-form__select"
-              value={posTarget}
-              onChange={(e) => setPosTarget(e.target.value)}
-              disabled={isPlacing}
-            >
-              <option value="__START__">في بداية القائمة</option>
-              <option value="__END__">في نهاية القائمة (افتراضي)</option>
-              <optgroup label="ضعه بعد:">
-                {areaCustomers
-                  .filter((c) => c._id !== customerId)
-                  .map((c) => (
-                    <option key={c._id} value={c._id}>
-                      {c.sequence ? `#${c.sequence} — ` : ""}
-                      {c.name}
-                    </option>
-                  ))}
-              </optgroup>
-            </select>
-          </div>
-          <button className="sequence-form__btn" type="submit" disabled={isPlacing}>
-            {isPlacing ? "جارٍ التطبيق…" : "تطبيق"}
-          </button>
-        </form>
+        <AreaSequencePicker
+          token={token}
+          companyId={companyId}
+          areaId={customerData.areaId._id}
+          currentCustomerId={customerId}
+          mode="apply"
+          title="تغيير الترتيب داخل المنطقة"
+          onApplied={fetchCustomer}
+        />
       )}
 
-      <div className="update-toggle" onClick={() => setFormVisible(!formVisible)}>
+      <div
+        className="update-toggle"
+        onClick={() => setFormVisible(!formVisible)}
+      >
         تعديل الزبون؟
       </div>
 
@@ -290,7 +282,10 @@ function UpdateCustomer() {
             label="المنطقة:"
             name="areaId"
             value={updatedInfo.areaId._id}
-            options={areas.map((area) => ({ value: area._id, label: area.name }))}
+            options={areas.map((area) => ({
+              value: area._id,
+              label: area.name,
+            }))}
             onChange={handleChange}
           />
 
