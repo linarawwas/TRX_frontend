@@ -214,14 +214,13 @@ export async function getCustomerDiscountFromDB(customerId: string) {
   const result = await db.get(DISCOUNT_STORE_NAME, customerId);
   return result?.discount || null;
 }
-
-// === PRODUCTS ===
-// If your store has a keyPath (e.g. "key"), keep it.
-// If your store has NO keyPath, pass the key as the *third* argument to put()/get().
-// indexedDB.ts (or wherever your IDB helpers live)
+// indexedDB.ts
+// --- KEY NORMALIZER (must be in the same module) ---
 const PRODUCT_KEY_FALLBACK = "tenant";
-const companyKey = (companyId?: string | null) =>
-  (companyId && String(companyId)) || PRODUCT_KEY_FALLBACK;
+function companyKey(companyId?: string | null) {
+  const v = (companyId ?? "").toString().trim();
+  return v.length ? v : PRODUCT_KEY_FALLBACK;
+}
 
 export async function saveProductTypeToDB(
   companyId: string | undefined,
@@ -230,15 +229,12 @@ export async function saveProductTypeToDB(
   const db = await openDB(DB_NAME, DB_VERSION);
   const key = companyKey(companyId);
 
-  // If your store has keyPath: 'key'
+  // Match the existing store schema (keyPath: "companyId")
   await db.put(PRODUCTS_STORE_NAME, {
-    key,
-    product,
-    ts: Date.now(),
+    companyId: key,
+    productType: product, // keep "productType" to match your existing row
+    lastUpdated: new Date().toISOString(), // keep existing field naming
   });
-
-  // If your store has NO keyPath, use:
-  // await db.put(PRODUCTS_STORE_NAME, { product, ts: Date.now() }, key);
 }
 
 export async function getProductTypeFromDB(
@@ -247,22 +243,19 @@ export async function getProductTypeFromDB(
   const db = await openDB(DB_NAME, DB_VERSION);
   const key = companyKey(companyId);
 
-  // If keyPath store
+  // With keyPath: "companyId", the key is that value
   let row = await db.get(PRODUCTS_STORE_NAME, key);
-  // If NO keyPath store, use:
-  // let row = await db.get(PRODUCTS_STORE_NAME, key);
 
-  // Back-compat: try 'tenant' if not found under company key
-  if (!row && key !== PRODUCT_KEY_FALLBACK) {
-    row = await db.get(PRODUCTS_STORE_NAME, PRODUCT_KEY_FALLBACK);
+  // Back-compat: try tenant fallback if not found
+  if (!row && key !== "tenant") {
+    row = await db.get(PRODUCTS_STORE_NAME, "tenant");
   }
-  // Older cache format used { productType: string } — normalize
+
   if (!row) return null;
 
-  // Normalize possible shapes
-  if (row.product) return row.product;
-  if (row.productType) return row.productType; // legacy
-  console.log(row, "heres the product");
+  // Normalize older/newer shapes
+  if (row.productType) return row.productType; // current shape
+  if (row.product) return row.product; // if you ever wrote it under "product"
   return row;
 }
 

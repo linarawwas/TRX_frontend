@@ -55,11 +55,11 @@ export async function preloadShipmentData({
     // Product “Bottles” — prefer company-less GET; fallback to legacy company route if needed
     const productResPromise = (async () => {
       // Preferred: server infers tenant
-      // const r1 = await fetch(
-      //   `http://localhost:5000/api/products/type?name=Bottles`,
-      //   { headers: { Authorization: `Bearer ${token}` } }
-      // );
-      // if (r1.ok) return r1;
+      const r1 = await fetch(
+        `http://localhost:5000/api/products/type?name=Bottles`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (r1.ok) return r1;
 
       // // Fallback legacy (only if companyId is provided)
       if (companyId) {
@@ -76,11 +76,6 @@ export async function preloadShipmentData({
         );
         return r2;
       }
-
-      // Last resort: fetch all products and filter client-side
-      return fetch(`http://localhost:5000/api/products`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
     })();
 
     const [dayResp, areasResp, productResp] = await Promise.all([
@@ -92,7 +87,7 @@ export async function preloadShipmentData({
     // Parse JSON safely
     const dayData = await dayResp.json().catch(() => null);
     const areasJson = await areasResp.json().catch(() => null);
-    const productJson = await productResp.json().catch(() => null);
+    const productJson = await productResp?.json().catch(() => null);
 
     // Normalize arrays
     const areas: any[] = Array.isArray(areasJson)
@@ -103,18 +98,17 @@ export async function preloadShipmentData({
 
     // Normalize product to a single item (if your API returns array)
     let productData = productJson;
-    if (Array.isArray(productJson)) {
-      // Try to pick Bottles product if multiple
-      productData =
-        productJson.find((p: any) => p?.type === "Bottles") || productJson[0];
-    }
 
-    // Cache day/areas/product (companyId may be undefined; your IndexedDB key just needs to be consistent)
-    await Promise.all([
+    const results = await Promise.allSettled([
       saveDayToDB(dayId, dayData),
       saveAreasToDB(dayId, areas),
       saveProductTypeToDB(companyId, productData),
     ]);
+    for (const r of results) {
+      if (r.status === "rejected") {
+        console.warn("⚠️ Preload cache step failed:", r.reason);
+      }
+    }
 
     // === Step 2: For each area, fetch customers and cache their (discount + invoice) ===
     for (const area of areas) {
@@ -127,7 +121,10 @@ export async function preloadShipmentData({
       const customers = (await customersRes.json().catch(() => [])) as any[];
 
       if (!Array.isArray(customers)) {
-        console.warn(`❌ customers for area ${area._id} is not an array`, customers);
+        console.warn(
+          `❌ customers for area ${area._id} is not an array`,
+          customers
+        );
         continue;
       }
 
@@ -138,9 +135,12 @@ export async function preloadShipmentData({
         if (!customer?._id) return;
 
         const [discountRes, invoiceRes] = await Promise.all([
-          fetch(`http://localhost:5000/api/customers/discount/${customer._id}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
+          fetch(
+            `http://localhost:5000/api/customers/discount/${customer._id}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          ),
           fetch(`http://localhost:5000/api/customers/reciept/${customer._id}`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
