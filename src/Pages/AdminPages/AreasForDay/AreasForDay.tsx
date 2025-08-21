@@ -3,10 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../../redux/store";
 import { clearAreaId, setAreaId } from "../../../redux/Order/action";
-import {
-  getAreasFromDB,
-  getDayFromDB
-} from "../../../utils/indexedDB";
+import { getAreasFromDB, getDayFromDB } from "../../../utils/indexedDB";
 import "./AreasForDay.css";
 
 interface Area {
@@ -79,9 +76,7 @@ export default function AreasForDay(): JSX.Element {
               className="area-card-link"
               onClick={() => dispatch(setAreaId(area._id))}
             >
-              <div className="area-card">
-                 {area.name}
-              </div>
+              <div className="area-card">{area.name}</div>
             </Link>
           ))
         ) : (
