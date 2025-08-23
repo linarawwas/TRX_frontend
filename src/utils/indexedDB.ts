@@ -2,18 +2,18 @@ import { openDB } from "idb";
 
 // DB config
 const DB_NAME = "MyDatabase";
-const DB_VERSION = 13;
+const DB_VERSION = 14;
 
 // Store names
 const REQUESTS_STORE = "requests";
-const AREAS_STORE_NAME = "areas";
 const CUSTOMERS_STORE_NAME = "customers";
 const DISCOUNT_STORE_NAME = "customerDiscounts";
 const PRODUCTS_STORE_NAME = "products";
 const TRANSACTIONS_STORE_NAME = "transactions";
 const DAY_STORE_NAME = "dayStore";
-const CUSTOMER_INVOICES_STORE = "customerInvoices";
-
+const CUSTOMER_INVOICES_STORE = "customerInvoices"; // ✅ was missing
+const AREAS_BY_DAY_STORE_NAME = "areasByDay";
+const COMPANY_AREAS_STORE_NAME = "companyAreas";
 // Initialization
 export async function initializeDB() {
   await openDB(DB_NAME, DB_VERSION, {
@@ -24,13 +24,6 @@ export async function initializeDB() {
           autoIncrement: true,
         });
         store.createIndex("by_id", "id");
-      }
-
-      if (!db.objectStoreNames.contains(AREAS_STORE_NAME)) {
-        const store = db.createObjectStore(AREAS_STORE_NAME, {
-          keyPath: "_id",
-        });
-        store.createIndex("by_day", "dayId");
       }
 
       if (!db.objectStoreNames.contains(CUSTOMERS_STORE_NAME)) {
@@ -68,6 +61,15 @@ export async function initializeDB() {
       if (!db.objectStoreNames.contains(CUSTOMER_INVOICES_STORE)) {
         db.createObjectStore(CUSTOMER_INVOICES_STORE, {
           keyPath: "customerId",
+        });
+      }
+      if (!db.objectStoreNames.contains(AREAS_BY_DAY_STORE_NAME)) {
+        db.createObjectStore(AREAS_BY_DAY_STORE_NAME, { keyPath: "dayId" });
+      }
+
+      if (!db.objectStoreNames.contains(COMPANY_AREAS_STORE_NAME)) {
+        db.createObjectStore(COMPANY_AREAS_STORE_NAME, {
+          keyPath: "companyKey",
         });
       }
     },
@@ -112,35 +114,62 @@ export async function removeTransactionFromDB(transactionId: number) {
   await db.delete(TRANSACTIONS_STORE_NAME, transactionId);
 }
 
-// === AREAS ===
-export async function saveAreasToDB(dayId: string, areas: any[]) {
+// ✅ Minimal Area type
+type Area = { _id: string; name: string; [k: string]: any };
+
+// ✅ Transaction helper (now properly typed/imported)
+async function withTx<T>(
+  storeName: string,
+  mode: IDBTransactionMode,
+  fn: (store: IDBPObjectStore<any, any, any, any>) => Promise<T> | T
+): Promise<T> {
   const db = await openDB(DB_NAME, DB_VERSION);
-  const tx = db.transaction(AREAS_STORE_NAME, "readwrite");
-  for (const area of areas) {
-    await tx.store.put(withTimestamp({ ...area, dayId }));
-  }
+  const tx = db.transaction(storeName, mode);
+  const res = await fn(tx.store);
   await tx.done;
+  return res;
 }
 
-export async function getAreasFromDB(dayId: string) {
-  const db = await openDB(DB_NAME, DB_VERSION);
-  const tx = db.transaction(AREAS_STORE_NAME, "readonly");
-  const store = tx.store;
+// === AREAS (fixed) ===
+export async function saveAreasByDayToDB(
+  dayId: string,
+  areas: Area[]
+): Promise<void> {
+  if (!dayId) return; // ✅ guard
+  return withTx(AREAS_BY_DAY_STORE_NAME, "readwrite", (store) =>
+    store.put({ dayId, areas, lastUpdated: new Date().toISOString() })
+  );
+}
 
-  try {
-    if (store.indexNames.contains("by_day")) {
-      return await store.index("by_day").getAll(dayId);
-    } else {
-      console.warn(
-        "⚠️ Index 'by_day' not found. Falling back to manual filter."
-      );
-      const all = await store.getAll();
-      return all.filter((area: any) => area.dayId === dayId);
-    }
-  } catch (err) {
-    console.error("❌ Failed to load areas:", err);
-    return [];
+export async function getAreasByDayFromDB(dayId?: string): Promise<Area[]> {
+  if (!dayId) return []; // ✅ guard
+  return withTx(AREAS_BY_DAY_STORE_NAME, "readonly", async (store) => {
+    const row = await store.get(dayId);
+    return Array.isArray(row?.areas) ? row.areas : [];
+  });
+}
+
+export async function saveCompanyAreasToDB(
+  companyKey: string,
+  areas: Area[]
+): Promise<void> {
+  const key = (companyKey ?? "").trim();
+  if (!key) return; // ✅ guard
+  return withTx(COMPANY_AREAS_STORE_NAME, "readwrite", (store) =>
+    store.put({ companyKey: key, areas, lastUpdated: new Date().toISOString() })
+  );
+}
+
+export async function getCompanyAreasFromDB(
+  companyKey?: string | null
+): Promise<Area[]> {
+  const db = await openDB(DB_NAME, DB_VERSION);
+  const key = (companyKey ?? "").toString().trim();
+  let row = key ? await db.get(COMPANY_AREAS_STORE_NAME, key) : undefined;
+  if (!row && key !== "tenant") {
+    row = await db.get(COMPANY_AREAS_STORE_NAME, "tenant"); // fallback
   }
+  return Array.isArray(row?.areas) ? row.areas : [];
 }
 
 export async function saveCustomersToDB(areaId: string, customers: any[]) {

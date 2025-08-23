@@ -1,125 +1,113 @@
 // preloadShipmentData.ts
 import {
-  saveAreasToDB,
+  // remove saveAreasToDB,
   saveCustomersToDB,
   saveCustomerDiscountToDB,
   saveDayToDB,
   saveProductTypeToDB,
   saveCustomerInvoicesToDB,
+  saveAreasByDayToDB,
+  saveCompanyAreasToDB,
 } from "./indexedDB";
 
-/**
- * Preload all data needed for today's shipment.
- * - Prefers tenant-inferred endpoints (no companyId)
- * - Falls back to legacy companyId endpoints when necessary
- */
+type Area = { _id: string; name: string; [k: string]: any };
+
 export async function preloadShipmentData({
   dayId,
   token,
-  companyId, // optional: only used for legacy fallback
+  companyId,
 }: {
   dayId: string;
   token: string;
   companyId?: string;
 }) {
   try {
-    // === Step 1: Core fetches in parallel ===
-    // Day (GET)
+    const auth = { Authorization: `Bearer ${token}` };
+
+    // Core fetches (in parallel)
     const dayRes = fetch(`http://localhost:5000/api/days/${dayId}`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: auth,
+    });
+    const areasByDayRes = fetch(
+      `http://localhost:5000/api/areas/day/${dayId}`,
+      { headers: auth }
+    );
+    const companyAreasRes = fetch(`http://localhost:5000/api/areas/company`, {
+      headers: auth,
     });
 
-    // Areas — try day-scoped GET first; fallback to company route if needed
-    const areasResPromise = (async () => {
-      // Preferred (adjust to your actual route name):
-      const r1 = await fetch(`http://localhost:5000/api/areas/day/${dayId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (r1.ok) return r1;
-
-      // Fallback to legacy company route if available:
-      if (companyId) {
-        const r2 = await fetch(
-          `http://localhost:5000/api/areas/company/${companyId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        return r2;
-      }
-
-      // Last resort: generic areas (server should scope by auth)
-      return fetch(`http://localhost:5000/api/areas`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-    })();
-
-    // Product “Bottles” — prefer company-less GET; fallback to legacy company route if needed
     const productResPromise = (async () => {
-      // Preferred: server infers tenant
       const r1 = await fetch(
         `http://localhost:5000/api/products/type?name=Bottles`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: auth }
       );
       if (r1.ok) return r1;
-
-      // // Fallback legacy (only if companyId is provided)
       if (companyId) {
-        const r2 = await fetch(
+        return fetch(
           `http://localhost:5000/api/products/productType/company/${companyId}`,
           {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { "Content-Type": "application/json", ...auth },
             body: JSON.stringify({ type: "Bottles" }),
           }
         );
-        return r2;
       }
+      return undefined;
     })();
 
-    const [dayResp, areasResp, productResp] = await Promise.all([
-      dayRes,
-      areasResPromise,
-      productResPromise,
-    ]);
+    const [dayResp, areasByDayResp, companyAreasResp, productResp] =
+      await Promise.all([
+        dayRes,
+        areasByDayRes,
+        companyAreasRes,
+        productResPromise,
+      ]);
 
-    // Parse JSON safely
-    const dayData = await dayResp.json().catch(() => null);
-    const areasJson = await areasResp.json().catch(() => null);
-    const productJson = await productResp?.json().catch(() => null);
-
-    // Normalize arrays
-    const areas: any[] = Array.isArray(areasJson)
-      ? areasJson
-      : Array.isArray(areasJson?.areas)
-      ? areasJson.areas
-      : [];
-
-    // Normalize product to a single item (if your API returns array)
-    let productData = productJson;
-
-    const results = await Promise.allSettled([
-      saveDayToDB(dayId, dayData),
-      saveAreasToDB(dayId, areas),
-      saveProductTypeToDB(companyId, productData),
-    ]);
-    for (const r of results) {
-      if (r.status === "rejected") {
-        console.warn("⚠️ Preload cache step failed:", r.reason);
+    // Helpers
+    const safeJson = async (resp: Response | undefined) => {
+      if (!resp) return null;
+      if (!resp.ok) return null;
+      try {
+        return await resp.json();
+      } catch {
+        return null;
       }
-    }
+    };
+    const normalizeAreas = (j: any): Area[] =>
+      Array.isArray(j) ? j : Array.isArray(j?.areas) ? j.areas : [];
 
-    // === Step 2: For each area, fetch customers and cache their (discount + invoice) ===
-    for (const area of areas) {
+    // Parse
+    const dayData = await safeJson(dayResp);
+    const areasByDayJson = await safeJson(areasByDayResp);
+    const companyJson = await safeJson(companyAreasResp);
+    const productJson = await safeJson(productResp as any);
+
+    const areasByDay: Area[] = normalizeAreas(areasByDayJson);
+    const companyAreas: Area[] = normalizeAreas(companyJson);
+
+    // Cache (skip overwriting with [] on failed fetches)
+    const writes: Promise<any>[] = [];
+    if (dayData) writes.push(saveDayToDB(dayId, dayData));
+    if (areasByDayJson) writes.push(saveAreasByDayToDB(dayId, areasByDay));
+    if (companyJson)
+      writes.push(saveCompanyAreasToDB(companyId || "tenant", companyAreas));
+    if (productJson) writes.push(saveProductTypeToDB(companyId, productJson));
+
+    const results = await Promise.allSettled(writes);
+    for (const r of results)
+      if (r.status === "rejected")
+        console.warn("⚠️ Preload cache step failed:", r.reason);
+
+    // === Hydrate customers for TODAY’S areas only ===
+    for (const area of companyAreas) {
+      // ✅ was `areas`
       if (!area?._id) continue;
 
       const customersRes = await fetch(
         `http://localhost:5000/api/customers/area/${area._id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: auth }
       );
-      const customers = (await customersRes.json().catch(() => [])) as any[];
-
+      const customers = (await safeJson(customersRes)) || [];
       if (!Array.isArray(customers)) {
         console.warn(
           `❌ customers for area ${area._id} is not an array`,
@@ -130,35 +118,33 @@ export async function preloadShipmentData({
 
       await saveCustomersToDB(area._id, customers);
 
-      // Per-customer tasks
-      const tasks = customers.map(async (customer: any) => {
-        if (!customer?._id) return;
-
-        const [discountRes, invoiceRes] = await Promise.all([
-          fetch(
-            `http://localhost:5000/api/customers/discount/${customer._id}`,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          ),
-          fetch(`http://localhost:5000/api/customers/reciept/${customer._id}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
-
-        const discountData = await discountRes.json().catch(() => ({}));
-        const invoiceData = await invoiceRes.json().catch(() => ({}));
-
-        await Promise.all([
-          saveCustomerDiscountToDB(customer._id, discountData),
-          saveCustomerInvoicesToDB(customer._id, invoiceData?.sums ?? {}),
-        ]);
-      });
-
-      await Promise.all(tasks);
+      // Per-customer details
+      await Promise.all(
+        customers.map(async (customer: any) => {
+          if (!customer?._id) return;
+          const [discountRes, invoiceRes] = await Promise.all([
+            fetch(
+              `http://localhost:5000/api/customers/discount/${customer._id}`,
+              { headers: auth }
+            ),
+            fetch(
+              `http://localhost:5000/api/customers/reciept/${customer._id}`,
+              { headers: auth }
+            ),
+          ]);
+          const discountData = (await safeJson(discountRes)) || {};
+          const invoiceData = (await safeJson(invoiceRes)) || {};
+          await Promise.all([
+            saveCustomerDiscountToDB(customer._id, discountData),
+            saveCustomerInvoicesToDB(customer._id, invoiceData?.sums ?? {}),
+          ]);
+        })
+      );
     }
 
-    console.log("✅ Shipment data preloaded successfully");
+    console.log(
+      `✅ Preload done — day areas: ${areasByDay.length}, company areas: ${companyAreas.length}`
+    );
   } catch (error) {
     console.error("❌ Error during shipment data preload:", error);
   }
