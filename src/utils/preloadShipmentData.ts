@@ -32,10 +32,10 @@ export async function preloadShipmentData({
     // Areas — try day-scoped GET first; fallback to company route if needed
     const areasResPromise = (async () => {
       // Preferred (adjust to your actual route name):
-      // const r1 = await fetch(`http://localhost:5000/api/areas/day/${dayId}`, {
-      //   headers: { Authorization: `Bearer ${token}` },
-      // });
-      // if (r1.ok) return r1;
+      const r1 = await fetch(`http://localhost:5000/api/areas/day/${dayId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (r1.ok) return r1;
 
       // Fallback to legacy company route if available:
       if (companyId) {
@@ -47,9 +47,9 @@ export async function preloadShipmentData({
       }
 
       // Last resort: generic areas (server should scope by auth)
-      // return fetch(`http://localhost:5000/api/areas`, {
-      //   headers: { Authorization: `Bearer ${token}` },
-      // });
+      return fetch(`http://localhost:5000/api/areas`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
     })();
 
     // Product “Bottles” — prefer company-less GET; fallback to legacy company route if needed
