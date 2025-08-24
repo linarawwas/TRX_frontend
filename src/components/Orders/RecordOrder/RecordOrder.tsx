@@ -23,8 +23,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { getProductTypeFromDB, saveRequest } from "../../../utils/indexedDB";
 import { fetchAndCacheCustomerInvoice } from "../../../utils/apiHelpers";
 import CustomerInvoices from "../../Customers/CustomerInvoices/CustomerInvoices";
+type Props = {
+  customerData?: any;
+  isExternal?: boolean;
+};
 
-const RecordOrder = (props) => {
+const RecordOrder: React.FC<Props> = (props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const companyId = useSelector((s) => s.user.companyId);
@@ -237,6 +241,7 @@ const RecordOrder = (props) => {
       productId, // numeric code
       shipmentId, // ObjectId
       payments,
+      type: props.isExternal ? 3 : 2,
     };
 
     try {

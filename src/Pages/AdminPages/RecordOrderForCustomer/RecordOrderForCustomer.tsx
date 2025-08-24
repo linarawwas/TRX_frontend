@@ -1,6 +1,8 @@
 import { useSelector } from "react-redux";
 import "./RecordOrderForCustomer.css";
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+
 import CustomerInvoices from "../../../components/Customers/CustomerInvoices/CustomerInvoices";
 import RecordOrder from "../../../components/Orders/RecordOrder/RecordOrder";
 import {
@@ -25,6 +27,9 @@ function RecordOrderForCustomer(): JSX.Element {
     useState<CustomerData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { state } = useLocation();
+  const isExternal = Boolean((state as any)?.isExternal);
+  console.log("isExternal:", isExternal);
 
   useEffect(() => {
     const fetchDiscountFromCache = async () => {
@@ -90,7 +95,10 @@ function RecordOrderForCustomer(): JSX.Element {
           /* rateLBP={companyRateInLBP} // optional if you have it */
         />
       )}
-      <RecordOrder customerData={customerDiscountStatus} />
+      <RecordOrder
+        customerData={customerDiscountStatus}
+        isExternal={isExternal}
+      />
     </div>
   );
 }

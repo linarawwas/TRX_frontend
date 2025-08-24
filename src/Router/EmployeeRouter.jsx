@@ -1,5 +1,4 @@
 import { Route, Routes } from "react-router-dom";
-import Days from "../components/Days/Days.tsx";
 import AreasForDay from "../Pages/AdminPages/AreasForDay/AreasForDay.tsx";
 import Login from "../Pages/SharedPages/Login/Login.tsx";
 import EmployeeLandingPage from "../Pages/EmployeePages/EmployeeLandingPage/EmployeeLandingPage.tsx";
@@ -27,7 +26,10 @@ function EmployeeRouter() {
         <Route path="/viewOrders" element={<OrdersTable />} />
         <Route path="/customers" element={<Customers />} />
         <Route path="/updateOrder/:orderId" element={<UpdateOrder />} />
-        <Route path="/createExternalShipment" element={<CreateExternalShipment />} />
+        <Route
+          path="/createExternalShipment"
+          element={<CreateExternalShipment />}
+        />
         <Route
           path="/updateCustomer/:customerId"
           element={<UpdateCustomer />}
@@ -35,8 +37,7 @@ function EmployeeRouter() {
         <Route
           path="/recordOrderforCustomer"
           element={<RecordOrderForCustomer />}
-        />
-        <Route path="/days" element={<Days />} />
+        />{" "}
         <Route path="/newShipment" element={<StartShipment />} />
         <Route path="/areas/:dayId" element={<AreasForDay />} />
         <Route path="/customers/:areaId" element={<CustomersForArea />} />
@@ -49,7 +50,6 @@ function EmployeeRouter() {
           path="/recordOrderforCustomer"
           element={<RecordOrderForCustomer />}
         />
-        <Route path="/days" element={<Days />} />
         <Route path="/areas" element={<Areas />} />
         <Route path="/customers" element={<Customers />} />
         <Route path="/addresses/:areaId" element={<Addresses />} />

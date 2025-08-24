@@ -80,7 +80,7 @@ const useSyncOfflineOrders = () => {
             }
 
             dispatch(removePendingOrder(body.customerid));
-            toast.success("Offline order submitted successfully.");
+            toast.success("تم إرسال الطلبات المسجلة بدون انترنت بنجاح!");
           } else {
             console.error("Failed to sync order:", response.statusText);
             toast.error(`Failed to sync order: ${response.statusText}`);

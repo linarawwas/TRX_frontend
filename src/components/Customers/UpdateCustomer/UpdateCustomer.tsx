@@ -58,7 +58,7 @@ function UpdateCustomer() {
   }, [customerId, dispatch]);
 
   const fetchAreas = () => {
-    fetch(`http://localhost:5000/api/areas/company/${companyId}`, {
+    fetch("http://localhost:5000/api/areas/company", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())

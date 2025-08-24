@@ -86,10 +86,11 @@ export default function AreasForDay(): JSX.Element {
 
   const translatedDayName = arabicDayMap[dayName] || dayName;
 
-  const renderAreaCard = (area: Area) => (
+  const renderAreaCard = (area: Area, isExternal: Boolean) => (
     <Link
       key={area._id}
       to={`/customers/${area._id}`}
+      state={{ isExternal }}
       className="area-card-link"
       onClick={() => dispatch(setAreaId(area._id))}
     >
@@ -106,7 +107,7 @@ export default function AreasForDay(): JSX.Element {
         {loading ? (
           <p className="loading-text">⏳ جارٍ التحميل...</p>
         ) : dayAreas.length > 0 ? (
-          dayAreas.map(renderAreaCard)
+          dayAreas.map((a) => renderAreaCard(a, false))
         ) : (
           <p className="no-areas-text">😕 لا توجد مناطق محفوظة لهذا اليوم</p>
         )}
@@ -134,7 +135,7 @@ export default function AreasForDay(): JSX.Element {
             {loading ? (
               <p className="loading-text">⏳ جارٍ التحميل...</p>
             ) : otherAreas.length > 0 ? (
-              otherAreas.map(renderAreaCard)
+              otherAreas.map((a) => renderAreaCard(a, true))
             ) : (
               <p className="no-areas-text">لا توجد مناطق إضافية.</p>
             )}

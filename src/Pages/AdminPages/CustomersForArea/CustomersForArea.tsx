@@ -1,5 +1,6 @@
 // CustomersForAreaMobile.tsx
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import { useLocation } from "react-router-dom";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import "./CustomersForAreaMobile.css";
@@ -35,6 +36,8 @@ const bySequenceThenName = (a: Customer, b: Customer) => {
 };
 
 const CustomersForArea = (): JSX.Element => {
+  const location = useLocation();
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { areaId } = useParams();
@@ -43,7 +46,9 @@ const CustomersForArea = (): JSX.Element => {
   const [loading, setLoading] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-
+  const [isExternalArea, setIsExternalArea] = useState<boolean>(
+    Boolean((location.state as any)?.isExternal)
+  );
   const customersWithFilledOrders: string[] = useSelector(
     (state: any) => state.shipment?.CustomersWithFilledOrders ?? []
   );
@@ -53,6 +58,9 @@ const CustomersForArea = (): JSX.Element => {
   const customersWithEmptyOrders: string[] = useSelector(
     (state: any) => state.shipment?.CustomersWithEmptyOrders ?? []
   );
+  const { state: routeState } = useLocation() as {
+    state?: { isExternal?: boolean };
+  };
 
   // Load cached customers (and sort by sequence)
   useEffect(() => {
@@ -88,7 +96,9 @@ const CustomersForArea = (): JSX.Element => {
   const handleOrderState = (customerId: string, customerName: string) => {
     dispatch(setCustomerId(customerId));
     dispatch(setCustomerName(customerName));
-    navigate("/recordOrderforCustomer");
+    navigate("/recordOrderforCustomer", {
+      state: { isExternal: Boolean(routeState?.isExternal) },
+    });
   };
 
   // Collapse states (remember per area)
