@@ -86,7 +86,7 @@ export default function AreasForDay(): JSX.Element {
 
   const translatedDayName = arabicDayMap[dayName] || dayName;
 
-  const renderAreaCard = (area: Area, isExternal: Boolean) => (
+  const renderAreaCard = (area: Area, isExternal: boolean) => (
     <Link
       key={area._id}
       to={`/customers/${area._id}`}

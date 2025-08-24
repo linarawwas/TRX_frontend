@@ -21,6 +21,7 @@ import Products from "../Pages/AdminPages/ProductsList/Products.tsx";
 import CustomerInfo from "../components/Customers/CustomerInfo/CustomerInfo.tsx";
 import AdminLandingPage from "../Pages/AdminPages/AdminLandingPage/AdminLandingPage.tsx";
 import RecordOrderForCustomer from "../Pages/AdminPages/RecordOrderForCustomer/RecordOrderForCustomer.tsx";
+import OrdersOfToday from "../Pages/SharedPages/Login/reports/orders-today/OrdersOfToday.tsx";
 function AdminRouter() {
   return (
     <>
@@ -30,6 +31,7 @@ function AdminRouter() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/viewOrders" element={<OrdersTable />} />
+          <Route path="/reports/orders-today" element={<OrdersOfToday />} />
           <Route
             path="/recordOrderforCustomer"
             element={<RecordOrderForCustomer />}

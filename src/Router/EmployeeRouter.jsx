@@ -17,13 +17,13 @@ import Customers from "../Pages/AdminPages/viewCustomers/Customers.tsx";
 import Addresses from "../Pages/AdminPages/Addresses/Addresses.tsx";
 import AddArea from "../components/Areas/AddArea/AddArea.tsx";
 import CreateExternalShipment from "../Pages/EmployeePages/CreateExternalShipment/CreateExternalShipment.tsx";
+import OrdersOfToday from "../Pages/SharedPages/Login/reports/orders-today/OrdersOfToday.tsx";
 function EmployeeRouter() {
   return (
     <div className="userRouter">
       <Routes>
         <Route index element={<EmployeeLandingPage />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/viewOrders" element={<OrdersTable />} />
         <Route path="/customers" element={<Customers />} />
         <Route path="/updateOrder/:orderId" element={<UpdateOrder />} />
         <Route
@@ -51,6 +51,7 @@ function EmployeeRouter() {
           element={<RecordOrderForCustomer />}
         />
         <Route path="/areas" element={<Areas />} />
+        <Route path="/reports/orders-today" element={<OrdersOfToday />} />
         <Route path="/customers" element={<Customers />} />
         <Route path="/addresses/:areaId" element={<Addresses />} />
         <Route path="/areas/:dayId" element={<AreasForDay />} />

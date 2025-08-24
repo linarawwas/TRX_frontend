@@ -72,6 +72,9 @@ const AsideMenu: React.FC = () => {
           <Link to="/currentShipment" onClick={toggleMenu}>
             📦 بيانات الشحنة
           </Link>
+          <Link to="/reports/orders-today" onClick={toggleMenu}>
+            🧾 طلبات شحنات اليوم
+          </Link>
 
           {/* Admin-only Links */}
           {isAdmin && (
