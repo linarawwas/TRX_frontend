@@ -35,12 +35,15 @@ const RecordOrder: React.FC<Props> = (props) => {
   const token = useSelector((s) => s.user.token);
   const customerId = useSelector((s) => s.order.customer_Id);
   const customerName = useSelector((s) => s.order.customer_name);
+  const customerPhoneRaw = useSelector((s) => s.order.phone);
   const shipmentId = useSelector((s) => s.shipment._id);
-
+  console.log(customerPhoneRaw, "this is customerPhoneRaw");
   const product_name = useSelector((s) => s.order.product_name);
   console.log(product_name, "this is product_name");
   const productId = useSelector((s) => s.order.product_id);
   const productPrice = useSelector((s) => s.order.product_price);
+  const orderSlice = useSelector((s: any) => s.order);
+  console.log({ orderSlice }, "order slice");
 
   // Shipment totals (for incremental updates)
   const shipmentDelivered = useSelector((s) => s.shipment.delivered) ?? 0;
@@ -127,8 +130,58 @@ const RecordOrder: React.FC<Props> = (props) => {
       const step = field === "paidLBP" ? 1000 : 1;
       return { ...p, [field]: Math.max(0, Number(p[field] || 0) - step) };
     });
+  function buildOrderMessage(customerName, productName, form, payments) {
+    const sumUSD = payments
+      .filter((p) => p.currency === "USD")
+      .reduce((s, p) => s + p.amount, 0);
+    const sumLBP = payments
+      .filter((p) => p.currency === "LBP")
+      .reduce((s, p) => s + p.amount, 0);
+    const usdStr = sumUSD ? `${sumUSD} $` : "—";
+    const lbpStr = sumLBP ? `${sumLBP.toLocaleString()} ل.ل` : "—";
 
-  const actuallySubmit = async (payload) => {
+    return `مرحباً ${customerName} 
+
+ تم تسجيل طلبك:
+
+ المنتج: ${productName}
+ المسلّمة: ${form.delivered}
+ المرجعة: ${form.returned}
+الحساب: ${checkout.toFixed(2)} $
+ المدفوع بالدولار: ${usdStr}
+ المدفوع بالليرة: ${lbpStr}
+
+شكراً لتعاملكم معنا `;
+  }
+  function normalizePhone(raw: string, defaultCountry = "961") {
+    if (!raw) return "";
+    let cleaned = raw.replace(/[^0-9]/g, ""); // digits only
+
+    // 00CC... -> strip 00
+    if (cleaned.startsWith("00")) return cleaned.slice(2);
+
+    // Already has a country code? allow common ones directly
+    if (/^(961|963|1)\d+/.test(cleaned)) return cleaned;
+
+    // Lebanese local with leading 0: 03xxxxxx, 70xxxxxx, etc.
+    if (defaultCountry === "961" && cleaned.length === 8) {
+      // already 8-digit local (e.g., 78881318)
+      return defaultCountry + cleaned;
+    }
+    if (
+      defaultCountry === "961" &&
+      cleaned.length === 9 &&
+      cleaned.startsWith("0")
+    ) {
+      // e.g., 078881318 or 03123456
+      return defaultCountry + cleaned.slice(1);
+    }
+
+    // Fallback: just prefix default country
+    return defaultCountry + cleaned;
+  }
+
+  const actuallySubmit = async (payload, waWindow?: Window | null) => {
     const request = {
       url: "http://localhost:5000/api/orders",
       options: {
@@ -206,12 +259,42 @@ const RecordOrder: React.FC<Props> = (props) => {
     }
 
     toast.success("✅ تم تسجيل الطلب");
-    navigate(-1);
+
+    if (customerPhoneRaw) {
+      const normalizedPhone = normalizePhone(customerPhoneRaw);
+      const message = buildOrderMessage(
+        customerName,
+        product_name,
+        payload,
+        payload.payments || []
+      );
+      const encoded = encodeURIComponent(message);
+      const url = `https://wa.me/${normalizedPhone}?text=${encoded}`;
+
+      // If we have a pre-opened tab, use it (bypasses blockers)
+      if (waWindow && !waWindow.closed) {
+        // small timeout helps on some mobile browsers to attach URL reliably
+        setTimeout(() => {
+          try {
+            waWindow.location.href = url;
+          } catch {
+            // fallback
+            window.location.assign(url);
+          }
+        }, 0);
+      } else {
+        // Fallback if popup was blocked or not available
+        window.location.assign(url);
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSubmitting) return;
+
+    // 👇 IMPORTANT: pre-open tab to preserve user gesture
+    const waWindow = window.open("", "_blank");
 
     // normalize inputs
     const dDelivered = Number(form.delivered) || 0;
@@ -243,9 +326,9 @@ const RecordOrder: React.FC<Props> = (props) => {
       payments,
       type: props.isExternal ? 3 : 2,
     };
-
+    navigate(-1);
     try {
-      await actuallySubmit(orderPayload);
+      await actuallySubmit(orderPayload, waWindow); // pass the handle
     } catch {
       toast.error("❌ فشل الاتصال بالشبكة");
     } finally {

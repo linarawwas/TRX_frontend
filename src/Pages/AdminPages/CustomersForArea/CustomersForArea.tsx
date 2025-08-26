@@ -7,8 +7,10 @@ import "./CustomersForAreaMobile.css";
 import {
   clearCustomerId,
   clearCustomerName,
+  clearCustomerPhoneNb,
   setCustomerId,
   setCustomerName,
+  setCustomerPhoneNb,
 } from "../../../redux/Order/action";
 import { getCustomersFromDB } from "../../../utils/indexedDB";
 
@@ -66,6 +68,7 @@ const CustomersForArea = (): JSX.Element => {
   useEffect(() => {
     dispatch(clearCustomerId());
     dispatch(clearCustomerName());
+    dispatch(clearCustomerPhoneNb());
     const loadCachedCustomers = async () => {
       try {
         setLoading(true);
@@ -93,9 +96,14 @@ const CustomersForArea = (): JSX.Element => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleOrderState = (customerId: string, customerName: string) => {
+  const handleOrderState = (
+    customerId: string,
+    customerName: string,
+    phone: string
+  ) => {
     dispatch(setCustomerId(customerId));
     dispatch(setCustomerName(customerName));
+    dispatch(setCustomerPhoneNb(phone));
     navigate("/recordOrderforCustomer", {
       state: { isExternal: Boolean(routeState?.isExternal) },
     });
@@ -238,7 +246,15 @@ const CustomersForArea = (): JSX.Element => {
                     <div
                       key={c._id}
                       className="customer-card pending"
-                      onClick={() => handleOrderState(c._id, c.name)}
+                      onClick={() => {
+                        console.log(
+                          c._id,
+                          c.name,
+                          c.phone,
+                          "this is our customer"
+                        );
+                        handleOrderState(c._id, c.name, c.phone);
+                      }}
                       aria-label={`${c.name} — طلب غير مرسل بعد`}
                     >
                       <div className="customer-name">
@@ -292,7 +308,7 @@ const CustomersForArea = (): JSX.Element => {
                     <div
                       key={c._id}
                       className={`customer-card ${statusClass}`}
-                      onClick={() => handleOrderState(c._id, c.name)}
+                      onClick={() =>handleOrderState(c._id, c.name, c.phone)}
                     >
                       <div className="customer-name">{c.name}</div>
                       <div className="customer-details">
@@ -319,7 +335,7 @@ const CustomersForArea = (): JSX.Element => {
                   <div
                     key={c._id}
                     className="customer-card"
-                    onClick={() => handleOrderState(c._id, c.name)}
+                    onClick={() =>handleOrderState(c._id, c.name, c.phone)}
                   >
                     <div className="customer-name">{c.name}</div>
                     <div className="customer-details">

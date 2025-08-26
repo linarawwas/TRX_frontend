@@ -10,6 +10,8 @@ import {
   CLEAR_AREA_ID,
   CLEAR_CUSTOMER_NAME,
   SET_CUSTOMER_NAME,
+  SET_CUSTOMER_PHONE_NB,
+  CLEAR_CUSTOMER_PHONE_NB,
 } from "./actionTypes.js";
 
 export const setCustomerId = (customer_Id) => ({
@@ -37,7 +39,10 @@ export const setCustomerName = (name) => ({
   type: SET_CUSTOMER_NAME,
   payload: name,
 });
-
+export const setCustomerPhoneNb = (phone) => ({
+  type: SET_CUSTOMER_PHONE_NB,
+  payload: phone,
+});
 export const clearCustomerName = () => ({
   type: CLEAR_CUSTOMER_NAME,
 });
@@ -51,4 +56,7 @@ export const clearAreaId = () => ({
 });
 export const clearProductId = () => ({
   type: CLEAR_PRODUCT_ID,
+});
+export const clearCustomerPhoneNb = () => ({
+  type: CLEAR_CUSTOMER_PHONE_NB,
 });

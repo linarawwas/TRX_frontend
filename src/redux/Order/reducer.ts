@@ -10,19 +10,22 @@ import {
   SET_PRODUCT_PRICE,
   CLEAR_PRODUCT_PRICE,
   SET_CUSTOMER_NAME,
-  CLEAR_CUSTOMER_NAME
-} from './actionTypes.js';
+  CLEAR_CUSTOMER_NAME,
+  SET_CUSTOMER_PHONE_NB,
+  CLEAR_CUSTOMER_PHONE_NB,
+} from "./actionTypes.js";
 
 const initialState = {
   area_Id: null,
   customer_Id: null,
-  customer_name: "", // ✅ Added this
+  customer_name: "",
+  phone: "",
   product_id: null,
   product_name: "",
   product_price: 0,
 };
 
-const orderReducer = (state = initialState, action:any) => {
+const orderReducer = (state = initialState, action: any) => {
   switch (action.type) {
     case SET_AREA_ID:
       return { ...state, area_Id: action.payload };
@@ -31,7 +34,9 @@ const orderReducer = (state = initialState, action:any) => {
     case SET_CUSTOMER_ID:
       return { ...state, customer_Id: action.payload };
     case SET_CUSTOMER_NAME:
-      return { ...state, customer_name: action.payload }; // ✅ Added this
+      return { ...state, customer_name: action.payload };
+    case SET_CUSTOMER_PHONE_NB:
+      return { ...state, phone: action.payload };
     case SET_PRODUCT_ID:
       return { ...state, product_id: action.payload };
     case SET_PRODUCT_NAME:
@@ -41,9 +46,11 @@ const orderReducer = (state = initialState, action:any) => {
     case CLEAR_CUSTOMER_ID:
       return { ...state, customer_Id: null };
     case CLEAR_CUSTOMER_NAME:
-      return { ...state, customer_name: "" }; // ✅ Added this
+      return { ...state, customer_name: "" };  
+    case CLEAR_CUSTOMER_PHONE_NB:
+      return { ...state, phone: "" };  
     case CLEAR_PRODUCT_ID:
-      return { ...state, product_id: null }; // ✅ fixed incorrect clearing
+      return { ...state, product_id: null }; 
     case CLEAR_PRODUCT_NAME:
       return { ...state, product_name: "" };
     case CLEAR_PRODUCT_PRICE:
