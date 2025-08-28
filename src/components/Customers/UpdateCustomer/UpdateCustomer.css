@@ -64,3 +64,18 @@
     font-size: 20px;
   }
 }
+.statement-cta {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0 14px;
+}
+.statement-button {
+  border: 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #0d94dd;
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+.statement-button:hover { background: #06355e; }

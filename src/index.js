@@ -12,7 +12,7 @@ root.render(
     </Provider>
   </React.StrictMode>
 );
-const isProd = import.meta?.env?.PROD ?? process.env.NODE_ENV === "production";
+const isProd =  process.env.NODE_ENV === "production";
 
 if ("serviceWorker" in navigator && isProd) {
   let refreshed = false;

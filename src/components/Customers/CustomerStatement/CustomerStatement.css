@@ -1,0 +1,161 @@
+/* src/components/Customers/CustomerStatement/CustomerStatement.css */
+.customer-st-container {
+  padding: 12px;
+  font-family: system-ui, -apple-system, "Segoe UI", "Arial", sans-serif;
+}
+
+.st-header {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.st-title {
+  margin: 0;
+  font-size: 18px;
+  color: #082338;
+  text-align: center;
+}
+.st-back,
+.st-print {
+  border: 0;
+  background: #f3f4f6;
+  color: #082338;
+  border-radius: 10px;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-weight: 700;
+}
+.st-print {
+  background: #ecfeff;
+  color: #155e75;
+}
+
+.st-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fff;
+  padding: 10px;
+}
+.st-cust {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.st-table-wrap {
+  overflow-x: auto;
+}
+.st-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.st-table th,
+.st-table td {
+  border: 1px solid #e5e7eb;
+  padding: 6px 8px;
+  text-align: right;
+}
+.st-table thead th {
+  background: #f8fafc;
+  color: #082338;
+}
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.st-summary {
+  margin-top: 8px;
+}
+.due {
+  color: #b45309;
+} /* amber-700 */
+.credit {
+  color: #047857;
+} /* emerald-700 */
+.muted {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+/* Floating add button (like UpdateOrder) */
+.st-fab {
+  position: fixed;
+  inset-inline-end: 16px;
+  inset-block-end: 18px;
+  width: 52px;
+  height: 52px;
+  border-radius: 9999px;
+  border: none;
+  background: linear-gradient(135deg, #0ea5e9, #6366f1);
+  color: #fff;
+  font-size: 28px;
+  line-height: 0;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 10px 24px rgba(2, 18, 33, 0.2);
+  cursor: pointer;
+  z-index: 50;
+}
+
+/* Bottom sheet reuses your existing styles (included in UpdateOrder.css) */
+.st-sheet-fields {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.st-label {
+  font-weight: 700;
+  color: #082338;
+}
+.st-select {
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+}
+
+/* Print: only the statement */
+@media print {
+  .st-header,
+  .st-fab,
+  .sheet-backdrop,
+  .Toastify,
+  .customer-st-container > :not(.print-area) {
+    display: none !important;
+  }
+  .print-area {
+    display: block !important;
+  }
+  body {
+    margin: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  @page {
+    margin: 8mm;
+  }
+}
+.st-order-link {
+  color: #0d94dd;
+  font-weight: 700;
+  text-decoration: none;
+}
+.st-order-link:hover {
+  text-decoration: underline;
+}
+
+.row-click {
+  cursor: pointer;
+}
+.row-click:hover {
+  background: #f1f5f9;
+}
+
+@media print {
+  .st-order-link {
+    color: #000;
+    text-decoration: none;
+  }
+}

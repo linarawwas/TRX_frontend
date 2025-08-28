@@ -219,21 +219,25 @@ function UpdateCustomer() {
   return (
     <div className="update-customer-container">
       <ToastContainer position="top-right" autoClose={1000} />
-
       <div className="update-header">
         <h1>معلومات الزبون:</h1>
       </div>
-
       <CustomerInfo customerData={customerData} loading={loading} />
-
       {customerData && invoiceReady && (
         <>
           <CustomerInvoices customerId={customerId!} />
-          <CustomerOrders />
+
+          {/* ✅ NEW: go to printable account statement */}
+          <div className="statement-cta">
+            <button
+              className="statement-button"
+              onClick={() => navigate(`/customers/${customerId}/statement`)}
+            >
+             الذهاب إلى كشف الحساب أو إضافة دفعة
+            </button>
+          </div>
         </>
       )}
-
-      {/* --- Quick placement in area order (admin convenience) --- */}
       {/* Reusable sequence placement (apply-now mode) */}
       {customerData?.areaId?._id && (
         <AreaSequencePicker
@@ -246,14 +250,12 @@ function UpdateCustomer() {
           onApplied={fetchCustomer}
         />
       )}
-
       <div
         className="update-toggle"
         onClick={() => setFormVisible(!formVisible)}
       >
         تعديل الزبون؟
       </div>
-
       {formVisible && (
         <form className="update-customer-form" onSubmit={handleSubmit}>
           <input

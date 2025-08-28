@@ -14,8 +14,6 @@ import {
   setDayId,
   clearShipmentInfo,
 } from "../../../redux/Shipment/action";
-import { DAY_ID_BY_EN_LONG } from "../../../utils/dayRegistry.ts";
-
 import AddToModel from "../../AddToModel/AddToModel";
 import { preloadShipmentData } from "../../../utils/preloadShipmentData";
 
