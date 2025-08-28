@@ -7,13 +7,24 @@ interface CustomerInfoProps {
   loading: boolean;
 }
 
-const CustomerInfo: React.FC<CustomerInfoProps> = ({ customerData, loading }) => {
+const CustomerInfo: React.FC<CustomerInfoProps> = ({
+  customerData,
+  loading,
+}) => {
   return (
     <div className="customer-info-card" dir="rtl">
       {loading ? (
         <SpinLoader />
       ) : customerData ? (
         <>
+          {" "}
+          {/* NEW: status row */}
+          <div className="customer-info-row">
+            <span className="customer-info-label">الحالة:</span>
+            <span className="customer-info-value">
+              {customerData.isActive ? "نشط" : "غير مفعل"}
+            </span>
+          </div>
           {/* Optional discount rows */}
           {customerData.hasDiscount && (
             <>
@@ -29,7 +40,6 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({ customerData, loading }) =>
               </div>
             </>
           )}
-
           {/* Main grid */}
           <div className="customer-info-grid">
             <div className="customer-info-row">
@@ -42,11 +52,15 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({ customerData, loading }) =>
             </div>
             <div className="customer-info-row">
               <span className="customer-info-label">المنطقة:</span>
-              <span className="customer-info-value">{customerData.areaId?.name}</span>
+              <span className="customer-info-value">
+                {customerData.areaId?.name}
+              </span>
             </div>
             <div className="customer-info-row">
               <span className="customer-info-label">العنوان:</span>
-              <span className="customer-info-value">{customerData.address}</span>
+              <span className="customer-info-value">
+                {customerData.address}
+              </span>
             </div>
           </div>
         </>

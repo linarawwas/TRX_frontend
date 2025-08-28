@@ -12,7 +12,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
 import SelectInput from "../../UI reusables/SelectInput/SelectInput";
 import CustomerInvoices from "../CustomerInvoices/CustomerInvoices";
-import CustomerOrders from "../CustomerOrders/CustomerOrders";
 import CustomerInfo from "../CustomerInfo/CustomerInfo";
 import { setCustomerId } from "../../../redux/Order/action";
 import { fetchAndCacheCustomerInvoice } from "../../../utils/apiHelpers";
@@ -52,6 +51,10 @@ function UpdateCustomer() {
   const [areaCustomers, setAreaCustomers] = useState<CustomerLite[]>([]);
   const [posTarget, setPosTarget] = useState<string>("__END__"); // __START__ | __END__ | <customerId>
   const [isPlacing, setIsPlacing] = useState(false);
+  // NEW: mutation states for activate/deactivate
+  const [isMutating, setIsMutating] = useState(false);
+  const [showRestoreOptions, setShowRestoreOptions] = useState(false);
+  const [restoreSequence, setRestoreSequence] = useState<number | "">("");
 
   useEffect(() => {
     if (customerId) dispatch(setCustomerId(customerId));
@@ -149,6 +152,105 @@ function UpdateCustomer() {
     }
   };
 
+  // ====== NEW: deactivate / restore actions ======
+  const handleDeactivate = async () => {
+    if (!customerId) return;
+    if (!window.confirm("هل تريد إيقاف هذا الزبون؟")) return;
+
+    setIsMutating(true);
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/customers/${customerId}/deactivate`,
+        { method: "PATCH", headers: { Authorization: `Bearer ${token}` } }
+      );
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || "تعذر إيقاف الزبون");
+      toast.success("تم إيقاف الزبون");
+      setShowRestoreOptions(false);
+      setRestoreSequence("");
+      fetchCustomer();
+    } catch (err: any) {
+      toast.error(err?.message || "فشل العملية");
+    } finally {
+      setIsMutating(false);
+    }
+  };
+
+  const restoreRequest = async (body: any) => {
+    const res = await fetch(
+      `http://localhost:5000/api/customers/${customerId}/restore`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body || {}),
+      }
+    );
+    const data = await res.json().catch(() => ({}));
+    return { res, data };
+  };
+
+  const handleRestoreAuto = async () => {
+    if (!customerId) return;
+    setIsMutating(true);
+    try {
+      // Let the backend auto-assign the next available sequence.
+      const areaId = customerData?.areaId?._id;
+      const { res, data } = await restoreRequest({ areaId });
+      if (res.ok) {
+        toast.success("تم تفعيل الزبون");
+        setShowRestoreOptions(false);
+        setRestoreSequence("");
+        fetchCustomer();
+        return;
+      }
+      // Gracefully handle sequence conflicts
+      if (res.status === 409) {
+        toast.warn("رقم الترتيب مستخدم. اختر رقمًا آخر.");
+        setShowRestoreOptions(true);
+        return;
+      }
+      throw new Error(data?.error || "تعذر تفعيل الزبون");
+    } catch (err: any) {
+      toast.error(err?.message || "فشل العملية");
+    } finally {
+      setIsMutating(false);
+    }
+  };
+
+  const handleRestoreWithSequence = async (e: FormEvent) => {
+    e.preventDefault();
+    if (restoreSequence === "" || Number(restoreSequence) <= 0) {
+      toast.error("أدخل رقم ترتيب صحيح (1 أو أكبر)");
+      return;
+    }
+    setIsMutating(true);
+    try {
+      const areaId = customerData?.areaId?._id;
+      const { res, data } = await restoreRequest({
+        areaId,
+        sequence: Number(restoreSequence),
+      });
+      if (!res.ok) {
+        if (res.status === 409) {
+          toast.warn("هذا الرقم ما زال مستخدمًا. جرّب رقمًا مختلفًا.");
+          return;
+        }
+        throw new Error(data?.error || "تعذر تفعيل الزبون");
+      }
+      toast.success("تم تفعيل الزبون وتعيين الترتيب");
+      setShowRestoreOptions(false);
+      setRestoreSequence("");
+      fetchCustomer();
+    } catch (err: any) {
+      toast.error(err?.message || "فشل العملية");
+    } finally {
+      setIsMutating(false);
+    }
+  };
+
   // ====== NEW: place this customer within the area order ======
   const applyPlacement = async (e: FormEvent) => {
     e.preventDefault();
@@ -222,6 +324,64 @@ function UpdateCustomer() {
       <div className="update-header">
         <h1>معلومات الزبون:</h1>
       </div>
+      {/* STATUS + ACTIONS */}
+      {customerData && (
+        <div className="cust-actions">
+          <span
+            className={`status-chip ${customerData.isActive ? "ok" : "off"}`}
+          >
+            {customerData.isActive ? "نشط" : "غير مفعل"}
+          </span>
+
+          {customerData.isActive ? (
+            <button
+              className="danger-btn"
+              onClick={handleDeactivate}
+              disabled={isMutating}
+            >
+              {isMutating ? "جارٍ الإيقاف..." : "إيقاف الزبون"}
+            </button>
+          ) : (
+            <div className="restore-block">
+              <button
+                className="primary-btn"
+                onClick={handleRestoreAuto}
+                disabled={isMutating}
+              >
+                {isMutating ? "جارٍ التفعيل..." : "تفعيل الزبون"}
+              </button>
+
+              {showRestoreOptions && (
+                <form
+                  className="restore-inline"
+                  onSubmit={handleRestoreWithSequence}
+                >
+                  <label className="restore-label">رقم الترتيب:</label>
+                  <input
+                    className="restore-input"
+                    type="number"
+                    min={1}
+                    value={restoreSequence}
+                    onChange={(e) =>
+                      setRestoreSequence(
+                        e.target.value === "" ? "" : Number(e.target.value)
+                      )
+                    }
+                    placeholder="مثال: 25"
+                  />
+                  <button
+                    className="secondary-btn"
+                    type="submit"
+                    disabled={isMutating}
+                  >
+                    حفظ الرقم وتفعيل
+                  </button>
+                </form>
+              )}
+            </div>
+          )}
+        </div>
+      )}
       <CustomerInfo customerData={customerData} loading={loading} />
       {customerData && invoiceReady && (
         <>
@@ -233,7 +393,7 @@ function UpdateCustomer() {
               className="statement-button"
               onClick={() => navigate(`/customers/${customerId}/statement`)}
             >
-             الذهاب إلى كشف الحساب أو إضافة دفعة
+              الذهاب إلى كشف الحساب أو إضافة دفعة
             </button>
           </div>
         </>

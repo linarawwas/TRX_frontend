@@ -126,3 +126,83 @@
     font-size: 2rem;
   }
 }
+/* Accordion wrapper */
+.accordion {
+  display: grid;
+  gap: 10px;
+}
+
+/* Section header with count badge */
+.accordion-header {
+  width: 100%;
+  border: 0;
+  background: #ecfeff;            /* light cyan for active group */
+  color: #082338;
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 20px 1fr auto;
+  align-items: center;
+  box-shadow: 0px 2px 8px rgba(8, 35, 56, 0.06);
+}
+.accordion-header.inactive {
+  background: #f3f4f6;            /* gray for inactive group */
+}
+
+.acc-title {
+  font-weight: 800;
+  text-align: right;
+}
+
+.badge {
+  background: #cffafe;            /* cyan-100 */
+  color: #0e7490;                 /* cyan-700 */
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-weight: 800;
+  font-size: 12px;
+}
+.badge.gray {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.chev {
+  display: inline-block;
+  transform: rotate(0deg);
+  transition: transform 0.15s ease;
+  font-size: 16px;
+  color: #082338;
+}
+.chev.open {
+  transform: rotate(90deg);
+}
+
+/* Body area */
+.accordion-body {
+  padding-top: 6px;
+}
+
+/* Inactive look */
+.inactive-card {
+  opacity: 0.85;
+}
+.status-chip {
+  background: #fef3c7;            /* amber-100 */
+  color: #92400e;                  /* amber-800 */
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 800;
+  margin-inline-start: auto;
+}
+
+/* Muted empty state */
+.muted-center {
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+/* Keep your existing responsive rules; lists reuse .customer-card* styles */

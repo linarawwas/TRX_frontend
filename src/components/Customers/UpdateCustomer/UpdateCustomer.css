@@ -79,3 +79,61 @@
   cursor: pointer;
 }
 .statement-button:hover { background: #06355e; }
+/* Status & Actions bar */
+.cust-actions {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.status-chip {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 12px;
+}
+.status-chip.ok {
+  background: #dcfce7;   /* green-100 */
+  color: #166534;        /* green-700 */
+}
+.status-chip.off {
+  background: #fee2e2;   /* red-100 */
+  color: #991b1b;        /* red-700 */
+}
+
+.primary-btn,
+.secondary-btn,
+.danger-btn {
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 800;
+  padding: 8px 12px;
+}
+
+.primary-btn { background: #0d94dd; color: #fff; }
+.primary-btn:hover { background: #06355e; }
+
+.secondary-btn { background: #ecfeff; color: #0e7490; }
+.secondary-btn:hover { background: #cffafe; }
+
+.danger-btn { background: #fee2e2; color: #991b1b; }
+.danger-btn:hover { background: #fecaca; }
+
+.restore-block { display: grid; gap: 8px; }
+
+.restore-inline {
+  display: grid;
+  grid-template-columns: auto 120px auto;
+  gap: 8px;
+  align-items: center;
+}
+.restore-label { font-weight: 700; color: #082338; }
+.restore-input {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 6px 8px;
+  text-align: center;
+}

@@ -1,66 +1,86 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import "./Customers.css";
 import { useDispatch, useSelector } from "react-redux";
 import { clearCustomerId } from "../../../redux/Order/action";
-import AddCustomers from "../../../components/Customers/AddCustomers/AddCustomers";
 import AddCustomer from "../../../components/Customers/AddCustomer/AddCustomer.jsx";
 import SpinLoader from "../../../components/UI reusables/SpinLoader/SpinLoader.jsx";
-import AddCustomerInitials from "../../../components/Customers/AddCustomerInitials/AddCustomerInitials";
 
 interface Customer {
   _id: string;
   name: string;
-  phone: string;
-  address: string;
+  phone?: string;
+  address?: string;
 }
 
 const Customers: React.FC = () => {
   const token: string = useSelector((state: any) => state.user.token);
-  const companyId: string = useSelector((state: any) => state.user.companyId);
-  const [customers, setCustomers] = useState<Customer[]>([]);
+  // companyId not needed anymore (the backend infers it from auth)
+  const [activeCustomers, setActiveCustomers] = useState<Customer[]>([]);
+  const [inactiveCustomers, setInactiveCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [showInsertBulk, setShowInsertBulk] = useState<boolean>(false);
+
   const [showInsertOne, setShowInsertOne] = useState<boolean>(false);
-  const [showInsertInitial, setShowInsertInitial] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
+
+  const [openActive, setOpenActive] = useState<boolean>(true);
+  const [openInactive, setOpenInactive] = useState<boolean>(false);
 
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(clearCustomerId());
 
-    fetch(`http://localhost:5000/api/customers/company/${companyId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    setLoading(true);
+    fetch(`http://localhost:5000/api/customers/company`, {
+      headers: { Authorization: `Bearer ${token}` },
     })
-      .then((response) => response.json())
-      .then((data: Customer[]) => {
-        setCustomers(data);
-        console.log("number of customers in your company: ", data.length);
-        setLoading(false);
+      .then((r) => r.json())
+      .then((data: { active: Customer[]; inactive: Customer[] }) => {
+        setActiveCustomers(Array.isArray(data?.active) ? data.active : []);
+        setInactiveCustomers(Array.isArray(data?.inactive) ? data.inactive : []);
       })
-      .catch((error) => {
-        console.error("Error fetching customers:", error);
-        setLoading(false);
-      });
-  }, [token, companyId, showInsertBulk, showInsertOne]);
+      .catch((err) => {
+        console.error("Error fetching customers:", err);
+      })
+      .finally(() => setLoading(false));
+  }, [token, showInsertOne]);
 
-  const filteredCustomers = customers.filter((customer) =>
-    customer.name.toLowerCase().includes(searchTerm.toLowerCase())
+  // one filter function applied to BOTH lists
+  const matches = (c: Customer) => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return true;
+    return (
+      c.name?.toLowerCase().includes(q) ||
+      c.phone?.toLowerCase().includes(q) ||
+      c.address?.toLowerCase().includes(q)
+    );
+  };
+
+  const filteredActive = useMemo(
+    () => activeCustomers.filter(matches),
+    [activeCustomers, searchTerm]
   );
+  const filteredInactive = useMemo(
+    () => inactiveCustomers.filter(matches),
+    [inactiveCustomers, searchTerm]
+  );
+
+  const noResults =
+    !loading &&
+    searchTerm.trim().length > 0 &&
+    filteredActive.length === 0 &&
+    filteredInactive.length === 0;
 
   return (
     <div className="customers-body" dir="rtl">
       <div className="customer-header">
         <h2 className="customers-title">الزبائن</h2>
+
         <div className="customer-adding-options">
           <button
             className="customer-adding-option"
-            onClick={() => {
-              setShowInsertOne(!showInsertOne);
-            }}
+            onClick={() => setShowInsertOne(!showInsertOne)}
           >
             {showInsertOne ? "عرض الزبائن" : "إضافة زبون؟"}
           </button>
@@ -75,7 +95,7 @@ const Customers: React.FC = () => {
         <div className="search-bar">
           <input
             type="text"
-            placeholder="ابحث عن الزبائن"
+            placeholder="ابحث عن الزبائن (نشط وغير نشط)"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
@@ -86,26 +106,102 @@ const Customers: React.FC = () => {
       {loading ? (
         <SpinLoader />
       ) : (
-        <div>
-          {!showInsertOne && (
-            <div className="customer-card-list">
-              {filteredCustomers.map((customer) => (
-                <Link
-                  to={`/updateCustomer/${customer._id}`}
-                  className="customer-card-link"
-                  title={`تعديل ${customer.name}`}
-                >
-                  <div className="customer-card">
-                    <div className="customer-card-content">
-                      <span className="customer-name">{customer.name}</span>
-                      <span className="edit-customer-icon">📝</span>
+        !showInsertOne && (
+          <div className="accordion">
+            {/* ACTIVE */}
+            <section className="accordion-section">
+              <button
+                type="button"
+                className="accordion-header"
+                aria-expanded={openActive}
+                aria-controls="active-panel"
+                onClick={() => setOpenActive((s) => !s)}
+              >
+                <span className={`chev ${openActive ? "open" : ""}`}>▸</span>
+                <span className="acc-title">الزبائن الفاعلون</span>
+                <span className="badge">
+                  {filteredActive.length}/{activeCustomers.length}
+                </span>
+              </button>
+
+              {openActive && (
+                <div id="active-panel" className="accordion-body">
+                  {filteredActive.length ? (
+                    <div className="customer-card-list">
+                      {filteredActive.map((customer) => (
+                        <Link
+                          key={customer._id}
+                          to={`/updateCustomer/${customer._id}`}
+                          className="customer-card-link"
+                          title={`تعديل ${customer.name}`}
+                        >
+                          <div className="customer-card">
+                            <div className="customer-card-content">
+                              <span className="customer-name">{customer.name}</span>
+                              <span className="edit-customer-icon">📝</span>
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
                     </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
+                  ) : (
+                    <p className="muted-center">لا نتائج ضمن الفاعلين</p>
+                  )}
+                </div>
+              )}
+            </section>
+
+            {/* INACTIVE */}
+            <section className="accordion-section">
+              <button
+                type="button"
+                className="accordion-header inactive"
+                aria-expanded={openInactive}
+                aria-controls="inactive-panel"
+                onClick={() => setOpenInactive((s) => !s)}
+              >
+                <span className={`chev ${openInactive ? "open" : ""}`}>▸</span>
+                <span className="acc-title">الزبائن غير الفاعلين</span>
+                <span className="badge gray">
+                  {filteredInactive.length}/{inactiveCustomers.length}
+                </span>
+              </button>
+
+              {openInactive && (
+                <div id="inactive-panel" className="accordion-body">
+                  {filteredInactive.length ? (
+                    <div className="customer-card-list">
+                      {filteredInactive.map((customer) => (
+                        <Link
+                          key={customer._id}
+                          to={`/updateCustomer/${customer._id}`}
+                          className="customer-card-link"
+                          title={`تعديل ${customer.name}`}
+                        >
+                          <div className="customer-card inactive-card">
+                            <div className="customer-card-content">
+                              <span className="customer-name">{customer.name}</span>
+                              <span className="status-chip">غير مفعل</span>
+                              <span className="edit-customer-icon">📝</span>
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="muted-center">لا نتائج ضمن غير الفاعلين</p>
+                  )}
+                </div>
+              )}
+            </section>
+
+            {noResults && (
+              <p className="muted-center" style={{ marginTop: 8 }}>
+                لا توجد نتائج للبحث الحالي
+              </p>
+            )}
+          </div>
+        )
       )}
     </div>
   );
