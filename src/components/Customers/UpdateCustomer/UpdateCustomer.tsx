@@ -423,16 +423,21 @@ function UpdateCustomer() {
             </button>
           </div>
           {/* NEW: Record Order CTA */}
-          <div className="record-order-cta">
-            <button className="record-order-button" onClick={handleRecordOrder}>
-              تسجيل  طلب خارجي لهذا الزبون
-            </button>
-            {!shipmentId && (
-              <div className="hint-text">
-                لبدء تسجيل الطلبات، ابدأ الشحنة أولاً من شاشة "بدء الشحنة".
-              </div>
-            )}
-          </div>{" "}
+          {customerData.isActive && (
+            <div className="record-order-cta">
+              <button
+                className="record-order-button"
+                onClick={handleRecordOrder}
+              >
+                تسجيل طلب خارجي لهذا الزبون
+              </button>
+              {!shipmentId && (
+                <div className="hint-text">
+                  لبدء تسجيل الطلبات، ابدأ الشحنة أولاً من شاشة "بدء الشحنة".
+                </div>
+              )}
+            </div>
+          )}
         </>
       )}
       {/* Reusable sequence placement (apply-now mode) */}
