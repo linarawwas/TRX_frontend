@@ -140,7 +140,7 @@ export async function preloadShipmentData({
             });
 
             const customersRes = await fetch(
-              `http://localhost:5000/api/customers/area/${area._id}`,
+              `http://localhost:5000/api/customers/area/${area._id}/active`,
               { headers: auth }
             );
             const customers = (await safeJson(customersRes)) || [];

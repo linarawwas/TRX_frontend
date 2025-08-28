@@ -200,7 +200,7 @@ function UpdateCustomer() {
       const areaId = customerData?.areaId?._id;
       const { res, data } = await restoreRequest({ areaId });
       if (res.ok) {
-        toast.success("تم تفعيل الزبون");
+        toast.success("تم تنشيط الزبون");
         setShowRestoreOptions(false);
         setRestoreSequence("");
         fetchCustomer();
@@ -212,7 +212,7 @@ function UpdateCustomer() {
         setShowRestoreOptions(true);
         return;
       }
-      throw new Error(data?.error || "تعذر تفعيل الزبون");
+      throw new Error(data?.error || "تعذر تنشيط الزبون");
     } catch (err: any) {
       toast.error(err?.message || "فشل العملية");
     } finally {
@@ -238,9 +238,9 @@ function UpdateCustomer() {
           toast.warn("هذا الرقم ما زال مستخدمًا. جرّب رقمًا مختلفًا.");
           return;
         }
-        throw new Error(data?.error || "تعذر تفعيل الزبون");
+        throw new Error(data?.error || "تعذر تنشيط الزبون");
       }
-      toast.success("تم تفعيل الزبون وتعيين الترتيب");
+      toast.success("تم تنشيط الزبون وتعيين الترتيب");
       setShowRestoreOptions(false);
       setRestoreSequence("");
       fetchCustomer();
@@ -330,7 +330,7 @@ function UpdateCustomer() {
           <span
             className={`status-chip ${customerData.isActive ? "ok" : "off"}`}
           >
-            {customerData.isActive ? "نشط" : "غير مفعل"}
+            {customerData.isActive ? "نشط" : "غير نشط"}
           </span>
 
           {customerData.isActive ? (
@@ -348,7 +348,7 @@ function UpdateCustomer() {
                 onClick={handleRestoreAuto}
                 disabled={isMutating}
               >
-                {isMutating ? "جارٍ التفعيل..." : "تفعيل الزبون"}
+                {isMutating ? "جارٍ التنشيط..." : "تنشيط الزبون"}
               </button>
 
               {showRestoreOptions && (
@@ -374,7 +374,7 @@ function UpdateCustomer() {
                     type="submit"
                     disabled={isMutating}
                   >
-                    حفظ الرقم وتفعيل
+                    حفظ الرقم وتنشيط
                   </button>
                 </form>
               )}

@@ -74,8 +74,7 @@ const CustomersForArea = (): JSX.Element => {
         setLoading(true);
         const cached = await getCustomersFromDB(areaId!);
         if (cached) {
-          const sorted = [...cached].sort(bySequenceThenName);
-          setCustomers(sorted);
+          setCustomers(cached);
         } else {
           setCustomers([]);
         }

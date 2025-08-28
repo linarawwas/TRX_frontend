@@ -22,14 +22,14 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
           <div className="customer-info-row">
             <span className="customer-info-label">الحالة:</span>
             <span className="customer-info-value">
-              {customerData.isActive ? "نشط" : "غير مفعل"}
+              {customerData.isActive ? "نشط" : "غير نشط"}
             </span>
           </div>
           {/* Optional discount rows */}
           {customerData.hasDiscount && (
             <>
               <div className="customer-info-row">
-                <span className="customer-info-label">خصم مفعل:</span>
+                <span className="customer-info-label">خصم نشط:</span>
                 <span className="customer-info-value">نعم</span>
               </div>
               <div className="customer-info-row">

@@ -118,7 +118,7 @@ const Customers: React.FC = () => {
                 onClick={() => setOpenActive((s) => !s)}
               >
                 <span className={`chev ${openActive ? "open" : ""}`}>▸</span>
-                <span className="acc-title">الزبائن الفاعلون</span>
+                <span className="acc-title">الزبائن الناشطون</span>
                 <span className="badge">
                   {filteredActive.length}/{activeCustomers.length}
                 </span>
@@ -145,7 +145,7 @@ const Customers: React.FC = () => {
                       ))}
                     </div>
                   ) : (
-                    <p className="muted-center">لا نتائج ضمن الفاعلين</p>
+                    <p className="muted-center">لا نتائج ضمن الناشطين</p>
                   )}
                 </div>
               )}
@@ -161,7 +161,7 @@ const Customers: React.FC = () => {
                 onClick={() => setOpenInactive((s) => !s)}
               >
                 <span className={`chev ${openInactive ? "open" : ""}`}>▸</span>
-                <span className="acc-title">الزبائن غير الفاعلين</span>
+                <span className="acc-title">الزبائن غير الناشطين</span>
                 <span className="badge gray">
                   {filteredInactive.length}/{inactiveCustomers.length}
                 </span>
@@ -181,7 +181,7 @@ const Customers: React.FC = () => {
                           <div className="customer-card inactive-card">
                             <div className="customer-card-content">
                               <span className="customer-name">{customer.name}</span>
-                              <span className="status-chip">غير مفعل</span>
+                              <span className="status-chip">غير نشط</span>
                               <span className="edit-customer-icon">📝</span>
                             </div>
                           </div>
@@ -189,7 +189,7 @@ const Customers: React.FC = () => {
                       ))}
                     </div>
                   ) : (
-                    <p className="muted-center">لا نتائج ضمن غير الفاعلين</p>
+                    <p className="muted-center">لا نتائج ضمن غير الناشطين</p>
                   )}
                 </div>
               )}

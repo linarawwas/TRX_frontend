@@ -32,9 +32,12 @@ export default function Addresses(): JSX.Element {
     (async () => {
       try {
         setLoading(true);
-        const res = await fetch(`http://localhost:5000/api/customers/area/${areaId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await fetch(
+          `http://localhost:5000/api/customers/area/${areaId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         const data: Customer[] = await res.json();
 
         // Order by sequence (nulls last) then name
@@ -57,7 +60,9 @@ export default function Addresses(): JSX.Element {
 
   const filtered = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
-    return q ? customers.filter(c => (c.name || "").toLowerCase().includes(q)) : customers;
+    return q
+      ? customers.filter((c) => (c.name || "").toLowerCase().includes(q))
+      : customers;
   }, [customers, searchTerm]);
 
   /* ---------- DnD (desktop) ---------- */
@@ -82,28 +87,29 @@ export default function Addresses(): JSX.Element {
     if (from == null || from === visibleIdx) return;
 
     // map visible indices to ids
-    const visibleIds = filtered.map(c => c._id);
+    const visibleIds = filtered.map((c) => c._id);
     const movingId = visibleIds[from];
     const targetId = visibleIds[visibleIdx];
     if (!movingId) return;
 
-    setOrderIds(prev => {
+    setOrderIds((prev) => {
       const full = [...prev];
       const fromFull = full.indexOf(movingId);
       if (fromFull === -1) return prev;
       full.splice(fromFull, 1);
       const toFull = full.indexOf(targetId);
-      if (toFull === -1) full.push(movingId); else full.splice(toFull, 0, movingId);
+      if (toFull === -1) full.push(movingId);
+      else full.splice(toFull, 0, movingId);
       return full;
     });
 
-    setCustomers(prev => {
+    setCustomers((prev) => {
       const arr = [...prev];
-      const fromIdx = arr.findIndex(c => c._id === movingId);
+      const fromIdx = arr.findIndex((c) => c._id === movingId);
       const [item] = arr.splice(fromIdx, 1);
       if (!targetId) arr.push(item);
       else {
-        const toIdx = arr.findIndex(c => c._id === targetId);
+        const toIdx = arr.findIndex((c) => c._id === targetId);
         arr.splice(toIdx, 0, item);
       }
       return arr;
@@ -114,20 +120,26 @@ export default function Addresses(): JSX.Element {
 
   /* ---------- Mobile-friendly controls (Up/Down) ---------- */
   const moveItem = (id: string, dir: "up" | "down") => {
-    setOrderIds(prev => {
+    setOrderIds((prev) => {
       const idx = prev.indexOf(id);
       if (idx < 0) return prev;
-      const newIdx = dir === "up" ? Math.max(0, idx - 1) : Math.min(prev.length - 1, idx + 1);
+      const newIdx =
+        dir === "up"
+          ? Math.max(0, idx - 1)
+          : Math.min(prev.length - 1, idx + 1);
       if (newIdx === idx) return prev;
       const next = [...prev];
       next.splice(idx, 1);
       next.splice(newIdx, 0, id);
       return next;
     });
-    setCustomers(prev => {
-      const idx = prev.findIndex(c => c._id === id);
+    setCustomers((prev) => {
+      const idx = prev.findIndex((c) => c._id === id);
       if (idx < 0) return prev;
-      const newIdx = dir === "up" ? Math.max(0, idx - 1) : Math.min(prev.length - 1, idx + 1);
+      const newIdx =
+        dir === "up"
+          ? Math.max(0, idx - 1)
+          : Math.min(prev.length - 1, idx + 1);
       if (newIdx === idx) return prev;
       const arr = [...prev];
       const [item] = arr.splice(idx, 1);
@@ -176,7 +188,7 @@ export default function Addresses(): JSX.Element {
 
   const cancelReorder = (e?: React.MouseEvent) => {
     e?.preventDefault();
-    setOrderIds(customers.map(c => c._id));
+    setOrderIds(customers.map((c) => c._id));
     setReorderMode(false);
   };
 
@@ -199,7 +211,7 @@ export default function Addresses(): JSX.Element {
           <button
             type="button"
             className={`reorder-toggle ${reorderMode ? "on" : ""}`}
-            onClick={() => setReorderMode(v => !v)}
+            onClick={() => setReorderMode((v) => !v)}
           >
             {reorderMode ? "إنهاء إعادة الترتيب" : "إعادة الترتيب"}
           </button>
@@ -223,7 +235,9 @@ export default function Addresses(): JSX.Element {
                       <button
                         type="button"
                         className="mv-btn"
-                        onClick={(e) => (e.stopPropagation(), moveItem(customer._id, "up"))}
+                        onClick={(e) => (
+                          e.stopPropagation(), moveItem(customer._id, "up")
+                        )}
                         aria-label="تحريك لأعلى"
                       >
                         ▲
@@ -231,7 +245,9 @@ export default function Addresses(): JSX.Element {
                       <button
                         type="button"
                         className="mv-btn"
-                        onClick={(e) => (e.stopPropagation(), moveItem(customer._id, "down"))}
+                        onClick={(e) => (
+                          e.stopPropagation(), moveItem(customer._id, "down")
+                        )}
                         aria-label="تحريك لأسفل"
                       >
                         ▼
@@ -240,9 +256,23 @@ export default function Addresses(): JSX.Element {
                   </div>
                 )}
 
-                <p><span className="address-card-label">الاسم:</span> {customer.name}</p>
-                <p><span className="address-card-label">الهاتف:</span> {customer.phone}</p>
-                <p><span className="address-card-label">العنوان:</span> {customer.address}</p>
+                <p>
+                  <span className="address-card-label">الاسم:</span>{" "}
+                  {customer.name}
+                </p>
+                <p>
+                  <span className="address-card-label">الهاتف:</span>{" "}
+                  {customer.phone}
+                </p>
+                <p>
+                  <span className="address-card-label">العنوان:</span>{" "}
+                  {customer.address}
+                </p>
+                <p>
+                  <span className="address-card-label">الحالة:</span>{" "}
+                  {customer.isActive ? "نشط" : "غير نشط"}
+                </p>
+
                 {!reorderMode && (
                   <p className="address-card-seq">
                     <span className="address-card-label">الترتيب:</span>{" "}
@@ -256,17 +286,24 @@ export default function Addresses(): JSX.Element {
               <div
                 key={customer._id}
                 className={`address-card ${reorderMode ? "draggable" : ""}`}
-                draggable={reorderMode && !("ontouchstart" in window)}  // disable native DnD on touch
+                draggable={reorderMode && !("ontouchstart" in window)} // disable native DnD on touch
                 onDragStart={onDragStart(i)}
                 onDragOver={onDragOver(i)}
                 onDragEnd={onDragEnd()}
                 onDrop={onDrop(i)}
-                title={reorderMode ? "اسحب (سطح مكتب) أو استخدم الأسهم لإعادة الترتيب" : ""}
+                title={
+                  reorderMode
+                    ? "اسحب (سطح مكتب) أو استخدم الأسهم لإعادة الترتيب"
+                    : ""
+                }
               >
                 {reorderMode ? (
                   <div className="address-card-link">{CardContent}</div>
                 ) : (
-                  <Link to={`/updateCustomer/${customer._id}`} className="address-card-link">
+                  <Link
+                    to={`/updateCustomer/${customer._id}`}
+                    className="address-card-link"
+                  >
                     {CardContent}
                   </Link>
                 )}
@@ -281,8 +318,16 @@ export default function Addresses(): JSX.Element {
         <form className="apply-bar" onSubmit={applyReorder}>
           <div className="apply-hint">رتّب البطاقات ثم اضغط حفظ</div>
           <div className="apply-actions">
-            <button type="button" className="btn-cancel" onClick={cancelReorder}>إلغاء</button>
-            <button type="submit" className="btn-apply">حفظ الترتيب</button>
+            <button
+              type="button"
+              className="btn-cancel"
+              onClick={cancelReorder}
+            >
+              إلغاء
+            </button>
+            <button type="submit" className="btn-apply">
+              حفظ الترتيب
+            </button>
           </div>
         </form>
       )}
