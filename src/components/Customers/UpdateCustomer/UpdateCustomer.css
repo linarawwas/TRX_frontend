@@ -137,3 +137,29 @@
   padding: 6px 8px;
   text-align: center;
 }
+.record-order-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 0 14px;
+}
+
+.record-order-button {
+  border: 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.record-order-button:hover {
+  filter: brightness(0.96);
+}
+
+.hint-text {
+  font-size: 12px;
+  color: #7a7a7a;
+}

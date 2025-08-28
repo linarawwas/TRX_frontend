@@ -5,7 +5,8 @@ import React, {
   ChangeEvent,
   FormEvent,
 } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom"; // ⬇️ add these to your imports
+
 import "./UpdateCustomer.css";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -13,7 +14,11 @@ import { useDispatch, useSelector } from "react-redux";
 import SelectInput from "../../UI reusables/SelectInput/SelectInput";
 import CustomerInvoices from "../CustomerInvoices/CustomerInvoices";
 import CustomerInfo from "../CustomerInfo/CustomerInfo";
-import { setCustomerId } from "../../../redux/Order/action";
+import {
+  setCustomerId,
+  setCustomerName,
+  setCustomerPhoneNb,
+} from "../../../redux/Order/action";
 import { fetchAndCacheCustomerInvoice } from "../../../utils/apiHelpers";
 import AreaSequencePicker from "../../AreaSequencePicker/AreaSequencePicker";
 
@@ -33,6 +38,28 @@ function UpdateCustomer() {
   const [loading, setLoading] = useState(true);
   const [invoiceReady, setInvoiceReady] = useState(false);
   const [formVisible, setFormVisible] = useState(false);
+
+  // ...inside component:
+  const shipmentId = useSelector((state: any) => state.shipment?._id);
+
+  // NEW: record order handler (external)
+  const handleRecordOrder = () => {
+    if (!customerData?._id) {
+      toast.error("بيانات الزبون غير متوفرة");
+      return;
+    }
+    if (!shipmentId) {
+      toast.error("ابدأ الشحنة أولاً قبل تسجيل الطلب");
+      return; // or navigate("/startShipment") if you want to redirect
+    }
+
+    dispatch(setCustomerId(customerData._id));
+    dispatch(setCustomerName(customerData.name || ""));
+    dispatch(setCustomerPhoneNb(customerData.phone || ""));
+
+    // External order from UpdateCustomer page
+    navigate("/recordOrderforCustomer", { state: { isExternal: true } });
+  };
 
   const [updatedInfo, setUpdatedInfo] = useState({
     _id: "",
@@ -386,7 +413,6 @@ function UpdateCustomer() {
       {customerData && invoiceReady && (
         <>
           <CustomerInvoices customerId={customerId!} />
-
           {/* ✅ NEW: go to printable account statement */}
           <div className="statement-cta">
             <button
@@ -396,6 +422,17 @@ function UpdateCustomer() {
               الذهاب إلى كشف الحساب أو إضافة دفعة
             </button>
           </div>
+          {/* NEW: Record Order CTA */}
+          <div className="record-order-cta">
+            <button className="record-order-button" onClick={handleRecordOrder}>
+              تسجيل  طلب خارجي لهذا الزبون
+            </button>
+            {!shipmentId && (
+              <div className="hint-text">
+                لبدء تسجيل الطلبات، ابدأ الشحنة أولاً من شاشة "بدء الشحنة".
+              </div>
+            )}
+          </div>{" "}
         </>
       )}
       {/* Reusable sequence placement (apply-now mode) */}

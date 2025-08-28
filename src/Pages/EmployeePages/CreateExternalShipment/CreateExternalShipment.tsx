@@ -235,7 +235,7 @@ export default function CreateExternalShipment(): JSX.Element {
   return (
     <div className="external-order-page" dir="rtl">
       <ToastContainer />
-      <h2>🚚 تسجيل طلب خارجي</h2>
+      <h2>🚚 تسجيل </h2>
       <form onSubmit={handleSubmit} className="external-order-form">
         <label>اختر المنطقة</label>
         <select
