@@ -28,7 +28,7 @@ const AddCustomer = () => {
       try {
         setLoadingAreas(true);
         const res = await fetch(
-          "http://localhost:5000/api/areas/company",
+          "https://trx-api.linarawas.com/api/areas/company",
           { headers: { Authorization: `Bearer ${token}` } }
         );
         if (!res.ok) throw new Error("Failed to fetch areas");
@@ -53,7 +53,7 @@ const AddCustomer = () => {
       try {
         setLoadingAreaCustomers(true);
         const res = await fetch(
-          `http://localhost:5000/api/customers/area/${formData.areaId}`,
+          `https://trx-api.linarawas.com/api/customers/area/${formData.areaId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         if (!res.ok) throw new Error("Failed to fetch customers for area");
@@ -105,7 +105,7 @@ const AddCustomer = () => {
     try {
       setSubmitting(true);
       const res = await fetch(
-        "http://localhost:5000/api/customers/create-with-sequence",
+        "https://trx-api.linarawas.com/api/customers/create-with-sequence",
         {
           method: "POST",
           headers: {
@@ -142,7 +142,7 @@ const AddCustomer = () => {
       // (optional; comment out if not needed)
       try {
         const ref = await fetch(
-          `http://localhost:5000/api/customers/area/${formData.areaId}`,
+          `https://trx-api.linarawas.com/api/customers/area/${formData.areaId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         const refList = await ref.json();
