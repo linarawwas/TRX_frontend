@@ -1,8 +1,7 @@
-// utils/invoicePreview.ts
-import { getCustomerInvoicesFromDB, getPendingRequests } from "./indexedDB";
+import { getCustomerInvoicesFromDB, getPendingRequests, getExchangeRateFromDB } from "./indexedDB";
 
 /** Load cached invoice + pending local “create order” adjustments (offline-safe). */
-export async function getAdjustedInvoiceSums(customerId: string) {
+export async function getAdjustedInvoiceSums(customerId: string, companyId?: string) {
   const cached: any = await getCustomerInvoicesFromDB(customerId);
   const pending = await getPendingRequests();
 
@@ -16,25 +15,28 @@ export async function getAdjustedInvoiceSums(customerId: string) {
     .map((r: any) => JSON.parse(r.options.body));
 
   let delivered = cached?.deliveredSum || 0;
-  let returned = cached?.returnedSum || 0;
-
+  let returned  = cached?.returnedSum  || 0;
   for (const o of pendingOrders) {
     delivered += o?.delivered || 0;
-    returned += o?.returned || 0;
+    returned  += o?.returned  || 0;
   }
-
   const bottlesLeft = delivered - returned;
 
-  // Your cache uses totalSum (or totalSumUSD) for outstanding USD
   const totalSumUSD =
-    typeof cached?.totalSum === "number"
-      ? cached.totalSum
-      : typeof cached?.totalSumUSD === "number"
-      ? cached.totalSumUSD
-      : 0;
+    typeof cached?.totalSum === "number" ? cached.totalSum
+    : typeof cached?.totalSumUSD === "number" ? cached.totalSumUSD
+    : 0;
 
-  const lastRateLBP =
+  // Prefer snapshot rate saved with the invoice; otherwise fallback to company rate from IDB
+  let lastRateLBP: number | undefined =
     typeof cached?.lastRateLBP === "number" ? cached.lastRateLBP : undefined;
+
+  if (lastRateLBP == null) {
+    const rateRow = await getExchangeRateFromDB(companyId);
+    if (rateRow && typeof rateRow.exchangeRateInLBP === "number") {
+      lastRateLBP = rateRow.exchangeRateInLBP;
+    }
+  }
 
   return { bottlesLeft, totalSumUSD, lastRateLBP };
 }
@@ -47,31 +49,25 @@ export function projectAfterOrder(
     returned: number;
     payments: Array<{ amount: number; currency: "USD" | "LBP" }>;
   },
-  checkoutUSD: number
+  checkoutUSD: number,
+  effectiveRateLBP?: number // ⬅️ allow explicit rate override
 ) {
   const deltaBottles = (order.delivered || 0) - (order.returned || 0);
   const bottlesLeftAfter = (before?.bottlesLeft || 0) + deltaBottles;
 
   const usdPaid = (order.payments || [])
-    .filter((p) => p.currency === "USD")
+    .filter(p => p.currency === "USD")
     .reduce((s, p) => s + (p.amount || 0), 0);
 
   const lbpPaid = (order.payments || [])
-    .filter((p) => p.currency === "LBP")
+    .filter(p => p.currency === "LBP")
     .reduce((s, p) => s + (p.amount || 0), 0);
 
-  const usdFromLBP =
-    before?.lastRateLBP && before.lastRateLBP > 0
-      ? lbpPaid / before.lastRateLBP
-      : null;
+  const rate = effectiveRateLBP ?? before?.lastRateLBP;
+  const usdFromLBP = rate && rate > 0 ? (lbpPaid / rate) : 0;
 
-  // Full, correct accounting (recommended):
-  // Previous balance + (this order’s checkout) - this order’s payments
   const totalUsdAfter =
-    (before?.totalSumUSD || 0) +
-    (checkoutUSD || 0) -
-    usdPaid -
-    (usdFromLBP ?? 0);
+    (before?.totalSumUSD || 0) + (checkoutUSD || 0) - usdPaid - usdFromLBP;
 
   return { bottlesLeftAfter, totalUsdAfter, usdFromLBP };
 }

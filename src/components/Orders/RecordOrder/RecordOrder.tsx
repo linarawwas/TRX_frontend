@@ -50,7 +50,10 @@ const RecordOrder: React.FC<Props> = (props) => {
   const productPrice = useSelector((s) => s.order.product_price);
   const orderSlice = useSelector((s: any) => s.order);
   console.log({ orderSlice }, "order slice");
-
+  // Pull redux rate if you store it there (optional, but good)
+  const reduxRateLBP =
+    useSelector((s: any) => s.shipment.exchangeRateLBP) || undefined;
+  console.log({ reduxRateLBP }, "redux rate");
   // Shipment totals (for incremental updates)
   const shipmentDelivered = useSelector((s) => s.shipment.delivered) ?? 0;
   const shipmentReturned = useSelector((s) => s.shipment.returned) ?? 0;
@@ -352,20 +355,25 @@ const RecordOrder: React.FC<Props> = (props) => {
       type: props.isExternal ? 3 : 2,
     };
 
-    // 👇 get “before” snapshot, then project the “after this order”
-    const before = await getAdjustedInvoiceSums(customerId);
+    // 1) Get “before” and ensure we have a rate
+    const before = await getAdjustedInvoiceSums(customerId, companyId);
 
+    // Prefer order of precedence: invoice snapshot → redux → IDB fallback already done inside getAdjustedInvoiceSums
+    const effectiveRateLBP = before.lastRateLBP ?? reduxRateLBP;
+
+    // 2) Project after
     const { bottlesLeftAfter, totalUsdAfter } = projectAfterOrder(
       {
         bottlesLeft: before?.bottlesLeft || 0,
         totalSumUSD: before?.totalSumUSD || 0,
-        lastRateLBP: before?.lastRateLBP,
+        lastRateLBP: effectiveRateLBP,
       },
       orderPayload,
-      checkout // you already computed checkout above
+      checkout,
+      effectiveRateLBP // ⬅️ pass the same rate here
     );
 
-    // Build WA message preview
+    // 3) Build message using the SAME rate for display
     const waMessage = customerPhoneRaw
       ? buildOrderMessage({
           customerName,
@@ -373,9 +381,10 @@ const RecordOrder: React.FC<Props> = (props) => {
           payload: orderPayload,
           checkoutUSD: checkout,
           preview: { bottlesLeftAfter, totalUsdAfter },
-          lastRateLBP: before?.lastRateLBP,
+          lastRateLBP: effectiveRateLBP, // ⬅️ same rate so LBP equivalent prints too
         })
       : null;
+
     try {
       await actuallySubmit(orderPayload, waWindow, waMessage);
       // Give the browser a tick to navigate the pre-opened tab, then go back
