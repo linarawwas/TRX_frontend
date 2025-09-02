@@ -21,6 +21,7 @@ export const ADD_CUSTOMER_WITH_EMPTY_ORDER = 'ADD_CUSTOMER_WITH_EMPTY_ORDER';
 // Action Types
 export const ADD_PENDING_ORDER = "ADD_PENDING_ORDER";
 export const REMOVE_PENDING_ORDER = "REMOVE_PENDING_ORDER";
+export const SET_EXCHANGE_RATE_LBP = "SET_EXCHANGE_RATE_LBP";
 
 // Action types for clearing day and date Info
 export const CLEAR_DAY_ID = 'CLEAR_DAY_ID';

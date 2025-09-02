@@ -13,6 +13,7 @@ import {
   setDateYear,
   setDayId,
   clearShipmentInfo,
+  setExchangeRateLBP,
 } from "../../../redux/Shipment/action";
 import AddToModel from "../../AddToModel/AddToModel";
 import { preloadShipmentData } from "../../../utils/preloadShipmentData";
@@ -104,6 +105,9 @@ const StartShipment: React.FC = () => {
         }
         if (e.type === "area:customers") {
           setLastCustomers(e.customers);
+        }
+        if (e.type === "rate:fetched") {
+          dispatch(setExchangeRateLBP(e.rateLBP)); // ⬅️ dispatch here
         }
         if (e.type === "area:done") {
           done = e.index; // e.index is 1-based
@@ -250,7 +254,6 @@ const StartShipment: React.FC = () => {
       dispatch(setDateYear(shipmentData.year));
       dispatch(setShipmentId(shipment._id));
       dispatch(setShipmentTarget(shipment.carryingForDelivery));
-
       toast.success("✅ تم تسجيل الشحنة بنجاح");
       setShowLoadingModal(true);
     } catch (error: any) {

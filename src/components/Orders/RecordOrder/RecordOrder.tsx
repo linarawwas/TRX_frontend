@@ -159,8 +159,8 @@ const RecordOrder: React.FC<Props> = (props) => {
       .filter((p: any) => p.currency === "LBP")
       .reduce((s: number, p: any) => s + (p.amount || 0), 0);
 
-    const usdStr = sumUSD ? `${sumUSD} $` : "—";
-    const lbpStr = sumLBP ? `${sumLBP.toLocaleString()} ل.ل` : "—";
+    const usdStr = sumUSD ? `${sumUSD} $` : "0 $";
+    const lbpStr = sumLBP ? `${sumLBP.toLocaleString()} ل.ل` : "0 ل.ل";
 
     const overallUSD = Math.max(0, Number(preview.totalUsdAfter || 0)).toFixed(
       2

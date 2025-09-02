@@ -40,7 +40,7 @@ async function time<T>(label: string, fn: () => Promise<T>): Promise<T> {
 // DB config
 // ============================
 const DB_NAME = "MyDatabase";
-const DB_VERSION = 14;
+const DB_VERSION = 15;
 
 // Store names
 const REQUESTS_STORE = "requests";
@@ -52,6 +52,7 @@ const DAY_STORE_NAME = "dayStore";
 const CUSTOMER_INVOICES_STORE = "customerInvoices";
 const AREAS_BY_DAY_STORE_NAME = "areasByDay";
 const COMPANY_AREAS_STORE_NAME = "companyAreas";
+const EXCHANGE_RATE_STORE = "exchangeRate"; // NEW
 
 // ============================
 // Initialization
@@ -70,7 +71,9 @@ export async function initializeDB() {
           store.createIndex("by_id", "id");
           ok(`Created store "${REQUESTS_STORE}" with index "by_id"`);
         }
-
+        if (!db.objectStoreNames.contains(EXCHANGE_RATE_STORE)) {
+          db.createObjectStore(EXCHANGE_RATE_STORE, { keyPath: "companyKey" });
+        }
         if (!db.objectStoreNames.contains(CUSTOMERS_STORE_NAME)) {
           const store = db.createObjectStore(CUSTOMERS_STORE_NAME, {
             keyPath: "_id",
@@ -477,6 +480,30 @@ export async function getCustomerInvoicesFromDB(customerId: string) {
   });
 }
 
+// Helpers
+export async function saveExchangeRateToDB(
+  companyId: string | undefined,
+  rate: { exchangeRateInLBP: number }
+) {
+  const db = await openDB(DB_NAME, DB_VERSION);
+  const key = companyKey(companyId); // you already have companyKey()
+  await db.put(EXCHANGE_RATE_STORE, {
+    companyKey: key,
+    ...rate,
+    lastUpdated: new Date().toISOString(),
+  });
+}
+
+export async function getExchangeRateFromDB(
+  companyId?: string | undefined
+): Promise<{ exchangeRateInLBP: number } | null> {
+  const db = await openDB(DB_NAME, DB_VERSION);
+  const key = companyKey(companyId);
+  let row = await db.get(EXCHANGE_RATE_STORE, key);
+  if (!row && key !== "tenant")
+    row = await db.get(EXCHANGE_RATE_STORE, "tenant");
+  return row ? { exchangeRateInLBP: Number(row.exchangeRateInLBP || 0) } : null;
+}
 // ============================
 // DEV: CLEAR ALL
 // ============================

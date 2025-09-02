@@ -100,6 +100,7 @@ const AsideMenu: React.FC = () => {
             <button
               className="logout-btn"
               onClick={() => dispatch(setShipmentFromPrev())}
+              disabled
             >
               🔁 الشحنة السابقة
             </button>

@@ -28,12 +28,15 @@ import {
   ADD_CUSTOMER_WITH_EMPTY_ORDER,
   ADD_PENDING_ORDER,
   REMOVE_PENDING_ORDER,
+  SET_EXCHANGE_RATE_LBP,
 } from "./actionTypes";
 
 const initialState = {
   _id: "",
   dayId: "",
   year: null,
+  exchangeRateLBP: null,
+
   month: null,
   day: null,
   target: 0,
@@ -79,6 +82,8 @@ const shipmentReducer = (state = initialState, action) => {
         ...state,
         payments: action.payload,
       };
+    case SET_EXCHANGE_RATE_LBP:
+      return { ...state, exchangeRateLBP: Number(action.payload) || null };
     case ADD_CUSTOMER_WITH_FILLED_ORDER:
       return {
         ...state,

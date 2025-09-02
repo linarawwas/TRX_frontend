@@ -6,6 +6,7 @@ import {
   saveProductTypeToDB,
   saveCustomerInvoicesToDB,
   saveAreasByDayToDB,
+  saveExchangeRateToDB, // NEW
 } from "./indexedDB";
 
 type Area = { _id: string; name: string; [k: string]: any };
@@ -14,6 +15,7 @@ export type PreloadProgress =
   | { type: "start" }
   | { type: "meta:fetched"; dayAreas: number }
   | { type: "cache:done" }
+  | { type: "rate:fetched"; rateLBP: number } // ⬅️ add this
   | { type: "area:start"; index: number; total: number; name?: string }
   | { type: "area:customers"; index: number; total: number; customers: number }
   | { type: "area:done"; index: number; total: number }
@@ -65,13 +67,17 @@ export async function preloadShipmentData({
       }
       return undefined;
     })();
+    const exchangeRateRes = fetch(`http://localhost:5000/api/exchange-rate`, {
+      headers: auth,
+    });
 
-    const [dayResp, areasByDayResp, productResp] = await Promise.all([
-      dayRes,
-      areasByDayRes,
-      productResPromise,
-    ]);
-
+    const [dayResp, areasByDayResp, productResp, exchangeRateResp] =
+      await Promise.all([
+        dayRes,
+        areasByDayRes,
+        productResPromise,
+        exchangeRateRes,
+      ]);
     // Helpers
     const safeJson = async (resp: Response | undefined) => {
       if (!resp || !resp.ok) return null;
@@ -87,6 +93,7 @@ export async function preloadShipmentData({
     const dayData = await safeJson(dayResp);
     const areasByDayJson = await safeJson(areasByDayResp);
     const productJson = await safeJson(productResp as any);
+    const rateJson = await safeJson(exchangeRateResp); // { companyId, exchangeRateInLBP }
 
     const areasByDay: Area[] = normalizeAreas(areasByDayJson);
 
@@ -97,6 +104,11 @@ export async function preloadShipmentData({
     if (dayData) writes.push(saveDayToDB(dayId, dayData));
     if (areasByDayJson) writes.push(saveAreasByDayToDB(dayId, areasByDay));
     if (productJson) writes.push(saveProductTypeToDB(companyId, productJson));
+    if (rateJson && typeof rateJson.exchangeRateInLBP === "number") {
+      const rateLBP = Number(rateJson.exchangeRateInLBP);
+      emit({ type: "rate:fetched", rateLBP }); // ⬅️ emit
+      await saveExchangeRateToDB(companyId, { exchangeRateInLBP: rateLBP });
+    }
     await Promise.allSettled(writes);
     emit({ type: "cache:done" });
 
