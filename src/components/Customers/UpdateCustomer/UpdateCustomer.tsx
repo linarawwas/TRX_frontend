@@ -88,7 +88,7 @@ function UpdateCustomer() {
   }, [customerId, dispatch]);
 
   const fetchAreas = () => {
-    fetch("https://trx-api.linarawas.com/api/areas/company", {
+    fetch("http://localhost:5000/api/areas/company", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -99,7 +99,7 @@ function UpdateCustomer() {
   const fetchCustomer = useCallback(async () => {
     try {
       const res = await fetch(
-        `https://trx-api.linarawas.com/api/customers/${customerId}`,
+        `http://localhost:5000/api/customers/${customerId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (!res.ok) throw new Error("Failed to fetch customer");
@@ -113,7 +113,7 @@ function UpdateCustomer() {
       // also load customers in the same area (ordered by sequence; fallback to client sort)
       if (data?.areaId?._id) {
         const listRes = await fetch(
-          `https://trx-api.linarawas.com/api/customers/area/${data.areaId._id}`,
+          `http://localhost:5000/api/customers/area/${data.areaId._id}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         const list: CustomerLite[] = await listRes.json();
@@ -157,7 +157,7 @@ function UpdateCustomer() {
 
     try {
       const res = await fetch(
-        `https://trx-api.linarawas.com/api/customers/${customerId}`,
+        `http://localhost:5000/api/customers/${customerId}`,
         {
           method: "PUT",
           headers: {
@@ -187,7 +187,7 @@ function UpdateCustomer() {
     setIsMutating(true);
     try {
       const res = await fetch(
-        `https://trx-api.linarawas.com/api/customers/${customerId}/deactivate`,
+        `http://localhost:5000/api/customers/${customerId}/deactivate`,
         { method: "PATCH", headers: { Authorization: `Bearer ${token}` } }
       );
       const data = await res.json().catch(() => ({}));
@@ -205,7 +205,7 @@ function UpdateCustomer() {
 
   const restoreRequest = async (body: any) => {
     const res = await fetch(
-      `https://trx-api.linarawas.com/api/customers/${customerId}/restore`,
+      `http://localhost:5000/api/customers/${customerId}/restore`,
       {
         method: "PATCH",
         headers: {
@@ -314,7 +314,7 @@ function UpdateCustomer() {
     setIsPlacing(true);
     try {
       const res = await fetch(
-        `https://trx-api.linarawas.com/api/areas/${areaId}/reorder?companyId=${companyId}`,
+        `http://localhost:5000/api/areas/${areaId}/reorder?companyId=${companyId}`,
         {
           method: "POST",
           headers: {

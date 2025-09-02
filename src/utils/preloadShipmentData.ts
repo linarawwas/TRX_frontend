@@ -38,24 +38,24 @@ export async function preloadShipmentData({
     const auth = { Authorization: `Bearer ${token}` };
 
     // --- Core fetches (ONLY today's context) ---
-    const dayRes = fetch(`https://trx-api.linarawas.com/api/days/${dayId}`, {
+    const dayRes = fetch(`http://localhost:5000/api/days/${dayId}`, {
       headers: auth,
     });
     const areasByDayRes = fetch(
-      `https://trx-api.linarawas.com/api/areas/day/${dayId}`,
+      `http://localhost:5000/api/areas/day/${dayId}`,
       { headers: auth }
     );
 
     // Product “Bottles” (tenant-inferred; legacy fallback by companyId)
     const productResPromise = (async () => {
       const r1 = await fetch(
-        `https://trx-api.linarawas.com/api/products/type?name=Bottles`,
+        `http://localhost:5000/api/products/type?name=Bottles`,
         { headers: auth }
       );
       if (r1.ok) return r1;
       if (companyId) {
         return fetch(
-          `https://trx-api.linarawas.com/api/products/productType/company/${companyId}`,
+          `http://localhost:5000/api/products/productType/company/${companyId}`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json", ...auth },
@@ -121,7 +121,7 @@ export async function preloadShipmentData({
 
           // Use your new endpoint
           const customersRes = await fetch(
-            `https://trx-api.linarawas.com/api/customers/area/${area._id}/active`,
+            `http://localhost:5000/api/customers/area/${area._id}/active`,
             { headers: auth }
           );
           const customers = (await safeJson(customersRes)) || [];
@@ -145,11 +145,11 @@ export async function preloadShipmentData({
                 if (!customer?._id) return;
                 const [discountRes, invoiceRes] = await Promise.all([
                   fetch(
-                    `https://trx-api.linarawas.com/api/customers/discount/${customer._id}`,
+                    `http://localhost:5000/api/customers/discount/${customer._id}`,
                     { headers: auth }
                   ),
                   fetch(
-                    `https://trx-api.linarawas.com/api/customers/reciept/${customer._id}`,
+                    `http://localhost:5000/api/customers/reciept/${customer._id}`,
                     { headers: auth }
                   ),
                 ]);

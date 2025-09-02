@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import "./Customers.css";
 import { useDispatch, useSelector } from "react-redux";
 import { clearCustomerId } from "../../../redux/Order/action";
-import AddCustomer from "../../../components/Customers/AddCustomer/AddCustomer.jsx";
+import AddCustomer from "../../../components/Customers/AddCustomer/AddCustomer.tsx";
 import SpinLoader from "../../../components/UI reusables/SpinLoader/SpinLoader.jsx";
 
 interface Customer {
@@ -32,7 +32,7 @@ const Customers: React.FC = () => {
     dispatch(clearCustomerId());
 
     setLoading(true);
-    fetch(`https://trx-api.linarawas.com/api/customers/company`, {
+    fetch(`http://localhost:5000/api/customers/company`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((r) => r.json())

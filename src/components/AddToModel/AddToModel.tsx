@@ -1,22 +1,41 @@
 // AddToModel.tsx
-import React, { useState, useCallback, ChangeEvent, FormEvent, useMemo, useRef } from "react";
+import React, {
+  useState,
+  useCallback,
+  ChangeEvent,
+  FormEvent,
+  useMemo,
+  useRef,
+} from "react";
 import "./AddToModel.css";
 import VerticalNumberPicker from "./VerticalNumberPicker";
 import TripleDigitPicker from "./TripleDigitPicker";
 
 interface FieldConfig {
   label: string;
-  "input-type": "text" | "number" | "slider" | "selectOption" | "numberPicker" | "tripleDigit";
+  "input-type":
+    | "text"
+    | "number"
+    | "slider"
+    | "selectOption"
+    | "numberPicker"
+    | "tripleDigit";
   options?: { value: string | number | boolean; label: string }[];
   required?: boolean;
   placeholder?: string;
-  min?: number; max?: number; step?: number;
+  min?: number;
+  max?: number;
+  step?: number;
 }
-interface ModelFields { [key: string]: FieldConfig; }
+interface ModelFields {
+  [key: string]: FieldConfig;
+}
 
 interface Props {
   modelName: string;
   title: string;
+  onFieldChange?: (name: string, value: any) => void; // 👈 NEW (optional)
+
   buttonLabel: string;
   modelFields: ModelFields;
   onSubmit: (data: Record<string, any>) => Promise<any>;
@@ -25,12 +44,16 @@ interface Props {
   onSuccess?: (result: any) => void;
   onCancel?: () => void;
   /** Optional builder to customize confirm content (title/body) */
-  confirmBuilder?: (data: Record<string, any>) => { title?: string; body?: React.ReactNode } | null;
+  confirmBuilder?: (
+    data: Record<string, any>
+  ) => { title?: string; body?: React.ReactNode } | null;
 }
 
 const AddToModel: React.FC<Props> = ({
   modelName,
   title,
+  onFieldChange,
+
   buttonLabel,
   modelFields,
   onSubmit,
@@ -40,40 +63,52 @@ const AddToModel: React.FC<Props> = ({
   onCancel,
   confirmBuilder,
 }) => {
-  const [formData, setFormData] = useState<Record<string, any>>({ ...initialValues });
+  const [formData, setFormData] = useState<Record<string, any>>({
+    ...initialValues,
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const inFlight = useRef(false);
 
-  const firstFieldName = useMemo(() => Object.keys(modelFields)[0] ?? "", [modelFields]);
+  const firstFieldName = useMemo(
+    () => Object.keys(modelFields)[0] ?? "",
+    [modelFields]
+  );
 
   const setField = useCallback((name: string, value: any) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   }, []);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value, type } = e.target;
     const cfg = modelFields[name];
     if (!cfg) return;
-    if (cfg["input-type"] === "number") {
-      setField(name, value === "" ? "" : Number(value));
-    } else if (type === "select-one") {
-      setField(name, value);
-    } else {
-      setField(name, value);
-    }
+
+    let v: any = value;
+    if (cfg["input-type"] === "number") v = value === "" ? "" : Number(value);
+
+    setField(name, v);
+    onFieldChange?.(name, v); // 👈 notify parent
   };
 
-  const handleNumberPickerChange = useCallback((fieldName: string, val: number) => {
-    setField(fieldName, val);
-  }, [setField]);
+  const handleNumberPickerChange = useCallback(
+    (fieldName: string, val: number) => {
+      setField(fieldName, val);
+    },
+    [setField]
+  );
 
   const buildPayload = useCallback(() => {
     const payload: Record<string, any> = {};
     for (const [name, cfg] of Object.entries(modelFields)) {
       const v = formData[name];
-      if (cfg["input-type"] === "number" || cfg["input-type"] === "numberPicker") {
+      if (
+        cfg["input-type"] === "number" ||
+        cfg["input-type"] === "numberPicker"
+      ) {
         payload[name] = v === "" || v === undefined ? "" : Number(v);
       } else {
         payload[name] = v;
@@ -100,10 +135,16 @@ const AddToModel: React.FC<Props> = ({
 
     setStatusMsg(null);
     const localErr = validateLocal();
-    if (localErr) { setStatusMsg(localErr); return; }
+    if (localErr) {
+      setStatusMsg(localErr);
+      return;
+    }
 
     const customErr = validate?.(formData) ?? null;
-    if (customErr) { setStatusMsg(customErr); return; }
+    if (customErr) {
+      setStatusMsg(customErr);
+      return;
+    }
 
     // ✅ Pass validation → open confirm sheet instead of sending
     setShowConfirm(true);
@@ -149,10 +190,14 @@ const AddToModel: React.FC<Props> = ({
 
   const confirmContent = confirmBuilder?.(formData) || {};
   const confirmTitle = confirmContent.title ?? `تأكيد ${modelName}`;
-  const confirmBody  = confirmContent.body  ?? defaultConfirm();
+  const confirmBody = confirmContent.body ?? defaultConfirm();
 
   return (
-    <div className={`add-model-container ${isSubmitting ? "submitting" : ""}`} dir="rtl" aria-busy={isSubmitting}>
+    <div
+      className={`add-model-container ${isSubmitting ? "submitting" : ""}`}
+      dir="rtl"
+      aria-busy={isSubmitting}
+    >
       {isSubmitting && <div className="submit-bar" aria-hidden="true" />}
 
       <h1 className="add-model-title">{title}</h1>
@@ -176,11 +221,15 @@ const AddToModel: React.FC<Props> = ({
             "aria-label": fieldConfig.label,
           } as const;
 
-          if (fieldConfig["input-type"] === "text" || fieldConfig["input-type"] === "number") {
+          if (
+            fieldConfig["input-type"] === "text" ||
+            fieldConfig["input-type"] === "number"
+          ) {
             return (
               <label key={fieldName} className="field">
                 <span className="field-label">
-                  {fieldConfig.label} {required && <span className="req">*</span>}
+                  {fieldConfig.label}{" "}
+                  {required && <span className="req">*</span>}
                 </span>
                 <input
                   {...commonProps}
@@ -189,7 +238,9 @@ const AddToModel: React.FC<Props> = ({
                   min={fieldConfig.min}
                   max={fieldConfig.max}
                   step={fieldConfig.step}
-                  inputMode={fieldConfig["input-type"] === "number" ? "decimal" : "text"}
+                  inputMode={
+                    fieldConfig["input-type"] === "number" ? "decimal" : "text"
+                  }
                   autoFocus={idx === 0 && fieldName === firstFieldName}
                 />
               </label>
@@ -200,7 +251,8 @@ const AddToModel: React.FC<Props> = ({
             return (
               <label key={fieldName} className="field">
                 <span className="field-label">
-                  {fieldConfig.label} {required && <span className="req">*</span>}
+                  {fieldConfig.label}{" "}
+                  {required && <span className="req">*</span>}
                 </span>
                 <input
                   {...commonProps}
@@ -220,7 +272,8 @@ const AddToModel: React.FC<Props> = ({
             return (
               <label key={fieldName} className="field">
                 <span className="field-label">
-                  {fieldConfig.label} {required && <span className="req">*</span>}
+                  {fieldConfig.label}{" "}
+                  {required && <span className="req">*</span>}
                 </span>
                 <select {...commonProps}>
                   <option value="">{`اختر ${fieldConfig.label}`}</option>
@@ -238,7 +291,8 @@ const AddToModel: React.FC<Props> = ({
             return (
               <div key={fieldName} className="field">
                 <span className="field-label">
-                  {fieldConfig.label} {required && <span className="req">*</span>}
+                  {fieldConfig.label}{" "}
+                  {required && <span className="req">*</span>}
                 </span>
                 <VerticalNumberPicker
                   value={Number(formData[fieldName] ?? 0)}
@@ -265,11 +319,20 @@ const AddToModel: React.FC<Props> = ({
 
         <div className="actions">
           {onCancel && (
-            <button type="button" className="btn secondary" onClick={onCancel} disabled={isSubmitting}>
+            <button
+              type="button"
+              className="btn secondary"
+              onClick={onCancel}
+              disabled={isSubmitting}
+            >
               إلغاء
             </button>
           )}
-          <button className={`btn primary ${isSubmitting ? "loading" : ""}`} type="submit" disabled={isSubmitting}>
+          <button
+            className={`btn primary ${isSubmitting ? "loading" : ""}`}
+            type="submit"
+            disabled={isSubmitting}
+          >
             {isSubmitting ? (
               <>
                 <span className="spinner" aria-hidden="true" />
@@ -289,10 +352,18 @@ const AddToModel: React.FC<Props> = ({
             <h3 className="confirm-title">{confirmTitle}</h3>
             <div className="confirm-body">{confirmBody}</div>
             <div className="confirm-actions">
-              <button className="btn secondary" onClick={() => setShowConfirm(false)} disabled={isSubmitting}>
+              <button
+                className="btn secondary"
+                onClick={() => setShowConfirm(false)}
+                disabled={isSubmitting}
+              >
                 تعديل
               </button>
-              <button className="btn primary" onClick={actuallySend} disabled={isSubmitting}>
+              <button
+                className="btn primary"
+                onClick={actuallySend}
+                disabled={isSubmitting}
+              >
                 تأكيد الإرسال
               </button>
             </div>

@@ -33,7 +33,7 @@ export default function Addresses(): JSX.Element {
       try {
         setLoading(true);
         const res = await fetch(
-          `https://trx-api.linarawas.com/api/customers/area/${areaId}`,
+          `http://localhost:5000/api/customers/area/${areaId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -159,7 +159,7 @@ export default function Addresses(): JSX.Element {
 
     try {
       const res = await fetch(
-        `https://trx-api.linarawas.com/api/areas/${areaId}/reorder?companyId=${companyId}`,
+        `http://localhost:5000/api/areas/${areaId}/reorder?companyId=${companyId}`,
         {
           method: "POST",
           headers: {

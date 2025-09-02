@@ -173,7 +173,7 @@ const StartShipment: React.FC = () => {
         const { year, month, day, weekday } = getBeirutParts();
 
         const response = await fetch(
-          `https://trx-api.linarawas.com/api/days/name/${weekday}`,
+          `http://localhost:5000/api/days/name/${weekday}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         if (!response.ok) throw new Error("Day info fetch failed");
@@ -228,7 +228,7 @@ const StartShipment: React.FC = () => {
         },
       };
 
-      const response = await fetch("https://trx-api.linarawas.com/api/shipments", {
+      const response = await fetch("http://localhost:5000/api/shipments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

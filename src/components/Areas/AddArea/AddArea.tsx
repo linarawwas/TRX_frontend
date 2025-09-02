@@ -1,105 +1,132 @@
-import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
-import "./AddArea.css";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+// AddArea.tsx
+import React, { useEffect, useMemo, useState } from "react";
+import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
+import AddToModel from "../../AddToModel/AddToModel";
 
-interface Day {
-  _id: string;
-  name: string;
-}
+type Day = { _id: string; name: string };
 
-function AddArea(): JSX.Element {
-  const token: string = useSelector((state: any) => state.user.token);
-  const companyId: string = useSelector((state: any) => state.user.companyId);
-  const [name, setName] = useState<string>("");
-  const [dayId, setDayId] = useState<string>("");
+const dayTranslations: Record<string, string> = {
+  Sunday: "الأحد",
+  Monday: "الإثنين",
+  Tuesday: "الثلاثاء",
+  Wednesday: "الأربعاء",
+  Thursday: "الخميس",
+  Friday: "الجمعة",
+  Saturday: "السبت",
+};
+
+const AddArea: React.FC = () => {
+  const token: string = useSelector((s: any) => s.user.token);
+  const companyId: string = useSelector((s: any) => s.user.companyId);
+
   const [days, setDays] = useState<Day[]>([]);
+  const [formKey, setFormKey] = useState(0); // used to force reset/remount after success
 
   useEffect(() => {
-    fetch(`https://trx-api.linarawas.com/api/days`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((response) => response.json())
-      .then((data: Day[]) => setDays(data))
-      .catch((error) => toast.error("فشل في تحميل الأيام"));
+    (async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/days", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        setDays(Array.isArray(data) ? data : []);
+      } catch {
+        toast.error("فشل في تحميل الأيام");
+      }
+    })();
   }, [token]);
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const newArea = { name, dayId, companyId };
+  const dayOptions = useMemo(
+    () =>
+      days.map((d) => ({
+        value: d._id,
+        label: dayTranslations[d.name] || d.name,
+      })),
+    [days]
+  );
 
-    try {
-      const response = await fetch("https://trx-api.linarawas.com/api/areas", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(newArea),
-      });
+  const modelFields = {
+    name: { label: "اسم المنطقة", "input-type": "text", required: true },
+    dayId: {
+      label: "اليوم",
+      "input-type": "selectOption",
+      options: [{ value: "", label: "اختر يوماً" }, ...dayOptions],
+      required: true,
+    },
+  } as const;
 
-      if (response.ok) {
-        toast.success("تمت إضافة المنطقة بنجاح");
-        setName("");
-        setDayId("");
-      } else {
-        toast.error("فشل في إنشاء المنطقة");
-      }
-    } catch {
-      toast.error("حدث خطأ أثناء الإضافة");
+  const validate = (data: Record<string, any>) => {
+    if (!String(data.name || "").trim()) return "يرجى إدخال اسم المنطقة";
+    if (!String(data.dayId || "").trim()) return "الرجاء اختيار اليوم";
+    return null;
+  };
+
+  const onSubmit = async (data: Record<string, any>) => {
+    const payload = {
+      name: String(data.name).trim(),
+      dayId: data.dayId,
+      companyId, // server may already infer it; include if your API expects it
+    };
+
+    const res = await fetch("http://localhost:5000/api/areas", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const j = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(j?.error || "فشل في إنشاء المنطقة");
     }
+    toast.success("تمت إضافة المنطقة بنجاح");
+    return j;
   };
-  const dayTranslations: Record<string, string> = {
-    Sunday: "الأحد",
-    Monday: "الإثنين",
-    Tuesday: "الثلاثاء",
-    Wednesday: "الأربعاء",
-    Thursday: "الخميس",
-    Friday: "الجمعة",
-    Saturday: "السبت",
+
+
+const confirmBuilder = (data: Record<string, any>) => {
+  const selected = dayOptions.find(
+    (o) => String(o.value) === String(
+      typeof data.dayId === "object" && data.dayId?._id ? data.dayId._id : data.dayId
+    )
+  );
+  const dayLabel = selected?.label ?? "—";
+
+  return {
+    title: "تأكيد إضافة المنطقة",
+    body: (
+      <div className="confirm-list">
+        <div className="confirm-row">
+          <div className="confirm-key">اسم المنطقة</div>
+          <div className="confirm-val">{String(data.name || "—")}</div>
+        </div>
+        <div className="confirm-row">
+          <div className="confirm-key">اليوم</div>
+          <div className="confirm-val">{dayLabel}</div>
+        </div>
+      </div>
+    ),
   };
+};
+
 
   return (
-    <div className="add-area-container" dir="rtl">
-      <ToastContainer position="top-right" autoClose={1000} />
-      <h2 className="add-area-title">إضافة منطقة جديدة</h2>
+    <AddToModel
+      key={formKey}
+      modelName="المناطق"
+      title="إضافة منطقة جديدة"
+      buttonLabel="➕ إضافة المنطقة"
+      modelFields={modelFields as any}
+      validate={validate}
+      onSubmit={onSubmit}
+      onSuccess={() => setFormKey((k) => k + 1)} // clear form fully
+              confirmBuilder={confirmBuilder} // 👈 add this
 
-      <form className="add-area-form" onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="name">اسم المنطقة:</label>
-          <input
-            id="name"
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="dayId">اختر اليوم:</label>
-          <select
-            id="dayId"
-            value={dayId}
-            onChange={(e) => setDayId(e.target.value)}
-            required
-          >
-            <option value="">اختر يوماً</option>
-            {days.map((day) => (
-              <option key={day._id} value={day._id}>
-                {dayTranslations[day.name] || day.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <button type="submit" className="submit-button">
-          ➕ إضافة المنطقة
-        </button>
-      </form>
-    </div>
+    />
   );
-}
+};
 
 export default AddArea;

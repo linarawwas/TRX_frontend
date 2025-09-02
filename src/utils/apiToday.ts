@@ -1,6 +1,6 @@
 // src/utils/apiToday.ts
 export async function fetchTodayShipmentsOrders(token: string, includeExternal = false) {
-  const url = `https://trx-api.linarawas.com/api/shipments/orders/today?includeExternal=${includeExternal ? 'true' : 'false'}`;
+  const url = `http://localhost:5000/api/shipments/orders/today?includeExternal=${includeExternal ? 'true' : 'false'}`;
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` },
   });

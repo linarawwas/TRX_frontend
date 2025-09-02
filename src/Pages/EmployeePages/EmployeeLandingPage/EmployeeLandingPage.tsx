@@ -11,7 +11,7 @@ const EmployeeLandingPage: React.FC = () => {
   return (
     <div className="emp-home" dir="rtl">
       <header className="emp-hero">
-        <h1 className="emp-title">مرحباً {name}</h1>
+        <h1 className="emp-title">مرحبا {name}</h1>
         <div className="emp-sub">
           {new Date().toLocaleDateString("ar-LB", {
             weekday: "long",

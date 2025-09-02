@@ -96,10 +96,10 @@ const CustomerStatement: React.FC = () => {
       try {
         setLoading(true);
         const [cRes, oRes] = await Promise.all([
-          fetch(`https://trx-api.linarawas.com/api/customers/${customerId}`, {
+          fetch(`http://localhost:5000/api/customers/${customerId}`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch(`https://trx-api.linarawas.com/api/orders/customer/${customerId}`, {
+          fetch(`http://localhost:5000/api/orders/customer/${customerId}`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -381,7 +381,7 @@ const CustomerStatement: React.FC = () => {
                 // refresh statement after payment
                 try {
                   const res = await fetch(
-                    `https://trx-api.linarawas.com/api/orders/customer/${customerId}`,
+                    `http://localhost:5000/api/orders/customer/${customerId}`,
                     {
                       headers: { Authorization: `Bearer ${token}` },
                     }
