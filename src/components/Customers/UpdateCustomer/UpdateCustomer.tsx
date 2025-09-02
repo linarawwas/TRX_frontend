@@ -21,6 +21,7 @@ import {
 } from "../../../redux/Order/action";
 import { fetchAndCacheCustomerInvoice } from "../../../utils/apiHelpers";
 import AreaSequencePicker from "../../AreaSequencePicker/AreaSequencePicker";
+import AssignDistributorInline from "../../Distributors/AssignDistributorInline";
 
 type Area = { _id: string; name: string };
 type CustomerLite = { _id: string; name: string; sequence?: number | null };
@@ -410,6 +411,15 @@ function UpdateCustomer() {
         </div>
       )}
       <CustomerInfo customerData={customerData} loading={loading} />
+
+      {/* …inside UpdateCustomer render, right after <CustomerInfo … /> */}
+      {customerData && (
+        <AssignDistributorInline
+          customerId={customerId!}
+          currentDistributorId={customerData?.distributorId || null}
+        />
+      )}
+
       {customerData && invoiceReady && (
         <>
           <CustomerInvoices customerId={customerId!} />

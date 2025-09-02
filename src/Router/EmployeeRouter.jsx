@@ -18,13 +18,20 @@ import Addresses from "../Pages/AdminPages/Addresses/Addresses.tsx";
 import AddArea from "../components/Areas/AddArea/AddArea.tsx";
 import CreateExternalShipment from "../Pages/EmployeePages/CreateExternalShipment/CreateExternalShipment.tsx";
 import OrdersOfToday from "../Pages/SharedPages/Login/reports/orders-today/OrdersOfToday.tsx";
-import CustomerStatement from "../components/Customers/CustomerStatement/CustomerStatement.tsx";
+import CustomerStatement from "../components/Customers/CustomerStatement/CustomerStatement.tsx"; 
+import DistributorsPage from "../components/Distributors/DistributorsPage.tsx";
+import DistributorDetails from "../components/Distributors/DistributorDetails.tsx";
+
+// ...
+
 function EmployeeRouter() {
   return (
     <div className="userRouter">
       <Routes>
         <Route index element={<EmployeeLandingPage />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/distributors" element={<DistributorsPage />} />
+        <Route path="/distributors/:id" element={<DistributorDetails />} />
         <Route path="/customers" element={<Customers />} />
         <Route path="/updateOrder/:orderId" element={<UpdateOrder />} />
         <Route

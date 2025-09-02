@@ -7,6 +7,9 @@ import Addresses from "../Pages/AdminPages/Addresses/Addresses.tsx";
 import AreasForDay from "../Pages/AdminPages/AreasForDay/AreasForDay.tsx";
 import CustomersForArea from "../Pages/AdminPages/CustomersForArea/CustomersForArea.tsx";
 
+import DistributorsPage from "../components/Distributors/DistributorsPage.tsx";
+import DistributorDetails from "../components/Distributors/DistributorDetails.tsx";
+
 import AddArea from "../components/Areas/AddArea/AddArea.tsx";
 import Login from "../Pages/SharedPages/Login/Login.tsx";
 import UpdateOrder from "../components/Orders/UpdateOrder/UpdateOrder.tsx";
@@ -30,6 +33,9 @@ function AdminRouter() {
         <Routes>
           <Route index element={<AdminLandingPage />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/distributors" element={<DistributorsPage />} />
+          <Route path="/distributors/:id" element={<DistributorDetails />} />
+
           <Route path="/register" element={<Register />} />
           <Route path="/viewOrders" element={<OrdersTable />} />
           <Route path="/reports/orders-today" element={<OrdersOfToday />} />
@@ -37,7 +43,10 @@ function AdminRouter() {
             path="/recordOrderforCustomer"
             element={<RecordOrderForCustomer />}
           />
-          <Route path="/customers/:customerId/statement" element={<CustomerStatement />} />
+          <Route
+            path="/customers/:customerId/statement"
+            element={<CustomerStatement />}
+          />
 
           <Route path="/areas" element={<Areas />} />
           <Route path="/customers" element={<Customers />} />
