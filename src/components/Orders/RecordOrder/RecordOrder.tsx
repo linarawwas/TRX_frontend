@@ -1,9 +1,15 @@
 import React, { useState, useEffect, useCallback } from "react";
-import "./RecordOrder.css";
+import "./RecordOrder.css"; // RecordOrder.tsx
+import {
+  getAdjustedInvoiceSums,
+  projectAfterOrder,
+} from "../../../utils/invoicePreview";
+// (optional) for LBP pretty print
+import { fmtLBP } from "../../../utils/money";
+
 import { toast, ToastContainer } from "react-toastify";
 import { useSelector, useDispatch } from "react-redux";
 import LbpKeypad from "./LbpKeypad";
-
 import {
   addCustomerWithEmptyOrder,
   addCustomerWithFilledOrder,
@@ -130,29 +136,55 @@ const RecordOrder: React.FC<Props> = (props) => {
       const step = field === "paidLBP" ? 1000 : 1;
       return { ...p, [field]: Math.max(0, Number(p[field] || 0) - step) };
     });
-  function buildOrderMessage(customerName, productName, form, payments) {
-    const sumUSD = payments
-      .filter((p) => p.currency === "USD")
-      .reduce((s, p) => s + p.amount, 0);
-    const sumLBP = payments
-      .filter((p) => p.currency === "LBP")
-      .reduce((s, p) => s + p.amount, 0);
+  function buildOrderMessage({
+    customerName,
+    productName,
+    payload, // { delivered, returned, payments: [...] }
+    checkoutUSD, // number
+    preview, // { bottlesLeftAfter, totalUsdAfter }
+    lastRateLBP, // number | undefined
+  }: {
+    customerName: string;
+    productName: string;
+    payload: { delivered: number; returned: number; payments: any[] };
+    checkoutUSD: number;
+    preview: { bottlesLeftAfter: number; totalUsdAfter: number };
+    lastRateLBP?: number;
+  }) {
+    const sumUSD = (payload.payments || [])
+      .filter((p: any) => p.currency === "USD")
+      .reduce((s: number, p: any) => s + (p.amount || 0), 0);
+
+    const sumLBP = (payload.payments || [])
+      .filter((p: any) => p.currency === "LBP")
+      .reduce((s: number, p: any) => s + (p.amount || 0), 0);
+
     const usdStr = sumUSD ? `${sumUSD} $` : "—";
     const lbpStr = sumLBP ? `${sumLBP.toLocaleString()} ل.ل` : "—";
 
+    const overallUSD = Math.max(0, Number(preview.totalUsdAfter || 0)).toFixed(
+      2
+    );
+    const overallLBP =
+      lastRateLBP && Number(lastRateLBP) > 0
+        ? ` (${fmtLBP(preview.totalUsdAfter * lastRateLBP)})`
+        : "";
+
     return `مرحباً ${customerName} 
 
- تم تسجيل طلبك:
+تم تسجيل طلبك (${productName}):
 
- المنتج: ${productName}
- المسلّمة: ${form.delivered}
- المرجعة: ${form.returned}
-الحساب: ${checkout.toFixed(2)} $
- المدفوع بالدولار: ${usdStr}
- المدفوع بالليرة: ${lbpStr}
+المسلّمة: ${payload.delivered}
+المرجعة: ${payload.returned}
+الحساب: ${checkoutUSD.toFixed(2)} $
+المدفوع: ${usdStr} + ${lbpStr}
 
-شكراً لتعاملكم معنا `;
+القناني المتبقية بعد الطلب: ${preview.bottlesLeftAfter}
+الرصيد الإجمالي بعد الطلب: ${overallUSD} $${overallLBP}
+
+شكراً لتعاملكم معنا`;
   }
+
   function normalizePhone(raw: string, defaultCountry = "961") {
     if (!raw) return "";
     let cleaned = raw.replace(/[^0-9]/g, ""); // digits only
@@ -181,7 +213,11 @@ const RecordOrder: React.FC<Props> = (props) => {
     return defaultCountry + cleaned;
   }
 
-  const actuallySubmit = async (payload, waWindow?: Window | null) => {
+  const actuallySubmit = async (
+    payload,
+    waWindow?: Window | null,
+    waMessage?: string | null
+  ) => {
     const request = {
       url: "http://localhost:5000/api/orders",
       options: {
@@ -260,30 +296,20 @@ const RecordOrder: React.FC<Props> = (props) => {
 
     toast.success("✅ تم تسجيل الطلب");
 
-    if (customerPhoneRaw) {
+    // after success (ONLINE branch), instead of rebuilding the message:
+    if (customerPhoneRaw && waMessage) {
       const normalizedPhone = normalizePhone(customerPhoneRaw);
-      const message = buildOrderMessage(
-        customerName,
-        product_name,
-        payload,
-        payload.payments || []
-      );
-      const encoded = encodeURIComponent(message);
+      const encoded = encodeURIComponent(waMessage);
       const url = `https://wa.me/${normalizedPhone}?text=${encoded}`;
-
-      // If we have a pre-opened tab, use it (bypasses blockers)
       if (waWindow && !waWindow.closed) {
-        // small timeout helps on some mobile browsers to attach URL reliably
         setTimeout(() => {
           try {
             waWindow.location.href = url;
           } catch {
-            // fallback
             window.location.assign(url);
           }
         }, 0);
       } else {
-        // Fallback if popup was blocked or not available
         window.location.assign(url);
       }
     }
@@ -293,9 +319,8 @@ const RecordOrder: React.FC<Props> = (props) => {
     e.preventDefault();
     if (isSubmitting) return;
 
-    // 👇 IMPORTANT: pre-open tab to preserve user gesture
-    const waWindow = window.open("", "_blank");
-
+    // 👇 Only pre-open if we have a phone to message
+    const waWindow = customerPhoneRaw ? window.open("", "_blank") : null;
     // normalize inputs
     const dDelivered = Number(form.delivered) || 0;
     const dReturned = Number(form.returned) || 0;
@@ -326,9 +351,35 @@ const RecordOrder: React.FC<Props> = (props) => {
       payments,
       type: props.isExternal ? 3 : 2,
     };
-    navigate(-1);
+
+    // 👇 get “before” snapshot, then project the “after this order”
+    const before = await getAdjustedInvoiceSums(customerId);
+
+    const { bottlesLeftAfter, totalUsdAfter } = projectAfterOrder(
+      {
+        bottlesLeft: before?.bottlesLeft || 0,
+        totalSumUSD: before?.totalSumUSD || 0,
+        lastRateLBP: before?.lastRateLBP,
+      },
+      orderPayload,
+      checkout // you already computed checkout above
+    );
+
+    // Build WA message preview
+    const waMessage = customerPhoneRaw
+      ? buildOrderMessage({
+          customerName,
+          productName: product_name,
+          payload: orderPayload,
+          checkoutUSD: checkout,
+          preview: { bottlesLeftAfter, totalUsdAfter },
+          lastRateLBP: before?.lastRateLBP,
+        })
+      : null;
     try {
-      await actuallySubmit(orderPayload, waWindow); // pass the handle
+      await actuallySubmit(orderPayload, waWindow, waMessage);
+      // Give the browser a tick to navigate the pre-opened tab, then go back
+      setTimeout(() => navigate(-1), 150);
     } catch {
       toast.error("❌ فشل الاتصال بالشبكة");
     } finally {

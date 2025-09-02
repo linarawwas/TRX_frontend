@@ -11,8 +11,8 @@ interface Sums {
   deliveredSum: number;
   returnedSum: number;
   bottlesLeft: number;
-  totalSumUSD: number;     // outstanding in USD
-  lastRateLBP?: number;    // optional: from last order snapshot
+  totalSumUSD: number; // outstanding in USD
+  lastRateLBP?: number; // optional: from last order snapshot
 }
 
 const CustomerInvoices: React.FC<{ customerId: string }> = ({ customerId }) => {
@@ -49,14 +49,14 @@ const CustomerInvoices: React.FC<{ customerId: string }> = ({ customerId }) => {
 
         if (cachedInvoice) {
           let delivered = cachedInvoice.deliveredSum || 0;
-          let returned  = cachedInvoice.returnedSum || 0;
+          let returned = cachedInvoice.returnedSum || 0;
           // outstanding balance (USD) from cache – don't add pending guess
           const totalUSD = cachedInvoice.totalSum || 0;
 
           // safely adjust bottles with offline pending (we know delivered/returned inputs)
           for (const order of pendingOrders) {
             delivered += order.delivered || 0;
-            returned  += order.returned  || 0;
+            returned += order.returned || 0;
           }
 
           // try to surface last known rate (if your cached invoice stores it)
@@ -98,7 +98,9 @@ const CustomerInvoices: React.FC<{ customerId: string }> = ({ customerId }) => {
         <SpinLoader />
       ) : sums ? (
         <>
-          <p className="detail-name">🧴 القناني المتبقية: <strong>{sums.bottlesLeft}</strong></p>
+          <p className="detail-name">
+            🧴 القناني المتبقية: <strong>{sums.bottlesLeft}</strong>
+          </p>
           <p className="detail-name">
             💵 الرصيد المستحق: <strong>{fmtUSD(sums.totalSumUSD)}</strong>
             {lbpEquivalent != null && (
@@ -106,11 +108,13 @@ const CustomerInvoices: React.FC<{ customerId: string }> = ({ customerId }) => {
             )}
           </p>
           {sums.lastRateLBP ? (
-            <p className="rate-hint">سعر الصرف المرجعي للفاتورة: {fmtRateLBP(sums.lastRateLBP)}</p>
+            <p className="rate-hint">
+              سعر الصرف المرجعي للفاتورة: {fmtRateLBP(sums.lastRateLBP)}
+            </p>
           ) : null}
         </>
       ) : (
-        <p className="no-data-text">❌ لا توجد تفاصيل لهذا الزبون</p>
+        <p className="no-data-text">❌ التفاصيل غير متاحة</p>
       )}
     </div>
   );
