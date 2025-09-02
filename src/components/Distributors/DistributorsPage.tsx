@@ -10,6 +10,7 @@ import {
   distributorsSummary,
   createDistributor,
 } from "../../utils/distributorApi";
+import { fi } from "date-fns/locale";
 
 function iso(d: Date) {
   return d.toISOString().slice(0, 10);
@@ -34,6 +35,38 @@ const DistributorsPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [search, setSearch] = useState("");
+  // state
+  const [distributors, setDistributors] = useState<any[]>([]);
+  const [query, setQuery] = useState("");
+  function normalizeListResponse(json: any) {
+    if (Array.isArray(json)) return json;
+    if (Array.isArray(json?.distributors)) return json.distributors; // e.g. { distributors: [...] }
+    if (Array.isArray(json?.items)) return json.items; // e.g. { items: [...] }
+    if (Array.isArray(json?.data)) return json.data; // e.g. { data: [...] }
+    return []; // fallback
+  }
+  // fetch
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/distributors", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const json = await res.json().catch(() => null);
+        console.log("🧪 distributors payload", json);
+
+        const list = normalizeListResponse(json);
+        if (mounted) setDistributors(list);
+      } catch (e) {
+        console.error("Failed to load distributors:", e);
+        if (mounted) setDistributors([]); // keep it an array
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [token]);
 
   const load = async () => {
     try {
@@ -51,17 +84,21 @@ const DistributorsPage: React.FC = () => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [range.from, range.to]);
+  // helper: ALWAYS return an array from any “list” JSON shape
 
+  // ALWAYS return an array from the memo too
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return data;
-    return data.filter((r) =>
-      String(r.name || "")
-        .toLowerCase()
-        .includes(q)
+    const arr = Array.isArray(distributors) ? distributors : [];
+    const q = query.trim().toLowerCase();
+    if (!q) return arr;
+    return arr.filter(
+      (d) =>
+        (d?.name || "").toLowerCase().includes(q) ||
+        (d?.phone || "").includes(q)
     );
-  }, [data, search]);
+  }, [distributors, query]);
 
+  console.log(filtered);
   const createFields = {
     name: { label: "اسم الموزّع", "input-type": "text" },
     commissionPct: { label: "نسبة العمولة (%)", "input-type": "number" },
@@ -132,10 +169,10 @@ const DistributorsPage: React.FC = () => {
       {loading ? (
         <p className="loading">جارٍ التحميل…</p>
       ) : filtered.length === 0 ? (
-        <p className="empty">لا يوجد نتائج</p>
+        <div className="empty">لا يوجد موزّعون</div>
       ) : (
         <div className="dist-grid">
-          {filtered.map((d) => (
+          {filtered?.map((d) => (
             <Link
               to={`/distributors/${d._id}?from=${range.from}&to=${range.to}`}
               className="dist-card"
