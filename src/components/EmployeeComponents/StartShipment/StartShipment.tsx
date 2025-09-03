@@ -199,7 +199,8 @@ const StartShipment: React.FC = () => {
 
     initializeDate();
   }, [token]);
-
+  const prevId = useSelector((state: RootState) => state.shipment._id); // or via useSelector
+  const prevDayId = useSelector((state: RootState) => state.shipment.dayId);
   const handleShipmentSubmit = async (formData: any) => {
     if (isSubmitting) return;
     if (
@@ -241,20 +242,37 @@ const StartShipment: React.FC = () => {
         body: JSON.stringify(payload),
       });
 
-      const shipment = await response.json().catch(() => ({}));
+      const { shipment, round } = await response.json().catch(() => ({}));
       if (!response.ok || !shipment?._id) {
         throw new Error(shipment?.error || "Shipment creation failed");
       }
 
-      // Push into Redux
-      dispatch(clearShipmentInfo());
-      dispatch(setDayId(shipmentData.dayId));
-      dispatch(setDateDay(shipmentData.day));
-      dispatch(setDateMonth(shipmentData.month));
-      dispatch(setDateYear(shipmentData.year));
+      const isSameShipment =
+        shipment?._id &&
+        shipment._id === prevId &&
+        shipment.dayId === prevDayId;
+
+      // Only clear if it’s a brand-new shipment for a different day
+      if (!isSameShipment) {
+        dispatch(clearShipmentInfo()); // ← new day / new shipment only
+        dispatch(setDayId(shipment.dayId));
+        dispatch(setDateDay(shipment.date.day));
+        dispatch(setDateMonth(shipment.date.month));
+        dispatch(setDateYear(shipment.date.year));
+      }
+
       dispatch(setShipmentId(shipment._id));
-      dispatch(setShipmentTarget(shipment.carryingForDelivery));
-      toast.success("✅ تم تسجيل الشحنة بنجاح");
+      dispatch(setShipmentTarget(shipment.carryingForDelivery)); // total of the day now
+
+      // UX: only preload for a brand-new shipment/day
+      if (!isSameShipment) {
+        setShowLoadingModal(true);
+      } else {
+        toast.success(
+          `🚚 بدأت الجولة #${round.sequence}. الهدف الحالي: ${shipment.carryingForDelivery}`
+        );
+      }
+
       setShowLoadingModal(true);
     } catch (error: any) {
       console.error(error);
