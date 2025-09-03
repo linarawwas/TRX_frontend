@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import { clearAreaId, setAreaId } from "../../../redux/Order/action";
 import { getAreasByDayFromDB, getDayFromDB } from "../../../utils/indexedDB";
 import "./AreasForDay.css";
+import RoundSnapshot from "../../../components/AsideMenu/Right/RoundSnapshot";
 
 interface Area {
   _id: string;

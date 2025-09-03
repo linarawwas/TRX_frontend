@@ -5,6 +5,8 @@ import {
   SET_SHIPMENT_FROM_PREV,
   SET_TOTAL_PAYMENTS,
   SET_RETURNED,
+  SET_ROUND_INFO,
+  CLEAR_ROUND_INFO,
   SET_DELIVERED,
   SET_LIRA_PAYMENTS,
   SET_USD_PAYMENTS,
@@ -114,6 +116,21 @@ export const setShipmentPaymentsInDollars = (dollarPayments) => ({
   type: SET_USD_PAYMENTS,
   payload: dollarPayments,
 });
+export const setRoundInfo = (payload: {
+  sequence: number, // round #
+  targetAdded: number, // bottles added in this round
+  baseDelivered: number,
+  baseReturned: number,
+  baseUsd: number,
+  baseLbp: number,
+  baseExpUsd: number,
+  baseExpLbp: number,
+  baseProfUsd: number,
+  baseProfLbp: number,
+  startedAt?: string, // ISO timestamp (optional)
+}) => ({ type: SET_ROUND_INFO, payload });
+
+export const clearRoundInfo = () => ({ type: CLEAR_ROUND_INFO });
 
 export const setExchangeRateLBP = (rate) => ({
   type: SET_EXCHANGE_RATE_LBP,

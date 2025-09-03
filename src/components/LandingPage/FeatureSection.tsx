@@ -119,6 +119,7 @@ const FeatureSection: React.FC = () => {
       <div className="footer" style={{ direction: "rtl", textAlign: "center" }}>
         <p>© 2025 تيركس بواسطة لينة الرواّس. جميع الحقوق محفوظة.</p>
       </div>
+
     </>
   );
 };

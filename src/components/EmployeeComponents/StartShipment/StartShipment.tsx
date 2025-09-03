@@ -14,16 +14,22 @@ import {
   setDayId,
   clearShipmentInfo,
   setExchangeRateLBP,
+  clearRoundInfo,
+  setRoundInfo,
 } from "../../../redux/Shipment/action";
 import AddToModel from "../../AddToModel/AddToModel";
 import { preloadShipmentData } from "../../../utils/preloadShipmentData";
+import { createRoundOrShipment } from "../../../utils/createRoundOrShipment";
 
 import "./StartShipment.css";
 
 const StartShipment: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const token = useSelector((state: RootState) => state.user.token);
+
+  const token = useSelector((s: RootState) => s.user.token);
+  const prevShipmentId = useSelector((s: RootState) => s.shipment._id);
+  const prevDayId = useSelector((s: RootState) => s.shipment.dayId);
 
   const [shipmentData, setShipmentData] = useState<{
     dayId: string;
@@ -32,14 +38,11 @@ const StartShipment: React.FC = () => {
     year: number | null;
   }>({ dayId: "", day: null, month: null, year: null });
 
+  // preload modal + progress
   const [showLoadingModal, setShowLoadingModal] = useState(false);
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [preloadError, setPreloadError] = useState(false);
-  const [isRetrying, setIsRetrying] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // inside StartShipment component
 
-  // NEW progress state
   const [progressPct, setProgressPct] = useState(0);
   const [progressNote, setProgressNote] = useState<string>("");
   const [areasTotal, setAreasTotal] = useState(0);
@@ -47,28 +50,29 @@ const StartShipment: React.FC = () => {
   const [lastCustomers, setLastCustomers] = useState<number | null>(null);
   const [currentArea, setCurrentArea] = useState<string>("");
 
-  // Phases (for ticks)
   const [phaseMeta, setPhaseMeta] = useState(false);
   const [phaseCache, setPhaseCache] = useState(false);
   const [phaseAreas, setPhaseAreas] = useState(false);
 
-  // OPTIONAL: allow a “fast start” switch (loads today’s areas first)
-  // keep it false by default to preserve your current behavior
-  const [fastStart, setFastStart] = useState(false);
+  // derive intent: if Redux already has a shipment for (today's dayId), it's a round
+  const isRoundIntent =
+    Boolean(prevShipmentId) && prevDayId === shipmentData.dayId;
 
-  // When shipment created, show modal and start preloading with progress
+  // SINGLE place that performs preload (only when showLoadingModal === true)
   useEffect(() => {
     if (!showLoadingModal || !shipmentData.dayId) return;
 
     let total = 0;
     let done = 0;
-
-    const pct = () => {
-      // 10% meta + 10% cache + 80% areas
-      const base = (phaseMeta ? 10 : 0) + (phaseCache ? 10 : 0);
-      const areaPct = total > 0 ? (done / total) * 80 : 0;
-      return Math.min(100, Math.round(base + areaPct));
-    };
+    const pct = () =>
+      Math.min(
+        100,
+        Math.round(
+          (phaseMeta ? 10 : 0) +
+            (phaseCache ? 10 : 0) +
+            (total > 0 ? (done / total) * 80 : 0)
+        )
+      );
 
     preloadShipmentData({
       dayId: shipmentData.dayId,
@@ -80,10 +84,7 @@ const StartShipment: React.FC = () => {
         }
         if (e.type === "meta:fetched") {
           setPhaseMeta(true);
-          // if fastStart => we will do today's first
-          total = fastStart
-            ? e.dayAreas + (e.companyAreas - e.dayAreas)
-            : e.companyAreas;
+          total = e.companyAreas;
           done = 0;
           setAreasTotal(total);
           setProgressNote(
@@ -103,14 +104,10 @@ const StartShipment: React.FC = () => {
           );
           setProgressPct(pct());
         }
-        if (e.type === "area:customers") {
-          setLastCustomers(e.customers);
-        }
-        if (e.type === "rate:fetched") {
-          dispatch(setExchangeRateLBP(e.rateLBP)); // ⬅️ dispatch here
-        }
+        if (e.type === "area:customers") setLastCustomers(e.customers);
+        if (e.type === "rate:fetched") dispatch(setExchangeRateLBP(e.rateLBP));
         if (e.type === "area:done") {
-          done = e.index; // e.index is 1-based
+          done = e.index;
           setAreasDone(done);
           setProgressPct(pct());
           setPhaseAreas(done === total);
@@ -120,7 +117,6 @@ const StartShipment: React.FC = () => {
             `اكتمل التحضير ✓ تم تجهيز ${e.totals.areas} منطقة و ${e.totals.customers} زبون`
           );
           setProgressPct(100);
-          // small delay so the user sees 100%
           setTimeout(() => navigate(`/areas/${shipmentData.dayId}`), 400);
         }
         if (e.type === "error") {
@@ -129,28 +125,23 @@ const StartShipment: React.FC = () => {
           toast.error("⚠️ فشل في تحميل البيانات");
         }
       },
-      fastStart,
     }).catch((err) => {
       console.error("❌ Preloading failed:", err);
       setPreloadError(true);
       setShowLoadingModal(false);
       toast.error("⚠️ فشل في تحميل البيانات");
     });
-  }, [showLoadingModal, shipmentData.dayId, token, navigate, fastStart]);
+  }, [
+    showLoadingModal,
+    shipmentData.dayId,
+    token,
+    dispatch,
+    navigate,
+    phaseMeta,
+    phaseCache,
+  ]);
 
-  const isDevMode =
-    new URLSearchParams(window.location.search).get("dev") === "true";
-
-  const steps = [
-    "🔍 تحليل دقيق للمناطق وتوزيعها حسب الأولوية",
-    "👥 تحميل معلومات الزبائن (عدد القناني، الطلبات، الخصومات)",
-    "📦 تقدير الحمولة",
-    "🧠 تنشيط حفظ المعلومات",
-    "⚙️ تهيئة قاعدة بيانات التوصيل في وضع عدم الاتصال",
-    "✅ ضمان الاستمرارية بدون إرسال أو شبكة",
-  ];
-
-  // Beirut-local date helpers
+  // Resolve today's dayId from weekday
   function getBeirutParts() {
     const now = new Date();
     const ymd = new Intl.DateTimeFormat("en-CA", {
@@ -175,40 +166,27 @@ const StartShipment: React.FC = () => {
     const initializeDate = async () => {
       try {
         const { year, month, day, weekday } = getBeirutParts();
-
         const response = await fetch(
           `http://localhost:5000/api/days/name/${weekday}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         if (!response.ok) throw new Error("Day info fetch failed");
-
         const data = await response.json();
         if (!data?.length) throw new Error("Day not found in DB");
-
-        setShipmentData({
-          dayId: data[0]._id,
-          day,
-          month,
-          year,
-        });
+        setShipmentData({ dayId: data[0]._id, day, month, year });
       } catch (err) {
         console.error("❌ Day initialization failed:", err);
         toast.error("تعذر تحديد يوم العمل");
       }
     };
-
     initializeDate();
   }, [token]);
-  const prevId = useSelector((state: RootState) => state.shipment._id); // or via useSelector
-  const prevDayId = useSelector((state: RootState) => state.shipment.dayId);
+
   const handleShipmentSubmit = async (formData: any) => {
     if (isSubmitting) return;
-    if (
-      !shipmentData.dayId ||
-      !shipmentData.day ||
-      !shipmentData.month ||
-      !shipmentData.year
-    ) {
+
+    const { dayId, day, month, year } = shipmentData;
+    if (!dayId || !day || !month || !year) {
       toast.error("بيانات التاريخ غير مكتملة");
       return;
     }
@@ -221,59 +199,62 @@ const StartShipment: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      // ✅ Backend derives companyId/sequence/dateKey/dateStamp
-      const payload = {
-        dayId: shipmentData.dayId,
-        type: 1, // 1 = normal
-        carryingForDelivery: carrying,
-        date: {
-          day: shipmentData.day,
-          month: shipmentData.month,
-          year: shipmentData.year,
+      // Delegate the decision to the helper
+      const { shipment, round, isNewShipment } = await createRoundOrShipment({
+        token,
+        prevShipmentId,
+        prevDayId,
+        payload: {
+          dayId,
+          type: 1,
+          carryingForDelivery: carrying,
+          date: { day, month, year },
         },
-      };
-
-      const response = await fetch("http://localhost:5000/api/shipments", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
       });
 
-      const { shipment, round } = await response.json().catch(() => ({}));
-      if (!response.ok || !shipment?._id) {
-        throw new Error(shipment?.error || "Shipment creation failed");
-      }
-
-      const isSameShipment =
-        shipment?._id &&
-        shipment._id === prevId &&
-        shipment.dayId === prevDayId;
-
-      // Only clear if it’s a brand-new shipment for a different day
-      if (!isSameShipment) {
-        dispatch(clearShipmentInfo()); // ← new day / new shipment only
-        dispatch(setDayId(shipment.dayId));
-        dispatch(setDateDay(shipment.date.day));
-        dispatch(setDateMonth(shipment.date.month));
-        dispatch(setDateYear(shipment.date.year));
-      }
-
+      // Push core identity to Redux
       dispatch(setShipmentId(shipment._id));
-      dispatch(setShipmentTarget(shipment.carryingForDelivery)); // total of the day now
+      dispatch(setShipmentTarget(shipment.carryingForDelivery));
+      dispatch(setDayId(shipment.dayId));
+      dispatch(setDateDay(shipment?.date?.day));
+      dispatch(setDateMonth(shipment?.date?.month));
+      dispatch(setDateYear(shipment?.date?.year));
 
-      // UX: only preload for a brand-new shipment/day
-      if (!isSameShipment) {
-        setShowLoadingModal(true);
+      if (isNewShipment) {
+        // brand-new day → clear per-day temporary progress & PRELOAD once
+        dispatch(clearShipmentInfo());
+        dispatch(clearRoundInfo());
+
+        toast.success("✅ تم إنشاء شحنة اليوم");
+        setShowLoadingModal(true); // triggers preload effect
       } else {
-        toast.success(
-          `🚚 بدأت الجولة #${round.sequence}. الهدف الحالي: ${shipment.carryingForDelivery}`
-        );
-      }
+        // same shipment (new round)
+        const state: any = (window as any).__REDUX_STORE__?.getState?.() || {}; // or useSelector values you already have
+        const s = state.shipment || {};
 
-      setShowLoadingModal(true);
+        dispatch(
+          setRoundInfo({
+            sequence: Number(round?.sequence ?? 0),
+            targetAdded: Number(formData.carryingForDelivery || 0),
+            baseDelivered: Number(s.delivered || 0),
+            baseReturned: Number(s.returned || 0),
+            baseUsd: Number(s.dollarPayments || 0),
+            baseLbp: Number(s.liraPayments || 0),
+            baseExpUsd: Number(s.expensesInUSD || 0),
+            baseExpLbp: Number(s.expensesInLiras || 0),
+            baseProfUsd: Number(s.profitsInUSD || 0),
+            baseProfLbp: Number(s.profitsInLiras || 0),
+            startedAt: new Date().toISOString(),
+          })
+        );
+
+        toast.success(
+          `🚚 بدأت الجولة #${
+            round?.sequence ?? "?"
+          }. الهدف لهذه الجولة: ${Number(formData.carryingForDelivery || 0)}`
+        );
+        navigate(`/areas/${shipment.dayId}`);
+      }
     } catch (error: any) {
       console.error(error);
       toast.error("⚠️ فشل في تسجيل الشحنة: " + (error?.message || ""));
@@ -282,92 +263,68 @@ const StartShipment: React.FC = () => {
     }
   };
 
-  const handleRetryPreload = async () => {
-    setIsRetrying(true);
-    setPreloadError(false);
-    try {
-      // If your preloadShipmentData still needs companyId, keep passing it.
-      await preloadShipmentData({
-        dayId: shipmentData.dayId,
-        token,
-      });
-      navigate(`/areas/${shipmentData.dayId}`);
-    } catch (error) {
-      toast.error("❌ تعذر تحميل بيانات الشحنة.");
-      setPreloadError(true);
-    } finally {
-      setIsRetrying(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!showLoadingModal || currentStepIndex > steps.length) return;
-
-    const timeout = setTimeout(() => {
-      if (currentStepIndex < steps.length) {
-        setCurrentStepIndex((prev) => prev + 1);
-      } else {
-        preloadShipmentData({
-          dayId: shipmentData.dayId,
-          token,
-        })
-          .then(() => navigate(`/areas/${shipmentData.dayId}`))
-          .catch((err) => {
-            console.error("❌ Preloading failed:", err);
-            setPreloadError(true);
-            setShowLoadingModal(false);
-            toast.error("⚠️ فشل في تحميل البيانات");
-          });
-      }
-    }, 1200);
-
-    return () => clearTimeout(timeout);
-  }, [currentStepIndex, showLoadingModal, shipmentData.dayId, token, navigate]);
-
-  // StartShipment.tsx (only changes shown)
+  // UI text adapts automatically
   const shipmentConfig = {
     "component-related-fields": {
       modelName: "الشحنات",
-      title: "إنهاء الشحنة السابقة وبدء أخرى جديدة",
-      "button-label": isSubmitting ? "جارٍ الإنشاء…" : "بدء الشحنة",
+      title: isRoundIntent
+        ? "بدء جولة جديدة لليوم نفسه"
+        : "إنهاء الشحنة السابقة وبدء شحنة اليوم",
+      "button-label": isSubmitting
+        ? "جارٍ التنفيذ…"
+        : isRoundIntent
+        ? "بدء الجولة"
+        : "بدء الشحنة",
     },
     "model-related-fields": {
       carryingForDelivery: {
         label: "الكمية المحملة للتوصيل",
         "input-type": "digit-carousal",
-
         min: 0,
       },
     },
   };
 
-  // Confirmation content tailored for shipments
   const buildShipmentConfirm = (data: Record<string, any>) => {
     const qty = Number(data.carryingForDelivery || 0);
     return {
-      title: "تأكيد بدء الشحنة",
+      title: isRoundIntent ? "تأكيد بدء الجولة" : "تأكيد بدء الشحنة",
       body: (
         <div className="confirm-block">
           <p style={{ marginTop: 0 }}>
-            هل أنت متأكد من بدء الشحنة بـ <strong>{qty}</strong> قنينة كهدف
-            للتسليم؟
+            {isRoundIntent ? (
+              <>
+                سيتم إضافة <strong>{qty}</strong> قنينة إلى حمولة الشحنة الحالية
+                لليوم.
+              </>
+            ) : (
+              <>
+                هل أنت متأكد من بدء شحنة اليوم بـ <strong>{qty}</strong> قنينة
+                كهدف للتسليم؟
+              </>
+            )}
           </p>
-          <p
-            style={{
-              color: "#7a2e2e",
-              background: "#fff1f2",
-              border: "1px solid #fecdd3",
-              padding: "8px 10px",
-              borderRadius: "10px",
-            }}
-          >
-            <strong>تنبيه:</strong> لن تتمكن من تسليم أكثر من هذا الهدف ضمن هذه
-            الشحنة. عند الوصول، ستحتاج لبدء شحنة جديدة.
-          </p>
+          {!isRoundIntent && (
+            <p
+              style={{
+                color: "#7a2e2e",
+                background: "#fff1f2",
+                border: "1px solid #fecdd3",
+                padding: "8px 10px",
+                borderRadius: "10px",
+              }}
+            >
+              <strong>تنبيه:</strong> لن تتمكن من تسليم أكثر من هذا الهدف ضمن
+              هذه الشحنة. عند الوصول يمكنك بدء جولة جديدة لزيادة الحمولة.
+            </p>
+          )}
         </div>
       ),
     };
   };
+
+  const isDevMode =
+    new URLSearchParams(window.location.search).get("dev") === "true";
 
   return (
     <>
@@ -377,22 +334,41 @@ const StartShipment: React.FC = () => {
         buttonLabel={shipmentConfig["component-related-fields"]["button-label"]}
         modelFields={shipmentConfig["model-related-fields"]}
         onSubmit={handleShipmentSubmit}
-        confirmBuilder={buildShipmentConfirm} // 👈 add this
+        confirmBuilder={buildShipmentConfirm}
       />
 
       {preloadError && (
         <div className="retry-box">
           ⚠️ لم يتم تحميل البيانات بنجاح.
           <br />
-          <button onClick={handleRetryPreload} disabled={isRetrying}>
-            {isRetrying ? "جارٍ المحاولة..." : "أعد المحاولة"}
+          <button
+            onClick={async () => {
+              try {
+                setPreloadError(false);
+                await preloadShipmentData({ dayId: shipmentData.dayId, token });
+                navigate(`/areas/${shipmentData.dayId}`);
+              } catch {
+                setPreloadError(true);
+              }
+            }}
+          >
+            أعد المحاولة
           </button>
         </div>
       )}
 
       {isDevMode && !preloadError && (
         <div style={{ textAlign: "center", marginTop: "1rem" }}>
-          <button onClick={handleRetryPreload}>
+          <button
+            onClick={async () => {
+              try {
+                await preloadShipmentData({ dayId: shipmentData.dayId, token });
+                navigate(`/areas/${shipmentData.dayId}`);
+              } catch {
+                toast.error("❌ تعذر تحميل بيانات الشحنة.");
+              }
+            }}
+          >
             🔁 إعادة تحميل بيانات الشحنة
           </button>
         </div>
@@ -410,7 +386,6 @@ const StartShipment: React.FC = () => {
               نُحضّر كل شيء للعمل بلا إنترنت بأمان.
             </p>
 
-            {/* Progress bar */}
             <div className="progress-wrap">
               <div className="progress-bar">
                 <div
@@ -421,7 +396,6 @@ const StartShipment: React.FC = () => {
               <div className="progress-label">{progressPct}%</div>
             </div>
 
-            {/* Simple ticks for phases */}
             <ul className="phase-list">
               <li className={phaseMeta ? "done" : ""}>
                 قراءة بيانات اليوم والمناطق
@@ -434,7 +408,6 @@ const StartShipment: React.FC = () => {
               </li>
             </ul>
 
-            {/* Live counters */}
             <div className="stats-row">
               <div className="stat">
                 <div className="stat-num">
@@ -448,7 +421,6 @@ const StartShipment: React.FC = () => {
               </div>
             </div>
 
-            {/* Current action */}
             <div className="current-action">
               <div className="pulse-dot" />
               <div>
@@ -462,7 +434,6 @@ const StartShipment: React.FC = () => {
               </div>
             </div>
 
-            {/* Friendly clarifications */}
             <div className="why-block">
               <div className="why-title">لماذا ننتظر؟</div>
               <ul>
@@ -471,18 +442,6 @@ const StartShipment: React.FC = () => {
                 <li>ضمان إعادة الإرسال التلقائي عند عودة الشبكة.</li>
               </ul>
             </div>
-
-            {/* Optional quick start */}
-            {/* <div className="fast-start">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={fastStart}
-                  onChange={(e) => setFastStart(e.target.checked)}
-                />
-                بدء سريع: حمّل مناطق اليوم أولاً (ثم الباقي في الخلفية)
-              </label>
-            </div> */}
 
             <div className="progress-spinner" />
           </div>

@@ -4,6 +4,7 @@ import { RootState } from "../../../redux/store";
 import "./EmployeeLandingPage.css";
 import TodaySnapshot from "../../../components/AsideMenu/Right/TodaySnapshot"; // NEW name
 import FeatureSection from "../../../components/LandingPage/FeatureSection";
+import RoundSnapshot from "../../../components/AsideMenu/Right/RoundSnapshot";
 
 const EmployeeLandingPage: React.FC = () => {
   const name = useSelector((state: RootState) => state.user.username);
@@ -20,10 +21,8 @@ const EmployeeLandingPage: React.FC = () => {
           })}
         </div>
       </header>
-
       {/* Today stats (collapsible) */}
-      <TodaySnapshot />
-
+      <TodaySnapshot /> <RoundSnapshot />
       {/* Quick actions */}
       <FeatureSection />
     </div>

@@ -29,6 +29,8 @@ import {
   ADD_PENDING_ORDER,
   REMOVE_PENDING_ORDER,
   SET_EXCHANGE_RATE_LBP,
+  SET_ROUND_INFO,
+  CLEAR_ROUND_INFO,
 } from "./actionTypes";
 
 const initialState = {
@@ -68,10 +70,47 @@ const initialState = {
   prev_CustomersWithFilledOrder: [],
   prev_CustomersWithEmptyOrders: [],
   prev_CustomersWithPendingOrders: [], // Add this line
+  round: {
+    sequence: null,
+    targetAdded: 0,
+    baseDelivered: 0,
+    baseReturned: 0,
+    baseUsd: 0,
+    baseLbp: 0,
+    baseExpUsd: 0,
+    baseExpLbp: 0,
+    baseProfUsd: 0,
+    baseProfLbp: 0,
+    startedAt: null,
+  },
 };
 
 const shipmentReducer = (state = initialState, action) => {
   switch (action.type) {
+    case SET_ROUND_INFO:
+      return {
+        ...state,
+        round: { ...state.round, ...action.payload },
+      };
+
+    case CLEAR_ROUND_INFO:
+      return {
+        ...state,
+        round: {
+          sequence: null,
+          targetAdded: 0,
+          baseDelivered: state.delivered, // optional: carry current as baseline
+          baseReturned: state.returned,
+          baseUsd: state.dollarPayments,
+          baseLbp: state.liraPayments,
+          baseExpUsd: state.expensesInUSD,
+          baseExpLbp: state.expensesInLiras,
+          baseProfUsd: state.profitsInUSD,
+          baseProfLbp: state.profitsInLiras,
+          startedAt: null,
+        },
+      };
+
     case SET_DAY_ID:
       return {
         ...state,
@@ -282,6 +321,19 @@ const shipmentReducer = (state = initialState, action) => {
         CustomersWithFilledOrders: [],
         CustomersWithEmptyOrders: [],
         CustomersWithPendingOrders: [], // <-- Make sure this key exists
+        round: {
+          sequence: null,
+          targetAdded: 0,
+          baseDelivered: 0,
+          baseReturned: 0,
+          baseUsd: 0,
+          baseLbp: 0,
+          baseExpUsd: 0,
+          baseExpLbp: 0,
+          baseProfUsd: 0,
+          baseProfLbp: 0,
+          startedAt: null,
+        },
       };
     default:
       return state;

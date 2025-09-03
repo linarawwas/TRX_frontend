@@ -3,6 +3,7 @@ import React, { useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import "./TodaySnapshot.css";
 import RoundsHistory from "../../Shipments/RoundsHistory/RoundsHistory";
+import RoundSnapshot from "./RoundSnapshot";
 
 const TodaySnapshot: React.FC = () => {
   const [open, setOpen] = useState(true);
@@ -37,7 +38,6 @@ const TodaySnapshot: React.FC = () => {
         <span className="snap-title">إحصاءات اليوم</span>
         <span className={`chev ${open ? "up" : "down"}`} />
       </button>
-
       <div id="today-panel" className={`snap-panel ${open ? "open" : ""}`}>
         {/* Progress */}
         <div className={`progress ${reached ? "reached" : ""}`}>
