@@ -1,0 +1,107 @@
+.rounds-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin: 10px;
+  box-shadow: 0 2px 6px rgba(8, 35, 56, 0.06);
+  font-family: "Cairo", sans-serif;
+}
+
+.rounds-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.rounds-title {
+  margin: 0;
+  font-size: 16px;
+  color: #082338;
+}
+
+.rounds-pill {
+  font-size: 12px;
+  border-radius: 999px;
+  padding: 2px 8px;
+  border: 1px solid;
+}
+.rounds-pill.loading {
+  color: #6b7280;
+  border-color: #e5e7eb;
+  background: #f9fafb;
+}
+.rounds-pill.error {
+  color: #7a2e2e;
+  border-color: #fecdd3;
+  background: #fff1f2;
+}
+
+.rounds-empty {
+  margin: 6px 0 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.rounds-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 10px;
+  display: grid;
+  gap: 6px;
+}
+
+.rounds-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.round-chip {
+  background: #06355e;
+  color: #fff;
+  font-weight: 700;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  min-width: 38px;
+  text-align: center;
+}
+
+.round-line {
+  color: #082338;
+  font-size: 14px;
+}
+
+.round-qty {
+  font-weight: 700;
+  margin: 0 3px;
+}
+.sep {
+  color: #94a3b8;
+  margin: 0 6px;
+}
+.round-time {
+  color: #475569;
+}
+
+.rounds-total {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  border-top: 1px dashed #e5e7eb;
+  padding-top: 8px;
+}
+.total-label {
+  color: #475569;
+  font-size: 13px;
+}
+.total-val {
+  color: #082338;
+  font-size: 16px;
+}
+.total-unit {
+  color: #64748b;
+  font-size: 13px;
+}

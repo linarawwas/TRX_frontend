@@ -44,7 +44,6 @@ function Layout() {
   }, []);
   return (
     <Fragment>
-      {/* {isAdmin ? <AsideMenuAdmin /> : <AsideMenuEmployee />} */}
       <AsideMenu />
       {isAdmin ? <AdminRouter /> : <EmployeeRouter />}
     </Fragment>
