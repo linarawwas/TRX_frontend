@@ -29,6 +29,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { getProductTypeFromDB, saveRequest } from "../../../utils/indexedDB";
 import { fetchAndCacheCustomerInvoice } from "../../../utils/apiHelpers";
 import CustomerInvoices from "../../Customers/CustomerInvoices/CustomerInvoices";
+import { selectRoundProgress } from "../../../redux/selectors/shipment";
+
 type Props = {
   customerData?: any;
   isExternal?: boolean;
@@ -38,6 +40,11 @@ const RecordOrder: React.FC<Props> = (props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const companyId = useSelector((s) => s.user.companyId);
+  const { targetRound, deliveredThisRound, remainingRound } =
+    useSelector(selectRoundProgress);
+
+  // Use remainingRound everywhere you clamp or block delivery
+  const remaining = remainingRound;
   const token = useSelector((s) => s.user.token);
   const customerId = useSelector((s) => s.order.customer_Id);
   const customerName = useSelector((s) => s.order.customer_name);
@@ -59,10 +66,6 @@ const RecordOrder: React.FC<Props> = (props) => {
   const shipmentReturned = useSelector((s) => s.shipment.returned) ?? 0;
   const shipmentUsd = useSelector((s) => s.shipment.dollarPayments) ?? 0;
   const shipmentLbp = useSelector((s) => s.shipment.liraPayments) ?? 0;
-
-  // Target enforcement
-  const target = useSelector((s) => s.shipment.target) ?? 0;
-  const remaining = Math.max(0, (target || 0) - (shipmentDelivered || 0));
 
   const [showLbpPad, setShowLbpPad] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -113,8 +116,8 @@ const RecordOrder: React.FC<Props> = (props) => {
 
     let next = parseInt(cleaned, 10);
 
+    // clamp on change
     if (name === "delivered") {
-      // clamp to remaining
       next = Math.max(0, Math.min(next, remaining));
     }
 
@@ -331,8 +334,9 @@ const RecordOrder: React.FC<Props> = (props) => {
     const payLBP = Number(form.paidLBP) || 0;
 
     // if target reached or user tried > remaining → show modal
+    // over-modal guard
     if (
-      target > 0 &&
+      targetRound > 0 &&
       (remaining === 0 ? dDelivered > 0 : dDelivered > remaining)
     ) {
       setOverModal({ want: dDelivered });
@@ -443,7 +447,7 @@ const RecordOrder: React.FC<Props> = (props) => {
               </button>
             </div>
             <div className={`roc-hint ${remaining === 0 ? "locked" : ""}`}>
-              المتبقي في هذه الشحنة: <strong>{remaining}</strong>{" "}
+              المتبقي في هذه الجولة: <strong>{remaining}</strong>{" "}
               {remaining === 0 && (
                 <>
                   • <span className="lock">مغلق</span>

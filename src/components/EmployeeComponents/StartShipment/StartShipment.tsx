@@ -182,78 +182,98 @@ const StartShipment: React.FC = () => {
     initializeDate();
   }, [token]);
 
+  // StartShipment.tsx (only the parts that change)
+
+  // Totals to snapshot as baseline if we start a round
+  const totalsNow = useSelector((s: any) => ({
+    delivered: s.shipment.delivered || 0,
+    returned: s.shipment.returned || 0,
+    dollarPayments: s.shipment.dollarPayments || 0,
+    liraPayments: s.shipment.liraPayments || 0,
+    expensesInUSD: s.shipment.expensesInUSD || 0,
+    expensesInLiras: s.shipment.expensesInLiras || 0,
+    profitsInUSD: s.shipment.profitsInUSD || 0,
+    profitsInLiras: s.shipment.profitsInLiras || 0,
+  }));
+
   const handleShipmentSubmit = async (formData: any) => {
     if (isSubmitting) return;
-
-    const { dayId, day, month, year } = shipmentData;
-    if (!dayId || !day || !month || !year) {
+    if (
+      !shipmentData.dayId ||
+      !shipmentData.day ||
+      !shipmentData.month ||
+      !shipmentData.year
+    ) {
       toast.error("بيانات التاريخ غير مكتملة");
       return;
     }
 
-    const carrying = Number(formData.carryingForDelivery || 0);
-    if (!Number.isFinite(carrying) || carrying < 0) {
+    const carry = Number(formData.carryingForDelivery || 0);
+    if (!Number.isFinite(carry) || carry < 0) {
       toast.error("الكمية المحملة للتوصيل غير صالحة");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      // Delegate the decision to the helper
+      const payload = {
+        dayId: shipmentData.dayId,
+        type: 1,
+        carryingForDelivery: carry,
+        date: {
+          day: shipmentData.day,
+          month: shipmentData.month,
+          year: shipmentData.year,
+        },
+      };
+
+      // 🔸 Use the pure helper
       const { shipment, round, isNewShipment } = await createRoundOrShipment({
         token,
+        payload,
         prevShipmentId,
         prevDayId,
-        payload: {
-          dayId,
-          type: 1,
-          carryingForDelivery: carrying,
-          date: { day, month, year },
-        },
       });
 
-      // Push core identity to Redux
+      // Always store these
       dispatch(setShipmentId(shipment._id));
       dispatch(setShipmentTarget(shipment.carryingForDelivery));
-      dispatch(setDayId(shipment.dayId));
-      dispatch(setDateDay(shipment?.date?.day));
-      dispatch(setDateMonth(shipment?.date?.month));
-      dispatch(setDateYear(shipment?.date?.year));
 
       if (isNewShipment) {
-        // brand-new day → clear per-day temporary progress & PRELOAD once
+        // New day shipment → clear & set date/day state, then preload
         dispatch(clearShipmentInfo());
         dispatch(clearRoundInfo());
+        dispatch(setDayId(shipment.dayId));
+        dispatch(setDateDay(shipment.date.day));
+        dispatch(setDateMonth(shipment.date.month));
+        dispatch(setDateYear(shipment.date.year));
 
-        toast.success("✅ تم إنشاء شحنة اليوم");
-        setShowLoadingModal(true); // triggers preload effect
+        toast.success("✅ تم تسجيل الشحنة (يوم جديد)");
+        setShowLoadingModal(true); // <-- ONLY here we preload
       } else {
-        // same shipment (new round)
-        const state: any = (window as any).__REDUX_STORE__?.getState?.() || {}; // or useSelector values you already have
-        const s = state.shipment || {};
-
+        // Same day → it's a round; capture baseline & do NOT preload
         dispatch(
           setRoundInfo({
-            sequence: Number(round?.sequence ?? 0),
-            targetAdded: Number(formData.carryingForDelivery || 0),
-            baseDelivered: Number(s.delivered || 0),
-            baseReturned: Number(s.returned || 0),
-            baseUsd: Number(s.dollarPayments || 0),
-            baseLbp: Number(s.liraPayments || 0),
-            baseExpUsd: Number(s.expensesInUSD || 0),
-            baseExpLbp: Number(s.expensesInLiras || 0),
-            baseProfUsd: Number(s.profitsInUSD || 0),
-            baseProfLbp: Number(s.profitsInLiras || 0),
+            sequence: Number(round?.sequence || 0),
+            targetAdded: carry,
+            baseDelivered: totalsNow.delivered,
+            baseReturned: totalsNow.returned,
+            baseUsd: totalsNow.dollarPayments,
+            baseLbp: totalsNow.liraPayments,
+            baseExpUsd: totalsNow.expensesInUSD,
+            baseExpLbp: totalsNow.expensesInLiras,
+            baseProfUsd: totalsNow.profitsInUSD,
+            baseProfLbp: totalsNow.profitsInLiras,
             startedAt: new Date().toISOString(),
           })
         );
 
         toast.success(
-          `🚚 بدأت الجولة #${
-            round?.sequence ?? "?"
-          }. الهدف لهذه الجولة: ${Number(formData.carryingForDelivery || 0)}`
+          `🚚 بدأت الجولة #${round?.sequence || "?"}. الهدف اليومي الآن: ${
+            shipment.carryingForDelivery
+          }`
         );
-        navigate(`/areas/${shipment.dayId}`);
+        // no setShowLoadingModal here (no preload for rounds)
       }
     } catch (error: any) {
       console.error(error);

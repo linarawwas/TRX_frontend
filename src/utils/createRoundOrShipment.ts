@@ -6,6 +6,11 @@ export type CreateRoundPayload = {
   date: { day: number; month: number; year: number };
 };
 
+type ApiResponse = {
+  shipment: any; // your Shipment doc
+  round?: any;   // your Round doc when it's a round
+};
+
 export async function createRoundOrShipment(opts: {
   token: string;
   payload: CreateRoundPayload;
@@ -23,19 +28,19 @@ export async function createRoundOrShipment(opts: {
     body: JSON.stringify(payload),
   });
 
-  const out = await res.json().catch(() => ({} as any));
+  const out: ApiResponse & { error?: string } = await res.json().catch(() => ({} as any));
   if (!res.ok || !out?.shipment?._id) {
     throw new Error(out?.error || "Shipment creation failed");
   }
 
-  const shipment = out.shipment;
-  const round = out.round;
+  const { shipment, round = null } = out;
 
-  // If the returned shipment matches what's in Redux for today -> it's a round.
+  // If the newly returned shipment is the same one you already had today,
+  // it's a round; otherwise it's a brand-new shipment.
   const isNewShipment = !(
     prevShipmentId &&
-    shipment._id === prevShipmentId &&
     prevDayId &&
+    shipment._id === prevShipmentId &&
     shipment.dayId === prevDayId
   );
 

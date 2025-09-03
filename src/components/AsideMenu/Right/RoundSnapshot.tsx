@@ -1,46 +1,31 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import "./TodaySnapshot.css"; // reuse same styles
+import "./TodaySnapshot.css";
+import { selectRoundProgress } from "../../../redux/selectors/shipment";
 
 const RoundSnapshot: React.FC = () => {
   const [open, setOpen] = useState(true);
 
-  // day totals (live)
-  const targetDay = useSelector((s: any) => s.shipment.target) || 0;
-  const deliveredDay = useSelector((s: any) => s.shipment.delivered) || 0;
-  const returnedDay = useSelector((s: any) => s.shipment.returned) || 0;
-  const paidUsdDay = useSelector((s: any) => s.shipment.dollarPayments) || 0;
-  const paidLbpDay = useSelector((s: any) => s.shipment.liraPayments) || 0;
-  const expUsdDay = useSelector((s: any) => s.shipment.expensesInUSD) || 0;
-  const expLbpDay = useSelector((s: any) => s.shipment.expensesInLiras) || 0;
-  const profUsdDay = useSelector((s: any) => s.shipment.profitsInUSD) || 0;
-  const profLbpDay = useSelector((s: any) => s.shipment.profitsInLiras) || 0;
+  const {
+    sequence,
+    targetRound,
+    deliveredThisRound,
+    returnedThisRound,
+    usdThisRound,
+    lbpThisRound,
+    expUsdThisRound,
+    expLbpThisRound,
+    profUsdThisRound,
+    profLbpThisRound,
+  } = useSelector(selectRoundProgress);
 
-  // round baseline + round target
-  const round = useSelector((s: any) => s.shipment.round) || {};
-  const roundSeq: number | null = round.sequence ?? null;
-  const roundTarget: number = round.targetAdded ?? 0;
+  // Empty state: no active round or no target for this round
+  if (!sequence || targetRound <= 0) return null;
 
-  // deltas = "this round only"
-  const dDelivered = Math.max(0, deliveredDay - (round.baseDelivered || 0));
-  const dReturned  = Math.max(0, returnedDay  - (round.baseReturned  || 0));
-  const dUsd       = Math.max(0, paidUsdDay   - (round.baseUsd       || 0));
-  const dLbp       = Math.max(0, paidLbpDay   - (round.baseLbp       || 0));
-  const dExpUsd    = Math.max(0, expUsdDay    - (round.baseExpUsd    || 0));
-  const dExpLbp    = Math.max(0, expLbpDay    - (round.baseExpLbp    || 0));
-  const dProfUsd   = Math.max(0, profUsdDay   - (round.baseProfUsd   || 0));
-  const dProfLbp   = Math.max(0, profLbpDay   - (round.baseProfLbp   || 0));
-
-  // progress for this round (like TodaySnapshot: ignore returned in the bar)
-  const pctRaw = roundTarget > 0 ? (dDelivered / roundTarget) * 100 : 0;
+  const pctRaw = targetRound > 0 ? (deliveredThisRound / targetRound) * 100 : 0;
   const pctForBar = Math.min(100, Math.max(0, Math.round(pctRaw)));
   const pctDisplay = Math.max(0, Math.round(pctRaw));
-  const overBy = roundTarget > 0 ? Math.max(0, dDelivered - roundTarget) : 0;
-
-  // Empty state
-  if (!roundSeq || roundTarget <= 0) {
-    return null; // or return a small card saying "لا توجد جولة قيد التنفيذ"
-  }
+  const overBy = targetRound > 0 ? Math.max(0, deliveredThisRound - targetRound) : 0;
 
   return (
     <section className="snap-card" dir="rtl">
@@ -50,19 +35,16 @@ const RoundSnapshot: React.FC = () => {
         aria-expanded={open}
         aria-controls="round-panel"
       >
-        <span className="snap-title">إحصاءات الجولة #{roundSeq}</span>
+        <span className="snap-title">إحصاءات الجولة #{sequence}</span>
         <span className={`chev ${open ? "up" : "down"}`} />
       </button>
 
       <div id="round-panel" className={`snap-panel ${open ? "open" : ""}`}>
-        {/* Progress (Round) */}
         <div className="progress">
           <div className="progress-head">
+            <div>هدف هذه الجولة: <strong>{targetRound}</strong></div>
             <div>
-              هدف هذه الجولة: <strong>{roundTarget}</strong>
-            </div>
-            <div>
-              تم التسليم في هذه الجولة: <strong>{dDelivered}</strong>
+              تم التسليم في هذه الجولة: <strong>{deliveredThisRound}</strong>
               {overBy > 0 && <span className="over-badge">+{overBy}</span>}
             </div>
           </div>
@@ -71,41 +53,30 @@ const RoundSnapshot: React.FC = () => {
           </div>
           <div className="progress-foot">
             <span>{pctDisplay}% من هدف الجولة</span>
-            <span>المُعاد في هذه الجولة: {dReturned}</span>
+            <span>المُعاد في هذه الجولة: {returnedThisRound}</span>
           </div>
         </div>
 
-        {/* KPIs (Round) */}
         <div className="kpis">
           <div className="kpi">
             <span className="kpi-label">نقدية الجولة</span>
             <span className="kpi-value">
-              ${dUsd.toLocaleString("en-US")} •{" "}
-              {dLbp.toLocaleString("en-US")} ل.ل
+              ${usdThisRound.toLocaleString("en-US")} • {lbpThisRound.toLocaleString("en-US")} ل.ل
             </span>
           </div>
           <div className="kpi">
             <span className="kpi-label">مصاريف الجولة</span>
             <span className="kpi-value">
-              ${dExpUsd.toLocaleString("en-US")} •{" "}
-              {dExpLbp.toLocaleString("en-US")} ل.ل
+              ${expUsdThisRound.toLocaleString("en-US")} • {expLbpThisRound.toLocaleString("en-US")} ل.ل
             </span>
           </div>
           <div className="kpi">
             <span className="kpi-label">الأرباح الإضافية (الجولة)</span>
             <span className="kpi-value">
-              ${dProfUsd.toLocaleString("en-US")} •{" "}
-              {dProfLbp.toLocaleString("en-US")} ل.ل
+              ${profUsdThisRound.toLocaleString("en-US")} • {profLbpThisRound.toLocaleString("en-US")} ل.ل
             </span>
           </div>
         </div>
-
-        {/* Optional: when it started */}
-        {round.startedAt && (
-          <p className="kpi-label" style={{ marginTop: 6 }}>
-            بدأت: <strong>{new Date(round.startedAt).toLocaleTimeString()}</strong>
-          </p>
-        )}
       </div>
     </section>
   );
