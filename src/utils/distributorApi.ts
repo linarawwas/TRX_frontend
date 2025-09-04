@@ -75,7 +75,7 @@ export async function distributorSummary(token: string, id: string, range: DateR
   const qs = new URLSearchParams();
   if (range.from) qs.set("from", range.from);
   if (range.to) qs.set("to", range.to);
-  const res = await fetch(`http://localhost:5000/api/distributors/${id}/summary?${qs.toString()}`, {
+  const res = await fetch(`http://localhost:5000/api/distributors/${id}/detail?${qs.toString()}`, {
     headers: authHeaders(token),
   });
   if (!res.ok) throw new Error("Failed to load summary");
