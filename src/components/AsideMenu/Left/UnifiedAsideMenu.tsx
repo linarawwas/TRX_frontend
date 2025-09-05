@@ -76,7 +76,7 @@ const AsideMenu: React.FC = () => {
             🧾 طلبات شحنات اليوم
           </Link>
           <Link to="/distributors" onClick={toggleMenu}>
-            👥 الموزعين{" "}
+            👥 الموزعين (قيد التطوير 🚧)
           </Link>
           {/* Admin-only Links */}
           {isAdmin && (

@@ -150,29 +150,49 @@ function UpdateCustomer() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    const updated = {
-      ...originalData,
-      ...updatedInfo,
-      areaId: updatedInfo.areaId._id ? updatedInfo.areaId : originalData.areaId,
-    };
+
+    // Build a minimal changes object
+    const changes: any = {};
+
+    const t = (s: string) => s?.trim?.() ?? "";
+
+    if (t(updatedInfo.name)) changes.name = t(updatedInfo.name);
+    if (t(updatedInfo.phone)) changes.phone = t(updatedInfo.phone);
+    if (t(updatedInfo.address)) changes.address = t(updatedInfo.address);
+
+    // areaId is an object in your state; send only the id if it exists
+    if (updatedInfo.areaId?._id) changes.areaId = updatedInfo.areaId._id;
+
+    // If you expose discount fields in this form, add similar checks:
+    // if (typeof updatedInfo.hasDiscount === 'boolean') changes.hasDiscount = updatedInfo.hasDiscount;
+    // if (Number.isFinite(updatedInfo.valueAfterDiscount)) changes.valueAfterDiscount = Number(updatedInfo.valueAfterDiscount);
+    // if (t(updatedInfo.discountCurrency)) changes.discountCurrency = t(updatedInfo.discountCurrency);
+    // if (t(updatedInfo.noteAboutCustomer)) changes.noteAboutCustomer = t(updatedInfo.noteAboutCustomer);
+
+    if (Object.keys(changes).length === 0) {
+      toast.info("لا توجد تغييرات لإرسالها");
+      return;
+    }
 
     try {
       const res = await fetch(
         `http://localhost:5000/api/customers/${customerId}`,
         {
-          method: "PUT",
+          method: "PATCH", // ← partial update
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(updated),
+          body: JSON.stringify(changes),
         }
       );
+
       if (res.ok) {
         toast.success("تم التحديث بنجاح");
         fetchCustomer();
       } else {
-        toast.error("فشل التحديث");
+        const err = await res.json().catch(() => ({}));
+        toast.error(err?.error || "فشل التحديث");
       }
     } catch (err) {
       console.error(err);
