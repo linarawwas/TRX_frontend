@@ -4,8 +4,14 @@ import { RootState } from "../../redux/store";
 import { toast } from "react-toastify";
 import "./AddDiscount.css";
 
-interface Area { _id: string; name: string; }
-interface Customer { _id: string; name: string; }
+interface Area {
+  _id: string;
+  name: string;
+}
+interface Customer {
+  _id: string;
+  name: string;
+}
 
 type DiscountCurrency = "USD" | "LBP";
 
@@ -15,7 +21,7 @@ interface FormData {
   hasDiscount: boolean;
   noteAboutCustomer: string;
   discountCurrency: DiscountCurrency; // input currency (UI only)
-  valueAfterDiscount: number | "";    // user input
+  valueAfterDiscount: number | ""; // user input
 }
 
 const AddDiscount: React.FC = () => {
@@ -80,7 +86,10 @@ const AddDiscount: React.FC = () => {
   }, [formData.areaId, token]);
 
   // Input handlers
-  const handleInputChange = (field: keyof FormData, value: string | boolean) => {
+  const handleInputChange = (
+    field: keyof FormData,
+    value: string | boolean
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value as any }));
   };
 
@@ -110,7 +119,10 @@ const AddDiscount: React.FC = () => {
       return;
     }
 
-    if (formData.valueAfterDiscount === "" || isNaN(Number(formData.valueAfterDiscount))) {
+    if (
+      formData.valueAfterDiscount === "" ||
+      isNaN(Number(formData.valueAfterDiscount))
+    ) {
       toast.error("يرجى إدخال قيمة الخصم بشكل صحيح");
       setLoading(false);
       return;
@@ -123,11 +135,14 @@ const AddDiscount: React.FC = () => {
     } else {
       // LBP input -> need a server-managed rate to convert
       if (!exchangeRate || exchangeRate <= 0) {
-        toast.error("لا يمكن التحويل من ليرة إلى دولار لأن سعر الصرف غير متاح حالياً");
+        toast.error(
+          "لا يمكن التحويل من ليرة إلى دولار لأن سعر الصرف غير متاح حالياً"
+        );
         setLoading(false);
         return;
       }
-      valueAfterDiscountUSD = toNumber(formData.valueAfterDiscount) / exchangeRate;
+      valueAfterDiscountUSD =
+        toNumber(formData.valueAfterDiscount) / exchangeRate;
     }
 
     // Normalize to 2 decimals
@@ -137,7 +152,7 @@ const AddDiscount: React.FC = () => {
     const payload = {
       hasDiscount: formData.hasDiscount,
       noteAboutCustomer: formData.noteAboutCustomer,
-      discountCurrency: "USD",            // always normalized
+      discountCurrency: "USD", // always normalized
       valueAfterDiscount: valueAfterDiscountUSD, // USD value
     };
 
@@ -185,7 +200,9 @@ const AddDiscount: React.FC = () => {
           >
             <option value="">اختر منطقة</option>
             {areaOptions.map((area) => (
-              <option key={area._id} value={area._id}>{area.name}</option>
+              <option key={area._id} value={area._id}>
+                {area.name}
+              </option>
             ))}
           </select>
         </label>
@@ -199,7 +216,9 @@ const AddDiscount: React.FC = () => {
           >
             <option value="">اختر عميل</option>
             {customerOptions.map((c) => (
-              <option key={c._id} value={c._id}>{c.name}</option>
+              <option key={c._id} value={c._id}>
+                {c.name}
+              </option>
             ))}
           </select>
         </label>
@@ -208,7 +227,9 @@ const AddDiscount: React.FC = () => {
           شرح مختصر:
           <textarea
             value={formData.noteAboutCustomer}
-            onChange={(e) => handleInputChange("noteAboutCustomer", e.target.value)}
+            onChange={(e) =>
+              handleInputChange("noteAboutCustomer", e.target.value)
+            }
             placeholder="مثال: زبون يدفع آخر الشهر"
           />
         </label>
@@ -219,8 +240,12 @@ const AddDiscount: React.FC = () => {
             <input
               type="number"
               step="0.01"
-              min="0"
-              value={formData.valueAfterDiscount === "" ? "" : formData.valueAfterDiscount}
+              min="0" // ✅ allow 0 now
+              value={
+                formData.valueAfterDiscount === ""
+                  ? ""
+                  : formData.valueAfterDiscount
+              }
               onChange={handleValueChange}
               inputMode="decimal"
             />
@@ -230,7 +255,12 @@ const AddDiscount: React.FC = () => {
             عملة الإدخال:
             <select
               value={formData.discountCurrency}
-              onChange={(e) => handleInputChange("discountCurrency", e.target.value as DiscountCurrency)}
+              onChange={(e) =>
+                handleInputChange(
+                  "discountCurrency",
+                  e.target.value as DiscountCurrency
+                )
+              }
             >
               <option value="USD">دولار</option>
               <option value="LBP">ليرة</option>
@@ -240,9 +270,16 @@ const AddDiscount: React.FC = () => {
 
         {/* Read-only context about rate & preview when LBP */}
         <div className="hint">
-          <div>سعر الصرف (قراءة فقط): <strong>{fmtRate(exchangeRate)}</strong></div>
-          {formData.discountCurrency === "LBP" && formData.valueAfterDiscount !== "" && exchangeRate ? (
-            <div>المعادِل بالدولار: <strong>{(usdPreview ?? 0).toFixed(2)} $</strong></div>
+          <div>
+            سعر الصرف (قراءة فقط): <strong>{fmtRate(exchangeRate)}</strong>
+          </div>
+          {formData.discountCurrency === "LBP" &&
+          formData.valueAfterDiscount !== "" &&
+          exchangeRate ? (
+            <div>
+              المعادِل بالدولار:{" "}
+              <strong>{(usdPreview ?? 0).toFixed(2)} $</strong>
+            </div>
           ) : null}
         </div>
 
