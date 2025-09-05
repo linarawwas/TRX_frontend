@@ -1,15 +1,13 @@
 // TodaySnapshot.tsx
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useSelector } from "react-redux";
 import "./TodaySnapshot.css";
 import RoundsHistory from "../../Shipments/RoundsHistory/RoundsHistory";
-import RoundSnapshot from "./RoundSnapshot";
 
 const TodaySnapshot: React.FC = () => {
   const [open, setOpen] = useState(true);
 
   const shipmentId = useSelector((s: any) => s.shipment._id);
-  const shipmentTarget = useSelector((s: any) => s.shipment.target);
   const target = useSelector((s: any) => s.shipment.target) || 0;
   const delivered = useSelector((s: any) => s.shipment.delivered) || 0;
   const returned = useSelector((s: any) => s.shipment.returned) || 0;
@@ -19,8 +17,7 @@ const TodaySnapshot: React.FC = () => {
   const expLBP = useSelector((s: any) => s.shipment.expensesInLiras) || 0;
   const profUSD = useSelector((s: any) => s.shipment.profitsInUSD) || 0;
   const profLBP = useSelector((s: any) => s.shipment.profitsInLiras) || 0;
-
-  // percent vs target (ignore returned)
+  console.log(target); // percent vs target (ignore returned)
   const pctRaw = target > 0 ? (delivered / target) * 100 : 0;
   const pctForBar = Math.min(100, Math.max(0, Math.round(pctRaw))); // bar width (cap 100)
   const pctDisplay = Math.max(0, Math.round(pctRaw)); // text (can be >100)
@@ -57,17 +54,6 @@ const TodaySnapshot: React.FC = () => {
             <span>{pctDisplay}% من الهدف</span>
             <span>المُعاد: {returned}</span>
           </div>
-
-          {reached && (
-            <div className="target-lock">
-              <span className="lock-emoji" aria-hidden>
-                🔒
-              </span>
-              <div>
-                اكتمل الهدف لهذه الشحنة. لزيادة التسليم، ابدأ شحنة جديدة.
-              </div>
-            </div>
-          )}
         </div>
 
         {/* KPIs */}
@@ -97,7 +83,7 @@ const TodaySnapshot: React.FC = () => {
         {shipmentId && (
           <RoundsHistory
             shipmentId={shipmentId}
-            totalToday={shipmentTarget}
+            totalToday={target}
             title="الجولات المُسجّلة اليوم"
           />
         )}

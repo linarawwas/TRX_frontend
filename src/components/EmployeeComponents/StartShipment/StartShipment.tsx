@@ -322,6 +322,7 @@ const StartShipment: React.FC = () => {
         // Always store shipment id/target we got back (id used when recording orders)
         dispatch(setShipmentId(shipment._id));
         dispatch(setShipmentTarget(shipment.carryingForDelivery));
+        console.log("🎉 Created new shipment:", shipment);
         // Set today's date/day info for the new shipment
         dispatch(setDayId(shipment.dayId));
         dispatch(setDateDay(shipment.date.day));
@@ -341,6 +342,7 @@ const StartShipment: React.FC = () => {
       } else {
         // ───────── SAME DAY → this is a ROUND ─────────
         // Snapshot baselines so RoundSnapshot can compute "this round only" deltas
+        dispatch(setShipmentTarget(shipment.carryingForDelivery));
         dispatch(
           setRoundInfo({
             sequence: Number(round?.sequence || 0),

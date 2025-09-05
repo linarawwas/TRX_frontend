@@ -27,10 +27,11 @@
 
 /** Payload the backend expects for "create-or-add-round". */
 export type CreateRoundPayload = {
-  dayId: string;                 // Day document id for "today" (derived from weekday)
-  type: number;                  // 1 = normal (keep your enum aligned with backend)
-  carryingForDelivery: number;   // Amount to add (for a round) or set (for new day)
-  date: {                        // Required by backend for unique keys (YYYY-MM-DD parts)
+  dayId: string; // Day document id for "today" (derived from weekday)
+  type: number; // 1 = normal (keep your enum aligned with backend)
+  carryingForDelivery: number; // Amount to add (for a round) or set (for new day)
+  date: {
+    // Required by backend for unique keys (YYYY-MM-DD parts)
     day: number;
     month: number;
     year: number;
@@ -40,7 +41,7 @@ export type CreateRoundPayload = {
 /** Shape we expect back from the API. */
 type ApiResponse = {
   shipment: any; // Shipment doc (always present on success)
-  round?: any;   // Round doc (present when we added a round on same-day shipment)
+  round?: any; // Round doc (present when we added a round on same-day shipment)
 };
 
 /**
@@ -77,8 +78,9 @@ export async function createRoundOrShipment(opts: {
   });
 
   // Parse JSON safely. If parsing fails, we still want a usable error below.
-  const out: ApiResponse & { error?: string } =
-    (await res.json().catch(() => ({} as any)));
+  const out: ApiResponse & { error?: string } = await res
+    .json()
+    .catch(() => ({} as any));
 
   // Defensive guard: backend must return a `shipment` with a valid `_id`.
   if (!res.ok || !out?.shipment?._id) {
@@ -106,7 +108,7 @@ export async function createRoundOrShipment(opts: {
     shipment._id === prevShipmentId &&
     shipment.dayId === prevDayId
   );
-
+  console.log(out);
   // The caller will use:
   // - `isNewShipment` to decide whether to clear Redux & preload areas (new day)
   // - or to snapshot round baselines (same day / round)

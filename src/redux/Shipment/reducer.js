@@ -38,7 +38,6 @@ const initialState = {
   dayId: "",
   year: null,
   exchangeRateLBP: null,
-
   month: null,
   day: null,
   target: 0,
