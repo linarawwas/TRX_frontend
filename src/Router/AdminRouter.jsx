@@ -27,8 +27,10 @@ import RecordOrderForCustomer from "../Pages/AdminPages/RecordOrderForCustomer/R
 import OrdersOfToday from "../Pages/SharedPages/Login/reports/orders-today/OrdersOfToday.tsx";
 import CustomerStatement from "../components/Customers/CustomerStatement/CustomerStatement.tsx";
 import InitialImportView from "../features/admin/InitialImportView.tsx";
+import { useSelector } from "react-redux";
 
 function AdminRouter() {
+  const companyId = useSelector((state) => state.user.companyId);
   return (
     <>
       <div className="userRouter">
@@ -36,7 +38,11 @@ function AdminRouter() {
           <Route index element={<AdminLandingPage />} />{" "}
           <Route
             path="/admin/import-initials"
-            element={<InitialImportView endpoint="/api/upload-initials" />}
+            element={
+              <InitialImportView
+                companyId={companyId}
+              />
+            }
           />
           <Route path="/login" element={<Login />} />
           <Route path="/distributors" element={<DistributorsPage />} />
