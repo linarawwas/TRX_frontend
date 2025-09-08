@@ -65,7 +65,7 @@ export default function InitialImportView({
     presetDate || new Date().toISOString().slice(0, 10)
   );
   const [currency, setCurrency] = useState<"USD" | "LBP">(presetCurrency);
-  const [defaultReturn, setDefaultReturn] = useState<number>(2);
+  const defaultReturn = 2; // fixed value
 
   // Products: user must choose ONE; we'll send productCode=product.id
   const [products, setProducts] = useState<Product[]>([]);
@@ -369,17 +369,16 @@ export default function InitialImportView({
 
   // -------- Render --------
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
-      <div className="rounded-2xl shadow p-6 bg-white border initial-card">
+    <div className="trx-initial-import max-w-6xl mx-auto p-6 space-y-6">
+      <div className="rounded-2xl shadow p-6 bg-white   initial-card">
         <h1 className="text-2xl font-semibold mb-4">
           Multi‑Area Initial Import
         </h1>
         <p className="text-sm text-gray-600 mb-6">
           Upload one <span className="font-medium">JSON</span> file per area.
           Map each file to an Area. All files share the same <code>date</code>,
-          <code>currency</code>, chosen <code>product</code>, and{" "}
-          <code>defaultReturn</code>. Sequences start at <code>1</code> per area
-          unless overridden.
+          <code>currency</code>, chosen <code>product</code>. Sequences start at{" "}
+          <code>1</code> per area unless overridden.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -389,7 +388,7 @@ export default function InitialImportView({
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="border rounded-lg px-3 py-2"
+              className="  rounded-lg px-3 py-2"
             />
           </label>
 
@@ -398,22 +397,11 @@ export default function InitialImportView({
             <select
               value={currency}
               onChange={(e) => setCurrency(e.target.value as any)}
-              className="border rounded-lg px-3 py-2"
+              className="  rounded-lg px-3 py-2"
             >
               <option value="USD">USD</option>
               <option value="LBP">LBP</option>
             </select>
-          </label>
-
-          <label className="flex flex-col gap-1">
-            <span className="text-sm font-medium">Default Return</span>
-            <input
-              type="number"
-              min={0}
-              value={defaultReturn}
-              onChange={(e) => setDefaultReturn(Number(e.target.value))}
-              className="border rounded-lg px-3 py-2"
-            />
           </label>
 
           <label className="flex flex-col gap-1">
@@ -425,7 +413,7 @@ export default function InitialImportView({
                   e.target.value === "" ? "" : Number(e.target.value)
                 )
               }
-              className="border rounded-lg px-3 py-2"
+              className="  rounded-lg px-3 py-2"
               disabled={productsLoading || !!productsError}
             >
               <option value="">
@@ -481,25 +469,27 @@ export default function InitialImportView({
 
             <div className="space-y-3">
               {files.map((row, idx) => (
-                <div key={idx} className="border rounded-xl p-4">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <div className="grow">
-                      <div className="font-medium">{row.file.name}</div>
-                      <div className="text-xs text-gray-500">
-                        {row.previewCount ?? "?"} rows
-                      </div>
-                      {row.validationError && (
-                        <div className="text-xs text-red-600 mt-1">
-                          {row.validationError}
+                <div key={idx} className="rounded-xl p-4">
+                  <div key={idx} className="files-card p-4">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <div className="grow">
+                        <div className="filename">{row.file.name}</div>
+                        <div className="meta text-xs">
+                          {row.previewCount ?? "?"} rows
                         </div>
-                      )}
+                        {row.validationError && (
+                          <div className="badge red mt-1">
+                            {row.validationError}
+                          </div>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => removeAt(idx)}
+                        className="btn btn-outline"
+                      >
+                        Remove
+                      </button>
                     </div>
-                    <button
-                      onClick={() => removeAt(idx)}
-                      className="text-sm border px-3 py-1 rounded-lg hover:bg-gray-50"
-                    >
-                      Remove
-                    </button>
                   </div>
 
                   <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -510,7 +500,7 @@ export default function InitialImportView({
                         onChange={(e) =>
                           updateFileMeta(idx, { areaId: e.target.value })
                         }
-                        className="border rounded-lg px-3 py-2"
+                        className="  rounded-lg px-3 py-2"
                         disabled={areasLoading || !!areasError}
                       >
                         <option value="">
@@ -545,7 +535,7 @@ export default function InitialImportView({
                               : undefined,
                           })
                         }
-                        className="border rounded-lg px-3 py-2"
+                        className="  rounded-lg px-3 py-2"
                         placeholder="1"
                       />
                     </label>
@@ -560,15 +550,14 @@ export default function InitialImportView({
           <button
             disabled={!readyToSubmit || submitting}
             onClick={onSubmit}
-            className={`px-4 py-2 rounded-lg text-white ${
-              readyToSubmit ? "bg-blue-600 hover:bg-blue-700" : "bg-gray-400"
-            }`}
+            className="btn btn-primary"
           >
             {submitting ? "Uploading…" : "Upload & Seed Initial Orders"}
           </button>
+
           <button
             onClick={() => setServerResult(null)}
-            className="px-4 py-2 rounded-lg border"
+            className="btn btn-outline"
           >
             Reset Result
           </button>
@@ -577,24 +566,22 @@ export default function InitialImportView({
 
       {/* Result */}
       {serverError && (
-        <div className="rounded-2xl shadow p-4 bg-white border border-red-200">
-          <div className="text-red-700 font-medium mb-1">Upload failed</div>
-          <pre className="text-xs whitespace-pre-wrap text-red-700">
-            {serverError}
-          </pre>
+        <div className="alert">
+          <div className="font-medium mb-1">Upload failed</div>
+          <pre className="text-xs whitespace-pre-wrap">{serverError}</pre>
         </div>
       )}
 
       {serverResult && (
-        <div className="rounded-2xl shadow p-6 bg-white border">
+        <div className="rounded-2xl shadow p-6 bg-white  ">
           <h2 className="text-xl font-semibold mb-4">Server Result</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div className="border rounded-xl p-4">
+            <div className="  rounded-xl p-4">
               <div className="text-sm text-gray-600">Shipment</div>
               <div className="font-medium">{serverResult.shipmentId}</div>
             </div>
-            <div className="border rounded-xl p-4">
+            <div className="  rounded-xl p-4">
               <div className="text-sm text-gray-600">Meta</div>
               <div className="text-sm">
                 Date: <span className="font-medium">{serverResult.date}</span>
@@ -620,8 +607,8 @@ export default function InitialImportView({
 
           {Array.isArray(serverResult.areas) &&
             serverResult.areas.map((a: any, i: number) => (
-              <div key={i} className="mb-6 border rounded-2xl overflow-hidden">
-                <div className="p-4 bg-gray-50 border-b">
+              <div key={i} className="mb-6   rounded-2xl overflow-hidden">
+                <div className="p-4 bg-gray-50  -b">
                   <div className="flex flex-wrap items-center justify-between">
                     <div>
                       <div className="text-sm text-gray-600">File</div>
@@ -647,7 +634,7 @@ export default function InitialImportView({
                 </div>
 
                 <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div className="border rounded-xl p-4">
+                  <div className="  rounded-xl p-4">
                     <div className="text-sm text-gray-600">
                       Created Customers
                     </div>
@@ -655,13 +642,13 @@ export default function InitialImportView({
                       {a.created?.customers ?? 0}
                     </div>
                   </div>
-                  <div className="border rounded-xl p-4">
+                  <div className="  rounded-xl p-4">
                     <div className="text-sm text-gray-600">Created Orders</div>
                     <div className="text-2xl font-semibold">
                       {a.created?.orders ?? 0}
                     </div>
                   </div>
-                  <div className="border rounded-xl p-4">
+                  <div className="  rounded-xl p-4">
                     <div className="text-sm text-gray-600">Errors</div>
                     <div className="text-2xl font-semibold text-red-600">
                       {a.errors?.length || 0}
@@ -699,7 +686,7 @@ export default function InitialImportView({
                 ) : null}
 
                 {Array.isArray(a.customers) && a.customers.length > 0 && (
-                  <div className="overflow-x-auto">
+                  <div className="table-wrap overflow-x-auto">
                     <table className="min-w-full text-sm">
                       <thead className="bg-gray-100">
                         <tr>
@@ -716,7 +703,7 @@ export default function InitialImportView({
                       </thead>
                       <tbody>
                         {a.customers.map((c: any, idx: number) => (
-                          <tr key={idx} className="border-t">
+                          <tr key={idx} className=" -t">
                             <td className="px-3 py-2 whitespace-nowrap">
                               {c.sequence}
                             </td>
