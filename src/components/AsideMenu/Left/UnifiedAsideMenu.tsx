@@ -69,6 +69,9 @@ const AsideMenu: React.FC = () => {
           <Link to="/customers" onClick={toggleMenu}>
             👥 الزبائن
           </Link>
+          <Link to="/admin/import-initials" onClick={toggleMenu}>
+            upload
+          </Link>{" "}
           <Link to="/currentShipment" onClick={toggleMenu}>
             📦 بيانات الشحنة
           </Link>

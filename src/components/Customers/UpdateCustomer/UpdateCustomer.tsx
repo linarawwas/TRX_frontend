@@ -143,60 +143,154 @@ function UpdateCustomer() {
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    if (name === "phone" && !/^\d*$/.test(value))
-      return toast.error("أدخل أرقام فقط");
-    setUpdatedInfo({ ...updatedInfo, [name]: value });
+
+    if (name === "phone" && !/^\d*$/.test(value)) {
+      toast.error("أدخل أرقام فقط");
+      return;
+    }
+
+    if (name === "areaId") {
+      const chosen = areas.find((a) => a._id === value);
+      setUpdatedInfo((prev) => ({
+        ...prev,
+        areaId: { _id: value, name: chosen?.name || "" },
+      }));
+      return;
+    }
+
+    setUpdatedInfo((prev) => ({ ...prev, [name]: value }));
   };
+  type PlacementMode = "none" | "sequence" | "relative";
+
+  const [placementMode, setPlacementMode] = useState<PlacementMode>("none");
+
+  // explicit number
+  const [sequenceNumber, setSequenceNumber] = useState<number | "">("");
+
+  // relative placement
+  const [relPosition, setRelPosition] = useState<
+    "__START__" | "__END__" | "before" | "after"
+  >("__END__");
+  const [relAnchorId, setRelAnchorId] = useState<string>(""); // customerId to place before/after
+  // helper to get currently selected area _id (supports string or object)
+  const selectedAreaId =
+    typeof updatedInfo.areaId === "string"
+      ? updatedInfo.areaId
+      : updatedInfo.areaId?._id || "";
+
+  // fetch customers for the area currently selected in the form
+  useEffect(() => {
+    if (!selectedAreaId) return;
+
+    (async () => {
+      try {
+        const listRes = await fetch(
+          `http://localhost:5000/api/customers/area/${selectedAreaId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        const list: CustomerLite[] = await listRes.json();
+        const sorted = [...list].sort((a, b) => {
+          const sa = a.sequence ?? Number.POSITIVE_INFINITY;
+          const sb = b.sequence ?? Number.POSITIVE_INFINITY;
+          if (sa !== sb) return sa - sb;
+          return a.name.localeCompare(b.name, "ar");
+        });
+        setAreaCustomers(sorted);
+      } catch (e) {
+        console.error("fetch areaCustomers for selected area failed", e);
+      }
+    })();
+  }, [selectedAreaId, token]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    // Build a minimal changes object
     const changes: any = {};
-
     const t = (s: string) => s?.trim?.() ?? "";
 
     if (t(updatedInfo.name)) changes.name = t(updatedInfo.name);
     if (t(updatedInfo.phone)) changes.phone = t(updatedInfo.phone);
     if (t(updatedInfo.address)) changes.address = t(updatedInfo.address);
 
-    // areaId is an object in your state; send only the id if it exists
-    if (updatedInfo.areaId?._id) changes.areaId = updatedInfo.areaId._id;
+    // area: accept string or object
+    const targetAreaId =
+      typeof updatedInfo.areaId === "string"
+        ? updatedInfo.areaId
+        : updatedInfo.areaId?._id;
 
-    // If you expose discount fields in this form, add similar checks:
-    // if (typeof updatedInfo.hasDiscount === 'boolean') changes.hasDiscount = updatedInfo.hasDiscount;
-    // if (Number.isFinite(updatedInfo.valueAfterDiscount)) changes.valueAfterDiscount = Number(updatedInfo.valueAfterDiscount);
-    // if (t(updatedInfo.discountCurrency)) changes.discountCurrency = t(updatedInfo.discountCurrency);
-    // if (t(updatedInfo.noteAboutCustomer)) changes.noteAboutCustomer = t(updatedInfo.noteAboutCustomer);
-
-    if (Object.keys(changes).length === 0) {
-      toast.info("لا توجد تغييرات لإرسالها");
-      return;
+    if (targetAreaId && targetAreaId !== (customerData?.areaId?._id || "")) {
+      changes.areaId = targetAreaId;
     }
 
-    try {
-      const res = await fetch(
-        `http://localhost:5000/api/customers/${customerId}`,
-        {
-          method: "PATCH", // ← partial update
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(changes),
-        }
-      );
+    // If there are *no* field changes BUT the user asked for placement changes in the same area,
+    // we still want to proceed to placement. So we won't early-return here.
+    const hasFieldChanges = Object.keys(changes).length > 0;
 
-      if (res.ok) {
-        toast.success("تم التحديث بنجاح");
-        fetchCustomer();
-      } else {
-        const err = await res.json().catch(() => ({}));
-        toast.error(err?.error || "فشل التحديث");
+    try {
+      // 1) Apply field changes (name/phone/address/area)
+      if (hasFieldChanges) {
+        const res = await fetch(
+          `http://localhost:5000/api/customers/${customerId}`,
+          {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(changes),
+          }
+        );
+        const j = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          toast.error(j?.error || "فشل التحديث");
+          return;
+        }
+        toast.success("تم تحديث بيانات الزبون");
       }
-    } catch (err) {
+
+      // 2) Refresh the customer list for the target area (important if area changed)
+      // 2) Refresh the customer list for the target area (important if area changed)
+      if (targetAreaId) {
+        const listRes = await fetch(
+          `http://localhost:5000/api/customers/area/${targetAreaId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        const list: CustomerLite[] = await listRes.json();
+        const sorted = [...list].sort((a, b) => {
+          const sa = a.sequence ?? Number.POSITIVE_INFINITY;
+          const sb = b.sequence ?? Number.POSITIVE_INFINITY;
+          if (sa !== sb) return sa - sb;
+          return a.name.localeCompare(b.name, "ar");
+        });
+        setAreaCustomers(sorted);
+      }
+
+      // 🔽🔽🔽 ADD THIS BLOCK *RIGHT HERE* (after Step 2, before your current Step 3)
+      const areaChanged =
+        targetAreaId && targetAreaId !== (customerData?.areaId?._id || "");
+
+      // If area changed and user didn't pick a placement, auto-append to end
+      if (areaChanged && placementMode === "none") {
+        setPlacementMode("relative");
+        setRelPosition("__END__");
+        await applyPlacementToArea(targetAreaId);
+        toast.success("تم نقل الزبون للمنطقة ووضعه في آخر الترتيب");
+      } else if (placementMode !== "none" && targetAreaId) {
+        // Existing behavior: respect explicit placement choice
+        await applyPlacementToArea(targetAreaId);
+        toast.success("تم ضبط ترتيب الزبون");
+      } else if (!hasFieldChanges) {
+        toast.info("لا توجد تغييرات لإرسالها");
+        return;
+      }
+      // 🔼🔼🔼 END ADD
+
+
+      // 4) Final refresh
+      await fetchCustomer();
+    } catch (err: any) {
       console.error(err);
-      toast.error("فشل التحديث");
+      toast.error(err?.message || "فشل العملية");
     }
   };
 
@@ -298,6 +392,67 @@ function UpdateCustomer() {
       setIsMutating(false);
     }
   };
+  async function applyPlacementToArea(targetAreaId: string) {
+    const mine = String(customerId);
+
+    // 1) Build current list (excluding me if present)
+    const current = areaCustomers.map((c) => c._id);
+    const without = current.filter((id) => id !== mine);
+
+    // 2) Decide new order
+    let nextOrder: string[] = [];
+
+    if (placementMode === "sequence") {
+      // Insert at 1-based index (sequenceNumber). Clamp to [1 .. len+1]
+      const n = sequenceNumber === "" ? undefined : Number(sequenceNumber);
+      if (!n || n < 1) return; // nothing to apply
+      const idx = Math.max(0, Math.min(without.length, n - 1));
+      nextOrder = [...without.slice(0, idx), mine, ...without.slice(idx)];
+    } else if (placementMode === "relative") {
+      if (relPosition === "__START__") {
+        nextOrder = [mine, ...without];
+      } else if (relPosition === "__END__") {
+        nextOrder = [...without, mine];
+      } else {
+        if (!relAnchorId) return;
+        const i = without.indexOf(relAnchorId);
+        if (i === -1) {
+          nextOrder = [...without, mine]; // fallback end
+        } else {
+          const insertAt = relPosition === "before" ? i : i + 1;
+          nextOrder = [
+            ...without.slice(0, insertAt),
+            mine,
+            ...without.slice(insertAt),
+          ];
+        }
+      }
+    } else {
+      return; // no placement change requested
+    }
+
+    // 3) Commit with reorder API
+    const res = await fetch(
+      `http://localhost:5000/api/areas/${targetAreaId}/reorder?companyId=${companyId}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          orderedCustomerIds: nextOrder,
+          force: true,
+          startAt: 1,
+        }),
+      }
+    );
+    const data = await res.json().catch(() => ({} as any));
+    if (!res.ok) {
+      toast.error(data?.error || "تعذر تحديث الترتيب");
+      throw new Error(data?.error || "reorder failed");
+    }
+  }
 
   // ====== NEW: place this customer within the area order ======
   const applyPlacement = async (e: FormEvent) => {
@@ -522,6 +677,92 @@ function UpdateCustomer() {
             }))}
             onChange={handleChange}
           />
+          {/* Placement mode selector */}
+          <div className="placement-block">
+            <label className="block-label">تعيين الترتيب:</label>
+
+            <div className="radio-row">
+              <label>
+                <input
+                  type="radio"
+                  name="placementMode"
+                  checked={placementMode === "none"}
+                  onChange={() => setPlacementMode("none")}
+                />{" "}
+                بدون تغيير الترتيب
+              </label>
+
+              <label>
+                <input
+                  type="radio"
+                  name="placementMode"
+                  checked={placementMode === "sequence"}
+                  onChange={() => setPlacementMode("sequence")}
+                />{" "}
+                رقم ترتيب محدد
+              </label>
+
+              <label>
+                <input
+                  type="radio"
+                  name="placementMode"
+                  checked={placementMode === "relative"}
+                  onChange={() => setPlacementMode("relative")}
+                />{" "}
+                نسبةً لزبون آخر في نفس المنطقة
+              </label>
+            </div>
+
+            {placementMode === "sequence" && (
+              <div className="sequence-row">
+                <input
+                  type="number"
+                  min={1}
+                  value={sequenceNumber}
+                  onChange={(e) =>
+                    setSequenceNumber(
+                      e.target.value === "" ? "" : Number(e.target.value)
+                    )
+                  }
+                  placeholder="أدخل رقم الترتيب (مثال 25)"
+                />
+                <div className="hint">
+                  إن كان الرقم مستخدمًا، سنضبط ترتيب المنطقة بإزاحة البقية
+                  تلقائيًا.
+                </div>
+              </div>
+            )}
+
+            {placementMode === "relative" && (
+              <div className="relative-row">
+                <select
+                  value={relPosition}
+                  onChange={(e) => setRelPosition(e.target.value as any)}
+                >
+                  <option value="__START__">في البداية</option>
+                  <option value="__END__">في النهاية</option>
+                  <option value="before">قبل</option>
+                  <option value="after">بعد</option>
+                </select>
+
+                {(relPosition === "before" || relPosition === "after") && (
+                  <select
+                    value={relAnchorId}
+                    onChange={(e) => setRelAnchorId(e.target.value)}
+                  >
+                    <option value="">اختر الزبون المرجعي</option>
+                    {areaCustomers
+                      .filter((c) => c._id !== customerId) // لا تختَر نفسك
+                      .map((c) => (
+                        <option key={c._id} value={c._id}>
+                          {c.name} {c.sequence ? `(#${c.sequence})` : ""}
+                        </option>
+                      ))}
+                  </select>
+                )}
+              </div>
+            )}
+          </div>
 
           <button type="submit">تحديث الزبون</button>
         </form>
