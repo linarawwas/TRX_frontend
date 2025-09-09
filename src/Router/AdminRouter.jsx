@@ -26,8 +26,8 @@ import AdminLandingPage from "../Pages/AdminPages/AdminLandingPage/AdminLandingP
 import RecordOrderForCustomer from "../Pages/AdminPages/RecordOrderForCustomer/RecordOrderForCustomer.tsx";
 import OrdersOfToday from "../Pages/SharedPages/Login/reports/orders-today/OrdersOfToday.tsx";
 import CustomerStatement from "../components/Customers/CustomerStatement/CustomerStatement.tsx";
-import InitialImportView from "../features/admin/InitialImportView.tsx";
 import { useSelector } from "react-redux";
+import AdminActions from "../features/AdminActions.jsx";
 
 function AdminRouter() {
   const companyId = useSelector((state) => state.user.companyId);
@@ -36,14 +36,7 @@ function AdminRouter() {
       <div className="userRouter">
         <Routes>
           <Route index element={<AdminLandingPage />} />{" "}
-          <Route
-            path="/admin/import-initials"
-            element={
-              <InitialImportView
-                companyId={companyId}
-              />
-            }
-          />
+          <Route path="/admin" element={<AdminActions />} />
           <Route path="/login" element={<Login />} />
           <Route path="/distributors" element={<DistributorsPage />} />
           <Route path="/distributors/:id" element={<DistributorDetails />} />
