@@ -303,6 +303,7 @@ export default function InitialImportView({
       try {
         const text = await f.text();
         const parsed = JSON.parse(text);
+        console.log(parsed);
         if (!Array.isArray(parsed) && !Array.isArray(parsed?.orders)) {
           row.validationError =
             "JSON must be an array (or have 'orders' array).";
