@@ -309,7 +309,7 @@ export default function InitialImportView({
             "JSON must be an array (or have 'orders' array).";
         } else {
           // support both shapes: [ { ... } ] or { orders: [ ... ] }
-          const count = Array.isArray(parsed)
+          const count = Array.  isArray(parsed)
             ? parsed.length
             : parsed.orders.length;
           row.previewCount = count;
