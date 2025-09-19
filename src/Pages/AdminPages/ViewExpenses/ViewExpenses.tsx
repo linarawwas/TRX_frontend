@@ -34,14 +34,11 @@ const Expenses: React.FC = () => {
   useEffect(() => {
     const fetchExpenses = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:5000/api/expenses/company/${companyId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await axios.get("http://localhost:5000/api/expenses", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         const data = response.data;
         setExpenses(data);
         setLoading(false);
@@ -100,7 +97,7 @@ const Expenses: React.FC = () => {
   return (
     <div className="extra-expenses" dir="rtl">
       <ToastContainer position="top-right" autoClose={1000} />
-  
+
       <h2>نفقات إضافية</h2>
       {isAdmin ? (
         <></>
@@ -117,7 +114,7 @@ const Expenses: React.FC = () => {
           {showAddExpenses && <AddExpenses />}
         </>
       )}
-  
+
       {loading ? (
         <SpinLoader />
       ) : extraExpenses.length > 0 ? (
@@ -134,22 +131,22 @@ const Expenses: React.FC = () => {
                   حذف
                 </button>
               </div>
-  
+
               <div className="receipt-detail">
                 <p className="detail-name">الاسم:</p>
                 <p className="detail-value">{expense?.name}</p>
               </div>
-  
+
               <div className="receipt-detail">
                 <p className="detail-name">القيمة:</p>
                 <p className="detail-value">{expense?.value}</p>
               </div>
-  
+
               <div className="receipt-detail">
                 <p className="detail-name">العملة:</p>
                 <p className="detail-value">{expense?.paymentCurrency}</p>
               </div>
-  
+
               <div className="receipt-detail">
                 <p className="detail-name">القيمة بالدولار:</p>
                 <p className="detail-value">
@@ -158,7 +155,7 @@ const Expenses: React.FC = () => {
                     : expense.valueInUSD}
                 </p>
               </div>
-  
+
               <div className="receipt-detail timestamp">
                 <p className="detail-name">التاريخ:</p>
                 <p className="detail-value">
@@ -173,7 +170,6 @@ const Expenses: React.FC = () => {
       )}
     </div>
   );
-  
 };
 
 export default Expenses;
