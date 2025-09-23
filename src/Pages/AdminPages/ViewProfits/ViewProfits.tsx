@@ -35,7 +35,7 @@ const ExtraProfits: React.FC = () => {
     const fetchExtraProfits = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/extraProfits/company/${companyId}`,
+          "http://localhost:5000/api/extraProfits",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -101,7 +101,7 @@ const ExtraProfits: React.FC = () => {
   return (
     <div className="extra-profits" dir="rtl">
       <ToastContainer position="top-right" autoClose={1000} />
-  
+
       <h2>الأرباح الإضافية</h2>
       {isAdmin ? (
         <></>
@@ -118,7 +118,7 @@ const ExtraProfits: React.FC = () => {
           {showAddProfits && <AddProfits />}
         </>
       )}
-  
+
       {loading ? (
         <SpinLoader />
       ) : extraProfits.length > 0 ? (
@@ -135,22 +135,22 @@ const ExtraProfits: React.FC = () => {
                   حذف
                 </button>
               </div>
-  
+
               <div className="receipt-detail">
                 <p className="detail-name">الاسم:</p>
                 <p className="detail-value">{profit?.name}</p>
               </div>
-  
+
               <div className="receipt-detail">
                 <p className="detail-name">القيمة:</p>
                 <p className="detail-value">{profit?.value}</p>
               </div>
-  
+
               <div className="receipt-detail">
                 <p className="detail-name">العملة:</p>
                 <p className="detail-value">{profit?.paymentCurrency}</p>
               </div>
-  
+
               <div className="receipt-detail">
                 <p className="detail-name">القيمة بالدولار:</p>
                 <p className="detail-value">
@@ -159,7 +159,7 @@ const ExtraProfits: React.FC = () => {
                     : profit.valueInUSD}
                 </p>
               </div>
-  
+
               <div className="receipt-detail timestamp">
                 <p className="detail-name">التاريخ:</p>
                 <p className="detail-value">
@@ -174,7 +174,6 @@ const ExtraProfits: React.FC = () => {
       )}
     </div>
   );
-  
 };
 
 export default ExtraProfits;
