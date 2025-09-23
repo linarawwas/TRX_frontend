@@ -1,3 +1,4 @@
+// src/Pages/Customers/UpdateCustomer.tsx
 import React, {
   useState,
   useEffect,
@@ -5,8 +6,7 @@ import React, {
   ChangeEvent,
   FormEvent,
 } from "react";
-import { useParams, useNavigate } from "react-router-dom"; // ⬇️ add these to your imports
-
+import { useParams, useNavigate } from "react-router-dom";
 import "./UpdateCustomer.css";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -24,108 +24,94 @@ import AreaSequencePicker from "../../AreaSequencePicker/AreaSequencePicker";
 import AssignDistributorInline from "../../Distributors/AssignDistributorInline";
 
 type Area = { _id: string; name: string };
-type CustomerLite = { _id: string; name: string; sequence?: number | null };
+
+// ────────────────────────── Local helpers ──────────────────────────
+const API_BASE = "http://localhost:5000"; // TODO: move to env
+
+// Trim only strings
+const t = (s: any) => (typeof s === "string" ? s.trim() : "");
+
+// Format date in Beirut for any future additions (kept for parity with other pages)
+function yyyyMmDdInBeirut(dateLike?: string | number | Date) {
+  const d = dateLike ? new Date(dateLike) : new Date();
+  const y = d.toLocaleString("en-CA", {
+    timeZone: "Asia/Beirut",
+    year: "numeric",
+  });
+  const m = d.toLocaleString("en-CA", {
+    timeZone: "Asia/Beirut",
+    month: "2-digit",
+  });
+  const day = d.toLocaleString("en-CA", {
+    timeZone: "Asia/Beirut",
+    day: "2-digit",
+  });
+  return `${y}-${m}-${day}`;
+}
 
 function UpdateCustomer() {
   const dispatch = useDispatch();
   const token = useSelector((state: any) => state.user.token);
   const companyId = useSelector((state: any) => state.user.companyId);
+  const isAdmin = useSelector((state: any) => state.user.isAdmin);
   const navigate = useNavigate();
   const { customerId } = useParams();
 
+  // Remote resources
   const [areas, setAreas] = useState<Area[]>([]);
   const [customerData, setCustomerData] = useState<any>(null);
-  const [originalData, setOriginalData] = useState<any>(null);
+
+  // UI state
   const [loading, setLoading] = useState(true);
   const [invoiceReady, setInvoiceReady] = useState(false);
   const [formVisible, setFormVisible] = useState(false);
+  const [isMutating, setIsMutating] = useState(false);
+  const [showRestoreOptions, setShowRestoreOptions] = useState(false);
+  const [restoreSequence, setRestoreSequence] = useState<number | "">("");
 
-  // ...inside component:
+  // Shipment state for the external order-quick-action
   const shipmentId = useSelector((state: any) => state.shipment?._id);
 
-  // NEW: record order handler (external)
-  const handleRecordOrder = () => {
-    if (!customerData?._id) {
-      toast.error("بيانات الزبون غير متوفرة");
-      return;
-    }
-    if (!shipmentId) {
-      toast.error("ابدأ الشحنة أولاً قبل تسجيل الطلب");
-      return; // or navigate("/startShipment") if you want to redirect
-    }
-
-    dispatch(setCustomerId(customerData._id));
-    dispatch(setCustomerName(customerData.name || ""));
-    dispatch(setCustomerPhoneNb(customerData.phone || ""));
-
-    // External order from UpdateCustomer page
-    navigate("/recordOrderforCustomer", { state: { isExternal: true } });
-  };
-
+  // Local draft for PATCH; empty values mean "don't send"
   const [updatedInfo, setUpdatedInfo] = useState({
     _id: "",
     name: "",
     phone: "",
     address: "",
-    areaId: "", // string
-    companyId: companyId,
-    hasDiscount: false,
-    valueAfterDiscount: 0,
-    discountCurrency: "",
-    noteAboutCustomer: "",
+    areaId: "", // string id
+    companyId, // unused in PATCH, but harmless in draft
+    hasDiscount: false, // kept for parity if you expose later
+    valueAfterDiscount: 0, // ^
+    discountCurrency: "", // ^
+    noteAboutCustomer: "", // ^
   });
 
-  // NEW: data for sequence placement UI
-  const [areaCustomers, setAreaCustomers] = useState<CustomerLite[]>([]);
-  const [posTarget, setPosTarget] = useState<string>("__END__"); // __START__ | __END__ | <customerId>
-  const [isPlacing, setIsPlacing] = useState(false);
-  // NEW: mutation states for activate/deactivate
-  const [isMutating, setIsMutating] = useState(false);
-  const [showRestoreOptions, setShowRestoreOptions] = useState(false);
-  const [restoreSequence, setRestoreSequence] = useState<number | "">("");
+  // ────────────────────────── Data fetching ──────────────────────────
 
-  useEffect(() => {
-    if (customerId) dispatch(setCustomerId(customerId));
-  }, [customerId, dispatch]);
-
-  const fetchAreas = () => {
-    fetch("http://localhost:5000/api/areas/company", {
+  // areas used by the select
+  const fetchAreas = useCallback(() => {
+    fetch(`${API_BASE}/api/areas/company`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
       .then(setAreas)
       .catch((err) => console.error("Fetching areas failed:", err));
-  };
+  }, [token]);
 
+  // customer + invoice + area peers (for pickers)
   const fetchCustomer = useCallback(async () => {
+    setLoading(true);
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/customers/${customerId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await fetch(`${API_BASE}/api/customers/${customerId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (!res.ok) throw new Error("Failed to fetch customer");
       const data = await res.json();
       setCustomerData(data);
-      setOriginalData(data);
 
+      // Prime invoice cache for downstream views
       await fetchAndCacheCustomerInvoice(customerId!, token);
       setInvoiceReady(true);
-
-      // also load customers in the same area (ordered by sequence; fallback to client sort)
-      if (data?.areaId?._id) {
-        const listRes = await fetch(
-          `http://localhost:5000/api/customers/area/${data.areaId._id}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        const list: CustomerLite[] = await listRes.json();
-        const sorted = [...list].sort((a, b) => {
-          const sa = a.sequence ?? Number.POSITIVE_INFINITY;
-          const sb = b.sequence ?? Number.POSITIVE_INFINITY;
-          if (sa !== sb) return sa - sb;
-          return a.name.localeCompare(b.name, "ar");
-        });
-        setAreaCustomers(sorted);
-      }
     } catch (err) {
       console.error("Fetch error:", err);
       setInvoiceReady(true);
@@ -135,30 +121,36 @@ function UpdateCustomer() {
   }, [customerId, token]);
 
   useEffect(() => {
+    if (customerId) dispatch(setCustomerId(customerId));
+  }, [customerId, dispatch]);
+
+  useEffect(() => {
     fetchAreas();
     fetchCustomer();
-  }, [fetchCustomer]);
+  }, [fetchCustomer, fetchAreas]);
 
+  // ────────────────────────── Handlers ──────────────────────────
+
+  // Controlled inputs: only update the draft; empty string means "ignore"
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    if (name === "phone" && !/^\d*$/.test(value))
-      return toast.error("أدخل أرقام فقط");
-    setUpdatedInfo((prev) => ({ ...prev, [name]: value })); // areaId remains string
+    if (name === "phone" && !/^\d*$/.test(value)) {
+      toast.error("أدخل أرقام فقط");
+      return;
+    }
+    setUpdatedInfo((prev) => ({ ...prev, [name]: value }));
   };
 
-  const t = (s: any) => (typeof s === "string" ? s.trim() : "");
-
+  // Build minimal PATCH body from non-empty draft fields
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    const changes: any = {};
 
+    const changes: any = {};
     if (t(updatedInfo.name)) changes.name = t(updatedInfo.name);
     if (t(updatedInfo.phone)) changes.phone = t(updatedInfo.phone);
     if (t(updatedInfo.address)) changes.address = t(updatedInfo.address);
-
-    // areaId is a string now
     if (t(updatedInfo.areaId)) changes.areaId = t(updatedInfo.areaId);
 
     if (Object.keys(changes).length === 0) {
@@ -167,32 +159,89 @@ function UpdateCustomer() {
     }
 
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/customers/${customerId}`,
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(changes),
-        }
-      );
+      const res = await fetch(`${API_BASE}/api/customers/${customerId}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(changes),
+      });
 
-      if (res.ok) {
-        toast.success("تم التحديث بنجاح");
-        fetchCustomer();
-      } else {
+      if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        toast.error(err?.error || "فشل التحديث");
+        throw new Error(err?.error || "فشل التحديث");
       }
-    } catch (err) {
+
+      toast.success("تم التحديث بنجاح");
+      setFormVisible(false);
+      setUpdatedInfo((prev) => ({
+        ...prev,
+        name: "",
+        phone: "",
+        address: "",
+        areaId: "",
+      }));
+      fetchCustomer();
+    } catch (err: any) {
       console.error(err);
-      toast.error("فشل التحديث");
+      toast.error(err?.message || "فشل التحديث");
     }
   };
 
-  // ====== NEW: deactivate / restore actions ======
+  // Quick external order CTA (requires active shipment)
+  const handleRecordOrder = () => {
+    if (!customerData?._id) return toast.error("بيانات الزبون غير متوفرة");
+    if (!shipmentId) return toast.error("ابدأ الشحنة أولاً قبل تسجيل الطلب");
+
+    dispatch(setCustomerId(customerData._id));
+    dispatch(setCustomerName(customerData.name || ""));
+    dispatch(setCustomerPhoneNb(customerData.phone || ""));
+    navigate("/recordOrderforCustomer", { state: { isExternal: true } });
+  };
+
+  // Admin-only HARD delete (two confirms)
+  const handleHardDelete = async () => {
+    if (!customerId) return;
+    if (!isAdmin) return toast.warn("هذه العملية للمشرف فقط");
+
+    const c1 = window.confirm(
+      "تحذير: هذا سيحذف الزبون نهائيًا ولا يمكن التراجع. هل أنت متأكد/ة؟"
+    );
+    if (!c1) return;
+
+    const c2 = window.confirm(
+      "تأكيد أخير: سيتم حذف الزبون نهائيًا. هل تريد/ين المتابعة؟"
+    );
+    if (!c2) return;
+
+    setIsMutating(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/customers/${customerId}/hard`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        if (res.status === 409) {
+          toast.error(
+            data?.error ||
+              "لا يمكن الحذف: لدى الزبون طلبات مرتبطة. يمكنك إيقافه بدلًا من ذلك."
+          );
+          return;
+        }
+        throw new Error(data?.error || "فشل حذف الزبون");
+      }
+      toast.success("تم حذف الزبون نهائيًا");
+      setTimeout(() => navigate(-1), 400);
+    } catch (err: any) {
+      toast.error(err?.message || "فشل العملية");
+    } finally {
+      setIsMutating(false);
+    }
+  };
+
+  // Soft deactivate
   const handleDeactivate = async () => {
     if (!customerId) return;
     if (!window.confirm("هل تريد إيقاف هذا الزبون؟")) return;
@@ -200,8 +249,11 @@ function UpdateCustomer() {
     setIsMutating(true);
     try {
       const res = await fetch(
-        `http://localhost:5000/api/customers/${customerId}/deactivate`,
-        { method: "PATCH", headers: { Authorization: `Bearer ${token}` } }
+        `${API_BASE}/api/customers/${customerId}/deactivate`,
+        {
+          method: "PATCH",
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data?.error || "تعذر إيقاف الزبون");
@@ -216,18 +268,16 @@ function UpdateCustomer() {
     }
   };
 
+  // Restore helpers
   const restoreRequest = async (body: any) => {
-    const res = await fetch(
-      `http://localhost:5000/api/customers/${customerId}/restore`,
-      {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body || {}),
-      }
-    );
+    const res = await fetch(`${API_BASE}/api/customers/${customerId}/restore`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body || {}),
+    });
     const data = await res.json().catch(() => ({}));
     return { res, data };
   };
@@ -236,7 +286,6 @@ function UpdateCustomer() {
     if (!customerId) return;
     setIsMutating(true);
     try {
-      // Let the backend auto-assign the next available sequence.
       const areaId = customerData?.areaId?._id;
       const { res, data } = await restoreRequest({ areaId });
       if (res.ok) {
@@ -246,7 +295,6 @@ function UpdateCustomer() {
         fetchCustomer();
         return;
       }
-      // Gracefully handle sequence conflicts
       if (res.status === 409) {
         toast.warn("رقم الترتيب مستخدم. اختر رقمًا آخر.");
         setShowRestoreOptions(true);
@@ -291,33 +339,38 @@ function UpdateCustomer() {
     }
   };
 
+  // ────────────────────────── Render ──────────────────────────
   return (
-    <div className="update-customer-container">
+    <div className="uc" dir="rtl">
       <ToastContainer position="top-right" autoClose={1000} />
-      <div className="update-header">
-        <h1>معلومات الزبون:</h1>
-      </div>
-      {/* STATUS + ACTIONS */}
+
+      <header className="uc__header">
+        <h1 className="uc__title">معلومات الزبون</h1>
+      </header>
+
+      {/* Status + actions */}
       {customerData && (
-        <div className="cust-actions">
+        <div className="uc__actions">
           <span
-            className={`status-chip ${customerData.isActive ? "ok" : "off"}`}
+            className={`uc-status ${
+              customerData.isActive ? "uc-status--ok" : "uc-status--off"
+            }`}
           >
             {customerData.isActive ? "نشط" : "غير نشط"}
           </span>
 
           {customerData.isActive ? (
             <button
-              className="danger-btn"
+              className="uc-btn uc-btn--danger"
               onClick={handleDeactivate}
               disabled={isMutating}
             >
               {isMutating ? "جارٍ الإيقاف..." : "إيقاف الزبون"}
             </button>
           ) : (
-            <div className="restore-block">
+            <div className="uc-restore">
               <button
-                className="primary-btn"
+                className="uc-btn uc-btn--primary"
                 onClick={handleRestoreAuto}
                 disabled={isMutating}
               >
@@ -326,12 +379,12 @@ function UpdateCustomer() {
 
               {showRestoreOptions && (
                 <form
-                  className="restore-inline"
+                  className="uc-restore__inline"
                   onSubmit={handleRestoreWithSequence}
                 >
-                  <label className="restore-label">رقم الترتيب:</label>
+                  <label className="uc-restore__label">رقم الترتيب:</label>
                   <input
-                    className="restore-input"
+                    className="uc-restore__input"
                     type="number"
                     min={1}
                     value={restoreSequence}
@@ -343,7 +396,7 @@ function UpdateCustomer() {
                     placeholder="مثال: 25"
                   />
                   <button
-                    className="secondary-btn"
+                    className="uc-btn uc-btn--secondary"
                     type="submit"
                     disabled={isMutating}
                   >
@@ -353,11 +406,25 @@ function UpdateCustomer() {
               )}
             </div>
           )}
+
+          {/* Admin-only hard delete (visible; disabled for non-admin) */}
+          <button
+            type="button"
+            className={`uc-btn ${
+              isAdmin ? "uc-btn--hard" : "uc-btn--hard-disabled"
+            }`}
+            onClick={handleHardDelete}
+            disabled={!isAdmin || isMutating}
+            aria-disabled={!isAdmin || isMutating}
+            title={isAdmin ? "حذف نهائي للزبون" : "هذه العملية للمشرف فقط"}
+          >
+            {isMutating ? "جارٍ الحذف..." : "حذف نهائي"}
+          </button>
         </div>
       )}
+
       <CustomerInfo customerData={customerData} loading={loading} />
 
-      {/* …inside UpdateCustomer render, right after <CustomerInfo … /> */}
       {customerData && (
         <AssignDistributorInline
           customerId={customerId!}
@@ -368,34 +435,34 @@ function UpdateCustomer() {
       {customerData && invoiceReady && (
         <>
           <CustomerInvoices customerId={customerId!} />
-          {/* ✅ NEW: go to printable account statement */}
-          <div className="statement-cta">
+
+          <div className="uc-statement">
             <button
-              className="statement-button"
+              className="uc-btn uc-btn--primary"
               onClick={() => navigate(`/customers/${customerId}/statement`)}
             >
               الذهاب إلى كشف الحساب أو إضافة دفعة
             </button>
           </div>
-          {/* NEW: Record Order CTA */}
+
           {customerData.isActive && (
-            <div className="record-order-cta">
+            <div className="uc-record">
               <button
-                className="record-order-button"
+                className="uc-btn uc-btn--success"
                 onClick={handleRecordOrder}
               >
                 تسجيل طلب خارجي لهذا الزبون
               </button>
               {!shipmentId && (
-                <div className="hint-text">
-                  لبدء تسجيل الطلبات، ابدأ الشحنة أولاً من شاشة "بدء الشحنة".
+                <div className="uc-record__hint">
+                  ابدأ الشحنة أولاً من شاشة "بدء الشحنة".
                 </div>
               )}
             </div>
           )}
         </>
       )}
-      {/* Reusable sequence placement (apply-now mode) */}
+
       {customerData?.areaId?._id && (
         <AreaSequencePicker
           token={token}
@@ -407,15 +474,18 @@ function UpdateCustomer() {
           onApplied={fetchCustomer}
         />
       )}
+
       <div
-        className="update-toggle"
+        className="uc-editToggle"
         onClick={() => setFormVisible(!formVisible)}
       >
         تعديل الزبون؟
       </div>
+
       {formVisible && (
-        <form className="update-customer-form" onSubmit={handleSubmit}>
+        <form className="uc-form" onSubmit={handleSubmit}>
           <input
+            className="uc-form__input"
             type="text"
             name="name"
             value={updatedInfo.name}
@@ -423,6 +493,7 @@ function UpdateCustomer() {
             onChange={handleChange}
           />
           <input
+            className="uc-form__input"
             type="text"
             name="phone"
             value={updatedInfo.phone}
@@ -430,25 +501,29 @@ function UpdateCustomer() {
             onChange={handleChange}
           />
           <input
+            className="uc-form__input"
             type="text"
             name="address"
             value={updatedInfo.address}
             placeholder="العنوان الجديد"
             onChange={handleChange}
           />
-          <br />
           <SelectInput
             label="المنطقة:"
             name="areaId"
-            value={updatedInfo.areaId || ""} // <-- string, not object
+            value={updatedInfo.areaId || ""}
             options={areas.map((area) => ({
               value: area._id,
               label: area.name,
             }))}
             onChange={handleChange}
           />
-
-          <button type="submit">تحديث الزبون</button>
+          <button
+            className="uc-btn uc-btn--secondary uc-form__submit"
+            type="submit"
+          >
+            تحديث الزبون
+          </button>
         </form>
       )}
     </div>
