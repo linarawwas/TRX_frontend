@@ -84,7 +84,7 @@ label .text-sm.font-medium{ color:#111827; }
 input[type="text"],input[type="date"],input[type="number"],select{
   border:1px solid var(--border-strong);
   border-radius: var(--radius-lg);
-  padding:.6rem .85rem;
+  /* padding:.6rem .85rem; */
   outline:0;
   transition: border-color .2s ease, box-shadow .2s ease, transform .06s ease;
   background:#fff;
@@ -221,7 +221,7 @@ input[type="number"],
 select {
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-lg);
-  padding: .75rem 1rem;   /* increased padding inside input */
+  /* padding: .75rem 1rem;   */
   font-size: 1rem;
   line-height: 1.4;
   outline: 0;
