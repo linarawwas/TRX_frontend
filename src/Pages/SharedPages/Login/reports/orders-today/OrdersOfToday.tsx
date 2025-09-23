@@ -1,11 +1,12 @@
+// src/Pages/Reports/OrdersOfToday.tsx
 import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../redux/store";
 import "./OrdersOfToday.css";
 import { Link } from "react-router-dom";
-import { fetchTodayShipmentsOrders } from "../../../../../utils/apiToday";
+import { fetchShipmentsOrders } from "../../../../../utils/apiToday";
 
-type Payment = { amount: number; currency: "USD" | "LBP" };
+type Payment = { amount: number; currency: "USD" | "LBP"; date?: string };
 type Order = {
   _id: string;
   customerid: string;
@@ -14,185 +15,234 @@ type Order = {
   productId: number;
   delivered: number;
   returned: number;
-  payments?: { amount: number; currency: "USD" | "LBP"; date?: string }[];
+  payments?: Payment[];
   sumUSD?: number;
   sumLBP?: number;
-  createdAt?: string; // may exist if timestamps enabled
-  orderTime?: string; // <-- new from backend (ISO or date string)
+  createdAt?: string;
+  orderTime?: string;
+  type?: number; // 2 = normal, 3 = external
 };
 
 type ShipmentWithOrders = {
   _id: string;
-  sequence?: number;
-  type: number;
-  dateKey: string;
-  calculatedDelivered?: number;
-  calculatedReturned?: number;
-  shipmentUSDPayments?: number;
-  shipmentLiraPayments?: number;
   orders: Order[];
 };
+
+function yyyyMmDdInBeirut(dateLike?: string | number | Date) {
+  const d = dateLike ? new Date(dateLike) : new Date();
+  const y = d.toLocaleString("en-CA", {
+    timeZone: "Asia/Beirut",
+    year: "numeric",
+  });
+  const m = d.toLocaleString("en-CA", {
+    timeZone: "Asia/Beirut",
+    month: "2-digit",
+  });
+  const day = d.toLocaleString("en-CA", {
+    timeZone: "Asia/Beirut",
+    day: "2-digit",
+  });
+  return `${y}-${m}-${day}`;
+}
 
 export default function OrdersOfToday(): JSX.Element {
   const token = useSelector((s: RootState) => s.user.token);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
-  const [dateStr, setDateStr] = useState("");
+  const [dateStr, setDateStr] = useState<string>("");
   const [rows, setRows] = useState<ShipmentWithOrders[]>([]);
+
+  async function load(date?: string) {
+    setLoading(true);
+    setErr(null);
+    try {
+      // includeExternal=true to ensure shipments containing type 3 orders are returned
+      const data = await fetchShipmentsOrders(token, {
+        date,
+        includeExternal: true,
+      });
+      setRows(Array.isArray(data.shipments) ? data.shipments : []);
+      const y = data?.date?.year,
+        m = data?.date?.month,
+        d = data?.date?.day;
+      if (y && m && d) {
+        setDateStr(
+          `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`
+        );
+      } else if (!dateStr) {
+        setDateStr(yyyyMmDdInBeirut());
+      }
+    } catch (e: any) {
+      setErr(e?.message || "خطأ في التحميل");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      setLoading(true);
-      setErr(null);
-      try {
-        const data = await fetchTodayShipmentsOrders(token);
-        if (cancelled) return;
-        setRows(Array.isArray(data.shipments) ? data.shipments : []);
-        setDateStr(
-          `${data.date?.year}-${String(data.date?.month).padStart(
-            2,
-            "0"
-          )}-${String(data.date?.day).padStart(2, "0")}`
-        );
-      } catch (e: any) {
-        if (!cancelled) setErr(e?.message || "خطأ في التحميل");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
+      if (!cancelled) await load();
     })();
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
-  const totals = useMemo(() => {
-    const t = { orders: 0, delivered: 0, returned: 0, usd: 0, lbp: 0 };
-    for (const sh of rows) {
-      t.orders += sh.orders?.length || 0;
-      t.delivered += sh.calculatedDelivered || 0;
-      t.returned += sh.calculatedReturned || 0;
-      t.usd += sh.shipmentUSDPayments || 0;
-      t.lbp += sh.shipmentLiraPayments || 0;
-    }
-    return t;
+  // Flatten all orders once; then split into type 2 (normal) and type 3 (external)
+  const { type2Orders, type3Orders, totalCount } = useMemo(() => {
+    const allOrders = rows.flatMap((s) => s.orders || []);
+    const type2 = allOrders.filter((o) => o.type === 2);
+    const type3 = allOrders.filter((o) => o.type === 3);
+    return {
+      type2Orders: type2,
+      type3Orders: type3,
+      totalCount: type2.length + type3.length,
+    };
   }, [rows]);
 
+  const renderTable = (orders: Order[]) => (
+    <table className="ooty-table">
+      <thead className="ooty-table-head">
+        <tr>
+          <th>الوقت</th>
+          <th>الزبون</th>
+          <th>مسلّم</th>
+          <th>مرجّع</th>
+          <th>$</th>
+          <th>ل.ل</th>
+        </tr>
+      </thead>
+      <tbody>
+        {orders.map((o) => {
+          const usd =
+            o.sumUSD ??
+            (o.payments || [])
+              .filter((p) => p.currency === "USD")
+              .reduce((s, p) => s + (p.amount || 0), 0);
+
+          const lbp =
+            o.sumLBP ??
+            (o.payments || [])
+              .filter((p) => p.currency === "LBP")
+              .reduce((s, p) => s + (p.amount || 0), 0);
+
+          const isoTime =
+            o.orderTime ||
+            o.createdAt ||
+            (o.payments && o.payments.length ? o.payments[0].date : undefined);
+
+          let time = "—";
+          if (isoTime) {
+            try {
+              time = new Date(isoTime).toLocaleTimeString("ar", {
+                timeZone: "Asia/Beirut",
+                hour: "2-digit",
+                minute: "2-digit",
+              });
+            } catch {}
+          }
+
+          const custIdForRoute = o.customerObjId || o.customerid;
+
+          return (
+            <tr key={o._id}>
+              <td>{time}</td>
+              <td>
+                <Link
+                  className="ooty-customer-link"
+                  to={`/updateCustomer/${custIdForRoute}`}
+                >
+                  {o.customerName || o.customerid}
+                </Link>
+              </td>
+              <td>{o.delivered || 0}</td>
+              <td>{o.returned || 0}</td>
+              <td>{usd || 0}</td>
+              <td>{lbp ? lbp.toLocaleString() : 0}</td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  );
+
+  const Section = ({
+    title,
+    count,
+    children,
+    defaultOpen = false,
+  }: {
+    title: string;
+    count: number;
+    children: React.ReactNode;
+    defaultOpen?: boolean;
+  }) =>
+    count > 0 ? (
+      <details className="ooty-section" open={defaultOpen}>
+        <summary className="ooty-section__header">
+          <span className="ooty-section__title">{title}</span>
+          <span className="ooty-section__count">{count}</span>
+        </summary>
+        <div className="ooty-section__body">{children}</div>
+      </details>
+    ) : (
+      <div className="ooty-section ooty-section--empty">
+        <div className="ooty-section__empty">لا يوجد بيانات لهذا القسم.</div>
+      </div>
+    );
+
   return (
-    <div className="ooty-container" dir="rtl">
-      <header className="ooty-header">
-        <h2>🧾 طلبات شحنات اليوم</h2>
-        <div className="ooty-sub">
-          التاريخ: <strong>{dateStr || "—"}</strong>
+    <div className="ooty" dir="rtl">
+      <header className="ooty__header">
+        <h2 className="ooty__title">🧾 الطلبات حسب التاريخ</h2>
+
+        <div className="ooty__dateRow">
+          <label className="ooty__dateLabel">التاريخ:</label>
+          <input
+            className="ooty__dateInput"
+            type="date"
+            value={dateStr || ""}
+            max={yyyyMmDdInBeirut()}
+            onChange={(e) => setDateStr(e.target.value)}
+          />
+          <button
+            className="ooty__dateBtn"
+            onClick={() => load(dateStr || undefined)}
+            disabled={loading || !dateStr}
+          >
+            عرض
+          </button>
+        </div>
+
+        <div className="ooty__stats">
+          <div className="ooty__stat">
+            <span className="ooty__statLabel">عدد الطلبات:</span>
+            <strong className="ooty__statValue">{totalCount}</strong>
+          </div>
+          <div className="ooty__stat">
+            <span className="ooty__statLabel">التاريخ:</span>
+            <strong className="ooty__statValue">{dateStr || "—"}</strong>
+          </div>
         </div>
       </header>
 
-      <section className="ooty-summary">
-        <div className="tile">
-          عدد الشحنات: <strong>{rows.length}</strong>
-        </div>
-        <div className="tile">
-          عدد الطلبات: <strong>{totals.orders}</strong>
-        </div>
-      </section>
-
-      {loading && <div className="ooty-loading">⏳ جارٍ التحميل...</div>}
-      {err && <div className="ooty-error">❌ {err}</div>}
+      {loading && <div className="ooty__msg">⏳ جارٍ التحميل...</div>}
+      {err && <div className="ooty__msg ooty__msg--error">❌ {err}</div>}
 
       {!loading && !err && (
-        <div className="ooty-list">
-          {rows.length === 0 ? (
-            <p className="ooty-empty">لا يوجد بيانات اليوم.</p>
-          ) : (
-            rows.map((sh) => (
-              <details key={sh._id} className="ooty-card" open>
-                <summary className="ooty-card-header">
-                  <div className="hdr-left">
-                    <span className="badge">شحنة #{sh.sequence ?? "—"}</span>
-                    <span className={`badge type-${sh.type}`}>
-                      {sh.type === 3
-                        ? "خارجي"
-                        : sh.type === 1
-                        ? "مبدئي"
-                        : "عادي"}
-                    </span>
-                    <span className="datekey">{sh.dateKey}</span>
-                  </div>
-                </summary>
+        <main className="ooty__content">
+          {/* Orders (type 2) */}
+          <Section title="طلبات اليوم" count={type2Orders.length} defaultOpen>
+            {renderTable(type2Orders)}
+          </Section>
 
-                {sh.orders?.length ? (
-                  <table className="ooty-table">
-                    <thead>
-                      <tr>
-                        <th>الوقت</th>
-                        <th>الزبون</th>
-                        <th>مسلّم</th>
-                        <th>مرجّع</th>
-                        <th>$</th>
-                        <th>ل.ل</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sh.orders.map((o) => {
-                        const usd =
-                          o.sumUSD ??
-                          (o.payments || [])
-                            .filter((p) => p.currency === "USD")
-                            .reduce((s, p) => s + (p.amount || 0), 0);
-                        const lbp =
-                          o.sumLBP ??
-                          (o.payments || [])
-                            .filter((p) => p.currency === "LBP")
-                            .reduce((s, p) => s + (p.amount || 0), 0);
-                        const isoTime =
-                          o.orderTime ||
-                          o.createdAt ||
-                          (o.payments && o.payments.length
-                            ? o.payments[0].date
-                            : undefined);
-
-                        let time = "—";
-                        if (isoTime) {
-                          try {
-                            time = new Date(isoTime).toLocaleTimeString("ar", {
-                              timeZone: "Asia/Beirut",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            });
-                          } catch {}
-                        }
-
-                        const custIdForRoute = o.customerObjId || o.customerid;
-
-                        return (
-                          <tr key={o._id}>
-                            <td>{time}</td>
-                            <td>
-                              <Link
-                                className="ooty-customer-link"
-                                to={`/updateCustomer/${custIdForRoute}`}
-                              >
-                                {o.customerName || o.customerid}
-                              </Link>
-                            </td>
-                            <td>{o.delivered || 0}</td>
-                            <td>{o.returned || 0}</td>
-                            <td>{usd || 0}</td>
-                            <td>{lbp ? lbp.toLocaleString() : 0}</td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                ) : (
-                  <div className="ooty-no-orders">
-                    لا يوجد طلبات ضمن هذه الشحنة.
-                  </div>
-                )}
-              </details>
-            ))
-          )}
-        </div>
+          {/* External orders (type 3) */}
+          <Section title="طلبات خارجية" count={type3Orders.length}>
+            {renderTable(type3Orders)}
+          </Section>
+        </main>
       )}
     </div>
   );
