@@ -67,7 +67,7 @@ function UpdateCustomer() {
     name: "",
     phone: "",
     address: "",
-    areaId: { _id: "", name: "" },
+    areaId: "", // string
     companyId: companyId,
     hasDiscount: false,
     valueAfterDiscount: 0,
@@ -145,29 +145,21 @@ function UpdateCustomer() {
     const { name, value } = e.target;
     if (name === "phone" && !/^\d*$/.test(value))
       return toast.error("أدخل أرقام فقط");
-    setUpdatedInfo({ ...updatedInfo, [name]: value });
+    setUpdatedInfo((prev) => ({ ...prev, [name]: value })); // areaId remains string
   };
+
+  const t = (s: any) => (typeof s === "string" ? s.trim() : "");
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
-    // Build a minimal changes object
     const changes: any = {};
-
-    const t = (s: string) => s?.trim?.() ?? "";
 
     if (t(updatedInfo.name)) changes.name = t(updatedInfo.name);
     if (t(updatedInfo.phone)) changes.phone = t(updatedInfo.phone);
     if (t(updatedInfo.address)) changes.address = t(updatedInfo.address);
 
-    // areaId is an object in your state; send only the id if it exists
-    if (updatedInfo.areaId?._id) changes.areaId = updatedInfo.areaId._id;
-
-    // If you expose discount fields in this form, add similar checks:
-    // if (typeof updatedInfo.hasDiscount === 'boolean') changes.hasDiscount = updatedInfo.hasDiscount;
-    // if (Number.isFinite(updatedInfo.valueAfterDiscount)) changes.valueAfterDiscount = Number(updatedInfo.valueAfterDiscount);
-    // if (t(updatedInfo.discountCurrency)) changes.discountCurrency = t(updatedInfo.discountCurrency);
-    // if (t(updatedInfo.noteAboutCustomer)) changes.noteAboutCustomer = t(updatedInfo.noteAboutCustomer);
+    // areaId is a string now
+    if (t(updatedInfo.areaId)) changes.areaId = t(updatedInfo.areaId);
 
     if (Object.keys(changes).length === 0) {
       toast.info("لا توجد تغييرات لإرسالها");
@@ -178,7 +170,7 @@ function UpdateCustomer() {
       const res = await fetch(
         `http://localhost:5000/api/customers/${customerId}`,
         {
-          method: "PATCH", // ← partial update
+          method: "PATCH",
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -296,73 +288,6 @@ function UpdateCustomer() {
       toast.error(err?.message || "فشل العملية");
     } finally {
       setIsMutating(false);
-    }
-  };
-
-  // ====== NEW: place this customer within the area order ======
-  const applyPlacement = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!customerData?.areaId?._id) {
-      toast.error("لا يوجد منطقة لهذا الزبون");
-      return;
-    }
-    const areaId = customerData.areaId._id;
-
-    // Build a new order: remove this id, then insert at chosen spot
-    const current = areaCustomers.map((c) => c._id);
-    const mine = String(customerId);
-    const without = current.filter((id) => id !== mine);
-
-    let nextOrder: string[] = [];
-    if (posTarget === "__START__") {
-      nextOrder = [mine, ...without];
-    } else if (posTarget === "__END__") {
-      nextOrder = [...without, mine];
-    } else {
-      const idx = without.indexOf(posTarget);
-      if (idx === -1) {
-        // fallback to end if target not found
-        nextOrder = [...without, mine];
-      } else {
-        nextOrder = [
-          ...without.slice(0, idx + 1),
-          mine,
-          ...without.slice(idx + 1),
-        ];
-      }
-    }
-
-    setIsPlacing(true);
-    try {
-      const res = await fetch(
-        `http://localhost:5000/api/areas/${areaId}/reorder?companyId=${companyId}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            orderedCustomerIds: nextOrder,
-            force: true,
-            startAt: 1,
-          }),
-        }
-      );
-
-      const data = await res.json().catch(() => ({} as any));
-      if (!res.ok) {
-        toast.error(data?.error || "تعذر تحديث الترتيب");
-        return;
-      }
-
-      toast.success("تم تحديث ترتيب الزبائن في هذه المنطقة");
-      // refresh local list & customer info
-      await fetchCustomer();
-    } catch (err: any) {
-      toast.error(err?.message || "خطأ في الشبكة");
-    } finally {
-      setIsPlacing(false);
     }
   };
 
@@ -515,7 +440,7 @@ function UpdateCustomer() {
           <SelectInput
             label="المنطقة:"
             name="areaId"
-            value={updatedInfo.areaId._id}
+            value={updatedInfo.areaId || ""} // <-- string, not object
             options={areas.map((area) => ({
               value: area._id,
               label: area.name,
