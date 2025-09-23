@@ -9,7 +9,7 @@
 }
 
 .ship-page {
-  background: var(--bg);
+  /* background: var(--bg); */
   min-height: 100dvh;
   padding: 12px;
   box-sizing: border-box;
