@@ -5,6 +5,7 @@ import React, {
   useCallback,
   ChangeEvent,
   FormEvent,
+  useMemo,
 } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./UpdateCustomer.css";
@@ -25,80 +26,69 @@ import AssignDistributorInline from "../../Distributors/AssignDistributorInline"
 
 type Area = { _id: string; name: string };
 
-// ────────────────────────── Local helpers ──────────────────────────
-const API_BASE = "http://localhost:5000"; // TODO: move to env
-
-// Trim only strings
+// ——— helpers ———
+const API_BASE = "http://localhost:5000";
 const t = (s: any) => (typeof s === "string" ? s.trim() : "");
+const initials = (name?: string) =>
+  (name || "")
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((p) => p[0])
+    .join("")
+    .toUpperCase() || "??";
 
-// Format date in Beirut for any future additions (kept for parity with other pages)
-function yyyyMmDdInBeirut(dateLike?: string | number | Date) {
-  const d = dateLike ? new Date(dateLike) : new Date();
-  const y = d.toLocaleString("en-CA", {
-    timeZone: "Asia/Beirut",
-    year: "numeric",
-  });
-  const m = d.toLocaleString("en-CA", {
-    timeZone: "Asia/Beirut",
-    month: "2-digit",
-  });
-  const day = d.toLocaleString("en-CA", {
-    timeZone: "Asia/Beirut",
-    day: "2-digit",
-  });
-  return `${y}-${m}-${day}`;
-}
-
-function UpdateCustomer() {
+export default function UpdateCustomer() {
   const dispatch = useDispatch();
-  const token = useSelector((state: any) => state.user.token);
-  const companyId = useSelector((state: any) => state.user.companyId);
-  const isAdmin = useSelector((state: any) => state.user.isAdmin);
   const navigate = useNavigate();
   const { customerId } = useParams();
 
-  // Remote resources
+  // auth/role
+  const token = useSelector((s: any) => s.user.token);
+  const companyId = useSelector((s: any) => s.user.companyId);
+  const isAdmin = useSelector((s: any) => s.user?.isAdmin);
+  // remote data
   const [areas, setAreas] = useState<Area[]>([]);
   const [customerData, setCustomerData] = useState<any>(null);
 
-  // UI state
+  // ui state
   const [loading, setLoading] = useState(true);
   const [invoiceReady, setInvoiceReady] = useState(false);
-  const [formVisible, setFormVisible] = useState(false);
   const [isMutating, setIsMutating] = useState(false);
   const [showRestoreOptions, setShowRestoreOptions] = useState(false);
   const [restoreSequence, setRestoreSequence] = useState<number | "">("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteStep, setDeleteStep] = useState<1 | 2>(1);
+  const [editOpen, setEditOpen] = useState(false);
+  const [tab, setTab] = useState<"info" | "invoices" | "area">("info");
 
-  // Shipment state for the external order-quick-action
-  const shipmentId = useSelector((state: any) => state.shipment?._id);
+  // shipment (for quick external order)
+  const shipmentId = useSelector((s: any) => s.shipment?._id);
 
-  // Local draft for PATCH; empty values mean "don't send"
+  // draft (only non-empty keys are sent)
   const [updatedInfo, setUpdatedInfo] = useState({
     _id: "",
     name: "",
     phone: "",
     address: "",
     areaId: "", // string id
-    companyId, // unused in PATCH, but harmless in draft
-    hasDiscount: false, // kept for parity if you expose later
-    valueAfterDiscount: 0, // ^
-    discountCurrency: "", // ^
-    noteAboutCustomer: "", // ^
+    companyId, // kept for parity; not used in PATCH
+    hasDiscount: false,
+    valueAfterDiscount: 0,
+    discountCurrency: "",
+    noteAboutCustomer: "",
   });
 
-  // ────────────────────────── Data fetching ──────────────────────────
-
-  // areas used by the select
+  // ——— fetchers ———
   const fetchAreas = useCallback(() => {
     fetch(`${API_BASE}/api/areas/company`, {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then((res) => res.json())
+      .then((r) => r.json())
       .then(setAreas)
-      .catch((err) => console.error("Fetching areas failed:", err));
+      .catch((e) => console.error("Areas load failed:", e));
   }, [token]);
 
-  // customer + invoice + area peers (for pickers)
   const fetchCustomer = useCallback(async () => {
     setLoading(true);
     try {
@@ -108,12 +98,10 @@ function UpdateCustomer() {
       if (!res.ok) throw new Error("Failed to fetch customer");
       const data = await res.json();
       setCustomerData(data);
-
-      // Prime invoice cache for downstream views
       await fetchAndCacheCustomerInvoice(customerId!, token);
       setInvoiceReady(true);
-    } catch (err) {
-      console.error("Fetch error:", err);
+    } catch (e) {
+      console.error("Fetch error:", e);
       setInvoiceReady(true);
     } finally {
       setLoading(false);
@@ -127,36 +115,28 @@ function UpdateCustomer() {
   useEffect(() => {
     fetchAreas();
     fetchCustomer();
-  }, [fetchCustomer, fetchAreas]);
+  }, [fetchAreas, fetchCustomer]);
 
-  // ────────────────────────── Handlers ──────────────────────────
-
-  // Controlled inputs: only update the draft; empty string means "ignore"
+  // ——— handlers ———
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    if (name === "phone" && !/^\d*$/.test(value)) {
-      toast.error("أدخل أرقام فقط");
-      return;
-    }
+    if (name === "phone" && !/^\d*$/.test(value))
+      return toast.error("أدخل أرقام فقط");
     setUpdatedInfo((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Build minimal PATCH body from non-empty draft fields
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
     const changes: any = {};
     if (t(updatedInfo.name)) changes.name = t(updatedInfo.name);
     if (t(updatedInfo.phone)) changes.phone = t(updatedInfo.phone);
     if (t(updatedInfo.address)) changes.address = t(updatedInfo.address);
     if (t(updatedInfo.areaId)) changes.areaId = t(updatedInfo.areaId);
 
-    if (Object.keys(changes).length === 0) {
-      toast.info("لا توجد تغييرات لإرسالها");
-      return;
-    }
+    if (Object.keys(changes).length === 0)
+      return toast.info("لا توجد تغييرات لإرسالها");
 
     try {
       const res = await fetch(`${API_BASE}/api/customers/${customerId}`, {
@@ -167,85 +147,37 @@ function UpdateCustomer() {
         },
         body: JSON.stringify(changes),
       });
-
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err?.error || "فشل التحديث");
       }
-
       toast.success("تم التحديث بنجاح");
-      setFormVisible(false);
-      setUpdatedInfo((prev) => ({
-        ...prev,
+      setEditOpen(false);
+      setUpdatedInfo((p) => ({
+        ...p,
         name: "",
         phone: "",
         address: "",
         areaId: "",
       }));
       fetchCustomer();
-    } catch (err: any) {
-      console.error(err);
-      toast.error(err?.message || "فشل التحديث");
+    } catch (e: any) {
+      toast.error(e?.message || "فشل التحديث");
     }
   };
 
-  // Quick external order CTA (requires active shipment)
   const handleRecordOrder = () => {
     if (!customerData?._id) return toast.error("بيانات الزبون غير متوفرة");
     if (!shipmentId) return toast.error("ابدأ الشحنة أولاً قبل تسجيل الطلب");
-
     dispatch(setCustomerId(customerData._id));
     dispatch(setCustomerName(customerData.name || ""));
     dispatch(setCustomerPhoneNb(customerData.phone || ""));
     navigate("/recordOrderforCustomer", { state: { isExternal: true } });
   };
 
-  // Admin-only HARD delete (two confirms)
-  const handleHardDelete = async () => {
-    if (!customerId) return;
-    if (!isAdmin) return toast.warn("هذه العملية للمشرف فقط");
-
-    const c1 = window.confirm(
-      "تحذير: هذا سيحذف الزبون نهائيًا ولا يمكن التراجع. هل أنت متأكد/ة؟"
-    );
-    if (!c1) return;
-
-    const c2 = window.confirm(
-      "تأكيد أخير: سيتم حذف الزبون نهائيًا. هل تريد/ين المتابعة؟"
-    );
-    if (!c2) return;
-
-    setIsMutating(true);
-    try {
-      const res = await fetch(`${API_BASE}/api/customers/${customerId}/hard`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        if (res.status === 409) {
-          toast.error(
-            data?.error ||
-              "لا يمكن الحذف: لدى الزبون طلبات مرتبطة. يمكنك إيقافه بدلًا من ذلك."
-          );
-          return;
-        }
-        throw new Error(data?.error || "فشل حذف الزبون");
-      }
-      toast.success("تم حذف الزبون نهائيًا");
-      setTimeout(() => navigate(-1), 400);
-    } catch (err: any) {
-      toast.error(err?.message || "فشل العملية");
-    } finally {
-      setIsMutating(false);
-    }
-  };
-
-  // Soft deactivate
   const handleDeactivate = async () => {
     if (!customerId) return;
     if (!window.confirm("هل تريد إيقاف هذا الزبون؟")) return;
-
     setIsMutating(true);
     try {
       const res = await fetch(
@@ -261,14 +193,13 @@ function UpdateCustomer() {
       setShowRestoreOptions(false);
       setRestoreSequence("");
       fetchCustomer();
-    } catch (err: any) {
-      toast.error(err?.message || "فشل العملية");
+    } catch (e: any) {
+      toast.error(e?.message || "فشل العملية");
     } finally {
       setIsMutating(false);
     }
   };
 
-  // Restore helpers
   const restoreRequest = async (body: any) => {
     const res = await fetch(`${API_BASE}/api/customers/${customerId}/restore`, {
       method: "PATCH",
@@ -301,8 +232,8 @@ function UpdateCustomer() {
         return;
       }
       throw new Error(data?.error || "تعذر تنشيط الزبون");
-    } catch (err: any) {
-      toast.error(err?.message || "فشل العملية");
+    } catch (e: any) {
+      toast.error(e?.message || "فشل العملية");
     } finally {
       setIsMutating(false);
     }
@@ -322,212 +253,349 @@ function UpdateCustomer() {
         sequence: Number(restoreSequence),
       });
       if (!res.ok) {
-        if (res.status === 409) {
-          toast.warn("هذا الرقم ما زال مستخدمًا. جرّب رقمًا مختلفًا.");
-          return;
-        }
+        if (res.status === 409)
+          return toast.warn("هذا الرقم ما زال مستخدمًا. جرّب رقمًا مختلفًا.");
         throw new Error(data?.error || "تعذر تنشيط الزبون");
       }
       toast.success("تم تنشيط الزبون وتعيين الترتيب");
       setShowRestoreOptions(false);
       setRestoreSequence("");
       fetchCustomer();
-    } catch (err: any) {
-      toast.error(err?.message || "فشل العملية");
+    } catch (e: any) {
+      toast.error(e?.message || "فشل العملية");
     } finally {
       setIsMutating(false);
     }
   };
 
-  // ────────────────────────── Render ──────────────────────────
+  // hard delete (modal two-step)
+  const openDeleteModal = () => {
+    if (!isAdmin) return toast.warn("هذه العملية للمشرف فقط");
+    setDeleteStep(1);
+    setShowDeleteModal(true);
+  };
+  const closeDeleteModal = () => setShowDeleteModal(false);
+
+  const performHardDelete = async () => {
+    setIsMutating(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/customers/${customerId}/hard`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        if (res.status === 409)
+          toast.error(data?.error || "لا يمكن الحذف: لدى الزبون طلبات مرتبطة.");
+        else toast.error(data?.error || "فشل حذف الزبون");
+        return;
+      }
+      toast.success("تم حذف الزبون نهائيًا");
+      setShowDeleteModal(false);
+      setTimeout(() => navigate(-1), 300);
+    } catch (e: any) {
+      toast.error(e?.message || "فشل العملية");
+    } finally {
+      setIsMutating(false);
+    }
+  };
+
+  const avatarText = useMemo(
+    () => initials(customerData?.name),
+    [customerData?.name]
+  );
+
   return (
-    <div className="uc" dir="rtl">
+    <div className="ucx" dir="rtl">
       <ToastContainer position="top-right" autoClose={1000} />
-
-      <header className="uc__header">
-        <h1 className="uc__title">معلومات الزبون</h1>
-      </header>
-
-      {/* Status + actions */}
-      {customerData && (
-        <div className="uc__actions">
-          <span
-            className={`uc-status ${
-              customerData.isActive ? "uc-status--ok" : "uc-status--off"
-            }`}
-          >
-            {customerData.isActive ? "نشط" : "غير نشط"}
-          </span>
-
-          {customerData.isActive ? (
-            <button
-              className="uc-btn uc-btn--danger"
-              onClick={handleDeactivate}
-              disabled={isMutating}
-            >
-              {isMutating ? "جارٍ الإيقاف..." : "إيقاف الزبون"}
-            </button>
-          ) : (
-            <div className="uc-restore">
-              <button
-                className="uc-btn uc-btn--primary"
-                onClick={handleRestoreAuto}
-                disabled={isMutating}
-              >
-                {isMutating ? "جارٍ التنشيط..." : "تنشيط الزبون"}
-              </button>
-
-              {showRestoreOptions && (
-                <form
-                  className="uc-restore__inline"
-                  onSubmit={handleRestoreWithSequence}
-                >
-                  <label className="uc-restore__label">رقم الترتيب:</label>
-                  <input
-                    className="uc-restore__input"
-                    type="number"
-                    min={1}
-                    value={restoreSequence}
-                    onChange={(e) =>
-                      setRestoreSequence(
-                        e.target.value === "" ? "" : Number(e.target.value)
-                      )
-                    }
-                    placeholder="مثال: 25"
-                  />
-                  <button
-                    className="uc-btn uc-btn--secondary"
-                    type="submit"
-                    disabled={isMutating}
-                  >
-                    حفظ الرقم وتنشيط
-                  </button>
-                </form>
-              )}
+      <div className="ucx__container">
+        {/* Hero */}
+        <header className="ucx-hero">
+          <div className="ucx-hero__left">
+            <div className="ucx-avatar" aria-hidden="true">
+              {avatarText}
             </div>
-          )}
-
-          {/* Admin-only hard delete (visible; disabled for non-admin) */}
-          <button
-            type="button"
-            className={`uc-btn ${
-              isAdmin ? "uc-btn--hard" : "uc-btn--hard-disabled"
-            }`}
-            onClick={handleHardDelete}
-            disabled={!isAdmin || isMutating}
-            aria-disabled={!isAdmin || isMutating}
-            title={isAdmin ? "حذف نهائي للزبون" : "هذه العملية للمشرف فقط"}
-          >
-            {isMutating ? "جارٍ الحذف..." : "حذف نهائي"}
-          </button>
-        </div>
-      )}
-
-      <CustomerInfo customerData={customerData} loading={loading} />
-
-      {customerData && (
-        <AssignDistributorInline
-          customerId={customerId!}
-          currentDistributorId={customerData?.distributorId || null}
-        />
-      )}
-
-      {customerData && invoiceReady && (
-        <>
-          <CustomerInvoices customerId={customerId!} />
-
-          <div className="uc-statement">
-            <button
-              className="uc-btn uc-btn--primary"
-              onClick={() => navigate(`/customers/${customerId}/statement`)}
-            >
-              الذهاب إلى كشف الحساب أو إضافة دفعة
-            </button>
+            <div className="ucx-hero__text">
+              <h1 className="ucx-title">{customerData?.name || "الزبون"}</h1>
+              <div className="ucx-sub">
+                {customerData?.phone ? `📞 ${customerData.phone}` : "—"}
+                {customerData?.address ? ` · 📍 ${customerData.address}` : ""}
+              </div>
+            </div>
           </div>
 
-          {customerData.isActive && (
-            <div className="uc-record">
-              <button
-                className="uc-btn uc-btn--success"
-                onClick={handleRecordOrder}
+          {customerData && (
+            <div className="ucx-hero__right">
+              <span
+                className={`ucx-chip ${customerData.isActive ? "ok" : "off"}`}
               >
-                تسجيل طلب خارجي لهذا الزبون
-              </button>
-              {!shipmentId && (
-                <div className="uc-record__hint">
-                  ابدأ الشحنة أولاً من شاشة "بدء الشحنة".
+                {customerData.isActive ? "نشط" : "غير نشط"}
+              </span>
+              {customerData.isActive ? (
+                <button
+                  className="ucx-btn danger sm"
+                  onClick={handleDeactivate}
+                  disabled={isMutating}
+                >
+                  إيقاف
+                </button>
+              ) : (
+                <div className="ucx-restoreBar">
+                  <button
+                    className="ucx-btn primary sm"
+                    onClick={handleRestoreAuto}
+                    disabled={isMutating}
+                  >
+                    تنشيط
+                  </button>
+                  {showRestoreOptions && (
+                    <form
+                      className="ucx-restoreInline"
+                      onSubmit={handleRestoreWithSequence}
+                    >
+                      <label className="ucx-restoreLabel">الترتيب:</label>
+                      <input
+                        className="ucx-input sm"
+                        type="number"
+                        min={1}
+                        value={restoreSequence}
+                        onChange={(e) =>
+                          setRestoreSequence(
+                            e.target.value === "" ? "" : Number(e.target.value)
+                          )
+                        }
+                        placeholder="مثال: 25"
+                      />
+                      <button
+                        className="ucx-btn secondary sm"
+                        type="submit"
+                        disabled={isMutating}
+                      >
+                        حفظ
+                      </button>
+                    </form>
+                  )}
                 </div>
               )}
+              <button
+                className={`ucx-btn ${isAdmin ? "hard sm" : "hardDisabled sm"}`}
+                onClick={openDeleteModal}
+                disabled={!isAdmin || isMutating}
+                title={isAdmin ? "حذف نهائي" : "للمشرف فقط"}
+              >
+                حذف نهائي
+              </button>
             </div>
           )}
-        </>
-      )}
+        </header>
 
-      {customerData?.areaId?._id && (
-        <AreaSequencePicker
-          token={token}
-          companyId={companyId}
-          areaId={customerData.areaId._id}
-          currentCustomerId={customerId}
-          mode="apply"
-          title="تغيير الترتيب داخل المنطقة"
-          onApplied={fetchCustomer}
-        />
-      )}
+        {/* Actions row - horizontal */}
+        <div className="ucx-actionsRow">
+          {customerData?.isActive && (
+            <button className="ucx-btn success" onClick={handleRecordOrder}>
+              تسجيل طلب خارجي
+            </button>
+          )}
+          <button
+            className="ucx-btn primary outline"
+            onClick={() => navigate(`/customers/${customerId}/statement`)}
+          >
+            كشف الحساب / إضافة دفعة
+          </button>
+          <button
+            className="ucx-btn secondary"
+            onClick={() => setEditOpen((v) => !v)}
+            aria-expanded={editOpen}
+          >
+            {editOpen ? "إخفاء التعديل" : "تعديل معلومات الزبون"}
+          </button>
+        </div>
 
-      <div
-        className="uc-editToggle"
-        onClick={() => setFormVisible(!formVisible)}
-      >
-        تعديل الزبون؟
+        {/* Edit form (compact, neat) */}
+        {editOpen && (
+          <form className="ucx-card ucx-form" onSubmit={handleSubmit}>
+            <div className="ucx-form__grid">
+              <input
+                className="ucx-input"
+                type="text"
+                name="name"
+                value={updatedInfo.name}
+                placeholder="الاسم الجديد"
+                onChange={handleChange}
+              />
+              <input
+                className="ucx-input"
+                type="text"
+                name="phone"
+                value={updatedInfo.phone}
+                placeholder="رقم الهاتف الجديد"
+                onChange={handleChange}
+              />
+              <input
+                className="ucx-input ucx-form__full"
+                type="text"
+                name="address"
+                value={updatedInfo.address}
+                placeholder="العنوان الجديد"
+                onChange={handleChange}
+              />
+              <div className="ucx-form__full">
+                <SelectInput
+                  label="المنطقة:"
+                  name="areaId"
+                  value={updatedInfo.areaId || ""}
+                  options={areas.map((a) => ({ value: a._id, label: a.name }))}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+            <div className="ucx-form__actions">
+              <button className="ucx-btn secondary" type="submit">
+                حفظ التعديلات
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* Tabs to reduce scroll */}
+        <div className="ucx-tabs">
+          <button
+            className={`ucx-tab ${tab === "info" ? "is-active" : ""}`}
+            onClick={() => setTab("info")}
+          >
+            البيانات
+          </button>
+          <button
+            className={`ucx-tab ${tab === "invoices" ? "is-active" : ""}`}
+            onClick={() => setTab("invoices")}
+          >
+            الفواتير
+          </button>
+          <button
+            className={`ucx-tab ${tab === "area" ? "is-active" : ""}`}
+            onClick={() => setTab("area")}
+          >
+            الترتيب
+          </button>
+        </div>
+
+        <main className="ucx-grid">
+          {tab === "info" && (
+            <section className="ucx-card">
+              <div className="ucx-card__header">البيانات</div>
+              <div className="ucx-card__body">
+                <CustomerInfo customerData={customerData} loading={loading} />
+                {customerData && (
+                  <AssignDistributorInline
+                    customerId={customerId!}
+                    currentDistributorId={customerData?.distributorId || null}
+                  />
+                )}
+              </div>
+            </section>
+          )}
+
+          {tab === "invoices" && (
+            <section className="ucx-card">
+              <div className="ucx-card__header">الفواتير</div>
+              <div className="ucx-card__body">
+                {customerData && invoiceReady ? (
+                  <CustomerInvoices customerId={customerId!} />
+                ) : (
+                  <div className="ucx-skeleton">جارٍ التحميل…</div>
+                )}
+              </div>
+            </section>
+          )}
+
+          {tab === "area" && customerData?.areaId?._id && (
+            <section className="ucx-card">
+              <div className="ucx-card__header">الترتيب في المنطقة</div>
+              <div className="ucx-card__body">
+                <AreaSequencePicker
+                  token={token}
+                  companyId={companyId}
+                  areaId={customerData.areaId._id}
+                  currentCustomerId={customerId}
+                  mode="apply"
+                  title="تغيير الترتيب داخل المنطقة"
+                  onApplied={fetchCustomer}
+                />
+              </div>
+            </section>
+          )}
+        </main>
       </div>
 
-      {formVisible && (
-        <form className="uc-form" onSubmit={handleSubmit}>
-          <input
-            className="uc-form__input"
-            type="text"
-            name="name"
-            value={updatedInfo.name}
-            placeholder="الاسم الجديد"
-            onChange={handleChange}
-          />
-          <input
-            className="uc-form__input"
-            type="text"
-            name="phone"
-            value={updatedInfo.phone}
-            placeholder="رقم الهاتف الجديد"
-            onChange={handleChange}
-          />
-          <input
-            className="uc-form__input"
-            type="text"
-            name="address"
-            value={updatedInfo.address}
-            placeholder="العنوان الجديد"
-            onChange={handleChange}
-          />
-          <SelectInput
-            label="المنطقة:"
-            name="areaId"
-            value={updatedInfo.areaId || ""}
-            options={areas.map((area) => ({
-              value: area._id,
-              label: area.name,
-            }))}
-            onChange={handleChange}
-          />
-          <button
-            className="uc-btn uc-btn--secondary uc-form__submit"
-            type="submit"
-          >
-            تحديث الزبون
-          </button>
-        </form>
+      {/* Delete modal */}
+      {showDeleteModal && (
+        <div
+          className="ucx-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delTitle"
+        >
+          <div className="ucx-modal__panel">
+            <div className="ucx-modal__header">
+              <h3 id="delTitle">حذف نهائي للزبون</h3>
+              <button
+                className="ucx-iconBtn"
+                onClick={closeDeleteModal}
+                aria-label="إغلاق"
+              >
+                ✕
+              </button>
+            </div>
+
+            {deleteStep === 1 && (
+              <div className="ucx-modal__body">
+                <p>
+                  هذا الإجراء <strong>لا يمكن التراجع عنه</strong>. سيتم حذف
+                  الزبون نهائيًا من النظام.
+                </p>
+                <div className="ucx-modal__actions">
+                  <button
+                    className="ucx-btn secondary"
+                    onClick={closeDeleteModal}
+                  >
+                    إلغاء
+                  </button>
+                  <button
+                    className="ucx-btn danger"
+                    onClick={() => setDeleteStep(2)}
+                  >
+                    متابعة
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {deleteStep === 2 && (
+              <div className="ucx-modal__body">
+                <p className="ucx-dangerText">
+                  تأكيد أخير: قد يكون لدى الزبون <strong>طلبات مرتبطة</strong>.
+                  إن وُجدت سيُرفض الحذف.
+                </p>
+                <div className="ucx-modal__actions">
+                  <button
+                    className="ucx-btn secondary"
+                    onClick={closeDeleteModal}
+                  >
+                    إلغاء
+                  </button>
+                  <button
+                    className="ucx-btn hard"
+                    onClick={performHardDelete}
+                    disabled={isMutating}
+                  >
+                    {isMutating ? "جارٍ الحذف..." : "حذف نهائي"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
 }
-
-export default UpdateCustomer;
