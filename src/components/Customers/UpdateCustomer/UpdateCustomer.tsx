@@ -413,44 +413,80 @@ export default function UpdateCustomer() {
 
         {/* Edit form (compact, neat) */}
         {editOpen && (
-          <form className="ucx-card ucx-form" onSubmit={handleSubmit}>
-            <div className="ucx-form__grid">
-              <input
-                className="ucx-input"
-                type="text"
-                name="name"
-                value={updatedInfo.name}
-                placeholder="الاسم الجديد"
-                onChange={handleChange}
-              />
-              <input
-                className="ucx-input"
-                type="text"
-                name="phone"
-                value={updatedInfo.phone}
-                placeholder="رقم الهاتف الجديد"
-                onChange={handleChange}
-              />
-              <input
-                className="ucx-input ucx-form__full"
-                type="text"
-                name="address"
-                value={updatedInfo.address}
-                placeholder="العنوان الجديد"
-                onChange={handleChange}
-              />
-              <div className="ucx-form__full">
-                <SelectInput
-                  label="المنطقة:"
-                  name="areaId"
-                  value={updatedInfo.areaId || ""}
-                  options={areas.map((a) => ({ value: a._id, label: a.name }))}
+          <form className="ucx-formCard" onSubmit={handleSubmit}>
+            <h3 className="ucx-formCard__title">تعديل بيانات الزبون</h3>
+
+            <div className="ucx-fields">
+              <div className="ucx-field">
+                <label htmlFor="ucx-name" className="ucx-label">
+                  الاسم
+                </label>
+                <input
+                  id="ucx-name"
+                  className="ucx-input"
+                  type="text"
+                  name="name"
+                  value={updatedInfo.name}
+                  placeholder={customerData?.name || "الاسم الجديد"}
                   onChange={handleChange}
                 />
               </div>
+
+              <div className="ucx-field">
+                <label htmlFor="ucx-phone" className="ucx-label">
+                  الهاتف
+                </label>
+                <input
+                  id="ucx-phone"
+                  className="ucx-input"
+                  type="text"
+                  name="phone"
+                  value={updatedInfo.phone}
+                  placeholder={customerData?.phone || "رقم الهاتف الجديد"}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="ucx-field ucx-field--full">
+                <label htmlFor="ucx-address" className="ucx-label">
+                  العنوان
+                </label>
+                <input
+                  id="ucx-address"
+                  className="ucx-input"
+                  type="text"
+                  name="address"
+                  value={updatedInfo.address}
+                  placeholder={customerData?.address || "العنوان الجديد"}
+                  onChange={handleChange}
+                />
+              </div>
+
+              {/* ✅ Native select to guarantee area names show */}
+              <div className="ucx-field ucx-field--full">
+                <label htmlFor="ucx-area" className="ucx-label">
+                  المنطقة
+                </label>
+                <select
+                  id="ucx-area"
+                  name="areaId"
+                  className="ucx-select"
+                  value={updatedInfo.areaId || ""}
+                  onChange={handleChange}
+                >
+                  <option value="">اختر المنطقة…</option>
+                  {areas.map((a) => (
+                    <option key={a._id} value={a._id}>
+                      {a.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-            <div className="ucx-form__actions">
-              <button className="ucx-btn secondary" type="submit">
+
+            <div className="ucx-formCard__actions">
+              {/* compact button (not full width) */}
+              <button className="ucx-btn primary ucx-btn--sm" type="submit">
                 حفظ التعديلات
               </button>
             </div>
@@ -469,7 +505,7 @@ export default function UpdateCustomer() {
             className={`ucx-tab ${tab === "invoices" ? "is-active" : ""}`}
             onClick={() => setTab("invoices")}
           >
-            الفواتير
+            الرصيد{" "}
           </button>
           <button
             className={`ucx-tab ${tab === "area" ? "is-active" : ""}`}
@@ -497,7 +533,7 @@ export default function UpdateCustomer() {
 
           {tab === "invoices" && (
             <section className="ucx-card">
-              <div className="ucx-card__header">الفواتير</div>
+              <div className="ucx-card__header">الرصيد الحالي</div>
               <div className="ucx-card__body">
                 {customerData && invoiceReady ? (
                   <CustomerInvoices customerId={customerId!} />
