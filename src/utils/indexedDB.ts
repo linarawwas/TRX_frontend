@@ -13,10 +13,10 @@ const IDB_DEBUG =
 
 const nowStr = () => new Date().toLocaleTimeString("en-GB", { hour12: false });
 
-const ok = (msg: string, ...args: any[]) =>
-  IDB_DEBUG && console.log(`✅ [IDB ${nowStr()}] ${msg}`, ...args);
-const info = (msg: string, ...args: any[]) =>
-  IDB_DEBUG && console.log(`ℹ️  [IDB ${nowStr()}] ${msg}`, ...args);
+const ok = (msg: string, ...args: any[]) => IDB_DEBUG;
+// && console.log(`✅ [IDB ${nowStr()}] ${msg}`, ...args);
+const info = (msg: string, ...args: any[]) => IDB_DEBUG;
+// && console.log(`ℹ️  [IDB ${nowStr()}] ${msg}`, ...args);
 const warn = (msg: string, ...args: any[]) =>
   console.warn(`⚠️  [IDB ${nowStr()}] ${msg}`, ...args);
 const err = (msg: string, ...args: any[]) =>

@@ -26,16 +26,20 @@ import AdminLandingPage from "../Pages/AdminPages/AdminLandingPage/AdminLandingP
 import RecordOrderForCustomer from "../Pages/AdminPages/RecordOrderForCustomer/RecordOrderForCustomer.tsx";
 import OrdersOfToday from "../Pages/SharedPages/Login/reports/orders-today/OrdersOfToday.tsx";
 import CustomerStatement from "../components/Customers/CustomerStatement/CustomerStatement.tsx";
+import { useSelector } from "react-redux";
+import AdminActions from "../features/AdminActions.jsx";
+
 function AdminRouter() {
+  const companyId = useSelector((state) => state.user.companyId);
   return (
     <>
       <div className="userRouter">
         <Routes>
-          <Route index element={<AdminLandingPage />} />
+          <Route index element={<AdminLandingPage />} />{" "}
+          <Route path="/admin" element={<AdminActions />} />
           <Route path="/login" element={<Login />} />
           <Route path="/distributors" element={<DistributorsPage />} />
           <Route path="/distributors/:id" element={<DistributorDetails />} />
-
           <Route path="/register" element={<Register />} />
           <Route path="/viewOrders" element={<OrdersTable />} />
           <Route path="/reports/orders-today" element={<OrdersOfToday />} />
@@ -47,7 +51,6 @@ function AdminRouter() {
             path="/customers/:customerId/statement"
             element={<CustomerStatement />}
           />
-
           <Route path="/areas" element={<Areas />} />
           <Route path="/customers" element={<Customers />} />
           <Route path="/addresses/:areaId" element={<Addresses />} />
