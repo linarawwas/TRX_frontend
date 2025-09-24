@@ -12,22 +12,8 @@ import "react-toastify/dist/ReactToastify.css";
 import "./FinanceDashboard.css";
 
 type Cat = { _id: string; name: string; kind: "income" | "expense" };
-// put this small hook near the top of your file (outside the component)
-// put this above the component
-function useMediaQuery(query: string) {
-  const get = () =>
-    typeof window !== "undefined" && window.matchMedia(query).matches;
-  const [matches, setMatches] = React.useState(get);
-  React.useEffect(() => {
-    const m = window.matchMedia(query);
-    const on = (e: MediaQueryListEvent) => setMatches(e.matches);
-    m.addEventListener?.("change", on);
-    return () => m.removeEventListener?.("change", on);
-  }, [query]);
-  return matches;
-}
+type TabKey = "daily" | "monthly" | "add" | "entries";
 
-// Arabic labels for fixed categories
 const CAT_AR_MAP: Record<string, string> = {
   "Misc income": "إيرادات متفرقة",
   Refunds: "مبالغ مستردة",
@@ -41,20 +27,38 @@ const CAT_AR_MAP: Record<string, string> = {
   Office: "مكتب ولوازم",
   "Misc expense": "مصروفات متفرقة",
 };
-const catAr = (c: Cat) => CAT_AR_MAP[c.name] || c.name;
+const catAr = (c: Cat | { name: string }) => CAT_AR_MAP[c.name] || c.name;
 
 const fmtUSD = (n: number) => `$${(n || 0).toFixed(2)}`;
 const fmtLBP = (n: number) => `${Math.round(n || 0).toLocaleString()} ل.ل`;
+// signed rendering (typographic minus)
+const fmtSignedUSD = (n: number) =>
+  `${n >= 0 ? "+" : "−"}$${Math.abs(n || 0).toFixed(2)}`;
+const fmtSignedLBP = (n: number) =>
+  `${n >= 0 ? "+" : "−"}${Math.round(Math.abs(n || 0)).toLocaleString()} ل.ل`;
 
-type TabKey = "add" | "daily" | "monthly";
+// ✅ tiny hook for responsive switch (call at top-level only)
+function useMediaQuery(query: string) {
+  const get = () =>
+    typeof window !== "undefined" && window.matchMedia(query).matches;
+  const [matches, setMatches] = React.useState(get);
+  React.useEffect(() => {
+    const m = window.matchMedia(query);
+    const on = (e: MediaQueryListEvent) => setMatches(e.matches);
+    m.addEventListener?.("change", on);
+    return () => m.removeEventListener?.("change", on);
+  }, [query]);
+  return matches;
+}
 
 export default function FinanceDashboard() {
   const token = useSelector((s: any) => s.user.token);
   const isAdmin = useSelector((s: any) => s.user.isAdmin);
-  const compact = useMediaQuery("(max-width: 720px)");
 
   const [active, setActive] = useState<TabKey>("daily");
+  const compact = useMediaQuery("(max-width: 720px)");
 
+  // shared refs
   const [cats, setCats] = useState<Cat[]>([]);
   const [date, setDate] = useState<string>(
     new Date().toISOString().slice(0, 10)
@@ -64,9 +68,11 @@ export default function FinanceDashboard() {
     return { y: d.getFullYear(), m: d.getMonth() + 1 };
   });
 
+  // summaries
   const [daily, setDaily] = useState<any>(null);
   const [monthly, setMonthly] = useState<any[]>([]);
 
+  // add form
   const [form, setForm] = useState<any>({
     kind: "expense",
     categoryId: "",
@@ -76,19 +82,26 @@ export default function FinanceDashboard() {
     note: "",
   });
 
-  // Load data
+  // entries tab state
+  const [eYm, setEYm] = useState<{ y: number; m: number }>(() => ({ ...ym }));
+  const [eKind, setEKind] = useState<"" | "income" | "expense">("");
+  const [eCat, setECat] = useState<string>("");
+  const [entries, setEntries] = useState<any[]>([]);
+  const [eLoading, setELoading] = useState(false);
+
+  // Load categories once
   useEffect(() => {
     listCategories(token)
       .then(setCats)
       .catch(() => {});
   }, [token]);
 
+  // Summaries
   useEffect(() => {
     dailySummary(token, date)
       .then(setDaily)
       .catch(() => {});
   }, [token, date]);
-
   useEffect(() => {
     monthlySummary(token, ym.y, ym.m)
       .then(setMonthly)
@@ -110,13 +123,13 @@ export default function FinanceDashboard() {
       // refresh summaries
       dailySummary(token, date).then(setDaily);
       monthlySummary(token, ym.y, ym.m).then(setMonthly);
-      setActive("daily"); // jump to daily view after adding
+      setActive("daily");
     } catch {
       toast.error("فشل حفظ العملية");
     }
   };
 
-  // Monthly totals (USD/LBP/≈USD) across all days
+  // Monthly totals across table rows
   const totals = useMemo(() => {
     return monthly.reduce(
       (acc: any, r: any) => {
@@ -144,6 +157,84 @@ export default function FinanceDashboard() {
     );
   }, [monthly]);
 
+  // ===== Entries tab fetching (simple month-based) =====
+  async function fetchEntries() {
+    setELoading(true);
+    try {
+      const qs = new URLSearchParams();
+      qs.set("year", String(eYm.y));
+      qs.set("month", String(eYm.m));
+      if (eKind) qs.set("kind", eKind);
+      if (eCat) qs.set("categoryId", eCat);
+      const res = await fetch(
+        `http://localhost:5000/api/finances?${qs.toString()}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const data = await res.json();
+      // backend may return {items:[], total: n} or plain []
+      setEntries(Array.isArray(data) ? data : data.items || []);
+    } catch {
+      toast.error("تعذر تحميل العمليات");
+    } finally {
+      setELoading(false);
+    }
+  }
+
+  // Fetch whenever filters change or when tab switches to 'entries'
+  useEffect(() => {
+    if (active === "entries") fetchEntries();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, eYm, eKind, eCat]);
+
+  // Group entries by YYYY-MM-DD for mobile cards
+  const entryGroups = useMemo(() => {
+    const map = new Map<string, any[]>();
+    for (const e of entries) {
+      const d = (e.date || e.createdAt || "").slice(0, 10);
+      if (!map.has(d)) map.set(d, []);
+      map.get(d)!.push(e);
+    }
+    return Array.from(map.entries()).sort((a, b) =>
+      a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0
+    );
+  }, [entries]);
+
+  // Quick totals for the current filter period
+  const entriesTotals = useMemo(() => {
+    let incUSD = 0,
+      incLBP = 0,
+      incNorm = 0;
+    let expUSD = 0,
+      expLBP = 0,
+      expNorm = 0;
+
+    for (const e of entries) {
+      const amount = Number(e.amount) || 0;
+      const approx = Number(e.normUSD ?? e.normalizedUSD ?? 0) || 0;
+      const isInc = e.kind === "income";
+
+      if (e.currency === "USD") {
+        if (isInc) incUSD += amount;
+        else expUSD += amount;
+      } else if (e.currency === "LBP") {
+        if (isInc) incLBP += amount;
+        else expLBP += amount;
+      }
+      if (isInc) incNorm += approx;
+      else expNorm += approx;
+    }
+
+    return {
+      inc: { usd: incUSD, lbp: incLBP, norm: incNorm },
+      exp: { usd: expUSD, lbp: expLBP, norm: expNorm },
+      net: {
+        usd: incUSD - expUSD,
+        lbp: incLBP - expLBP,
+        norm: incNorm - expNorm,
+      },
+    };
+  }, [entries]);
+
   return (
     <div className="finx" dir="rtl">
       <ToastContainer position="top-right" autoClose={1200} />
@@ -169,6 +260,14 @@ export default function FinanceDashboard() {
         </button>
         <button
           role="tab"
+          aria-selected={active === "entries"}
+          className={`finx-tab ${active === "entries" ? "is-active" : ""}`}
+          onClick={() => setActive("entries")}
+        >
+          🧾 العمليات
+        </button>
+        <button
+          role="tab"
           aria-selected={active === "add"}
           className={`finx-tab ${active === "add" ? "is-active" : ""}`}
           onClick={() => setActive("add")}
@@ -179,6 +278,7 @@ export default function FinanceDashboard() {
 
       {/* Active panel */}
       <div className="finx-card finx-panel" role="tabpanel">
+        {/* ADD */}
         {active === "add" && (
           <form className="finx-form" onSubmit={submit}>
             <div className="finx-grid">
@@ -193,7 +293,6 @@ export default function FinanceDashboard() {
                   <option value="expense">مصروف</option>
                 </select>
               </label>
-
               <label className="finx-label">
                 الفئة
                 <select
@@ -213,7 +312,6 @@ export default function FinanceDashboard() {
                     ))}
                 </select>
               </label>
-
               <label className="finx-label">
                 العملة
                 <select
@@ -227,7 +325,6 @@ export default function FinanceDashboard() {
                   <option value="LBP">ليرة (ل.ل)</option>
                 </select>
               </label>
-
               <label className="finx-label">
                 القيمة
                 <input
@@ -238,7 +335,6 @@ export default function FinanceDashboard() {
                   onChange={(e) => setForm({ ...form, amount: e.target.value })}
                 />
               </label>
-
               <label className="finx-label finx-col2">
                 التاريخ
                 <input
@@ -248,7 +344,6 @@ export default function FinanceDashboard() {
                   onChange={(e) => setForm({ ...form, date: e.target.value })}
                 />
               </label>
-
               <label className="finx-label finx-col2">
                 ملاحظة
                 <input
@@ -259,7 +354,6 @@ export default function FinanceDashboard() {
                 />
               </label>
             </div>
-
             <div className="finx-actions">
               <button
                 className="finx-btn primary"
@@ -271,6 +365,7 @@ export default function FinanceDashboard() {
           </form>
         )}
 
+        {/* DAILY */}
         {active === "daily" && (
           <div className="finx-content">
             <div className="finx-row" style={{ marginBottom: 8 }}>
@@ -283,7 +378,6 @@ export default function FinanceDashboard() {
                 />
               </div>
             </div>
-
             {daily && (
               <div className="finx-grid-3">
                 <div className="finx-tile">
@@ -296,7 +390,6 @@ export default function FinanceDashboard() {
                   </div>
                   <div>≈ {fmtUSD(daily.shipments.normalizedUSD || 0)}</div>
                 </div>
-
                 <div className="finx-tile">
                   إيرادات أخرى:
                   <div>
@@ -307,7 +400,6 @@ export default function FinanceDashboard() {
                   </div>
                   <div>≈ {fmtUSD(daily.finance.income.normUSD || 0)}</div>
                 </div>
-
                 <div className="finx-tile">
                   مصروفات:
                   <div>
@@ -318,7 +410,6 @@ export default function FinanceDashboard() {
                   </div>
                   <div>≈ {fmtUSD(daily.finance.expense.normUSD || 0)}</div>
                 </div>
-
                 <div className="finx-tile finx-col3">
                   الصافي:
                   <div>
@@ -335,6 +426,8 @@ export default function FinanceDashboard() {
             )}
           </div>
         )}
+
+        {/* MONTHLY (cards on mobile / table on desktop) */}
         {active === "monthly" && (
           <div className="finx-content">
             <div className="finx-row" style={{ marginBottom: 8 }}>
@@ -361,7 +454,6 @@ export default function FinanceDashboard() {
             </div>
 
             {compact ? (
-              /* MOBILE: cards */
               <div className="finx-monthCards">
                 {monthly.map((r: any) => {
                   const net = r.net.normalizedUSD || 0;
@@ -378,7 +470,6 @@ export default function FinanceDashboard() {
                           الصافي ≈ {fmtUSD(net)}
                         </span>
                       </header>
-
                       <div className="finx-mrows">
                         <div className="finx-kv">
                           <div className="finx-k">الشحنات</div>
@@ -408,8 +499,6 @@ export default function FinanceDashboard() {
                     </article>
                   );
                 })}
-
-                {/* Monthly totals card */}
                 <article className="finx-mcard finx-mtotals">
                   <header className="finx-mcard__head">
                     <div className="finx-mday">
@@ -445,7 +534,6 @@ export default function FinanceDashboard() {
                 </article>
               </div>
             ) : (
-              /* DESKTOP: table */
               <div className="finx-tableWrap">
                 <table className="finx-table">
                   <thead>
@@ -497,6 +585,250 @@ export default function FinanceDashboard() {
                       <th>{fmtUSD(totals.netNorm)}</th>
                     </tr>
                   </tfoot>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ENTRIES (new tab) */}
+        {active === "entries" && (
+          <div className="finx-content">
+            {/* Filters */}
+            <div className="finx-row" style={{ marginBottom: 10, gap: 8 }}>
+              <div className="finx-row__right" style={{ flexWrap: "wrap" }}>
+                <input
+                  className="finx-input"
+                  type="number"
+                  value={eYm.y}
+                  onChange={(e) =>
+                    setEYm({ ...eYm, y: Number(e.target.value) })
+                  }
+                  style={{ width: 88 }}
+                  aria-label="السنة"
+                />
+                <input
+                  className="finx-input"
+                  type="number"
+                  value={eYm.m}
+                  onChange={(e) =>
+                    setEYm({ ...eYm, m: Number(e.target.value) })
+                  }
+                  min={1}
+                  max={12}
+                  style={{ width: 68 }}
+                  aria-label="الشهر"
+                />
+                <select
+                  className="finx-input"
+                  value={eKind}
+                  onChange={(e) => setEKind(e.target.value as any)}
+                  aria-label="النوع"
+                  style={{ minWidth: 120 }}
+                >
+                  <option value="">الكل</option>
+                  <option value="income">إيراد</option>
+                  <option value="expense">مصروف</option>
+                </select>
+                <select
+                  className="finx-input"
+                  value={eCat}
+                  onChange={(e) => setECat(e.target.value)}
+                  aria-label="الفئة"
+                  style={{ minWidth: 160 }}
+                >
+                  <option value="">جميع الفئات</option>
+                  {cats
+                    .filter((c) => !eKind || c.kind === eKind)
+                    .map((c) => (
+                      <option key={c._id} value={c._id}>
+                        {catAr(c)}
+                      </option>
+                    ))}
+                </select>
+                <button
+                  className="finx-btn"
+                  onClick={() => fetchEntries()}
+                  type="button"
+                  aria-label="تحديث"
+                >
+                  تحديث
+                </button>
+              </div>
+            </div>
+
+            {/* Totals for current filter (sign-aware) */}
+            <div className="finx-grid-3" style={{ marginBottom: 6 }}>
+              <div className="finx-tile">
+                <div style={{ fontWeight: 800, marginBottom: 6 }}>
+                  الإيرادات
+                </div>
+                <div>{fmtUSD(entriesTotals.inc.usd)}</div>
+                <div>{fmtLBP(entriesTotals.inc.lbp)}</div>
+                <div>≈ {fmtUSD(entriesTotals.inc.norm)}</div>
+              </div>
+
+              <div className="finx-tile">
+                <div style={{ fontWeight: 800, marginBottom: 6 }}>
+                  المصروفات
+                </div>
+                <div>{fmtUSD(entriesTotals.exp.usd)}</div>
+                <div>{fmtLBP(entriesTotals.exp.lbp)}</div>
+                <div>≈ {fmtUSD(entriesTotals.exp.norm)}</div>
+              </div>
+
+              <div className="finx-tile">
+                <div style={{ fontWeight: 800, marginBottom: 6 }}>الصافي</div>
+                <div
+                  className={`finx-amount ${
+                    entriesTotals.net.usd >= 0 ? "pos" : "neg"
+                  }`}
+                >
+                  {fmtSignedUSD(entriesTotals.net.usd)}
+                </div>
+                <div
+                  className={`finx-amount ${
+                    entriesTotals.net.lbp >= 0 ? "pos" : "neg"
+                  }`}
+                >
+                  {fmtSignedLBP(entriesTotals.net.lbp)}
+                </div>
+                <div
+                  className={`finx-amount ${
+                    entriesTotals.net.norm >= 0 ? "pos" : "neg"
+                  }`}
+                >
+                  ≈ {fmtSignedUSD(entriesTotals.net.norm)}
+                </div>
+              </div>
+            </div>
+
+            {compact ? (
+              // MOBILE: grouped cards by day
+              <div className="finx-monthCards">
+                {eLoading && <div className="finx-tile">جارٍ التحميل…</div>}
+                {!eLoading && entryGroups.length === 0 && (
+                  <div className="finx-tile">لا توجد بيانات.</div>
+                )}
+                {entryGroups.map(([d, items]) => {
+                  // per-day net (≈USD)
+                  const dayNet = items.reduce((acc: number, e: any) => {
+                    const approx =
+                      Number(e.normUSD ?? e.normalizedUSD ?? 0) || 0;
+                    return acc + (e.kind === "income" ? approx : -approx);
+                  }, 0);
+                  const badgeClass =
+                    dayNet >= 0 ? "finx-badge--pos" : "finx-badge--neg";
+
+                  return (
+                    <article className="finx-mcard" key={d}>
+                      <header className="finx-mcard__head">
+                        <div className="finx-mday">
+                          <span className="finx-mday__label">اليوم</span>
+                          <span className="finx-mday__value">{d}</span>
+                        </div>
+                        <span className={`finx-badge ${badgeClass}`}>
+                          الصافي ≈ {fmtSignedUSD(dayNet)}
+                        </span>
+                      </header>
+                      <div className="finx-mrows">
+                        {items.map((e: any) => {
+                          const isInc = e.kind === "income";
+                          const badge = isInc
+                            ? "finx-badge--pos"
+                            : "finx-badge--neg";
+                          const approx =
+                            Number(e.normUSD ?? e.normalizedUSD ?? 0) || 0;
+                          return (
+                            <div className="finx-kv" key={e._id}>
+                              <div
+                                className="finx-k"
+                                style={{ display: "flex", gap: 8 }}
+                              >
+                                <span
+                                  className={`finx-badge ${badge}`}
+                                  style={{ padding: "2px 8px" }}
+                                >
+                                  {isInc ? "إيراد" : "مصروف"}
+                                </span>
+                                <span>
+                                  {catAr({
+                                    name:
+                                      e.categoryName || e.category?.name || "",
+                                  })}
+                                </span>
+                              </div>
+                              <div className="finx-v">
+                                {e.currency === "USD"
+                                  ? fmtUSD(e.amount)
+                                  : fmtLBP(e.amount)}
+                                {"  ·  "}≈{" "}
+                                {fmtSignedUSD(isInc ? approx : -approx)}
+                                {e.note ? (
+                                  <>
+                                    {" "}
+                                    — <span>{e.note}</span>
+                                  </>
+                                ) : null}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            ) : (
+              // DESKTOP: table
+              <div className="finx-tableWrap">
+                <table className="finx-table">
+                  <thead>
+                    <tr>
+                      <th>التاريخ</th>
+                      <th>النوع</th>
+                      <th>الفئة</th>
+                      <th>المبلغ</th>
+                      <th>≈ بالدولار</th>
+                      <th>ملاحظة</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {eLoading && (
+                      <tr>
+                        <td colSpan={6}>جارٍ التحميل…</td>
+                      </tr>
+                    )}
+                    {!eLoading && entries.length === 0 && (
+                      <tr>
+                        <td colSpan={6}>لا توجد بيانات.</td>
+                      </tr>
+                    )}
+                    {!eLoading &&
+                      entries.map((e: any) => {
+                        const amt =
+                          e.currency === "USD"
+                            ? fmtUSD(e.amount)
+                            : fmtLBP(e.amount);
+                        const approx = e.normUSD ?? e.normalizedUSD ?? 0;
+                        return (
+                          <tr key={e._id}>
+                            <td>
+                              {(e.date || e.createdAt || "").slice(0, 10)}
+                            </td>
+                            <td>{e.kind === "income" ? "إيراد" : "مصروف"}</td>
+                            <td>
+                              {catAr({
+                                name: e.categoryName || e.category?.name || "",
+                              })}
+                            </td>
+                            <td>{amt}</td>
+                            <td>{fmtUSD(approx)}</td>
+                            <td>{e.note || "—"}</td>
+                          </tr>
+                        );
+                      })}
+                  </tbody>
                 </table>
               </div>
             )}

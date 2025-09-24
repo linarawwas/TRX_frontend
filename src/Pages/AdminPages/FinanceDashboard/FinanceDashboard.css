@@ -39,7 +39,6 @@
   box-shadow: 0 8px 24px rgba(2, 6, 23, 0.06);
   margin: 10px 0;
   padding: 0; /* summary has its own padding, body below */
-  
 }
 
 /* Collapsible wrapper */
@@ -348,8 +347,16 @@
   background: #f7fafc;
   white-space: nowrap;
 }
-.finx-badge--pos { color: #166534; background: #dcfce7; border-color: #bbf7d0; }
-.finx-badge--neg { color: #991b1b; background: #fee2e2; border-color: #fecaca; }
+.finx-badge--pos {
+  color: #166534;
+  background: #dcfce7;
+  border-color: #bbf7d0;
+}
+.finx-badge--neg {
+  color: #991b1b;
+  background: #fee2e2;
+  border-color: #fecaca;
+}
 
 .finx-mrows {
   display: grid;
@@ -379,3 +386,9 @@
   border-width: 2px;
   background: linear-gradient(180deg, #ffffff, #fbfdff);
 }
+.finx-amount.pos {
+  color: #166534;
+} /* green-700 */
+.finx-amount.neg {
+  color: #991b1b;
+} /* red-700 */
