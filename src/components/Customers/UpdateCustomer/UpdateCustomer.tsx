@@ -23,6 +23,7 @@ import {
 import { fetchAndCacheCustomerInvoice } from "../../../utils/apiHelpers";
 import AreaSequencePicker from "../../AreaSequencePicker/AreaSequencePicker";
 import AssignDistributorInline from "../../Distributors/AssignDistributorInline";
+import { OpeningEditor } from "./OpeningEditor";
 
 type Area = { _id: string; name: string };
 
@@ -47,7 +48,8 @@ export default function UpdateCustomer() {
   const token = useSelector((s: any) => s.user.token);
   const companyId = useSelector((s: any) => s.user.companyId);
   const isAdmin = useSelector((s: any) => s.user?.isAdmin);
-  // remote data
+  // at the top of UpdateCustomer component (with other state)
+  const [openEdit, setOpenEdit] = React.useState(false);
   const [areas, setAreas] = useState<Area[]>([]);
   const [customerData, setCustomerData] = useState<any>(null);
 
@@ -530,10 +532,45 @@ export default function UpdateCustomer() {
               </div>
             </section>
           )}
-
           {tab === "invoices" && (
             <section className="ucx-card">
-              <div className="ucx-card__header">الرصيد الحالي</div>
+              <div
+                className="ucx-card__header"
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <span>الرصيد الحالي</span>
+                {isAdmin && (
+                  <button
+                    type="button"
+                    className="ucx-btn danger"
+                    onClick={() => setOpenEdit((v: boolean) => !v)}
+                    title="تعديل القناني/الرصيد الافتتاحي"
+                  >
+                    ✎ تعديل (إداري)
+                  </button>
+                )}
+              </div>
+
+              {/* Admin opening editor (collapsible) */}
+              {isAdmin && openEdit && (
+                <OpeningEditor
+                  customerId={customerId!}
+                  token={token}
+                  onDone={async () => {
+                    // refresh invoice cache then re-render
+                    try {
+                      await fetchAndCacheCustomerInvoice(customerId!, token);
+                    } catch {}
+                    toast.success("تم الحفظ وتحديث الأرقام");
+                    setOpenEdit(false);
+                  }}
+                />
+              )}
+
               <div className="ucx-card__body">
                 {customerData && invoiceReady ? (
                   <CustomerInvoices customerId={customerId!} />
@@ -543,7 +580,6 @@ export default function UpdateCustomer() {
               </div>
             </section>
           )}
-
           {tab === "area" && customerData?.areaId?._id && (
             <section className="ucx-card">
               <div className="ucx-card__header">الترتيب في المنطقة</div>
