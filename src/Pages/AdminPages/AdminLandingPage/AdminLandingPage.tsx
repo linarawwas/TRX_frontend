@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import AdminFeatures from "../../../components/LandingPage/AdminFeatures.jsx";
 import CurrentShipmentStat from "./CurrentShipmentStats/CurrentShipmentStat";
+import FinanceDashboard from "../FinanceDashboard/FinanceDashboard";
 
 /** Lightweight sparkline and progress ring (no deps) */
 const Sparkline: React.FC<{ points: number[]; max?: number }> = ({ points, max }) => {
@@ -166,6 +167,7 @@ React.useEffect(() => {
         <h2 className="pane-title">تفاصيل شحنة اليوم</h2>
         <CurrentShipmentStat />
       </section>
+      <FinanceDashboard />
     </div>
   );
 };
