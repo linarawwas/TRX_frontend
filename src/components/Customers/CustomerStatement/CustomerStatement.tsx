@@ -6,7 +6,12 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./CustomerStatement.css";
 import AddPaymentForm from "../../Orders/UpdateOrder/AddPaymentForm/AddPaymentForm.tsx";
-
+type InitialSummary = {
+  bottlesLeft: number;
+  balanceUSD: number;
+  at: string | null;
+  orderId: string | null;
+};
 type Payment = {
   date: string;
   amount: number;
@@ -89,7 +94,42 @@ const CustomerStatement: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [showSheet, setShowSheet] = useState(false);
   const [targetOrderId, setTargetOrderId] = useState<string | null>(null);
+  const [opening, setOpening] = useState<InitialSummary>({
+    bottlesLeft: 0,
+    balanceUSD: 0,
+    at: null,
+    orderId: null,
+  });
 
+  useEffect(() => {
+    (async () => {
+      try {
+        setLoading(true);
+        const [cRes, oRes] = await Promise.all([
+          fetch(`http://localhost:5000/api/customers/${customerId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          // ✅ new endpoint
+          fetch(
+            `http://localhost:5000/api/orders/customer/${customerId}/with-initial`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          ),
+        ]);
+        const cJson = await cRes.json();
+        const oJson = await oRes.json();
+        if (!cRes.ok) throw new Error(cJson?.error || "failed customer fetch");
+        if (!oRes.ok) throw new Error(oJson?.error || "failed orders fetch");
+        setCustomer(cJson);
+        setOrders(Array.isArray(oJson?.orders) ? oJson.orders : []);
+        if (oJson?.initial) setOpening(oJson.initial);
+      } catch (e) {
+        console.error(e);
+        toast.error("تعذر تحميل كشف الحساب");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [customerId, token]);
   // fetch customer and all orders
   useEffect(() => {
     (async () => {
@@ -118,7 +158,6 @@ const CustomerStatement: React.FC = () => {
     })();
   }, [customerId, token]);
 
-  // summarize into a ledger
   const ledger = useMemo(() => {
     const rows: Array<{
       date: string;
@@ -137,8 +176,12 @@ const CustomerStatement: React.FC = () => {
         new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
     );
 
+    // track bottles from orders
+    let sumDelivered = 0;
+    let sumReturned = 0;
+
     for (const o of sorted) {
-      // USD sum of payments
+      // USD sum of payments (normalize LBP → USD)
       let paidUSD = 0;
       for (const p of o.payments || []) {
         if (p.currency === "USD") paidUSD += p.amount;
@@ -157,6 +200,9 @@ const CustomerStatement: React.FC = () => {
       const remainingUSD = +(totalUSD - paidUSD).toFixed(2);
       cumulative += remainingUSD;
 
+      sumDelivered += o.delivered || 0;
+      sumReturned += o.returned || 0;
+
       rows.push({
         date: fmtDate(o.timestamp),
         orderId: o._id,
@@ -167,6 +213,7 @@ const CustomerStatement: React.FC = () => {
         remainingUSD,
       });
     }
+
     const totals = rows.reduce(
       (acc, r) => {
         acc.total += r.totalUSD;
@@ -177,8 +224,28 @@ const CustomerStatement: React.FC = () => {
       { total: 0, paid: 0, remaining: 0 }
     );
 
-    return { rows, totals, cumulative };
-  }, [orders]);
+    // ✅ Opening + orders
+    const openingBottles = opening?.bottlesLeft || 0;
+    const openingBalance = opening?.balanceUSD || 0;
+
+    const ordersBottles = sumDelivered - sumReturned;
+    const statementBottlesLeft = openingBottles + ordersBottles;
+
+    const statementBalanceUSD = +(openingBalance + totals.remaining).toFixed(2);
+
+    return {
+      rows,
+      totals, // orders only
+      cumulative,
+      meta: {
+        openingBottles,
+        openingBalance,
+        ordersBottles,
+        statementBottlesLeft, // ✅ what you show to the user
+        statementBalanceUSD, // ✅ what you show to the user
+      },
+    };
+  }, [orders, opening]);
 
   const pageTitle = customer?.name
     ? `كشف حساب: ${customer.name}`
@@ -321,10 +388,27 @@ const CustomerStatement: React.FC = () => {
               </tfoot>
             </table>
           </div>
-
           <div className="st-summary">
-            <div>
-              الرصيد الحالي:{" "}
+            <div className="st-summary__row">
+              <span className="muted">الرصيد الافتتاحي (USD):</span>
+              <strong>{fmtUSD(ledger.meta.openingBalance)}</strong>
+            </div>
+            <div className="st-summary__row">
+              <span className="muted">الزجاجات الافتتاحية:</span>
+              <strong>{ledger.meta.openingBottles}</strong>
+            </div>
+
+            <hr className="st-hr" />
+
+            <div className="st-summary__row">
+              <span className="muted">صافي الزجاجات من الطلبات:</span>
+              <strong>
+                {ledger.meta.ordersBottles >= 0 ? "+" : ""}
+                {ledger.meta.ordersBottles}
+              </strong>
+            </div>
+            <div className="st-summary__row">
+              <span className="muted">الرصيد من الطلبات (متبقّي USD):</span>
               <strong
                 className={ledger.totals.remaining >= 0 ? "due" : "credit"}
               >
@@ -333,6 +417,26 @@ const CustomerStatement: React.FC = () => {
                   : fmtUSD(-ledger.totals.remaining)}
               </strong>
             </div>
+
+            <hr className="st-hr" />
+
+            <div className="st-summary__row">
+              <span>إجمالي الزجاجات الحالية:</span>
+              <strong>{ledger.meta.statementBottlesLeft}</strong>
+            </div>
+            <div className="st-summary__row">
+              <span>الرصيد الحالي الإجمالي (USD):</span>
+              <strong
+                className={
+                  ledger.meta.statementBalanceUSD >= 0 ? "due" : "credit"
+                }
+              >
+                {ledger.meta.statementBalanceUSD >= 0
+                  ? fmtUSD(ledger.meta.statementBalanceUSD)
+                  : fmtUSD(-ledger.meta.statementBalanceUSD)}
+              </strong>
+            </div>
+
             <div className="muted">
               الموجب = متبقٍ على الزبون • السالب = رصيد دائن
             </div>
