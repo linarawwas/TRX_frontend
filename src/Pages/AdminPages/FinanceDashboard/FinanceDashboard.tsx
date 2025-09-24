@@ -57,6 +57,8 @@ export default function FinanceDashboard() {
 
   const [active, setActive] = useState<TabKey>("daily");
   const compact = useMediaQuery("(max-width: 720px)");
+  // at top-level of FinanceDashboard component (with other useState hooks)
+  const [selDays, setSelDays] = React.useState<number[]>([]);
 
   // shared refs
   const [cats, setCats] = useState<Cat[]>([]);
@@ -454,85 +456,174 @@ export default function FinanceDashboard() {
             </div>
 
             {compact ? (
-              <div className="finx-monthCards">
-                {monthly.map((r: any) => {
-                  const net = r.net.normalizedUSD || 0;
-                  const netClass =
-                    net >= 0 ? "finx-badge--pos" : "finx-badge--neg";
-                  return (
-                    <article className="finx-mcard" key={r.d}>
-                      <header className="finx-mcard__head">
-                        <div className="finx-mday">
-                          <span className="finx-mday__label">اليوم</span>
-                          <span className="finx-mday__value">{r.d}</span>
-                        </div>
-                        <span className={`finx-badge ${netClass}`}>
-                          الصافي ≈ {fmtUSD(net)}
-                        </span>
-                      </header>
-                      <div className="finx-mrows">
-                        <div className="finx-kv">
-                          <div className="finx-k">الشحنات</div>
-                          <div className="finx-v">
-                            {fmtUSD(r.shipments.usd)} ·{" "}
-                            {fmtLBP(r.shipments.lbp)} · ≈{" "}
-                            {fmtUSD(r.shipments.normUSD)}
-                          </div>
-                        </div>
-                        <div className="finx-kv">
-                          <div className="finx-k">إيرادات أخرى</div>
-                          <div className="finx-v">
-                            {fmtUSD(r.income.USD || 0)} ·{" "}
-                            {fmtLBP(r.income.LBP || 0)} · ≈{" "}
-                            {fmtUSD(r.income.normUSD || 0)}
-                          </div>
-                        </div>
-                        <div className="finx-kv">
-                          <div className="finx-k">مصروفات</div>
-                          <div className="finx-v">
-                            {fmtUSD(r.expense.USD || 0)} ·{" "}
-                            {fmtLBP(r.expense.LBP || 0)} · ≈{" "}
-                            {fmtUSD(r.expense.normUSD || 0)}
-                          </div>
-                        </div>
-                      </div>
-                    </article>
-                  );
-                })}
-                <article className="finx-mcard finx-mtotals">
-                  <header className="finx-mcard__head">
-                    <div className="finx-mday">
-                      <span className="finx-mday__label">إجمالي الشهر</span>
-                    </div>
-                    <span className="finx-badge">
-                      الصافي ≈ {fmtUSD(totals.netNorm)}
-                    </span>
-                  </header>
-                  <div className="finx-mrows">
-                    <div className="finx-kv">
-                      <div className="finx-k">الشحنات</div>
-                      <div className="finx-v">
-                        {fmtUSD(totals.ship.usd)} · {fmtLBP(totals.ship.lbp)} ·
-                        ≈ {fmtUSD(totals.ship.norm)}
-                      </div>
-                    </div>
-                    <div className="finx-kv">
-                      <div className="finx-k">إيرادات أخرى</div>
-                      <div className="finx-v">
-                        {fmtUSD(totals.inc.usd)} · {fmtLBP(totals.inc.lbp)} · ≈{" "}
-                        {fmtUSD(totals.inc.norm)}
-                      </div>
-                    </div>
-                    <div className="finx-kv">
-                      <div className="finx-k">مصروفات</div>
-                      <div className="finx-v">
-                        {fmtUSD(totals.exp.usd)} · {fmtLBP(totals.exp.lbp)} · ≈{" "}
-                        {fmtUSD(totals.exp.norm)}
-                      </div>
-                    </div>
+              <>
+                {/* Day selector (chips) */}
+                <div className="finx-row" style={{ marginBottom: 8 }}>
+                  <div
+                    className="finx-row__right"
+                    style={{
+                      display: "flex",
+                      gap: 6,
+                      flexWrap: "wrap",
+                      justifyContent: "flex-end",
+                    }}
+                  >
+                    {monthly
+                      .slice() // copy before sort
+                      .sort((a: any, b: any) => Number(a.d) - Number(b.d))
+                      .map((r: any) => {
+                        const dNum = Number(r.d);
+                        const selected = selDays.includes(dNum);
+                        const net = r.net.normalizedUSD || 0;
+                        const badge =
+                          "finx-badge " +
+                          (net >= 0 ? "finx-badge--pos" : "finx-badge--neg");
+                        return (
+                          <button
+                            key={r.d}
+                            type="button"
+                            aria-pressed={selected}
+                            title={`اليوم ${r.d} — الصافي ≈ ${fmtUSD(net)}`}
+                            className={badge}
+                            onClick={() =>
+                              setSelDays((cur) =>
+                                cur.includes(dNum)
+                                  ? cur.filter((x) => x !== dNum)
+                                  : [...cur, dNum]
+                              )
+                            }
+                            style={{
+                              padding: "4px 10px",
+                              borderWidth: selected ? 2 : 1,
+                              borderColor: selected ? "#0ea5e9" : undefined, // teal-ish when selected
+                              boxShadow: selected
+                                ? "0 0 0 1px #0ea5e9 inset"
+                                : "none",
+                            }}
+                          >
+                            {r.d}
+                          </button>
+                        );
+                      })}
+
+                    {/* quick actions */}
+                    <button
+                      type="button"
+                      className="finx-badge"
+                      onClick={() =>
+                        setSelDays(monthly.map((r: any) => Number(r.d)))
+                      }
+                      style={{ padding: "4px 10px" }}
+                    >
+                      عرض الكل
+                    </button>
+
+                    {selDays.length > 0 && (
+                      <button
+                        type="button"
+                        className="finx-badge"
+                        onClick={() => setSelDays([])}
+                        title="مسح الاختيار"
+                        style={{ padding: "4px 10px" }}
+                      >
+                        مسح
+                      </button>
+                    )}
                   </div>
-                </article>
-              </div>
+                </div>
+
+                {/* Cards only for selected days (or hint if none) */}
+                <div className="finx-monthCards">
+                  {selDays.length === 0 && (
+                    <div className="finx-tile">
+                      اختر يومًا من الأعلى لعرض تفاصيله.
+                    </div>
+                  )}
+
+                  {monthly
+                    .filter((r: any) => selDays.includes(Number(r.d)))
+                    .map((r: any) => {
+                      const net = r.net.normalizedUSD || 0;
+                      const netClass =
+                        net >= 0 ? "finx-badge--pos" : "finx-badge--neg";
+                      return (
+                        <article className="finx-mcard" key={r.d}>
+                          <header className="finx-mcard__head">
+                            <div className="finx-mday">
+                              <span className="finx-mday__label">اليوم</span>
+                              <span className="finx-mday__value">{r.d}</span>
+                            </div>
+                            <span className={`finx-badge ${netClass}`}>
+                              الصافي ≈ {fmtUSD(net)}
+                            </span>
+                          </header>
+
+                          <div className="finx-mrows">
+                            <div className="finx-kv">
+                              <div className="finx-k">الشحنات</div>
+                              <div className="finx-v">
+                                {fmtUSD(r.shipments.usd)} ·{" "}
+                                {fmtLBP(r.shipments.lbp)} · ≈{" "}
+                                {fmtUSD(r.shipments.normUSD)}
+                              </div>
+                            </div>
+                            <div className="finx-kv">
+                              <div className="finx-k">إيرادات أخرى</div>
+                              <div className="finx-v">
+                                {fmtUSD(r.income.USD || 0)} ·{" "}
+                                {fmtLBP(r.income.LBP || 0)} · ≈{" "}
+                                {fmtUSD(r.income.normUSD || 0)}
+                              </div>
+                            </div>
+                            <div className="finx-kv">
+                              <div className="finx-k">مصروفات</div>
+                              <div className="finx-v">
+                                {fmtUSD(r.expense.USD || 0)} ·{" "}
+                                {fmtLBP(r.expense.LBP || 0)} · ≈{" "}
+                                {fmtUSD(r.expense.normUSD || 0)}
+                              </div>
+                            </div>
+                          </div>
+                        </article>
+                      );
+                    })}
+
+                  {/* Totals card (always visible) */}
+                  <article className="finx-mcard finx-mtotals">
+                    <header className="finx-mcard__head">
+                      <div className="finx-mday">
+                        <span className="finx-mday__label">إجمالي الشهر</span>
+                      </div>
+                      <span className="finx-badge">
+                        الصافي ≈ {fmtUSD(totals.netNorm)}
+                      </span>
+                    </header>
+                    <div className="finx-mrows">
+                      <div className="finx-kv">
+                        <div className="finx-k">الشحنات</div>
+                        <div className="finx-v">
+                          {fmtUSD(totals.ship.usd)} · {fmtLBP(totals.ship.lbp)}{" "}
+                          · ≈ {fmtUSD(totals.ship.norm)}
+                        </div>
+                      </div>
+                      <div className="finx-kv">
+                        <div className="finx-k">إيرادات أخرى</div>
+                        <div className="finx-v">
+                          {fmtUSD(totals.inc.usd)} · {fmtLBP(totals.inc.lbp)} ·
+                          ≈ {fmtUSD(totals.inc.norm)}
+                        </div>
+                      </div>
+                      <div className="finx-kv">
+                        <div className="finx-k">مصروفات</div>
+                        <div className="finx-v">
+                          {fmtUSD(totals.exp.usd)} · {fmtLBP(totals.exp.lbp)} ·
+                          ≈ {fmtUSD(totals.exp.norm)}
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+                </div>
+              </>
             ) : (
               <div className="finx-tableWrap">
                 <table className="finx-table">
