@@ -164,6 +164,7 @@ const CustomerStatement: React.FC = () => {
       orderId: string;
       delivered: number;
       returned: number;
+      bottlesLeft: number; // ✅ NEW
       totalUSD: number;
       paidUSD: number;
       remainingUSD: number;
@@ -202,12 +203,14 @@ const CustomerStatement: React.FC = () => {
 
       sumDelivered += o.delivered || 0;
       sumReturned += o.returned || 0;
+      const bottlesLeft = (o.delivered || 0) - (o.returned || 0); // ✅ NEW
 
       rows.push({
         date: fmtDate(o.timestamp),
         orderId: o._id,
         delivered: o.delivered,
         returned: o.returned,
+        bottlesLeft, // ✅ NEW
         totalUSD,
         paidUSD,
         remainingUSD,
@@ -332,9 +335,10 @@ const CustomerStatement: React.FC = () => {
                   <th>الطلب</th>
                   <th>المُسلَّم</th>
                   <th>المُرْجَع</th>
+                  <th> الباقي(حاويات)</th>
                   <th>الحساب</th>
                   <th>المدفوع</th>
-                  <th>المتبقي</th>
+                  <th>الباقي (رصيد مالي)</th>
                 </tr>
               </thead>
               <tbody>
@@ -342,18 +346,17 @@ const CustomerStatement: React.FC = () => {
                   <tr key={r.orderId}>
                     <td>{r.date}</td>
                     <td className="mono">
-                      {" "}
                       <Link
                         to={`/updateOrder/${r.orderId}`}
                         className="st-order-link"
                         title={`فتح الفاتورة ${r.orderId}`}
                       >
                         تفاصيل
-                        {/* keep short id display */}
                       </Link>
                     </td>
                     <td>{r.delivered}</td>
                     <td>{r.returned}</td>
+                    <td>{r.bottlesLeft}</td> {/* ✅ NEW */}
                     <td>{fmtUSD(r.totalUSD)}</td>
                     <td>{fmtUSD(r.paidUSD)}</td>
                     <td
@@ -370,10 +373,15 @@ const CustomerStatement: React.FC = () => {
                   </tr>
                 ))}
               </tbody>
+
               <tfoot>
                 <tr>
+                  {/* Was colSpan={4}; now we have one extra column before money columns */}
                   <td colSpan={4}>
                     <strong>الإجمالي</strong>
+                  </td>
+                  <td>
+                    <strong>{ledger.meta.ordersBottles}</strong>
                   </td>
                   <td>
                     <strong>{fmtUSD(ledger.totals.total)}</strong>
