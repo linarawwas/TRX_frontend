@@ -383,7 +383,7 @@ export default function FinanceDashboard() {
             {daily && (
               <div className="finx-grid-3">
                 <div className="finx-tile">
-                  تحصيل الشحنات:
+                  الشحنات (إجمالي: مدفوعات + أرباح إضافية − نفقات):
                   <div>
                     <strong>{fmtUSD(daily.shipments.usd)}</strong>
                   </div>
@@ -392,6 +392,7 @@ export default function FinanceDashboard() {
                   </div>
                   <div>≈ {fmtUSD(daily.shipments.normalizedUSD || 0)}</div>
                 </div>
+
                 <div className="finx-tile">
                   إيرادات أخرى:
                   <div>
@@ -630,8 +631,8 @@ export default function FinanceDashboard() {
                   <thead>
                     <tr>
                       <th>اليوم</th>
-                      <th>الشحنات (USD)</th>
-                      <th>الشحنات (ل.ل)</th>
+                      <th>الشحنات (USD إجمالي)</th>
+                      <th>الشحنات (ل.ل إجمالي)</th>
                       <th>الشحنات (≈ USD)</th>
                       <th>إيرادات أخرى (USD)</th>
                       <th>إيرادات أخرى (ل.ل)</th>
