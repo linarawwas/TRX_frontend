@@ -70,36 +70,52 @@ export function OpeningEditor({
   };
 
   return (
-    <form className="ucx-open" onSubmit={submit}>
-      <div className="ucx-open__grid">
-        <label className="ucx-open__label">
-          القناني المتبقية (الرقم المطلوب إظهاره)
-          <input
-            className="ucx-open__input"
-            type="number"
-            min={0}
-            value={bottles}
-            onChange={(e) => setBottles(e.target.value)}
-            placeholder="مثال: 3"
-          />
-        </label>
-        <label className="ucx-open__label">
-          الرصيد المستحق USD (الرقم المطلوب إظهاره)
-          <input
-            className="ucx-open__input"
-            type="number"
-            step="0.01"
-            value={balance}
-            onChange={(e) => setBalance(e.target.value)}
-            placeholder="مثال: 8.00"
-          />
-        </label>
+    <>
+      <div
+        className="ucx-note ucx-note--warn"
+        role="note"
+        id="opening-edit-note"
+      >
+        هذه الأداة مخصّصة لتصحيح فروقات صغيرة فقط:
+        <strong> فرق القناني المسموح به لا يتجاوز قنّتين (±2)</strong>. يمكن
+        تعديل <strong>الرصيد الافتتاحي (USD)</strong> لأي قيمة. لا يمكن التعديل
+        على الرصيد العام، فقط على الرصيد الإفتتاحي، لأن الرصيد العام مجموع طلبات
+        الزبون، إذا كان هناك خطأ في تسجيل أي طلب، الرجاء التوجه لكشف الحساب
+        وتعديل الطلب الذي يحتوي الخطأ. من خلال صفحة تعديل الطلب والتفاصيل.
+        بإمكانك التعديل على الرصيد الإفتتاحي والإطلاع عليه من خلال{" "}
+        <strong>صفحة كشف الحساب.</strong>
       </div>
-      <div className="ucx-open__actions">
-        <button className="ucx-btn primary" disabled={busy}>
-          {busy ? "جارٍ الحفظ…" : "حفظ"}
-        </button>
-      </div>
-    </form>
+      <form className="ucx-open" onSubmit={submit}>
+        <div className="ucx-open__grid">
+          <label className="ucx-open__label">
+            القناني المتبقية (الرقم المطلوب إظهاره)
+            <input
+              className="ucx-open__input"
+              type="number"
+              min={0}
+              value={bottles}
+              onChange={(e) => setBottles(e.target.value)}
+              placeholder="مثال: 3"
+            />
+          </label>
+          <label className="ucx-open__label">
+            الرصيد المستحق USD (الرقم المطلوب إظهاره)
+            <input
+              className="ucx-open__input"
+              type="number"
+              step="0.01"
+              value={balance}
+              onChange={(e) => setBalance(e.target.value)}
+              placeholder="مثال: 8.00"
+            />
+          </label>
+        </div>
+        <div className="ucx-open__actions">
+          <button className="ucx-btn primary" disabled={busy}>
+            {busy ? "جارٍ الحفظ…" : "حفظ"}
+          </button>
+        </div>
+      </form>
+    </>
   );
 }

@@ -542,17 +542,18 @@ export default function UpdateCustomer() {
                   alignItems: "center",
                 }}
               >
-                <span>الرصيد الحالي</span>
-                {isAdmin && (
-                  <button
-                    type="button"
-                    className="ucx-btn danger"
-                    onClick={() => setOpenEdit((v: boolean) => !v)}
-                    title="تعديل القناني/الرصيد الافتتاحي"
-                  >
-                    ✎ تعديل (إداري)
-                  </button>
-                )}
+<span>الرصيد الحالي</span>
+{isAdmin && (
+  <button
+    type="button"
+    className="ucx-btn danger"
+    onClick={() => setOpenEdit((v: boolean) => !v)}
+    title="هذه الأداة مخصّصة لتصحيح فروقات صغيرة فقط: فرق القناني المسموح به لا يتجاوز ±2. يمكن تعديل الرصيد الافتتاحي لأي قيمة."
+  >
+    ✎ تعديل (إداري)
+  </button>
+)}
+
               </div>
 
               {/* Admin opening editor (collapsible) */}
