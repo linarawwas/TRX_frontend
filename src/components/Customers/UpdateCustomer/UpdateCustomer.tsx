@@ -393,7 +393,7 @@ export default function UpdateCustomer() {
 
         {/* Actions row - horizontal */}
         <div className="ucx-actionsRow">
-          {customerData?.isActive && (
+          {customerData?.isActive && !isAdmin && (
             <button className="ucx-btn success" onClick={handleRecordOrder}>
               تسجيل طلب خارجي
             </button>
