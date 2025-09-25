@@ -47,7 +47,7 @@ const AreaSequencePicker = ({
       try {
         setLoading(true);
         const r = await fetch(
-          `http://localhost:5000/api/customers/area/${areaId}`,
+          `https://trx-api.linarawas.com/api/customers/area/${areaId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         const data = await r.json();
@@ -114,7 +114,7 @@ const AreaSequencePicker = ({
     setBusy(true);
     try {
       const res = await fetch(
-        `http://localhost:5000/api/areas/${areaId}/reorder?companyId=${companyId}`,
+        `https://trx-api.linarawas.com/api/areas/${areaId}/reorder?companyId=${companyId}`,
         {
           method: "POST",
           headers: {

@@ -169,7 +169,7 @@ export default function FinanceDashboard() {
       if (eKind) qs.set("kind", eKind);
       if (eCat) qs.set("categoryId", eCat);
       const res = await fetch(
-        `http://localhost:5000/api/finances?${qs.toString()}`,
+        `https://trx-api.linarawas.com/api/finances?${qs.toString()}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const data = await res.json();
