@@ -1,4 +1,4 @@
-// src/Pages/Customers/UpdateCustomer.tsx
+// src/pages/Customers/UpdateCustomer.tsx
 import React, {
   useState,
   useEffect,
@@ -28,7 +28,7 @@ import { OpeningEditor } from "./OpeningEditor";
 type Area = { _id: string; name: string };
 
 // ——— helpers ———
-const API_BASE = "https://trx-api.linarawas.com";
+const API_BASE = "http://localhost:5000";
 const t = (s: any) => (typeof s === "string" ? s.trim() : "");
 const initials = (name?: string) =>
   (name || "")

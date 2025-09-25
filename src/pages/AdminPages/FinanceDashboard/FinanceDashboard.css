@@ -1,0 +1,394 @@
+/* src/pages/Admin/FinanceDashboard.css */
+/* ───────────────────────── Scope Root ───────────────────────── */
+.finx {
+  --fx-bg: #f7f9fc;
+  --fx-card: #ffffff;
+  --fx-border: #e6eaf0;
+  --fx-text: #0f172a;
+  --fx-muted: #475569;
+  --fx-soft: #f3f6fb;
+  --fx-accent: #0d94dd;
+  --fx-accent-600: #0b6faa;
+  --fx-good: #16a34a;
+  --fx-bad: #b91c1c;
+
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 12px;
+  background: var(--fx-bg);
+  color: var(--fx-text);
+  font-family: "Tajawal", "Cairo", "Noto Kufi Arabic", "Noto Sans Arabic",
+    system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  line-height: 1.6;
+}
+
+/* Title */
+.finx-title {
+  margin: 4px 0 10px;
+  font-size: 20px;
+  font-weight: 800;
+  text-align: center;
+  color: var(--fx-text);
+}
+
+/* ───────────────────────── Cards & Collapse ───────────────────────── */
+.finx-card {
+  background: var(--fx-card);
+  border: 1px solid var(--fx-border);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(2, 6, 23, 0.06);
+  margin: 10px 0;
+  padding: 0; /* summary has its own padding, body below */
+}
+
+/* Collapsible wrapper */
+.finx-collapse {
+  overflow: hidden;
+}
+
+/* Hide default marker and add our own chevron */
+.finx-collapse > summary::-webkit-details-marker {
+  display: none;
+}
+.finx-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  font-weight: 800;
+  background: linear-gradient(180deg, #ffffff, #fbfdff);
+  border-bottom: 1px solid var(--fx-border);
+  user-select: none;
+}
+.finx-summary::after {
+  content: "▾";
+  font-size: 14px;
+  color: var(--fx-muted);
+  transition: transform 0.15s ease;
+}
+.finx-collapse[open] .finx-summary::after {
+  transform: rotate(180deg);
+}
+
+/* Body inside collapsible card */
+.finx-collapse > .finx-form,
+.finx-collapse > .finx-content {
+  padding: 12px 14px 14px;
+}
+
+/* ───────────────────────── Forms ───────────────────────── */
+.finx-form {
+  display: grid;
+  gap: 10px;
+}
+
+.finx-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* mobile-first */
+  gap: 10px;
+}
+
+.finx-col2 {
+  grid-column: 1 / -1; /* full width row */
+}
+
+.finx-label {
+  display: grid;
+  gap: 6px;
+  font-weight: 700;
+  color: var(--fx-text);
+  font-size: 14px;
+}
+
+.finx-input {
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 14px;
+  background: #fff;
+  color: var(--fx-text);
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+.finx-input:focus {
+  outline: none;
+  border-color: var(--fx-accent);
+  box-shadow: 0 0 0 3px rgba(13, 148, 221, 0.15);
+}
+
+/* Actions row */
+.finx-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+
+/* Buttons */
+.finx-btn {
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.02s ease, opacity 0.15s ease, box-shadow 0.12s ease;
+}
+.finx-btn.primary {
+  background: var(--fx-accent);
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(13, 148, 221, 0.25);
+}
+.finx-btn.primary:hover {
+  background: var(--fx-accent-600);
+}
+.finx-btn:active {
+  transform: translateY(1px);
+}
+.finx-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ───────────────────────── Rows / Tiles ───────────────────────── */
+.finx-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.finx-row__right {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.finx-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr; /* mobile-first */
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.finx-tile {
+  background: var(--fx-soft);
+  border: 1px solid var(--fx-border);
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 14px;
+}
+.finx-tile strong {
+  font-weight: 800;
+}
+
+.finx-col3 {
+  grid-column: 1 / -1;
+}
+
+/* Color hints (optional, for net) */
+.finx-net--pos {
+  color: var(--fx-good);
+}
+.finx-net--neg {
+  color: var(--fx-bad);
+}
+
+/* ───────────────────────── Tables ───────────────────────── */
+.finx-tableWrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.finx-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  min-width: 780px; /* allow smooth horizontal scroll on small screens */
+  direction: rtl;
+}
+.finx-table thead th {
+  text-align: right;
+  font-weight: 800;
+  background: #f5f7fb;
+  border-bottom: 1px solid var(--fx-border);
+  padding: 10px 12px;
+  white-space: nowrap;
+}
+.finx-table tbody td,
+.finx-table tfoot th,
+.finx-table tfoot td {
+  padding: 9px 12px;
+  border-top: 1px solid #eef2f7;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.finx-table tfoot th,
+.finx-table tfoot td {
+  background: #fbfdff;
+  font-weight: 800;
+}
+
+/* ───────────────────────── Accessibility ───────────────────────── */
+.finx-summary:focus-visible,
+.finx-btn:focus-visible,
+.finx-input:focus-visible {
+  outline: 3px solid rgba(13, 148, 221, 0.35);
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+
+/* ───────────────────────── Responsive ───────────────────────── */
+/* ≥ 640px: two columns for form grid; three columns for metric tiles */
+@media (min-width: 640px) {
+  .finx-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .finx-grid-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ≥ 900px: slightly tighter table font and more breathing room */
+@media (min-width: 900px) {
+  .finx-table {
+    font-size: 14px;
+  }
+  .finx-title {
+    font-size: 22px;
+  }
+}
+/* Tabs row */
+.finx-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 8px 0 10px;
+}
+.finx-tab {
+  background: #ffffff;
+  border: 1px solid var(--fx-border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-weight: 800;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.12s ease, border-color 0.12s ease,
+    transform 0.02s ease;
+  box-shadow: 0 6px 16px rgba(2, 6, 23, 0.06);
+}
+.finx-tab:hover {
+  border-color: #cbd5e1;
+}
+.finx-tab:active {
+  transform: translateY(1px);
+}
+.finx-tab.is-active {
+  background: linear-gradient(180deg, #ffffff, #fbfdff);
+  border-color: var(--fx-accent);
+  box-shadow: 0 8px 20px rgba(13, 148, 221, 0.18);
+  color: var(--fx-accent-600);
+}
+
+/* Panel body */
+.finx-panel {
+  padding: 12px 14px;
+}
+
+/* Responsive: stack tabs on narrow screens if needed */
+@media (max-width: 410px) {
+  .finx-tabs {
+    grid-template-columns: 1fr;
+  }
+}
+/* Mobile monthly cards */
+.finx-monthCards {
+  display: grid;
+  gap: 10px;
+}
+
+.finx-mcard {
+  background: var(--fx-card);
+  border: 1px solid var(--fx-border);
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 6px 18px rgba(2, 6, 23, 0.06);
+}
+
+.finx-mcard__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px dashed var(--fx-border);
+  padding-bottom: 6px;
+}
+
+.finx-mday {
+  display: grid;
+  gap: 2px;
+}
+.finx-mday__label {
+  font-size: 12px;
+  color: var(--fx-muted);
+}
+.finx-mday__value {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--fx-text);
+}
+
+.finx-badge {
+  font-weight: 800;
+  border-radius: 999px;
+  padding: 6px 10px;
+  border: 1px solid var(--fx-border);
+  background: #f7fafc;
+  white-space: nowrap;
+}
+.finx-badge--pos {
+  color: #166534;
+  background: #dcfce7;
+  border-color: #bbf7d0;
+}
+.finx-badge--neg {
+  color: #991b1b;
+  background: #fee2e2;
+  border-color: #fecaca;
+}
+
+.finx-mrows {
+  display: grid;
+  gap: 8px;
+}
+
+.finx-kv {
+  display: grid;
+  gap: 4px;
+  background: var(--fx-soft);
+  border: 1px solid var(--fx-border);
+  border-radius: 8px;
+  padding: 8px;
+}
+.finx-k {
+  font-weight: 800;
+  color: var(--fx-text);
+  font-size: 13.5px;
+}
+.finx-v {
+  font-size: 13.5px;
+  color: var(--fx-muted);
+}
+
+/* Emphasize totals card slightly */
+.finx-mtotals {
+  border-width: 2px;
+  background: linear-gradient(180deg, #ffffff, #fbfdff);
+}
+.finx-amount.pos {
+  color: #166534;
+} /* green-700 */
+.finx-amount.neg {
+  color: #991b1b;
+} /* red-700 */

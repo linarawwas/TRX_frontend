@@ -1,4 +1,4 @@
-import Login from "./Pages/SharedPages/Login/Login";
+import Login from "./pages/SharedPages/Login/Login";
 import Layout from "./Layout/Layout";
 import {
   BrowserRouter as Router,

@@ -73,7 +73,7 @@ const DistributorsPage: React.FC = () => {
   const fetchList = useCallback(async () => {
     setListLoading(true);
     try {
-      const res = await fetch("https://trx-api.linarawas.com/api/distributors", {
+      const res = await fetch("http://localhost:5000/api/distributors", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const json = await res.json().catch(() => null);

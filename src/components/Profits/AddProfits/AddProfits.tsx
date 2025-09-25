@@ -51,7 +51,7 @@ const AddProfits: React.FC = () => {
         shipmentId,
       };
 
-      const res = await fetch("https://trx-api.linarawas.com/api/extraProfits", {
+      const res = await fetch("http://localhost:5000/api/extraProfits", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

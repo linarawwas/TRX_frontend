@@ -1,5 +1,5 @@
 // src/utils/apiFinances.ts
-const API = "https://trx-api.linarawas.com";
+const API = "http://localhost:5000";
 export async function createFinance(token: string, body: any) {
   const res = await fetch(`${API}/api/finances`, {
     method: "POST",
