@@ -102,71 +102,37 @@ export default function OrdersOfToday(): JSX.Element {
     };
   }, [rows]);
 
-  const renderTable = (orders: Order[]) => (
-    <table className="ooty-table">
-      <thead className="ooty-table-head">
-        <tr>
-          <th>الوقت</th>
-          <th>الزبون</th>
-          <th>مسلّم</th>
-          <th>مرجّع</th>
-          <th>$</th>
-          <th>ل.ل</th>
-        </tr>
-      </thead>
-      <tbody>
-        {orders.map((o) => {
-          const usd =
-            o.sumUSD ??
-            (o.payments || [])
-              .filter((p) => p.currency === "USD")
-              .reduce((s, p) => s + (p.amount || 0), 0);
+const renderStacked = (orders: Order[]) => (
+  <div className="ooty-reflowList">
+    {orders.map((o) => {
+      const usd = o.sumUSD ?? (o.payments||[]).filter(p=>p.currency==="USD").reduce((s,p)=>s+(p.amount||0),0);
+      const lbp = o.sumLBP ?? (o.payments||[]).filter(p=>p.currency==="LBP").reduce((s,p)=>s+(p.amount||0),0);
+      const isoTime = o.orderTime || o.createdAt || (o.payments?.[0]?.date);
+      let time = "—";
+      try { if (isoTime) time = new Date(isoTime).toLocaleTimeString("ar",{ timeZone:"Asia/Beirut", hour:"2-digit", minute:"2-digit" }); } catch {}
+      const routeId = o.customerObjId || o.customerid;
 
-          const lbp =
-            o.sumLBP ??
-            (o.payments || [])
-              .filter((p) => p.currency === "LBP")
-              .reduce((s, p) => s + (p.amount || 0), 0);
+      return (
+        <article className="ooty-reflowCard" key={o._id}>
+          <header className="ooty-reflowHeader">
+            <Link className="ooty-customer-link ooty-reflowName" to={`/updateCustomer/${routeId}`}>
+              {o.customerName || o.customerid}
+            </Link>
+            <time className="ooty-reflowTime">{time}</time>
+          </header>
 
-          const isoTime =
-            o.orderTime ||
-            o.createdAt ||
-            (o.payments && o.payments.length ? o.payments[0].date : undefined);
+          <dl className="ooty-reflowGrid" dir="rtl">
+            <div><dt>مسلّم</dt><dd>{o.delivered || 0}</dd></div>
+            <div><dt>مرجّع</dt><dd>{o.returned || 0}</dd></div>
+            <div><dt>$</dt><dd>{usd || 0}</dd></div>
+            <div><dt>ل.ل</dt><dd>{lbp ? lbp.toLocaleString() : 0}</dd></div>
+          </dl>
+        </article>
+      );
+    })}
+  </div>
+);
 
-          let time = "—";
-          if (isoTime) {
-            try {
-              time = new Date(isoTime).toLocaleTimeString("ar", {
-                timeZone: "Asia/Beirut",
-                hour: "2-digit",
-                minute: "2-digit",
-              });
-            } catch {}
-          }
-
-          const custIdForRoute = o.customerObjId || o.customerid;
-
-          return (
-            <tr key={o._id}>
-              <td>{time}</td>
-              <td>
-                <Link
-                  className="ooty-customer-link"
-                  to={`/updateCustomer/${custIdForRoute}`}
-                >
-                  {o.customerName || o.customerid}
-                </Link>
-              </td>
-              <td>{o.delivered || 0}</td>
-              <td>{o.returned || 0}</td>
-              <td>{usd || 0}</td>
-              <td>{lbp ? lbp.toLocaleString() : 0}</td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
-  );
 
   const Section = ({
     title,
@@ -235,12 +201,12 @@ export default function OrdersOfToday(): JSX.Element {
         <main className="ooty__content">
           {/* Orders (type 2) */}
           <Section title="طلبات اليوم" count={type2Orders.length} defaultOpen>
-            {renderTable(type2Orders)}
+            {renderStacked(type2Orders)}
           </Section>
 
           {/* External orders (type 3) */}
           <Section title="طلبات خارجية" count={type3Orders.length}>
-            {renderTable(type3Orders)}
+            {renderStacked(type3Orders)}
           </Section>
         </main>
       )}
