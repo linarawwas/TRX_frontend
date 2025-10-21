@@ -266,6 +266,24 @@ const ShipmentsList: React.FC = () => {
                 {formatUSD(totals.shipmentUSDExpenses)}
               </div>
             </div>
+            <div className="kpi">
+              <div className="kpi-label">نفقات بالليرة</div>
+              <div className="kpi-value">
+                {formatUSD(totals.shipmentLiraExpenses)}
+              </div>
+            </div>
+            <div className="kpi">
+              <div className="kpi-label">أرباح إضافية $</div>
+              <div className="kpi-value">
+                {formatUSD(totals.shipmentUSDExtraProfits)}
+              </div>
+            </div>
+            <div className="kpi">
+              <div className="kpi-label">أرباح إضافية ل.ل</div>
+              <div className="kpi-value">
+                {formatUSD(totals.shipmentLiraExtraProfits)}
+              </div>
+            </div>
           </>
         )}
       </section>
