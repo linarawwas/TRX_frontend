@@ -40,24 +40,24 @@ export async function preloadShipmentData({
     const auth = { Authorization: `Bearer ${token}` };
 
     // --- Core fetches (ONLY today's context) ---
-    const dayRes = fetch(`http://localhost:5000/api/days/${dayId}`, {
+    const dayRes = fetch(`https://trx-api.linarawas.com/api/days/${dayId}`, {
       headers: auth,
     });
     const areasByDayRes = fetch(
-      `http://localhost:5000/api/areas/day/${dayId}`,
+      `https://trx-api.linarawas.com/api/areas/day/${dayId}`,
       { headers: auth }
     );
 
     // Product “Bottles” (tenant-inferred; legacy fallback by companyId)
     const productResPromise = (async () => {
       const r1 = await fetch(
-        `http://localhost:5000/api/products/type?name=Bottles`,
+        `https://trx-api.linarawas.com/api/products/type?name=Bottles`,
         { headers: auth }
       );
       if (r1.ok) return r1;
       if (companyId) {
         return fetch(
-          `http://localhost:5000/api/products/productType/company/${companyId}`,
+          `https://trx-api.linarawas.com/api/products/productType/company/${companyId}`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json", ...auth },
@@ -67,7 +67,7 @@ export async function preloadShipmentData({
       }
       return undefined;
     })();
-    const exchangeRateRes = fetch(`http://localhost:5000/api/exchange-rate`, {
+    const exchangeRateRes = fetch(`https://trx-api.linarawas.com/api/exchange-rate`, {
       headers: auth,
     });
 
@@ -133,7 +133,7 @@ export async function preloadShipmentData({
 
           // Use your new endpoint
           const customersRes = await fetch(
-            `http://localhost:5000/api/customers/area/${area._id}/active`,
+            `https://trx-api.linarawas.com/api/customers/area/${area._id}/active`,
             { headers: auth }
           );
           const customers = (await safeJson(customersRes)) || [];
@@ -157,11 +157,11 @@ export async function preloadShipmentData({
                 if (!customer?._id) return;
                 const [discountRes, invoiceRes] = await Promise.all([
                   fetch(
-                    `http://localhost:5000/api/customers/discount/${customer._id}`,
+                    `https://trx-api.linarawas.com/api/customers/discount/${customer._id}`,
                     { headers: auth }
                   ),
                   fetch(
-                    `http://localhost:5000/api/customers/reciept/${customer._id}`,
+                    `https://trx-api.linarawas.com/api/customers/reciept/${customer._id}`,
                     { headers: auth }
                   ),
                 ]);

@@ -28,6 +28,7 @@
 } /* ───────────────────────── Cards & Collapse ───────────────────────── */
 .finx-card {
   background: var(--fx-card);
+  width: 90%;
   border: 1px solid var(--fx-border);
   border-radius: 14px;
   box-shadow: 0 8px 24px rgba(2, 6, 23, 0.06);
@@ -66,6 +67,7 @@
   padding: 12px 14px 14px;
 } /* ───────────────────────── Forms ───────────────────────── */
 .finx-form {
+  width: 90%;
   display: grid;
   gap: 10px;
 }
@@ -346,10 +348,9 @@
 }
 .finx-payrow {
   display: grid;
-  grid-template-columns: 120px minmax(120px, 1fr) minmax(140px, 1fr) minmax(
-      140px,
-      1fr
-    ) 80px;
+  grid-template-columns:
+    120px minmax(120px, 1fr) minmax(140px, 1fr) minmax(140px, 1fr)
+    80px;
   gap: 6px;
   align-items: center;
 }
@@ -372,4 +373,84 @@
 .finx-btn.danger {
   background: #fee2e2;
   border: 1px solid #fecaca;
+}
+/* ---------- Forms (add tab improvements) ---------- */
+.finx-form {
+  /* mobile-first: full width inside panel */
+  width: 100%;
+  display: grid;
+  gap: 10px;
+  max-width: 860px; /* keeps nice measure on tablets */
+  margin: 0 auto;
+}
+
+/* already mobile-first; stays */
+.finx-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+.finx-col2 {
+  grid-column: 1 / -1;
+}
+
+/* Sticky primary action on phones */
+.finx-actions--sticky {
+  position: sticky;
+  bottom: 8px;
+  z-index: 1;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0), #fff 28%);
+  padding-top: 6px;
+}
+
+/* ---------- Payment editor (replace the table) ---------- */
+.finx-payments {
+  display: grid;
+  gap: 10px;
+}
+
+/* Mobile-first layout: stacked inputs, no horizontal scrolling */
+.finx-payrow {
+  display: grid;
+  grid-template-columns: 1fr; /* stack on phones */
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--fx-border);
+  border-radius: 10px;
+  background: var(--fx-soft);
+}
+
+/* Inputs already 100% via .finx-input */
+.finx-payrow .finx-actions {
+  justify-content: flex-end;
+  margin-top: 2px;
+}
+
+/* ≥ 640px: compact grid like a “table”, still flexible */
+@media (min-width: 640px) {
+  .finx-payrow {
+    grid-template-columns: 120px 1fr 1fr; /* currency | amount | method */
+    align-items: end;
+  }
+  .finx-payrow .finx-col2 {
+    grid-column: 1 / -1; /* note + delete button on full row */
+  }
+}
+
+/* Keep existing danger button look */
+.finx-btn.danger {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+}
+
+/* ---------- Minor polish: mode switch wraps on narrow screens ---------- */
+.finx-row__right {
+  flex-wrap: wrap;
+}
+
+/* (Optional) Small touch target improvement for radios in the mode switch */
+.finx-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }

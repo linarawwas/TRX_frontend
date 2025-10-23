@@ -121,19 +121,12 @@ export default function FinanceDashboard() {
   // summaries
   const [daily, setDaily] = useState<any>(null);
   const [monthly, setMonthly] = useState<any[]>([]);
-
-  // --------- ADD FORM (supports legacy OR multi-payment) ----------
-  type AddMode = "multi" | "legacy";
-  const [addMode, setAddMode] = useState<AddMode>("multi");
-
+  // After (no legacy single-amount fields)
   const [form, setForm] = useState<any>({
     kind: "expense",
     categoryId: "",
     date,
     note: "",
-    // legacy fields (single)
-    currency: "USD",
-    amount: "",
   });
 
   const [payments, setPayments] = useState<PaymentRow[]>([
@@ -145,7 +138,9 @@ export default function FinanceDashboard() {
   const removePaymentRow = (idx: number) =>
     setPayments((rows) => rows.filter((_, i) => i !== idx));
   const updatePaymentRow = (idx: number, patch: Partial<PaymentRow>) =>
-    setPayments((rows) => rows.map((r, i) => (i === idx ? { ...r, ...patch } : r)));
+    setPayments((rows) =>
+      rows.map((r, i) => (i === idx ? { ...r, ...patch } : r))
+    );
 
   // entries tab state
   const [eYm, setEYm] = useState<{ y: number; m: number }>(() => ({ ...ym }));
@@ -194,44 +189,32 @@ export default function FinanceDashboard() {
         return;
       }
 
-      if (addMode === "multi") {
-        const payload = {
-          ...base,
-          // send payments[]; filter out empty rows
-          payments: payments
-            .map((p) => ({
-              date: base.date,
-              amount: Number(p.amount),
-              currency: p.currency,
-              paymentMethod: p.paymentMethod?.trim(),
-              note: p.note?.trim(),
-            }))
-            .filter((p) => Number.isFinite(p.amount) && p.amount > 0),
-        };
-        if (!payload.payments.length) {
-          toast.warn("أضف دفعة واحدة على الأقل");
-          return;
-        }
-        await createFinance(token, payload);
-      } else {
-        // legacy single amount
-        const payload = {
-          ...base,
-          currency: form.currency,
-          amount: Number(form.amount),
-        };
-        if (!Number.isFinite(payload.amount) || payload.amount <= 0) {
-          toast.warn("أدخل قيمة صالحة");
-          return;
-        }
-        await createFinance(token, payload);
+      // Always multi-payment now
+      const payload = {
+        ...base,
+        payments: (payments || [])
+          .map((p) => ({
+            date: base.date,
+            amount: Number(p.amount),
+            currency: p.currency,
+            paymentMethod: p.paymentMethod?.trim(),
+            note: p.note?.trim(),
+          }))
+          .filter((p) => Number.isFinite(p.amount) && p.amount > 0),
+      };
+
+      if (!payload.payments.length) {
+        toast.warn("أضف دفعة واحدة على الأقل");
+        return;
       }
 
+      await createFinance(token, payload);
+
       toast.success("تم الحفظ بنجاح");
+
       // reset
       setForm((f: any) => ({
         ...f,
-        amount: "",
         note: "",
         date: new Date().toISOString().slice(0, 10),
       }));
@@ -242,7 +225,8 @@ export default function FinanceDashboard() {
       dailySummary(token, today).then(setDaily);
       monthlySummary(token, ym.y, ym.m).then(setMonthly);
       setActive("daily");
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error("فشل حفظ العملية");
     }
   };
@@ -285,7 +269,7 @@ export default function FinanceDashboard() {
       if (eKind) qs.set("kind", eKind);
       if (eCat) qs.set("categoryId", eCat);
       const res = await fetch(
-        `http://localhost:5000/api/finances?${qs.toString()}`,
+        `https://trx-api.linarawas.com/api/finances?${qs.toString()}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const data = await res.json();
@@ -394,30 +378,7 @@ export default function FinanceDashboard() {
         {/* ADD */}
         {active === "add" && (
           <form className="finx-form" onSubmit={submit}>
-            {/* Mode switch */}
-            <div className="finx-row" style={{ marginBottom: 8, gap: 8 }}>
-              <div className="finx-row__right" style={{ gap: 8 }}>
-                <label className="finx-switch">
-                  <input
-                    type="radio"
-                    name="addmode"
-                    checked={addMode === "multi"}
-                    onChange={() => setAddMode("multi")}
-                  />
-                  <span>وضع متعدد الدفعات</span>
-                </label>
-                <label className="finx-switch">
-                  <input
-                    type="radio"
-                    name="addmode"
-                    checked={addMode === "legacy"}
-                    onChange={() => setAddMode("legacy")}
-                  />
-                  <span>وضع مفرد (توافق قديم)</span>
-                </label>
-              </div>
-            </div>
-
+            {/* Top fields (mobile-first grid) */}
             <div className="finx-grid">
               <label className="finx-label">
                 النوع
@@ -471,145 +432,110 @@ export default function FinanceDashboard() {
                 />
               </label>
             </div>
-
-            {/* Multi-payment editor */}
-            {addMode === "multi" && (
-              <div className="finx-card" style={{ marginTop: 10 }}>
-                <div
-                  className="finx-row"
-                  style={{
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: 8,
-                  }}
+            <div className="finx-card" style={{ marginTop: 10, padding: 10 }}>
+              <div
+                className="finx-row"
+                style={{
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: 8,
+                  gap: 8,
+                }}
+              >
+                <strong>الدفعات</strong>
+                <button
+                  type="button"
+                  className="finx-btn"
+                  onClick={addPaymentRow}
                 >
-                  <strong>الدفعات</strong>
-                  <button
-                    type="button"
-                    className="finx-btn"
-                    onClick={addPaymentRow}
-                  >
-                    + إضافة دفعة
-                  </button>
-                </div>
-
-                <div className="finx-tableWrap">
-                  <table className="finx-table">
-                    <thead>
-                      <tr>
-                        <th style={{ width: 120 }}>العملة</th>
-                        <th>القيمة</th>
-                        <th style={{ width: 160 }}>طريقة الدفع</th>
-                        <th>ملاحظة</th>
-                        <th style={{ width: 60 }}></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {payments.map((p, idx) => (
-                        <tr key={idx}>
-                          <td>
-                            <select
-                              className="finx-input"
-                              value={p.currency}
-                              onChange={(e) =>
-                                updatePaymentRow(idx, {
-                                  currency: e.target.value as "USD" | "LBP",
-                                })
-                              }
-                            >
-                              <option value="USD">USD</option>
-                              <option value="LBP">ل.ل</option>
-                            </select>
-                          </td>
-                          <td>
-                            <input
-                              className="finx-input"
-                              type="number"
-                              step="0.01"
-                              value={p.amount}
-                              onChange={(e) =>
-                                updatePaymentRow(idx, {
-                                  amount: e.target.value,
-                                })
-                              }
-                            />
-                          </td>
-                          <td>
-                            <input
-                              className="finx-input"
-                              type="text"
-                              value={p.paymentMethod || ""}
-                              onChange={(e) =>
-                                updatePaymentRow(idx, {
-                                  paymentMethod: e.target.value,
-                                })
-                              }
-                              placeholder="نقدي/مصرفي…"
-                            />
-                          </td>
-                          <td>
-                            <input
-                              className="finx-input"
-                              type="text"
-                              value={p.note || ""}
-                              onChange={(e) =>
-                                updatePaymentRow(idx, { note: e.target.value })
-                              }
-                            />
-                          </td>
-                          <td>
-                            <button
-                              type="button"
-                              className="finx-btn danger"
-                              onClick={() => removePaymentRow(idx)}
-                              title="حذف"
-                            >
-                              حذف
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                      {payments.length === 0 && (
-                        <tr>
-                          <td colSpan={5}>لا توجد دفعات. أضف دفعة أعلاه.</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                  + إضافة دفعة
+                </button>
               </div>
-            )}
 
-            {/* Legacy single amount editor */}
-            {addMode === "legacy" && (
-              <div className="finx-grid" style={{ marginTop: 10 }}>
-                <label className="finx-label">
-                  العملة
-                  <select
-                    className="finx-input"
-                    value={form.currency}
-                    onChange={(e) =>
-                      setForm({ ...form, currency: e.target.value })
-                    }
-                  >
-                    <option value="USD">دولار (USD)</option>
-                    <option value="LBP">ليرة (ل.ل)</option>
-                  </select>
-                </label>
-                <label className="finx-label">
-                  القيمة
-                  <input
-                    className="finx-input"
-                    type="number"
-                    step="0.01"
-                    value={form.amount}
-                    onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                  />
-                </label>
+              <div className="finx-payments">
+                {payments.map((p, idx) => (
+                  <div className="finx-payrow" key={idx}>
+                    <label className="finx-label">
+                      العملة
+                      <select
+                        className="finx-input"
+                        value={p.currency}
+                        onChange={(e) =>
+                          updatePaymentRow(idx, {
+                            currency: e.target.value as "USD" | "LBP",
+                          })
+                        }
+                      >
+                        <option value="USD">USD</option>
+                        <option value="LBP">ل.ل</option>
+                      </select>
+                    </label>
+
+                    <label className="finx-label">
+                      القيمة
+                      <input
+                        className="finx-input"
+                        type="number"
+                        inputMode="decimal"
+                        step="0.01"
+                        value={p.amount}
+                        onChange={(e) =>
+                          updatePaymentRow(idx, { amount: e.target.value })
+                        }
+                        placeholder="0.00"
+                      />
+                    </label>
+
+                    <label className="finx-label">
+                      طريقة الدفع
+                      <input
+                        className="finx-input"
+                        type="text"
+                        value={p.paymentMethod || ""}
+                        onChange={(e) =>
+                          updatePaymentRow(idx, {
+                            paymentMethod: e.target.value,
+                          })
+                        }
+                        placeholder="نقدي/مصرفي…"
+                      />
+                    </label>
+
+                    <label className="finx-label finx-col2">
+                      ملاحظة
+                      <input
+                        className="finx-input"
+                        type="text"
+                        value={p.note || ""}
+                        onChange={(e) =>
+                          updatePaymentRow(idx, { note: e.target.value })
+                        }
+                        placeholder="اختياري"
+                      />
+                    </label>
+
+                    <div className="finx-actions finx-col2">
+                      <button
+                        type="button"
+                        className="finx-btn danger"
+                        onClick={() => removePaymentRow(idx)}
+                        title="حذف الدفعة"
+                      >
+                        حذف
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+                {payments.length === 0 && (
+                  <div className="finx-tile">
+                    لا توجد دفعات. أضف دفعة أعلاه.
+                  </div>
+                )}
               </div>
-            )}
+            </div>
 
-            <div className="finx-actions" style={{ marginTop: 10 }}>
+            <div className="finx-actions finx-actions--sticky">
               <button
                 className="finx-btn primary"
                 disabled={!isAdmin || !form.categoryId}
@@ -788,7 +714,9 @@ export default function FinanceDashboard() {
                 {/* Cards for selected days */}
                 <div className="finx-monthCards">
                   {selDays.length === 0 && (
-                    <div className="finx-tile">اختر يومًا من الأعلى لعرض تفاصيله.</div>
+                    <div className="finx-tile">
+                      اختر يومًا من الأعلى لعرض تفاصيله.
+                    </div>
                   )}
 
                   {monthly
@@ -845,28 +773,30 @@ export default function FinanceDashboard() {
                       <div className="finx-mday">
                         <span className="finx-mday__label">إجمالي الشهر</span>
                       </div>
-                      <span className="finx-badge">الصافي ≈ {fmtUSD(totals.netNorm)}</span>
+                      <span className="finx-badge">
+                        الصافي ≈ {fmtUSD(totals.netNorm)}
+                      </span>
                     </header>
                     <div className="finx-mrows">
                       <div className="finx-kv">
                         <div className="finx-k">الشحنات</div>
                         <div className="finx-v">
-                          {fmtUSD(totals.ship.usd)} · {fmtLBP(totals.ship.lbp)} · ≈{" "}
-                          {fmtUSD(totals.ship.norm)}
+                          {fmtUSD(totals.ship.usd)} · {fmtLBP(totals.ship.lbp)}{" "}
+                          · ≈ {fmtUSD(totals.ship.norm)}
                         </div>
                       </div>
                       <div className="finx-kv">
                         <div className="finx-k">إيرادات أخرى</div>
                         <div className="finx-v">
-                          {fmtUSD(totals.inc.usd)} · {fmtLBP(totals.inc.lbp)} · ≈{" "}
-                          {fmtUSD(totals.inc.norm)}
+                          {fmtUSD(totals.inc.usd)} · {fmtLBP(totals.inc.lbp)} ·
+                          ≈ {fmtUSD(totals.inc.norm)}
                         </div>
                       </div>
                       <div className="finx-kv">
                         <div className="finx-k">مصروفات</div>
                         <div className="finx-v">
-                          {fmtUSD(totals.exp.usd)} · {fmtLBP(totals.exp.lbp)} · ≈{" "}
-                          {fmtUSD(totals.exp.norm)}
+                          {fmtUSD(totals.exp.usd)} · {fmtLBP(totals.exp.lbp)} ·
+                          ≈ {fmtUSD(totals.exp.norm)}
                         </div>
                       </div>
                     </div>
@@ -1103,10 +1033,12 @@ export default function FinanceDashboard() {
                                       e.categoryName || e.category?.name || "",
                                   })}
                                 </span>
-                                <span className="finx-v" style={{ marginRight: "auto" }}>
-                                  {/* aggregated */}
-                                  $ {sums.usd.toFixed(2)} · {fmtLBP(sums.lbp)} · ≈{" "}
-                                  {fmtUSD(sums.norm)}
+                                <span
+                                  className="finx-v"
+                                  style={{ marginRight: "auto" }}
+                                >
+                                  {/* aggregated */}$ {sums.usd.toFixed(2)} ·{" "}
+                                  {fmtLBP(sums.lbp)} · ≈ {fmtUSD(sums.norm)}
                                   {e.note ? (
                                     <>
                                       {" "}
@@ -1117,47 +1049,49 @@ export default function FinanceDashboard() {
                               </summary>
 
                               {/* payments breakdown for new entries */}
-                              {isNewFinanceShape(e) && e.payments?.length > 0 && (
-                                <div style={{ marginTop: 6 }}>
-                                  {e.payments.map((p: any, i: number) => (
-                                    <div
-                                      key={i}
-                                      style={{
-                                        display: "flex",
-                                        gap: 8,
-                                        justifyContent: "space-between",
-                                        background: "#f9fafb",
-                                        border: "1px solid #e5e7eb",
-                                        borderRadius: 8,
-                                        padding: "6px 8px",
-                                        marginBottom: 4,
-                                      }}
-                                    >
-                                      <div>
-                                        {p.currency === "USD"
-                                          ? fmtUSD(p.amount)
-                                          : fmtLBP(p.amount)}
-                                        {p.currency === "LBP" &&
-                                        p.rateAtPaymentLBP ? (
-                                          <span style={{ color: "#475569" }}>
-                                            {" "}
-                                            (@{Math.round(
-                                              p.rateAtPaymentLBP
-                                            ).toLocaleString()}
-                                            )
-                                          </span>
-                                        ) : null}
+                              {isNewFinanceShape(e) &&
+                                e.payments?.length > 0 && (
+                                  <div style={{ marginTop: 6 }}>
+                                    {e.payments.map((p: any, i: number) => (
+                                      <div
+                                        key={i}
+                                        style={{
+                                          display: "flex",
+                                          gap: 8,
+                                          justifyContent: "space-between",
+                                          background: "#f9fafb",
+                                          border: "1px solid #e5e7eb",
+                                          borderRadius: 8,
+                                          padding: "6px 8px",
+                                          marginBottom: 4,
+                                        }}
+                                      >
+                                        <div>
+                                          {p.currency === "USD"
+                                            ? fmtUSD(p.amount)
+                                            : fmtLBP(p.amount)}
+                                          {p.currency === "LBP" &&
+                                          p.rateAtPaymentLBP ? (
+                                            <span style={{ color: "#475569" }}>
+                                              {" "}
+                                              (@
+                                              {Math.round(
+                                                p.rateAtPaymentLBP
+                                              ).toLocaleString()}
+                                              )
+                                            </span>
+                                          ) : null}
+                                        </div>
+                                        <div style={{ color: "#475569" }}>
+                                          {p.paymentMethod || "—"}
+                                        </div>
+                                        <div style={{ color: "#475569" }}>
+                                          {p.note || "—"}
+                                        </div>
                                       </div>
-                                      <div style={{ color: "#475569" }}>
-                                        {p.paymentMethod || "—"}
-                                      </div>
-                                      <div style={{ color: "#475569" }}>
-                                        {p.note || "—"}
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
+                                    ))}
+                                  </div>
+                                )}
                             </details>
                           );
                         })}
@@ -1197,7 +1131,9 @@ export default function FinanceDashboard() {
                         const sums = getEntrySums(e);
                         return (
                           <tr key={e._id}>
-                            <td>{String(e.date || e.createdAt || "").slice(0, 10)}</td>
+                            <td>
+                              {String(e.date || e.createdAt || "").slice(0, 10)}
+                            </td>
                             <td>{e.kind === "income" ? "إيراد" : "مصروف"}</td>
                             <td>
                               {catAr({

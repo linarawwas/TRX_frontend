@@ -3,7 +3,7 @@ import { saveCustomerInvoicesToDB } from "./indexedDB";
 export async function fetchAndCacheCustomerInvoice(customerId: string, token: string) {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/customers/reciept/${customerId}`,
+        `https://trx-api.linarawas.com/api/customers/reciept/${customerId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

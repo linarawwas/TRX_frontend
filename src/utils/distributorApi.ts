@@ -10,7 +10,7 @@ function authHeaders(token: string) {
 
 /** GET /api/distributors (lightweight list) */
 export async function listDistributors(token: string) {
-  const res = await fetch("http://localhost:5000/api/distributors", {
+  const res = await fetch("https://trx-api.linarawas.com/api/distributors", {
     headers: authHeaders(token),
   });
   if (!res.ok) throw new Error("Failed to list distributors");
@@ -24,7 +24,7 @@ export async function distributorsSummary(token: string, range: DateRange) {
   if (range.from) qs.set("from", range.from);
   if (range.to) qs.set("to", range.to);
   const res = await fetch(
-    `http://localhost:5000/api/distributors/summary?${qs.toString()}`,
+    `https://trx-api.linarawas.com/api/distributors/summary?${qs.toString()}`,
     {
       headers: authHeaders(token),
     }
@@ -38,7 +38,7 @@ export async function createDistributor(
   token: string,
   payload: { name: string; commissionPct?: number }
 ) {
-  const res = await fetch("http://localhost:5000/api/distributors", {
+  const res = await fetch("https://trx-api.linarawas.com/api/distributors", {
     method: "POST",
     headers: authHeaders(token),
     body: JSON.stringify(payload),
@@ -54,7 +54,7 @@ export async function updateDistributor(
   id: string,
   payload: Partial<{ name: string; commissionPct: number }>
 ) {
-  const res = await fetch(`http://localhost:5000/api/distributors/${id}`, {
+  const res = await fetch(`https://trx-api.linarawas.com/api/distributors/${id}`, {
     method: "PATCH",
     headers: authHeaders(token),
     body: JSON.stringify(payload),
@@ -66,7 +66,7 @@ export async function updateDistributor(
 
 /** DELETE /api/distributors/:id */
 export async function deleteDistributor(token: string, id: string) {
-  const res = await fetch(`http://localhost:5000/api/distributors/${id}`, {
+  const res = await fetch(`https://trx-api.linarawas.com/api/distributors/${id}`, {
     method: "DELETE",
     headers: authHeaders(token),
   });
@@ -78,7 +78,7 @@ export async function deleteDistributor(token: string, id: string) {
 /** GET /api/distributors/:id/customers */
 export async function distributorCustomers(token: string, id: string) {
   const res = await fetch(
-    `http://localhost:5000/api/distributors/${id}/customers`,
+    `https://trx-api.linarawas.com/api/distributors/${id}/customers`,
     {
       headers: authHeaders(token),
     }
@@ -97,7 +97,7 @@ export async function distributorSummary(
   if (range.from) qs.set("from", range.from);
   if (range.to) qs.set("to", range.to);
   const res = await fetch(
-    `http://localhost:5000/api/distributors/${id}/detail?${qs.toString()}`,
+    `https://trx-api.linarawas.com/api/distributors/${id}/detail?${qs.toString()}`,
     {
       headers: authHeaders(token),
     }
@@ -113,7 +113,7 @@ export async function assignCustomerToDistributor(
   distributorId: string
 ) {
   const res = await fetch(
-    `http://localhost:5000/api/distributors/customers/${customerId}/assign`,
+    `https://trx-api.linarawas.com/api/distributors/customers/${customerId}/assign`,
     {
       method: "PATCH",
       headers: authHeaders(token),
@@ -131,7 +131,7 @@ export async function unassignCustomerFromDistributor(
   customerId: string
 ) {
   const res = await fetch(
-    `http://localhost:5000/api/distributors/customers/${customerId}/unassign`,
+    `https://trx-api.linarawas.com/api/distributors/customers/${customerId}/unassign`,
     {
       method: "PATCH",
       headers: authHeaders(token),

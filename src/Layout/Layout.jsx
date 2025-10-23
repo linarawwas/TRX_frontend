@@ -20,7 +20,7 @@ function Layout() {
     // Fetch user data to get companyId
     // Dispatch the setToken action to save the token in the Redux store
     dispatch(setToken(token));
-    fetch("http://localhost:5000/api/users/me", {
+    fetch("https://trx-api.linarawas.com/api/users/me", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
