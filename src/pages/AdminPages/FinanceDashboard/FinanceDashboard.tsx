@@ -31,13 +31,12 @@ const catAr = (c: Cat | { name: string }) => CAT_AR_MAP[c.name] || c.name;
 
 const fmtUSD = (n: number) => `$${(n || 0).toFixed(2)}`;
 const fmtLBP = (n: number) => `${Math.round(n || 0).toLocaleString()} ل.ل`;
-// signed rendering (typographic minus)
 const fmtSignedUSD = (n: number) =>
   `${n >= 0 ? "+" : "−"}$${Math.abs(n || 0).toFixed(2)}`;
 const fmtSignedLBP = (n: number) =>
   `${n >= 0 ? "+" : "−"}${Math.round(Math.abs(n || 0)).toLocaleString()} ل.ل`;
 
-// ✅ tiny hook for responsive switch (call at top-level only)
+// ---------- Responsive hook ----------
 function useMediaQuery(query: string) {
   const get = () =>
     typeof window !== "undefined" && window.matchMedia(query).matches;
@@ -51,13 +50,62 @@ function useMediaQuery(query: string) {
   return matches;
 }
 
+// ---------- Mixed-shape helpers (legacy + new) ----------
+type PaymentRow = {
+  date?: string;
+  amount: number | string;
+  currency: "USD" | "LBP";
+  paymentMethod?: string;
+  note?: string;
+  // for display only
+  rateAtPaymentLBP?: number;
+};
+
+function isNewFinanceShape(e: any): boolean {
+  return Array.isArray(e?.payments);
+}
+
+// Prefer denormalized sums if present; else compute/derive from legacy fields.
+function getEntrySums(e: any): { usd: number; lbp: number; norm: number } {
+  if (isNewFinanceShape(e)) {
+    const usd = Number(e.sumUSD ?? 0);
+    const lbp = Number(e.sumLBP ?? 0);
+    const norm = Number(e.normalizedUSDTotal ?? 0);
+    if (usd || lbp || norm) return { usd, lbp, norm };
+    // fallback compute if server didn't denorm (shouldn't happen often)
+    let cUSD = 0,
+      cLBP = 0,
+      cNorm = 0;
+    for (const p of e.payments || []) {
+      const amt = Number(p.amount) || 0;
+      if (p.currency === "USD") {
+        cUSD += amt;
+        cNorm += amt;
+      } else if (p.currency === "LBP") {
+        const r = Number(p.rateAtPaymentLBP || 0);
+        cLBP += amt;
+        if (r >= 1) cNorm += amt / r;
+      }
+    }
+    return { usd: cUSD, lbp: cLBP, norm: cNorm };
+  }
+  // legacy
+  const amt = Number(e.amount) || 0;
+  const norm = Number(e.normUSD ?? e.normalizedUSD ?? 0) || 0;
+  const cur = String(e.currency || "").toUpperCase();
+  return {
+    usd: cur === "USD" ? amt : 0,
+    lbp: cur === "LBP" ? amt : 0,
+    norm,
+  };
+}
+
 export default function FinanceDashboard() {
   const token = useSelector((s: any) => s.user.token);
   const isAdmin = useSelector((s: any) => s.user.isAdmin);
 
   const [active, setActive] = useState<TabKey>("daily");
   const compact = useMediaQuery("(max-width: 720px)");
-  // at top-level of FinanceDashboard component (with other useState hooks)
   const [selDays, setSelDays] = React.useState<number[]>([]);
 
   // shared refs
@@ -74,15 +122,30 @@ export default function FinanceDashboard() {
   const [daily, setDaily] = useState<any>(null);
   const [monthly, setMonthly] = useState<any[]>([]);
 
-  // add form
+  // --------- ADD FORM (supports legacy OR multi-payment) ----------
+  type AddMode = "multi" | "legacy";
+  const [addMode, setAddMode] = useState<AddMode>("multi");
+
   const [form, setForm] = useState<any>({
     kind: "expense",
     categoryId: "",
-    currency: "USD",
-    amount: "",
     date,
     note: "",
+    // legacy fields (single)
+    currency: "USD",
+    amount: "",
   });
+
+  const [payments, setPayments] = useState<PaymentRow[]>([
+    { amount: "", currency: "USD" },
+  ]);
+
+  const addPaymentRow = () =>
+    setPayments((rows) => [...rows, { amount: "", currency: "USD" }]);
+  const removePaymentRow = (idx: number) =>
+    setPayments((rows) => rows.filter((_, i) => i !== idx));
+  const updatePaymentRow = (idx: number, patch: Partial<PaymentRow>) =>
+    setPayments((rows) => rows.map((r, i) => (i === idx ? { ...r, ...patch } : r)));
 
   // entries tab state
   const [eYm, setEYm] = useState<{ y: number; m: number }>(() => ({ ...ym }));
@@ -104,6 +167,7 @@ export default function FinanceDashboard() {
       .then(setDaily)
       .catch(() => {});
   }, [token, date]);
+
   useEffect(() => {
     monthlySummary(token, ym.y, ym.m)
       .then(setMonthly)
@@ -118,12 +182,64 @@ export default function FinanceDashboard() {
       return;
     }
     try {
-      const body = { ...form, amount: Number(form.amount) };
-      await createFinance(token, body);
-      toast.success("تمت الإضافة بنجاح");
-      setForm((f: any) => ({ ...f, amount: "", note: "" }));
+      const base = {
+        kind: form.kind,
+        categoryId: form.categoryId,
+        date: form.date,
+        note: form.note?.trim(),
+      };
+
+      if (!base.categoryId) {
+        toast.warn("اختر الفئة");
+        return;
+      }
+
+      if (addMode === "multi") {
+        const payload = {
+          ...base,
+          // send payments[]; filter out empty rows
+          payments: payments
+            .map((p) => ({
+              date: base.date,
+              amount: Number(p.amount),
+              currency: p.currency,
+              paymentMethod: p.paymentMethod?.trim(),
+              note: p.note?.trim(),
+            }))
+            .filter((p) => Number.isFinite(p.amount) && p.amount > 0),
+        };
+        if (!payload.payments.length) {
+          toast.warn("أضف دفعة واحدة على الأقل");
+          return;
+        }
+        await createFinance(token, payload);
+      } else {
+        // legacy single amount
+        const payload = {
+          ...base,
+          currency: form.currency,
+          amount: Number(form.amount),
+        };
+        if (!Number.isFinite(payload.amount) || payload.amount <= 0) {
+          toast.warn("أدخل قيمة صالحة");
+          return;
+        }
+        await createFinance(token, payload);
+      }
+
+      toast.success("تم الحفظ بنجاح");
+      // reset
+      setForm((f: any) => ({
+        ...f,
+        amount: "",
+        note: "",
+        date: new Date().toISOString().slice(0, 10),
+      }));
+      setPayments([{ amount: "", currency: "USD" }]);
+
       // refresh summaries
-      dailySummary(token, date).then(setDaily);
+      const today = new Date().toISOString().slice(0, 10);
+      dailySummary(token, today).then(setDaily);
       monthlySummary(token, ym.y, ym.m).then(setMonthly);
       setActive("daily");
     } catch {
@@ -131,7 +247,7 @@ export default function FinanceDashboard() {
     }
   };
 
-  // Monthly totals across table rows
+  // Monthly totals across table rows (unchanged)
   const totals = useMemo(() => {
     return monthly.reduce(
       (acc: any, r: any) => {
@@ -173,7 +289,6 @@ export default function FinanceDashboard() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const data = await res.json();
-      // backend may return {items:[], total: n} or plain []
       setEntries(Array.isArray(data) ? data : data.items || []);
     } catch {
       toast.error("تعذر تحميل العمليات");
@@ -182,7 +297,6 @@ export default function FinanceDashboard() {
     }
   }
 
-  // Fetch whenever filters change or when tab switches to 'entries'
   useEffect(() => {
     if (active === "entries") fetchEntries();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -192,16 +306,15 @@ export default function FinanceDashboard() {
   const entryGroups = useMemo(() => {
     const map = new Map<string, any[]>();
     for (const e of entries) {
-      const d = (e.date || e.createdAt || "").slice(0, 10);
+      const d = String(e.date || e.createdAt || "").slice(0, 10);
       if (!map.has(d)) map.set(d, []);
       map.get(d)!.push(e);
     }
-    return Array.from(map.entries()).sort((a, b) =>
-      a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0
-    );
+    // newest first
+    return Array.from(map.entries()).sort((a, b) => (a[0] < b[0] ? 1 : -1));
   }, [entries]);
 
-  // Quick totals for the current filter period
+  // Quick totals for the current filter period (mixed shape)
   const entriesTotals = useMemo(() => {
     let incUSD = 0,
       incLBP = 0,
@@ -211,19 +324,17 @@ export default function FinanceDashboard() {
       expNorm = 0;
 
     for (const e of entries) {
-      const amount = Number(e.amount) || 0;
-      const approx = Number(e.normUSD ?? e.normalizedUSD ?? 0) || 0;
+      const sums = getEntrySums(e);
       const isInc = e.kind === "income";
-
-      if (e.currency === "USD") {
-        if (isInc) incUSD += amount;
-        else expUSD += amount;
-      } else if (e.currency === "LBP") {
-        if (isInc) incLBP += amount;
-        else expLBP += amount;
+      if (isInc) {
+        incUSD += sums.usd;
+        incLBP += sums.lbp;
+        incNorm += sums.norm;
+      } else {
+        expUSD += sums.usd;
+        expLBP += sums.lbp;
+        expNorm += sums.norm;
       }
-      if (isInc) incNorm += approx;
-      else expNorm += approx;
     }
 
     return {
@@ -283,6 +394,30 @@ export default function FinanceDashboard() {
         {/* ADD */}
         {active === "add" && (
           <form className="finx-form" onSubmit={submit}>
+            {/* Mode switch */}
+            <div className="finx-row" style={{ marginBottom: 8, gap: 8 }}>
+              <div className="finx-row__right" style={{ gap: 8 }}>
+                <label className="finx-switch">
+                  <input
+                    type="radio"
+                    name="addmode"
+                    checked={addMode === "multi"}
+                    onChange={() => setAddMode("multi")}
+                  />
+                  <span>وضع متعدد الدفعات</span>
+                </label>
+                <label className="finx-switch">
+                  <input
+                    type="radio"
+                    name="addmode"
+                    checked={addMode === "legacy"}
+                    onChange={() => setAddMode("legacy")}
+                  />
+                  <span>وضع مفرد (توافق قديم)</span>
+                </label>
+              </div>
+            </div>
+
             <div className="finx-grid">
               <label className="finx-label">
                 النوع
@@ -295,6 +430,7 @@ export default function FinanceDashboard() {
                   <option value="expense">مصروف</option>
                 </select>
               </label>
+
               <label className="finx-label">
                 الفئة
                 <select
@@ -314,29 +450,7 @@ export default function FinanceDashboard() {
                     ))}
                 </select>
               </label>
-              <label className="finx-label">
-                العملة
-                <select
-                  className="finx-input"
-                  value={form.currency}
-                  onChange={(e) =>
-                    setForm({ ...form, currency: e.target.value })
-                  }
-                >
-                  <option value="USD">دولار (USD)</option>
-                  <option value="LBP">ليرة (ل.ل)</option>
-                </select>
-              </label>
-              <label className="finx-label">
-                القيمة
-                <input
-                  className="finx-input"
-                  type="number"
-                  step="0.01"
-                  value={form.amount}
-                  onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                />
-              </label>
+
               <label className="finx-label finx-col2">
                 التاريخ
                 <input
@@ -346,6 +460,7 @@ export default function FinanceDashboard() {
                   onChange={(e) => setForm({ ...form, date: e.target.value })}
                 />
               </label>
+
               <label className="finx-label finx-col2">
                 ملاحظة
                 <input
@@ -356,12 +471,150 @@ export default function FinanceDashboard() {
                 />
               </label>
             </div>
-            <div className="finx-actions">
+
+            {/* Multi-payment editor */}
+            {addMode === "multi" && (
+              <div className="finx-card" style={{ marginTop: 10 }}>
+                <div
+                  className="finx-row"
+                  style={{
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 8,
+                  }}
+                >
+                  <strong>الدفعات</strong>
+                  <button
+                    type="button"
+                    className="finx-btn"
+                    onClick={addPaymentRow}
+                  >
+                    + إضافة دفعة
+                  </button>
+                </div>
+
+                <div className="finx-tableWrap">
+                  <table className="finx-table">
+                    <thead>
+                      <tr>
+                        <th style={{ width: 120 }}>العملة</th>
+                        <th>القيمة</th>
+                        <th style={{ width: 160 }}>طريقة الدفع</th>
+                        <th>ملاحظة</th>
+                        <th style={{ width: 60 }}></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {payments.map((p, idx) => (
+                        <tr key={idx}>
+                          <td>
+                            <select
+                              className="finx-input"
+                              value={p.currency}
+                              onChange={(e) =>
+                                updatePaymentRow(idx, {
+                                  currency: e.target.value as "USD" | "LBP",
+                                })
+                              }
+                            >
+                              <option value="USD">USD</option>
+                              <option value="LBP">ل.ل</option>
+                            </select>
+                          </td>
+                          <td>
+                            <input
+                              className="finx-input"
+                              type="number"
+                              step="0.01"
+                              value={p.amount}
+                              onChange={(e) =>
+                                updatePaymentRow(idx, {
+                                  amount: e.target.value,
+                                })
+                              }
+                            />
+                          </td>
+                          <td>
+                            <input
+                              className="finx-input"
+                              type="text"
+                              value={p.paymentMethod || ""}
+                              onChange={(e) =>
+                                updatePaymentRow(idx, {
+                                  paymentMethod: e.target.value,
+                                })
+                              }
+                              placeholder="نقدي/مصرفي…"
+                            />
+                          </td>
+                          <td>
+                            <input
+                              className="finx-input"
+                              type="text"
+                              value={p.note || ""}
+                              onChange={(e) =>
+                                updatePaymentRow(idx, { note: e.target.value })
+                              }
+                            />
+                          </td>
+                          <td>
+                            <button
+                              type="button"
+                              className="finx-btn danger"
+                              onClick={() => removePaymentRow(idx)}
+                              title="حذف"
+                            >
+                              حذف
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                      {payments.length === 0 && (
+                        <tr>
+                          <td colSpan={5}>لا توجد دفعات. أضف دفعة أعلاه.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Legacy single amount editor */}
+            {addMode === "legacy" && (
+              <div className="finx-grid" style={{ marginTop: 10 }}>
+                <label className="finx-label">
+                  العملة
+                  <select
+                    className="finx-input"
+                    value={form.currency}
+                    onChange={(e) =>
+                      setForm({ ...form, currency: e.target.value })
+                    }
+                  >
+                    <option value="USD">دولار (USD)</option>
+                    <option value="LBP">ليرة (ل.ل)</option>
+                  </select>
+                </label>
+                <label className="finx-label">
+                  القيمة
+                  <input
+                    className="finx-input"
+                    type="number"
+                    step="0.01"
+                    value={form.amount}
+                    onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                  />
+                </label>
+              </div>
+            )}
+
+            <div className="finx-actions" style={{ marginTop: 10 }}>
               <button
                 className="finx-btn primary"
-                disabled={!isAdmin || !form.categoryId || !form.amount}
+                disabled={!isAdmin || !form.categoryId}
               >
-                إضافة
+                حفظ العملية
               </button>
             </div>
           </form>
@@ -430,7 +683,7 @@ export default function FinanceDashboard() {
           </div>
         )}
 
-        {/* MONTHLY (cards on mobile / table on desktop) */}
+        {/* MONTHLY */}
         {active === "monthly" && (
           <div className="finx-content">
             <div className="finx-row" style={{ marginBottom: 8 }}>
@@ -470,7 +723,7 @@ export default function FinanceDashboard() {
                     }}
                   >
                     {monthly
-                      .slice() // copy before sort
+                      .slice()
                       .sort((a: any, b: any) => Number(a.d) - Number(b.d))
                       .map((r: any) => {
                         const dNum = Number(r.d);
@@ -496,7 +749,7 @@ export default function FinanceDashboard() {
                             style={{
                               padding: "4px 10px",
                               borderWidth: selected ? 2 : 1,
-                              borderColor: selected ? "#0ea5e9" : undefined, // teal-ish when selected
+                              borderColor: selected ? "#0ea5e9" : undefined,
                               boxShadow: selected
                                 ? "0 0 0 1px #0ea5e9 inset"
                                 : "none",
@@ -507,7 +760,6 @@ export default function FinanceDashboard() {
                         );
                       })}
 
-                    {/* quick actions */}
                     <button
                       type="button"
                       className="finx-badge"
@@ -533,12 +785,10 @@ export default function FinanceDashboard() {
                   </div>
                 </div>
 
-                {/* Cards only for selected days (or hint if none) */}
+                {/* Cards for selected days */}
                 <div className="finx-monthCards">
                   {selDays.length === 0 && (
-                    <div className="finx-tile">
-                      اختر يومًا من الأعلى لعرض تفاصيله.
-                    </div>
+                    <div className="finx-tile">اختر يومًا من الأعلى لعرض تفاصيله.</div>
                   )}
 
                   {monthly
@@ -589,36 +839,34 @@ export default function FinanceDashboard() {
                       );
                     })}
 
-                  {/* Totals card (always visible) */}
+                  {/* Totals card */}
                   <article className="finx-mcard finx-mtotals">
                     <header className="finx-mcard__head">
                       <div className="finx-mday">
                         <span className="finx-mday__label">إجمالي الشهر</span>
                       </div>
-                      <span className="finx-badge">
-                        الصافي ≈ {fmtUSD(totals.netNorm)}
-                      </span>
+                      <span className="finx-badge">الصافي ≈ {fmtUSD(totals.netNorm)}</span>
                     </header>
                     <div className="finx-mrows">
                       <div className="finx-kv">
                         <div className="finx-k">الشحنات</div>
                         <div className="finx-v">
-                          {fmtUSD(totals.ship.usd)} · {fmtLBP(totals.ship.lbp)}{" "}
-                          · ≈ {fmtUSD(totals.ship.norm)}
+                          {fmtUSD(totals.ship.usd)} · {fmtLBP(totals.ship.lbp)} · ≈{" "}
+                          {fmtUSD(totals.ship.norm)}
                         </div>
                       </div>
                       <div className="finx-kv">
                         <div className="finx-k">إيرادات أخرى</div>
                         <div className="finx-v">
-                          {fmtUSD(totals.inc.usd)} · {fmtLBP(totals.inc.lbp)} ·
-                          ≈ {fmtUSD(totals.inc.norm)}
+                          {fmtUSD(totals.inc.usd)} · {fmtLBP(totals.inc.lbp)} · ≈{" "}
+                          {fmtUSD(totals.inc.norm)}
                         </div>
                       </div>
                       <div className="finx-kv">
                         <div className="finx-k">مصروفات</div>
                         <div className="finx-v">
-                          {fmtUSD(totals.exp.usd)} · {fmtLBP(totals.exp.lbp)} ·
-                          ≈ {fmtUSD(totals.exp.norm)}
+                          {fmtUSD(totals.exp.usd)} · {fmtLBP(totals.exp.lbp)} · ≈{" "}
+                          {fmtUSD(totals.exp.norm)}
                         </div>
                       </div>
                     </div>
@@ -683,7 +931,7 @@ export default function FinanceDashboard() {
           </div>
         )}
 
-        {/* ENTRIES (new tab) */}
+        {/* ENTRIES */}
         {active === "entries" && (
           <div className="finx-content">
             {/* Filters */}
@@ -749,7 +997,7 @@ export default function FinanceDashboard() {
               </div>
             </div>
 
-            {/* Totals for current filter (sign-aware) */}
+            {/* Totals for current filter */}
             <div className="finx-grid-3" style={{ marginBottom: 6 }}>
               <div className="finx-tile">
                 <div style={{ fontWeight: 800, marginBottom: 6 }}>
@@ -802,12 +1050,13 @@ export default function FinanceDashboard() {
                 {!eLoading && entryGroups.length === 0 && (
                   <div className="finx-tile">لا توجد بيانات.</div>
                 )}
+
                 {entryGroups.map(([d, items]) => {
-                  // per-day net (≈USD)
+                  // per-day net (≈USD) using mixed shape
                   const dayNet = items.reduce((acc: number, e: any) => {
-                    const approx =
-                      Number(e.normUSD ?? e.normalizedUSD ?? 0) || 0;
-                    return acc + (e.kind === "income" ? approx : -approx);
+                    const s = getEntrySums(e);
+                    const delta = e.kind === "income" ? s.norm : -s.norm;
+                    return acc + delta;
                   }, 0);
                   const badgeClass =
                     dayNet >= 0 ? "finx-badge--pos" : "finx-badge--neg";
@@ -823,19 +1072,24 @@ export default function FinanceDashboard() {
                           الصافي ≈ {fmtSignedUSD(dayNet)}
                         </span>
                       </header>
+
                       <div className="finx-mrows">
                         {items.map((e: any) => {
+                          const sums = getEntrySums(e);
                           const isInc = e.kind === "income";
                           const badge = isInc
                             ? "finx-badge--pos"
                             : "finx-badge--neg";
-                          const approx =
-                            Number(e.normUSD ?? e.normalizedUSD ?? 0) || 0;
+
                           return (
-                            <div className="finx-kv" key={e._id}>
-                              <div
+                            <details className="finx-kv" key={e._id}>
+                              <summary
                                 className="finx-k"
-                                style={{ display: "flex", gap: 8 }}
+                                style={{
+                                  display: "flex",
+                                  gap: 8,
+                                  cursor: "pointer",
+                                }}
                               >
                                 <span
                                   className={`finx-badge ${badge}`}
@@ -849,21 +1103,62 @@ export default function FinanceDashboard() {
                                       e.categoryName || e.category?.name || "",
                                   })}
                                 </span>
-                              </div>
-                              <div className="finx-v">
-                                {e.currency === "USD"
-                                  ? fmtUSD(e.amount)
-                                  : fmtLBP(e.amount)}
-                                {"  ·  "}≈{" "}
-                                {fmtSignedUSD(isInc ? approx : -approx)}
-                                {e.note ? (
-                                  <>
-                                    {" "}
-                                    — <span>{e.note}</span>
-                                  </>
-                                ) : null}
-                              </div>
-                            </div>
+                                <span className="finx-v" style={{ marginRight: "auto" }}>
+                                  {/* aggregated */}
+                                  $ {sums.usd.toFixed(2)} · {fmtLBP(sums.lbp)} · ≈{" "}
+                                  {fmtUSD(sums.norm)}
+                                  {e.note ? (
+                                    <>
+                                      {" "}
+                                      — <span>{e.note}</span>
+                                    </>
+                                  ) : null}
+                                </span>
+                              </summary>
+
+                              {/* payments breakdown for new entries */}
+                              {isNewFinanceShape(e) && e.payments?.length > 0 && (
+                                <div style={{ marginTop: 6 }}>
+                                  {e.payments.map((p: any, i: number) => (
+                                    <div
+                                      key={i}
+                                      style={{
+                                        display: "flex",
+                                        gap: 8,
+                                        justifyContent: "space-between",
+                                        background: "#f9fafb",
+                                        border: "1px solid #e5e7eb",
+                                        borderRadius: 8,
+                                        padding: "6px 8px",
+                                        marginBottom: 4,
+                                      }}
+                                    >
+                                      <div>
+                                        {p.currency === "USD"
+                                          ? fmtUSD(p.amount)
+                                          : fmtLBP(p.amount)}
+                                        {p.currency === "LBP" &&
+                                        p.rateAtPaymentLBP ? (
+                                          <span style={{ color: "#475569" }}>
+                                            {" "}
+                                            (@{Math.round(
+                                              p.rateAtPaymentLBP
+                                            ).toLocaleString()}
+                                            )
+                                          </span>
+                                        ) : null}
+                                      </div>
+                                      <div style={{ color: "#475569" }}>
+                                        {p.paymentMethod || "—"}
+                                      </div>
+                                      <div style={{ color: "#475569" }}>
+                                        {p.note || "—"}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </details>
                           );
                         })}
                       </div>
@@ -880,7 +1175,8 @@ export default function FinanceDashboard() {
                       <th>التاريخ</th>
                       <th>النوع</th>
                       <th>الفئة</th>
-                      <th>المبلغ</th>
+                      <th>USD</th>
+                      <th>ل.ل</th>
                       <th>≈ بالدولار</th>
                       <th>ملاحظة</th>
                     </tr>
@@ -888,40 +1184,37 @@ export default function FinanceDashboard() {
                   <tbody>
                     {eLoading && (
                       <tr>
-                        <td colSpan={6}>جارٍ التحميل…</td>
+                        <td colSpan={7}>جارٍ التحميل…</td>
                       </tr>
                     )}
                     {!eLoading && entries.length === 0 && (
                       <tr>
-                        <td colSpan={6}>لا توجد بيانات.</td>
+                        <td colSpan={7}>لا توجد بيانات.</td>
                       </tr>
                     )}
                     {!eLoading &&
                       entries.map((e: any) => {
-                        const amt =
-                          e.currency === "USD"
-                            ? fmtUSD(e.amount)
-                            : fmtLBP(e.amount);
-                        const approx = e.normUSD ?? e.normalizedUSD ?? 0;
+                        const sums = getEntrySums(e);
                         return (
                           <tr key={e._id}>
-                            <td>
-                              {(e.date || e.createdAt || "").slice(0, 10)}
-                            </td>
+                            <td>{String(e.date || e.createdAt || "").slice(0, 10)}</td>
                             <td>{e.kind === "income" ? "إيراد" : "مصروف"}</td>
                             <td>
                               {catAr({
                                 name: e.categoryName || e.category?.name || "",
                               })}
                             </td>
-                            <td>{amt}</td>
-                            <td>{fmtUSD(approx)}</td>
+                            <td>{fmtUSD(sums.usd)}</td>
+                            <td>{fmtLBP(sums.lbp)}</td>
+                            <td>{fmtUSD(sums.norm)}</td>
                             <td>{e.note || "—"}</td>
                           </tr>
                         );
                       })}
                   </tbody>
                 </table>
+
+                {/* Optional: inline payments detail below the table for selected row (could add expanders) */}
               </div>
             )}
           </div>
