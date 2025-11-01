@@ -454,3 +454,68 @@
   align-items: center;
   gap: 6px;
 }
+
+/* Task 6: Replace inline styles */
+.finx-spaceBetween {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+
+.finx-chip {
+  padding: 4px 10px;
+  border-width: 1px;
+}
+
+.finx-chip.finx-badge--selected {
+  border-color: #0ea5e9;
+  border-width: 2px;
+  box-shadow: 0 0 0 1px #0ea5e9 inset;
+}
+
+.finx-paymentsWrap {
+  margin-top: 10px;
+  padding: 10px;
+}
+
+.finx-paymentBreakdown {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 6px 8px;
+  margin-bottom: 4px;
+}
+
+.finx-flexWrapEnd {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.finx-stickyActions {
+  position: sticky;
+  bottom: 8px;
+  z-index: 1;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0), #fff 28%);
+  padding-top: 6px;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+
+.finx-tileHeader {
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.finx-mutedText {
+  color: #475569;
+}
+
+.finx-autoMargin {
+  margin-right: auto;
+}
