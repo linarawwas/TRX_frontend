@@ -78,7 +78,7 @@ const ShipmentsList: React.FC = () => {
     }
     try {
       setIsLoading(true);
-      const res = await fetch(`https://trx-api.linarawas.com/api/shipments/range`, {
+      const res = await fetch(`http://localhost:5000/api/shipments/range`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

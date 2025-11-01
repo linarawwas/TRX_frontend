@@ -6,6 +6,7 @@ import {
   dailySummary,
   monthlySummary,
   listCategories,
+  listFinances,
 } from "../../../utils/apiFinances";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -230,7 +231,6 @@ export default function FinanceDashboard() {
       toast.error("فشل حفظ العملية");
     }
   };
-
   // Monthly totals across table rows (unchanged)
   const totals = useMemo(() => {
     return monthly.reduce(
@@ -263,17 +263,13 @@ export default function FinanceDashboard() {
   async function fetchEntries() {
     setELoading(true);
     try {
-      const qs = new URLSearchParams();
-      qs.set("year", String(eYm.y));
-      qs.set("month", String(eYm.m));
-      if (eKind) qs.set("kind", eKind);
-      if (eCat) qs.set("categoryId", eCat);
-      const res = await fetch(
-        `https://trx-api.linarawas.com/api/finances?${qs.toString()}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      const data = await res.json();
-      setEntries(Array.isArray(data) ? data : data.items || []);
+      const data = await listFinances(token, {
+        year: eYm.y,
+        month: eYm.m,
+        kind: eKind || undefined,
+        categoryId: eCat || undefined,
+      });
+      setEntries(data);
     } catch {
       toast.error("تعذر تحميل العمليات");
     } finally {

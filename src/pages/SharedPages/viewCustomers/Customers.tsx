@@ -32,7 +32,7 @@ const Customers: React.FC = () => {
     dispatch(clearCustomerId());
 
     setLoading(true);
-    fetch(`https://trx-api.linarawas.com/api/customers/company`, {
+    fetch(`http://localhost:5000/api/customers/company`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((r) => r.json())

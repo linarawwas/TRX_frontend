@@ -1,5 +1,5 @@
 // src/utils/apiFinances.ts
-const API = "https://trx-api.linarawas.com";
+const API = "http://localhost:5000";
 export async function createFinance(token: string, body: any) {
   const res = await fetch(`${API}/api/finances`, {
     method: "POST",
@@ -37,4 +37,32 @@ export async function listCategories(token: string) {
     headers: { Authorization: `Bearer ${token}` },
   });
   return res.json();
+}
+export async function listFinances(
+  token: string,
+  params: {
+    year: number;
+    month: number;
+    kind?: "income" | "expense" | "";
+    categoryId?: string;
+  }
+): Promise<any[]> {
+  try {
+    const url = new URL(`${API}/api/finances`);
+    url.searchParams.set("year", String(params.year));
+    url.searchParams.set("month", String(params.month));
+    if (params.kind) url.searchParams.set("kind", params.kind);
+    if (params.categoryId) url.searchParams.set("categoryId", params.categoryId);
+
+    const res = await fetch(url.toString(), {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!res.ok) throw new Error("Failed to list finances");
+
+    const data = await res.json();
+    return Array.isArray(data) ? data : data.items || [];
+  } catch (err) {
+    throw new Error("Failed to list finances");
+  }
 }
