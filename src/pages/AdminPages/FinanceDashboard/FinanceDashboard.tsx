@@ -9,8 +9,7 @@ import { useMonthlySummary } from "../../../features/finance/hooks/useMonthlySum
 import { useFinanceEntries } from "../../../features/finance/hooks/useFinanceEntries";
 import { computeMonthlyTotals, computeEntriesTotals } from "../../../features/finance/selectors";
 import { useMediaQuery } from "../../../hooks/useMediaQuery";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 import "./FinanceDashboard.css";
 import FinanceTabs from "./components/FinanceTabs";
 import AddFinanceForm, { AddFinanceFormRef } from "./components/AddFinanceForm";
@@ -114,7 +113,6 @@ export default function FinanceDashboard() {
 
   return (
     <div className="finx" dir="rtl">
-      <ToastContainer position="top-right" autoClose={1200} />
       <h2 className="finx-title">المالية — نظرة شاملة</h2>
 
       <FinanceTabs active={active} onChange={setActive} />

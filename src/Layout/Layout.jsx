@@ -11,6 +11,8 @@ import {
   setUsername,
 } from "../redux/UserInfo/action.js";
 import AsideMenu from "../components/AsideMenu/Left/UnifiedAsideMenu";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 function Layout() {
   const dispatch = useDispatch();
   const token = localStorage.getItem("token");
@@ -44,6 +46,7 @@ function Layout() {
   }, []);
   return (
     <Fragment>
+      <ToastContainer position="top-right" autoClose={3000} />
       <AsideMenu />
       {isAdmin ? <AdminRouter /> : <EmployeeRouter />}
     </Fragment>

@@ -1,98 +1,35 @@
-import React, { useMemo } from "react";
+import React, { Suspense, useMemo } from "react";
 import "./LandingPage.css";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
-import AdminFeatures from "../../../components/LandingPage/AdminFeatures.jsx";
+import { useNavigate } from "react-router-dom";
+import AdminFeatures from "../../../components/LandingPage/AdminFeatures";
 import CurrentShipmentStat from "./CurrentShipmentStats/CurrentShipmentStat";
-import FinanceDashboard from "../FinanceDashboard/FinanceDashboard";
-
-/** Lightweight sparkline and progress ring (no deps) */
-const Sparkline: React.FC<{ points: number[]; max?: number }> = ({ points, max }) => {
-  if (!points || points.length === 0) return null;
-  const w = 120, h = 38, pad = 2;
-  const m = max ?? Math.max(...points, 1);
-  const step = (w - pad * 2) / Math.max(points.length - 1, 1);
-  const path = points
-    .map((v, i) => {
-      const x = pad + i * step;
-      const y = h - pad - (v / m) * (h - pad * 2);
-      return `${i === 0 ? "M" : "L"}${x},${y}`;
-    })
-    .join(" ");
-  return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden="true">
-      <path d={path} fill="none" stroke="currentColor" strokeWidth="2" opacity="0.9" />
-    </svg>
-  );
-};
-
-const ProgressRing: React.FC<{ value: number; total: number; label?: string }> = ({ value, total, label }) => {
-  const pct = total > 0 ? Math.min(100, Math.round((value / total) * 100)) : 0;
-  const size = 94, stroke = 8, r = (size - stroke) / 2, c = Math.PI * 2 * r;
-  const dash = (pct / 100) * c;
-  return (
-    <div className="ring">
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-        <circle cx={size/2} cy={size/2} r={r} stroke="#e5e7eb" strokeWidth={stroke} fill="none" />
-        <circle
-          cx={size/2} cy={size/2} r={r}
-          stroke="var(--accent)" strokeWidth={stroke} fill="none"
-          strokeDasharray={`${dash} ${c - dash}`} strokeLinecap="round"
-          transform={`rotate(-90 ${size/2} ${size/2})`}
-        />
-        <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" className="ring-text">
-          {pct}%
-        </text>
-      </svg>
-      {label && <div className="ring-sub">{label}</div>}
-    </div>
-  );
-};
+import Sparkline from "../../../components/visuals/Sparkline";
+import ProgressRing from "../../../components/visuals/ProgressRing";
+import { useTodayShipmentTotals } from "../../../features/shipments/hooks/useTodayShipmentTotals";
+const FinanceDashboard = React.lazy(() => import("../FinanceDashboard/FinanceDashboard"));
 
 const AdminLandingPage: React.FC = () => {
   const name = useSelector((s: RootState) => s.user.username);
-// at top
-function shallowEqual(a: any, b: any) {
-  if (a === b) return true;
-  if (!a || !b) return false;
-  const ka = Object.keys(a), kb = Object.keys(b);
-  if (ka.length !== kb.length) return false;
-  for (const k of ka) {
-    if (a[k] !== b[k]) return false;
-  }
-  return true;
-}
+  const token = useSelector((s: RootState) => s.user.token);
+  const companyId = useSelector((s: RootState) => s.user.companyId);
+  const navigate = useNavigate();
 
-  // Pull totals from CurrentShipmentStat via custom event fallback (simple, decoupled)
-  // Emit from CurrentShipmentStat using: window.dispatchEvent(new CustomEvent('trx:todayTotals', { detail: totalsLike }))
-  const [today, setToday] = React.useState<any>({
-    carryingForDelivery: 0,
-    calculatedDelivered: 0,
-    calculatedReturned: 0,
-    shipmentLiraPayments: 0,
-    shipmentUSDPayments: 0,
-    shipmentLiraExpenses: 0,
-    shipmentUSDExpenses: 0,
-    shipmentLiraExtraProfits: 0,
-    shipmentUSDExtraProfits: 0,
-  });
-React.useEffect(() => {
-  const handler = (e: any) => {
-    const next = e.detail ?? {};
-    // Only update if changed
-    setToday(prev => (shallowEqual(prev, next) ? prev : next));
-  };
-  window.addEventListener("trx:todayTotals", handler);
-  return () => window.removeEventListener("trx:todayTotals", handler);
-}, []);
-
+  const { totals: today } = useTodayShipmentTotals(token, companyId);
 
   const USD_overall = useMemo(
-    () => today.shipmentUSDPayments + today.shipmentUSDExtraProfits - today.shipmentUSDExpenses,
+    () =>
+      today.shipmentUSDPayments +
+      today.shipmentUSDExtraProfits -
+      today.shipmentUSDExpenses,
     [today]
   );
   const LIRA_overall = useMemo(
-    () => today.shipmentLiraPayments + today.shipmentLiraExtraProfits - today.shipmentLiraExpenses,
+    () =>
+      today.shipmentLiraPayments +
+      today.shipmentLiraExtraProfits -
+      today.shipmentLiraExpenses,
     [today]
   );
 
@@ -116,7 +53,7 @@ React.useEffect(() => {
         {/* Quick Actions */}
         <div className="quick-actions">
           <AdminFeatures />
-          <button className="qa-btn outline" onClick={() => window.location.assign('/currentShipment')}>
+          <button className="qa-btn outline" onClick={() => navigate('/currentShipment')}>
             👁️ عرض الشحنات
           </button>
           <button className="qa-btn outline" onClick={() => window.print()}>
@@ -167,7 +104,9 @@ React.useEffect(() => {
         <h2 className="pane-title">تفاصيل شحنة اليوم</h2>
         <CurrentShipmentStat />
       </section>
-      <FinanceDashboard />
+      <Suspense fallback={<div className="finx-tile">جارٍ التحميل…</div>}>
+        <FinanceDashboard />
+      </Suspense>
     </div>
   );
 };
