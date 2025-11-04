@@ -9,7 +9,7 @@
       "moduleResolution": "bundler",
       "target": "es2015",
   
-      "allowJs": true,
+      "allowJs": false,
       "allowSyntheticDefaultImports": true,
       "esModuleInterop": true,
       "forceConsistentCasingInFileNames": true,
@@ -21,4 +21,5 @@
       "skipLibCheck": true,
       "strict": true
     },
+    "include": ["src"]
 }
