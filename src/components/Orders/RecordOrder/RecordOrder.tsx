@@ -69,7 +69,7 @@ const RecordOrder: React.FC<Props> = (props) => {
 
   const [showLbpPad, setShowLbpPad] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [overModal, setOverModal] = useState(null); // { want: number } | null
+  const [overModal, setOverModal] = useState<{ want: number } | null>(null);
 
   const [form, setForm] = useState({
     delivered: 0,
@@ -102,7 +102,7 @@ const RecordOrder: React.FC<Props> = (props) => {
       (Number(form.delivered) || 0)
     : (productPrice || 0) * (Number(form.delivered) || 0);
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
     if (value === "") {
@@ -112,7 +112,7 @@ const RecordOrder: React.FC<Props> = (props) => {
 
     // keep numeric only, strip leading zeros
     const cleaned = String(value).replace(/^0+(?!$)/, "");
-    if (isNaN(cleaned)) return;
+    if (Number.isNaN(Number(cleaned))) return;
 
     let next = parseInt(cleaned, 10);
 
@@ -125,11 +125,11 @@ const RecordOrder: React.FC<Props> = (props) => {
   };
 
   const handleLbpChange = useCallback(
-    (val) => setForm((p) => ({ ...p, paidLBP: val })),
+    (val: number) => setForm((p) => ({ ...p, paidLBP: val })),
     []
   );
 
-  const inc = (field) =>
+  const inc = (field: keyof typeof form) =>
     setForm((p) => {
       const step = field === "paidLBP" ? 1000 : 1;
       let next = Number(p[field] || 0) + step;
@@ -137,7 +137,7 @@ const RecordOrder: React.FC<Props> = (props) => {
       return { ...p, [field]: Math.max(0, next) };
     });
 
-  const dec = (field) =>
+  const dec = (field: keyof typeof form) =>
     setForm((p) => {
       const step = field === "paidLBP" ? 1000 : 1;
       return { ...p, [field]: Math.max(0, Number(p[field] || 0) - step) };
@@ -220,7 +220,7 @@ const RecordOrder: React.FC<Props> = (props) => {
   }
 
   const actuallySubmit = async (
-    payload,
+    payload: { delivered: number; returned: number; payments?: { amount: number; currency: "USD" | "LBP" }[] },
     waWindow?: Window | null,
     waMessage?: string | null
   ) => {
@@ -321,7 +321,7 @@ const RecordOrder: React.FC<Props> = (props) => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
 
@@ -345,7 +345,7 @@ const RecordOrder: React.FC<Props> = (props) => {
 
     setIsSubmitting(true);
 
-    const payments = [];
+    const payments: { amount: number; currency: "USD" | "LBP" }[] = [];
     if (payUSD > 0) payments.push({ amount: payUSD, currency: "USD" });
     if (payLBP > 0) payments.push({ amount: payLBP, currency: "LBP" });
 
@@ -592,7 +592,7 @@ const RecordOrder: React.FC<Props> = (props) => {
             <h3 className="confirm-title">تجاوز الهدف غير مسموح</h3>
             <div className="confirm-body">
               <p>
-                الهدف لهذه الشحنة: <strong>{target}</strong>
+                الهدف لهذه الشحنة: <strong>{targetRound}</strong>
               </p>
               <p>
                 المسلّم حتى الآن: <strong>{shipmentDelivered}</strong>

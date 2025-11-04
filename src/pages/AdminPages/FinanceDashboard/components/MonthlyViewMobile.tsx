@@ -11,7 +11,7 @@ interface MonthlyViewMobileProps {
     netNorm: number;
   };
   selDays: number[];
-  setSelDays: (days: number[]) => void;
+  setSelDays: React.Dispatch<React.SetStateAction<number[]>>;
   fmtUSD: (n: number) => string;
   fmtLBP: (n: number) => string;
 }

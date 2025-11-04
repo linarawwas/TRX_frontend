@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./CustomerStatement.css";
-import AddPaymentForm from "../../Orders/UpdateOrder/AddPaymentForm/AddPaymentForm.tsx";
+import AddPaymentForm from "../../Orders/UpdateOrder/AddPaymentForm/AddPaymentForm";
 type InitialSummary = {
   bottlesLeft: number;
   balanceUSD: number;

@@ -13,13 +13,7 @@ import TripleDigitPicker from "./TripleDigitPicker";
 
 interface FieldConfig {
   label: string;
-  "input-type":
-    | "text"
-    | "number"
-    | "slider"
-    | "selectOption"
-    | "numberPicker"
-    | "tripleDigit";
+  "input-type": string; // accept external config strings without narrow union
   options?: { value: string | number | boolean; label: string }[];
   required?: boolean;
   placeholder?: string;
@@ -38,7 +32,7 @@ interface Props {
 
   buttonLabel: string;
   modelFields: ModelFields;
-  onSubmit: (data: Record<string, any>) => Promise<any>;
+  onSubmit: (data: any) => Promise<any>;
   initialValues?: Record<string, string | number | boolean>;
   validate?: (data: Record<string, any>) => string | null;
   onSuccess?: (result: any) => void;
@@ -298,7 +292,6 @@ const AddToModel: React.FC<Props> = ({
                   value={Number(formData[fieldName] ?? 0)}
                   onChange={(val) => handleNumberPickerChange(fieldName, val)}
                   label={fieldConfig.label}
-                  disabled={isSubmitting}
                 />
               </div>
             );
@@ -311,7 +304,6 @@ const AddToModel: React.FC<Props> = ({
               </span>
               <TripleDigitPicker
                 onChange={(val) => setField(fieldName, String(val))}
-                disabled={isSubmitting}
               />
             </div>
           );

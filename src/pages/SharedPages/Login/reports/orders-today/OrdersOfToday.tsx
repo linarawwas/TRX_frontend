@@ -1,7 +1,7 @@
 // src/pages/Reports/OrdersOfToday.tsx
 import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import type { RootState } from "../../redux/store";
+import type { RootState } from "../../../../../redux/store";
 import "./OrdersOfToday.css";
 import { Link } from "react-router-dom";
 import { fetchShipmentsOrders } from "../../../../../utils/apiToday";

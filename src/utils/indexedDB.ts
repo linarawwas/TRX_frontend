@@ -226,7 +226,7 @@ export async function saveAreasByDayToDB(
     return;
   }
   await time(`Save areas by dayId=${dayId} (count=${areas.length})`, async () =>
-    withTx(AREAS_BY_DAY_STORE_NAME, "readwrite", (store) =>
+    withTx(AREAS_BY_DAY_STORE_NAME, "readwrite", (store: any) =>
       store.put({ dayId, areas, lastUpdated: new Date().toISOString() })
     )
   );
@@ -260,7 +260,7 @@ export async function saveCompanyAreasToDB(
   await time(
     `Save company areas key=${key} (count=${areas.length})`,
     async () =>
-      withTx(COMPANY_AREAS_STORE_NAME, "readwrite", (store) =>
+      withTx(COMPANY_AREAS_STORE_NAME, "readwrite", (store: any) =>
         store.put({
           companyKey: key,
           areas,
