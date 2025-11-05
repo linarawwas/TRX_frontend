@@ -338,95 +338,6 @@
   }
 }
 /* Minimal, centered edit form — all scoped */
-.ucx-formCard {
-  max-width: 520px; /* keeps it tidy on desktop */
-  margin: 12px auto; /* centered */
-  background: #fff;
-  border: 1px solid var(--ucx-border);
-  border-radius: 14px;
-  box-shadow: var(--ucx-shadow);
-  padding: 16px;
-}
-.ucx-formCard__title {
-  margin: 0 0 10px;
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--ucx-ink);
-  text-align: center;
-}
-
-.ucx-fields {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-}
-.ucx-field {
-  display: grid;
-  gap: 6px;
-}
-.ucx-field--full {
-  grid-column: 1 / -1;
-}
-
-.ucx-label {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--ucx-ink);
-  padding-inline: 2px;
-}
-
-.ucx-input {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
-  font-size: 15px;
-  background: #fff;
-  color: var(--ucx-ink);
-}
-.ucx-input:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--ucx-ring);
-}
-
-/* Make SelectInput look like our input:
-   - If SelectInput forwards className, we style `.ucx-select`.
-   - If not, we still catch its internal <select> inside `.ucx-selectWrap`. */
-.ucx-selectWrap :where(select) {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
-  font-size: 15px;
-  background: #fff;
-  color: var(--ucx-ink);
-}
-.ucx-selectWrap :where(select:focus-visible) {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--ucx-ring);
-}
-
-/* If your SelectInput renders its own label element, we hide it locally here */
-.ucx-selectWrap :where(label) {
-  display: none !important;
-}
-
-/* Actions */
-.ucx-formCard__actions {
-  margin-top: 12px;
-  display: flex;
-  justify-content: flex-end;
-}
-.ucx-btn--wide {
-  width: 100%;
-} /* full width save button looks balanced in a narrow card */
-
-/* Mobile: single column */
-@media (max-width: 640px) {
-  .ucx-fields {
-    grid-template-columns: 1fr;
-  }
-}
 /* Ensure nothing overflows the card */
 .ucx-formCard,
 .ucx-formCard * {
@@ -491,15 +402,40 @@
   box-shadow: 0 0 0 3px var(--ucx-ring);
 }
 
+/* Make SelectInput look like our input:
+   - If SelectInput forwards className, we style `.ucx-select`.
+   - If not, we still catch its internal <select> inside `.ucx-selectWrap`. */
+.ucx-selectWrap :where(select) {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 15px;
+  background: #fff;
+  color: var(--ucx-ink);
+}
+.ucx-selectWrap :where(select:focus-visible) {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--ucx-ring);
+}
+
+/* If your SelectInput renders its own label element, we hide it locally here */
+.ucx-selectWrap :where(label) {
+  display: none !important;
+}
+
 /* Actions: compact centered button */
 .ucx-formCard__actions {
   margin-top: 12px;
   display: flex;
   justify-content: center;
 }
+.ucx-btn--wide {
+  width: 100%;
+}
 .ucx-btn--sm {
-  padding: 8px 16px; /* smaller */
-  min-width: 180px; /* not huge */
+  padding: 8px 16px;
+  min-width: 180px;
   border-radius: 8px;
 }
 

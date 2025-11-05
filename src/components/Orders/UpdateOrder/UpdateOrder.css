@@ -52,39 +52,6 @@
   cursor: pointer;
 }
 
-/* Print: only show receipt content (OrderReceipt sets a class) */
-@media print {
-  .uo-header,
-  .toggle-form-title,
-  .payment-form,
-  .Toastify,
-  .update-order-container > :not(.print-area) {
-    display: none !important;
-  }
-  .print-area {
-    display: block !important;
-  }
-  body {
-    margin: 0;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-}
-/* existing styles remain … */
-
-.uo-actions {
-  display: inline-flex;
-  gap: 6px;
-}
-.uo-delete {
-  background: #fee2e2;
-  color: #991b1b;
-}
-.uo-print {
-  background: #ecfeff;
-  color: #155e75;
-}
-
 /* Floating add button */
 .uo-fab {
   position: fixed;
@@ -166,6 +133,8 @@
 /* Print: hide interactive UI */
 @media print {
   .uo-header,
+  .toggle-form-title,
+  .payment-form,
   .uo-fab,
   .sheet-backdrop,
   .Toastify,
@@ -174,6 +143,11 @@
   }
   .print-area {
     display: block !important;
+  }
+  body {
+    margin: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
   @page {
     margin: 8mm;

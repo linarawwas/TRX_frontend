@@ -18,7 +18,7 @@
 .add-model-form {
   display: grid;
   gap: 12px;
-  padding:10px;
+  padding: 10px;
 }
 
 /* progress bar during submit */

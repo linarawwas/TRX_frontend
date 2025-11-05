@@ -1,13 +1,12 @@
 .select-input {
-    display: flex;
-    flex-direction: column;
-    margin: 10px 0;
-  }
-  
-  .select-input select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #082338;
-    border-radius: 4px;
-  }
-  
+  display: flex;
+  flex-direction: column;
+  margin: 10px 0;
+}
+
+.select-input select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #082338;
+  border-radius: 4px;
+}
