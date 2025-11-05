@@ -24,7 +24,15 @@ type TranslationKey =
   | 'products.none'
   | 'products.fields.name'
   | 'products.fields.price'
+  | 'products.fields.type'
+  | 'products.fields.priceInDollars'
   | 'products.fields.returnable'
+  | 'products.add.title'
+  | 'products.add.buttonLabel'
+  | 'expenses.add.title'
+  | 'expenses.add.buttonLabel'
+  | 'profits.add.title'
+  | 'profits.add.buttonLabel'
   | 'products.returnable.yes'
   | 'products.returnable.no'
   | 'products.delete'
@@ -155,8 +163,11 @@ type TranslationKey =
   | 'expenses.fields.name'
   | 'expenses.fields.value'
   | 'expenses.fields.currency'
+  | 'expenses.fields.paymentCurrency'
   | 'expenses.fields.valueUSD'
   | 'expenses.fields.date'
+  | 'expenses.currency.usd'
+  | 'expenses.currency.lbp'
   | 'profits.title'
   | 'profits.addToggle'
   | 'profits.hideForm'
@@ -168,8 +179,11 @@ type TranslationKey =
   | 'profits.fields.name'
   | 'profits.fields.value'
   | 'profits.fields.currency'
+  | 'profits.fields.paymentCurrency'
   | 'profits.fields.valueUSD'
   | 'profits.fields.date'
+  | 'profits.currency.usd'
+  | 'profits.currency.lbp'
   | 'common.loading'
   | 'common.error'
   | 'common.back'
@@ -203,7 +217,15 @@ const translations: Record<TranslationKey, string> = {
   'products.none': 'لا توجد منتجات لهذه الشركة',
   'products.fields.name': 'الاسم',
   'products.fields.price': 'القيمة',
+  'products.fields.type': 'نوع المنتج',
+  'products.fields.priceInDollars': 'السعر بالدولار',
   'products.fields.returnable': 'هل يمكن إرجاعه',
+  'products.add.title': 'إضافة إلى المنتجات',
+  'products.add.buttonLabel': 'إضافة منتج',
+  'expenses.add.title': 'إضافة مصاريف',
+  'expenses.add.buttonLabel': 'إضافة مصاريف',
+  'profits.add.title': 'إضافة إلى الأرباح',
+  'profits.add.buttonLabel': 'إضافة ربح',
   'products.returnable.yes': 'نعم',
   'products.returnable.no': 'لا',
   'products.delete': 'حذف',
@@ -333,8 +355,11 @@ const translations: Record<TranslationKey, string> = {
   'expenses.fields.name': 'الاسم',
   'expenses.fields.value': 'القيمة',
   'expenses.fields.currency': 'العملة',
+  'expenses.fields.paymentCurrency': 'عملة الدفع',
   'expenses.fields.valueUSD': 'القيمة بالدولار',
   'expenses.fields.date': 'التاريخ',
+  'expenses.currency.usd': 'دولار أمريكي',
+  'expenses.currency.lbp': 'ليرة لبنانية',
   'profits.title': 'الأرباح الإضافية',
   'profits.addToggle': 'إضافة أرباح جديدة؟',
   'profits.hideForm': 'إخفاء النموذج؟',
@@ -346,8 +371,11 @@ const translations: Record<TranslationKey, string> = {
   'profits.fields.name': 'الاسم',
   'profits.fields.value': 'القيمة',
   'profits.fields.currency': 'العملة',
+  'profits.fields.paymentCurrency': 'عملة الدفع',
   'profits.fields.valueUSD': 'القيمة بالدولار',
   'profits.fields.date': 'التاريخ',
+  'profits.currency.usd': 'دولار أمريكي',
+  'profits.currency.lbp': 'ليرة لبنانية',
   'common.loading': 'جارٍ التحميل...',
   'common.error': 'حدث خطأ',
   'common.back': 'الرجوع',

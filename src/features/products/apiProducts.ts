@@ -24,3 +24,29 @@ export async function deleteProductById(token: string, productId: string) {
   });
 }
 
+export interface CreateProductPayload {
+  type: string;
+  priceInDollars: number;
+  isReturnable: boolean;
+  companyId: string;
+}
+
+export async function createProduct(
+  token: string,
+  payload: CreateProductPayload
+): Promise<{
+  _id: string;
+  type: string;
+  priceInDollars: number;
+  isReturnable: boolean;
+  companyId: string;
+}> {
+  const { data } = await axios.post(`${BASE}/api/products`, payload, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return data;
+}
+

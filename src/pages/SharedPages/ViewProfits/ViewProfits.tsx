@@ -91,7 +91,28 @@ const ExtraProfits: React.FC = () => {
           </button>
           {showAddProfits && (
             <div id="add-profits-form">
-              <AddProfits />
+              <AddProfits
+                config={{
+                  modelName: t("profits.title"),
+                  title: t("profits.add.title"),
+                  buttonLabel: t("profits.add.buttonLabel"),
+                  fields: {
+                    name: { label: t("profits.fields.name"), "input-type": "text" },
+                    value: { label: t("profits.fields.value"), "input-type": "number" },
+                    paymentCurrency: {
+                      label: t("profits.fields.paymentCurrency"),
+                      "input-type": "selectOption",
+                      options: [
+                        { value: "USD", label: t("profits.currency.usd") },
+                        { value: "LBP", label: t("profits.currency.lbp") },
+                      ],
+                    },
+                  },
+                }}
+                onSuccess={() => {
+                  // Optionally refetch or close form
+                }}
+              />
             </div>
           )}
         </>

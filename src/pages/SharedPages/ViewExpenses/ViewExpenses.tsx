@@ -88,7 +88,28 @@ const Expenses: React.FC = () => {
           </button>
           {showAddExpenses && (
             <div id="add-expenses-form">
-              <AddExpenses />
+              <AddExpenses
+                config={{
+                  modelName: t("expenses.title"),
+                  title: t("expenses.add.title"),
+                  buttonLabel: t("expenses.add.buttonLabel"),
+                  fields: {
+                    name: { label: t("expenses.fields.name"), "input-type": "text" },
+                    value: { label: t("expenses.fields.value"), "input-type": "number" },
+                    paymentCurrency: {
+                      label: t("expenses.fields.paymentCurrency"),
+                      "input-type": "selectOption",
+                      options: [
+                        { value: "USD", label: t("expenses.currency.usd") },
+                        { value: "LBP", label: t("expenses.currency.lbp") },
+                      ],
+                    },
+                  },
+                }}
+                onSuccess={() => {
+                  // Optionally refetch or close form
+                }}
+              />
             </div>
           )}
         </>

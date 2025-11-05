@@ -1,110 +1,45 @@
 import React from "react";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../../redux/store";
-import {
-  setShipmentExpensesInLiras,
-  setShipmentExpensesInUSD,
-} from "../../../redux/Shipment/action";
 import AddToModel from "../../AddToModel/AddToModel";
+import { useAddExpense, ExpenseFormData } from "../../../features/finance/hooks/useAddExpense";
 
-type ExpenseForm = {
-  name: string;
-  value: number | string;       // AddToModel may pass string
-  paymentCurrency: "USD" | "LBP";
-};
-
-const AddExpenses: React.FC = () => {
-  const shipmentId = useSelector((state: RootState) => state.shipment._id);
-  const token = useSelector((state: RootState) => state.user.token);
-  const dispatch = useDispatch();
-
-  const expensesLbp = useSelector((s: any) => s.shipment.expensesInLiras) ?? 0;
-  const expensesUsd = useSelector((s: any) => s.shipment.expensesInUSD) ?? 0;
-
-  const handleSubmit = async (formData: ExpenseForm) => {
-    try {
-      // Normalize payload
-      const valueNum = Number(formData.value);
-      if (!formData.name?.trim()) {
-        toast.error("يرجى إدخال اسم المصروف");
-        return;
-      }
-      if (!Number.isFinite(valueNum) || valueNum < 0) {
-        toast.error("قيمة غير صالحة");
-        return;
-      }
-      if (!shipmentId) {
-        toast.error("لا توجد شحنة محددة");
-        return;
-      }
-
-      // Server-managed tenancy + exchange rate: do NOT send companyId or exchangeRate
-      const payload = {
-        name: formData.name.trim(),
-        value: valueNum,
-        paymentCurrency:
-          formData.paymentCurrency === "LBP" ? "LBP" : "USD",
-        shipmentId,
-      };
-
-      const res = await fetch("http://localhost:5000/api/expenses", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        toast.error(`خطأ في تسجيل المصروف: ${data.error || res.statusText}`);
-        return;
-      }
-
-      // Update local shipment totals
-      if (payload.paymentCurrency === "USD") {
-        dispatch(setShipmentExpensesInUSD(Number(expensesUsd) + valueNum));
-      } else {
-        dispatch(setShipmentExpensesInLiras(Number(expensesLbp) + valueNum));
-      }
-
-      toast.success("تم تسجيل المصروف بنجاح");
-      return res;
-    } catch (err: any) {
-      toast.error(`خطأ في الشبكة: ${err?.message || err}`);
-      throw err;
-    }
+export interface AddExpensesConfig {
+  modelName: string;
+  title: string;
+  buttonLabel: string;
+  fields: {
+    name: { label: string; "input-type": string };
+    value: { label: string; "input-type": string };
+    paymentCurrency: {
+      label: string;
+      "input-type": string;
+      options: Array<{ value: string; label: string }>;
+    };
   };
+}
 
-  const expensesConfig = {
-    "component-related-fields": {
-      modelName: "المصاريف",
-      title: "إضافة مصاريف",
-      "button-label": "إضافة مصاريف",
-    },
-    "model-related-fields": {
-      name: { label: "الاسم", "input-type": "text" },
-      value: { label: "القيمة", "input-type": "number" },
-      paymentCurrency: {
-        label: "عملة الدفع",
-        "input-type": "selectOption",
-        options: [
-          { value: "USD", label: "دولار أمريكي" },
-          { value: "LBP", label: "ليرة لبنانية" },
-        ],
-      },
-    },
+interface AddExpensesProps {
+  config: AddExpensesConfig;
+  onSuccess?: () => void;
+  onError?: (error: Error) => void;
+}
+
+const AddExpenses: React.FC<AddExpensesProps> = ({
+  config,
+  onSuccess,
+  onError,
+}) => {
+  const { submit } = useAddExpense({ onSuccess, onError });
+
+  const handleSubmit = async (formData: ExpenseFormData) => {
+    await submit(formData);
   };
 
   return (
     <AddToModel
-      modelName={expensesConfig["component-related-fields"].modelName}
-      title={expensesConfig["component-related-fields"].title}
-      buttonLabel={expensesConfig["component-related-fields"]["button-label"]}
-      modelFields={expensesConfig["model-related-fields"]}
+      modelName={config.modelName}
+      title={config.title}
+      buttonLabel={config.buttonLabel}
+      modelFields={config.fields}
       onSubmit={handleSubmit}
     />
   );

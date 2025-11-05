@@ -1,60 +1,46 @@
 import React from 'react';
-import 'react-toastify/dist/ReactToastify.css';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../redux/store';
 import AddToModel from '../AddToModel/AddToModel';
-import { toast } from 'react-toastify';
-const AddProducts: React.FC = () => {
-  // Define the configuration for products
-  const productConfig = {
-    "component-related-fields": {
-      "modelName": "المنتجات",
-      "title": "إضافة إلى المنتجات",
-      "button-label": "إضافة منتج"
-    },
-    "model-related-fields": {
-      "type": { "label": "نوع المنتج", "input-type": "text" },
-      "priceInDollars": { "label": "السعر بالدولار", "input-type": "number" },
-      "isReturnable": {
-        "label": "هل يمكن إرجاعه؟", "input-type": "selectOption",
-        "options": [
-          { "value": true, "label": "نعم" },
-          { "value": false, "label": "لا" }
-        ]
-      }
-    }
-  };
-  
-  const companyId = useSelector((state: RootState) => state.user.companyId);
-  const token = useSelector((state: RootState) => state.user.token);
+import { useAddProduct, ProductFormData } from '../../features/products/hooks/useAddProduct';
 
-  // Function to handle submitting products data
-  const handleSubmitProducts = async (data: any) => {
-    try {
-      const response = await fetch('http://localhost:5000/api/products', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ ...data, companyId }),
-      });
-      if (response.ok) {
-        toast.success('Product successfully recorded.');
-      }
-      return response;
-    } catch (error: any) {
-      throw error;
-    }
+export interface AddProductsConfig {
+  modelName: string;
+  title: string;
+  buttonLabel: string;
+  fields: {
+    type: { label: string; "input-type": string };
+    priceInDollars: { label: string; "input-type": string };
+    isReturnable: {
+      label: string;
+      "input-type": string;
+      options: Array<{ value: boolean; label: string }>;
+    };
+  };
+}
+
+interface AddProductsProps {
+  config: AddProductsConfig;
+  onSuccess?: () => void;
+  onError?: (error: Error) => void;
+}
+
+const AddProducts: React.FC<AddProductsProps> = ({
+  config,
+  onSuccess,
+  onError,
+}) => {
+  const { submit } = useAddProduct({ onSuccess, onError });
+
+  const handleSubmit = async (formData: ProductFormData) => {
+    await submit(formData);
   };
 
   return (
     <AddToModel
-      modelName={productConfig['component-related-fields'].modelName}
-      title={productConfig['component-related-fields'].title}
-      buttonLabel={productConfig['component-related-fields']['button-label']}
-      modelFields={productConfig['model-related-fields']}
-      onSubmit={handleSubmitProducts}
+      modelName={config.modelName}
+      title={config.title}
+      buttonLabel={config.buttonLabel}
+      modelFields={config.fields}
+      onSubmit={handleSubmit}
     />
   );
 };

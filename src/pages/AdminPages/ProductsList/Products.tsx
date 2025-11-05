@@ -42,7 +42,34 @@ const ProductsList: React.FC = () => {
       >
         {showAddProducts ? t("products.add.toggleHide") : t("products.add.toggleShow")}
       </h3>
-      {showAddProducts && <AddProducts />}
+      {showAddProducts && (
+        <AddProducts
+          config={{
+            modelName: t("products.title"),
+            title: t("products.add.title"),
+            buttonLabel: t("products.add.buttonLabel"),
+            fields: {
+              type: { label: t("products.fields.type"), "input-type": "text" },
+              priceInDollars: {
+                label: t("products.fields.priceInDollars"),
+                "input-type": "number",
+              },
+              isReturnable: {
+                label: t("products.fields.returnable"),
+                "input-type": "selectOption",
+                options: [
+                  { value: true, label: t("products.returnable.yes") },
+                  { value: false, label: t("products.returnable.no") },
+                ],
+              },
+            },
+          }}
+          onSuccess={() => {
+            setShowAddProducts(false);
+            refetch();
+          }}
+        />
+      )}
       {loading ? (
         <SpinLoader />
       ) : error ? (

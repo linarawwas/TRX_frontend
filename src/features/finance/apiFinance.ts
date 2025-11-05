@@ -58,3 +58,43 @@ export async function deleteExtraProfit(token: string, profitId: string): Promis
   });
 }
 
+export interface CreateExpensePayload {
+  name: string;
+  value: number;
+  paymentCurrency: "USD" | "LBP";
+  shipmentId: string;
+}
+
+export async function createExpense(
+  token: string,
+  payload: CreateExpensePayload
+): Promise<Expense> {
+  const { data } = await axios.post(`${BASE}/api/expenses`, payload, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return data;
+}
+
+export interface CreateExtraProfitPayload {
+  name: string;
+  value: number;
+  paymentCurrency: "USD" | "LBP";
+  shipmentId: string;
+}
+
+export async function createExtraProfit(
+  token: string,
+  payload: CreateExtraProfitPayload
+): Promise<ExtraProfit> {
+  const { data } = await axios.post(`${BASE}/api/extraProfits`, payload, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return data;
+}
+
