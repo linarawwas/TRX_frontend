@@ -1,127 +1,63 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
+import { RootState } from "../../../redux/store";
 import "./ProductsList.css";
 import "../../../components/Customers/CustomerInvoices/CustomerInvoices.css";
 import SpinLoader from "../../../components/UI reusables/SpinLoader/SpinLoader.jsx";
 import AddProducts from "../../../components/Products/AddProducts";
-interface Product {
-  _id: string;
-  type: string;
-  priceInDollars: number;
-  isReturnable: boolean;
-  companyId: string;
-}
+import ProductCard from "../../../components/Products/ProductCard";
+import { useProducts } from "../../../features/products/hooks/useProducts";
+import { t } from "../../../utils/i18n";
+
 const ProductsList: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [recordsPerPage] = useState(4);
-  const [showAddProducts, setShowAddProducts] = useState<Boolean>(false);
-  const companyId = useSelector((state: any) => state.user.companyId);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const token: string = useSelector((state: any) => state.user.token);
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:5000/api/products/company/${companyId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const data = response.data;
-        setProducts(data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching  products:", error);
-        setLoading(false);
-      }
-    };
-    if (companyId) {
-      fetchProducts();
-    }
-  }, [companyId, token, showAddProducts]);
+  const [showAddProducts, setShowAddProducts] = useState<boolean>(false);
+  const companyId = useSelector((s: RootState) => s.user.companyId);
+  const token = useSelector((s: RootState) => s.user.token);
+  const { items: products, loading, error, remove, refetch } = useProducts(token, companyId);
 
-  const handleDeleteExpense = async (productId: string) => {
+  const handleDelete = async (productId: string) => {
     try {
-      const response = await fetch(
-        `http://localhost:5000/api/products/${productId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        toast.success("product deleted successfully");
-        setTimeout(() => {
-          window.location.reload();
-        }, 1500);
-      } else {
-        toast.error("Error deleting product");
-      }
-    } catch (error) {
-      toast.error("Error deleting product");
-      console.error("Error deleting product:", error);
+      await remove(productId);
+      toast.success(t("products.delete.success"));
+    } catch {
+      toast.error(t("products.delete.error"));
     }
   };
+
+  // Refetch when AddProducts form is submitted (when showAddProducts changes back to false)
+  React.useEffect(() => {
+    if (!showAddProducts && companyId) {
+      refetch();
+    }
+  }, [showAddProducts, companyId, refetch]);
   return (
     <div className="products" dir="rtl">
-      <ToastContainer position="top-right" autoClose={1000} />
-      <h2>المنتجات</h2>
+      <h2>{t("products.title")}</h2>
       <h3
         className="show-add-products"
         onClick={() => {
           setShowAddProducts(!showAddProducts);
         }}
       >
-        {showAddProducts ? "هل تريد إخفاء النموذج؟" : "هل تريد إضافة منتجات جديدة؟"}
+        {showAddProducts ? t("products.add.toggleHide") : t("products.add.toggleShow")}
       </h3>
       {showAddProducts && <AddProducts />}
       {loading ? (
         <SpinLoader />
+      ) : error ? (
+        <p>{t("products.fetch.error")}</p>
       ) : products?.length > 0 ? (
         <div className="receipt-details-container">
           {products.map((product) => (
-            <div className="receipt-details" key={product._id}>
-              <div className="container-button-div">
-                <button
-                  className="delete-btn"
-                  onClick={() => {
-                    handleDeleteExpense(product._id);
-                  }}
-                >
-                  حذف
-                </button>
-              </div>
-              <div className="receipt-detail">
-                <p className="detail-name">الاسم:</p>
-                <p className="detail-value">{product?.type}</p>
-              </div>
-              <div className="receipt-detail">
-                <p className="detail-name">القيمة:</p>
-                <p className="detail-value">{product?.priceInDollars}</p>
-              </div>
-              <div className="receipt-detail">
-                <p className="detail-name">هل يمكن إرجاعه:</p>
-                <p className="detail-value">
-                  {product.isReturnable ? "نعم" : "لا"}
-                </p>
-              </div>
-            </div>
+            <ProductCard key={product._id} product={product} onDelete={handleDelete} />
           ))}
         </div>
       ) : (
-        <p>لا توجد منتجات لهذه الشركة</p>
+        <p>{t("products.none")}</p>
       )}
     </div>
   );
-  
 };
 
 export default ProductsList;

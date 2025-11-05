@@ -1,8 +1,28 @@
 // redux/selectors/shipment.ts
-export const selectShipment = (s: any) => s.shipment || {};
-export const selectRound    = (s: any) => (s.shipment && s.shipment.round) || {};
+import { RootState } from "../store";
 
-export function selectRoundProgress(s: any) {
+export const selectShipment = (s: RootState) => s.shipment || {};
+export const selectRound    = (s: RootState) => (s.shipment && s.shipment.round) || {};
+
+export const selectShipmentMeta = (s: RootState) => ({
+  id: s.shipment._id,
+  dayId: s.shipment.dayId,
+});
+
+export const selectTodayProgress = (s: RootState) => {
+  const target = s.shipment.target || 0;
+  const delivered = s.shipment.delivered || 0;
+  const returned = s.shipment.returned || 0;
+  const paidUSD = s.shipment.dollarPayments || 0;
+  const paidLBP = s.shipment.liraPayments || 0;
+  const expUSD = s.shipment.expensesInUSD || 0;
+  const expLBP = s.shipment.expensesInLiras || 0;
+  const profUSD = s.shipment.profitsInUSD || 0;
+  const profLBP = s.shipment.profitsInLiras || 0;
+  return { target, delivered, returned, paidUSD, paidLBP, expUSD, expLBP, profUSD, profLBP };
+};
+
+export function selectRoundProgress(s: RootState) {
   const ship = selectShipment(s);
   const rnd  = selectRound(s);
 

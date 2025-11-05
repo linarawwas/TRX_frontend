@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import AreasForDay from "../pages/SharedPages/AreasForDay/AreasForDay.tsx";
 import Login from "../pages/SharedPages/Login/Login.tsx";
-import EmployeeLandingPage from "../pages/EmployeePages/EmployeeLandingPage/EmployeeLandingPage.tsx";
+import EmployeeHomePage from "../pages/EmployeePages/EmployeeHomePage/EmployeeHomePage.tsx";
 import StartShipment from "../components/EmployeeComponents/StartShipment/StartShipment.tsx";
 import AddExpenses from "../components/Expenses/AddExpenses/AddExpenses.tsx";
 import AddProfits from "../components/Profits/AddProfits/AddProfits.tsx";
@@ -16,7 +16,6 @@ import Areas from "../pages/SharedPages/Areas/Areas.tsx";
 import Customers from "../pages/SharedPages/viewCustomers/Customers.tsx";
 import Addresses from "../pages/SharedPages/Addresses/Addresses.tsx";
 import AddArea from "../components/Areas/AddArea/AddArea.tsx";
-import CreateExternalShipment from "../pages/EmployeePages/CreateExternalShipment/CreateExternalShipment.tsx";
 import OrdersOfToday from "../pages/SharedPages/Login/reports/orders-today/OrdersOfToday.tsx";
 import CustomerStatement from "../components/Customers/CustomerStatement/CustomerStatement.tsx"; 
 import DistributorsPage from "../components/Distributors/DistributorsPage.tsx";
@@ -26,16 +25,12 @@ function EmployeeRouter() {
   return (
     <div className="userRouter">
       <Routes>
-        <Route index element={<EmployeeLandingPage />} />
+        <Route index element={<EmployeeHomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/distributors" element={<DistributorsPage />} />
         <Route path="/distributors/:id" element={<DistributorDetails />} />
         <Route path="/customers" element={<Customers />} />
         <Route path="/updateOrder/:orderId" element={<UpdateOrder />} />
-        <Route
-          path="/createExternalShipment"
-          element={<CreateExternalShipment />}
-        />
         <Route
           path="/customers/:customerId/statement"
           element={<CustomerStatement />}
