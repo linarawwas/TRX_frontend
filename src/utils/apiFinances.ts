@@ -1,5 +1,8 @@
 // src/utils/apiFinances.ts
-const API = "http://localhost:5000";
+import { API_BASE } from "../config/api";
+
+const API = API_BASE || "http://localhost:5000";
+
 export async function createFinance(token: string, body: any) {
   const res = await fetch(`${API}/api/finances`, {
     method: "POST",
@@ -13,6 +16,33 @@ export async function createFinance(token: string, body: any) {
     throw new Error((await res.json().catch(() => ({})))?.error || "Failed");
   return res.json();
 }
+
+export async function updateFinance(token: string, id: string, body: any) {
+  const res = await fetch(`${API}/api/finances/${id}`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok)
+    throw new Error((await res.json().catch(() => ({})))?.error || "Failed");
+  return res.json();
+}
+
+export async function deleteFinance(token: string, id: string) {
+  const res = await fetch(`${API}/api/finances/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!res.ok)
+    throw new Error((await res.json().catch(() => ({})))?.error || "Failed");
+  return res.json();
+}
+
 export async function dailySummary(token: string, dateISO: string) {
   const url = new URL(`${API}/api/finances/summary/daily`);
   url.searchParams.set("date", dateISO);
@@ -48,11 +78,17 @@ export async function listFinances(
   }
 ): Promise<any[]> {
   try {
+    // Convert year/month to date range (from/to)
+    const firstDay = new Date(Date.UTC(params.year, params.month - 1, 1));
+    const lastDay = new Date(Date.UTC(params.year, params.month, 0, 23, 59, 59, 999));
+    const from = firstDay.toISOString().split('T')[0];
+    const to = lastDay.toISOString().split('T')[0];
+
     const url = new URL(`${API}/api/finances`);
-    url.searchParams.set("year", String(params.year));
-    url.searchParams.set("month", String(params.month));
-    if (params.kind) url.searchParams.set("kind", params.kind);
-    if (params.categoryId) url.searchParams.set("categoryId", params.categoryId);
+    url.searchParams.set("from", from);
+    url.searchParams.set("to", to);
+    // Note: kind and categoryId filtering would need to be done on backend or client-side
+    // For now, we'll filter client-side if needed
 
     const res = await fetch(url.toString(), {
       headers: { Authorization: `Bearer ${token}` },
@@ -60,8 +96,18 @@ export async function listFinances(
 
     if (!res.ok) throw new Error("Failed to list finances");
 
-    const data = await res.json();
-    return Array.isArray(data) ? data : data.items || [];
+    let data = await res.json();
+    if (!Array.isArray(data)) data = data.items || [];
+
+    // Client-side filtering for kind and categoryId if needed
+    if (params.kind) {
+      data = data.filter((e: any) => e.kind === params.kind);
+    }
+    if (params.categoryId) {
+      data = data.filter((e: any) => e.categoryId === params.categoryId);
+    }
+
+    return data;
   } catch (err) {
     throw new Error("Failed to list finances");
   }

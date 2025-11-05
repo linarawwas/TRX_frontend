@@ -1,8 +1,9 @@
 // src/pages/Admin/FinanceDashboard.tsx
 import React, { useMemo, useState, useRef } from "react";
 import { useSelector } from "react-redux";
-import { createFinance } from "../../../utils/apiFinances";
+import { createFinance, updateFinance, deleteFinance } from "../../../utils/apiFinances";
 import { fmtUSD, fmtLBP, fmtSignedUSD, fmtSignedLBP, getEntrySums, catAr } from "../../../features/finance/utils/financeUtils";
+import { FinanceEntry } from "../../../features/finance/types";
 import { useFinanceCategories } from "../../../features/finance/hooks/useFinanceCategories";
 import { useDailySummary } from "../../../features/finance/hooks/useDailySummary";
 import { useMonthlySummary } from "../../../features/finance/hooks/useMonthlySummary";
@@ -18,6 +19,8 @@ import MonthlyViewMobile from "./components/MonthlyViewMobile";
 import MonthlyViewTable from "./components/MonthlyViewTable";
 import EntriesViewMobile from "./components/EntriesViewMobile";
 import EntriesViewTable from "./components/EntriesViewTable";
+import EditFinanceForm from "./components/EditFinanceForm";
+import ConfirmDeleteModal from "./components/ConfirmDeleteModal";
 import { RootState } from "../../../redux/store";
 
 type TabKey = "daily" | "monthly" | "add" | "entries";
@@ -67,6 +70,11 @@ export default function FinanceDashboard() {
     active === "entries"
   );
 
+  // Edit/Delete state
+  const [editingEntry, setEditingEntry] = useState<FinanceEntry | null>(null);
+  const [deletingEntry, setDeletingEntry] = useState<FinanceEntry | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // Submit handler
   const handleSubmit = async (payload: {
     kind: "income" | "expense";
@@ -108,6 +116,83 @@ export default function FinanceDashboard() {
       toast.error("فشل حفظ العملية");
     }
   };
+
+  // Edit handler
+  const handleEdit = (entry: FinanceEntry) => {
+    if (!isAdmin) {
+      toast.warn("هذه العملية للمشرف فقط");
+      return;
+    }
+    setEditingEntry(entry);
+  };
+
+  const handleEditSave = async (payload: {
+    kind: "income" | "expense";
+    categoryId: string;
+    date: string;
+    note?: string;
+    payments: Array<{
+      amount: number;
+      currency: "USD" | "LBP";
+      paymentMethod?: string;
+      note?: string;
+      date: string;
+    }>;
+  }) => {
+    if (!editingEntry) return;
+
+    setIsSubmitting(true);
+    try {
+      await updateFinance(token, editingEntry._id, payload);
+      toast.success("تم التعديل بنجاح");
+      setEditingEntry(null);
+      entriesRefetch();
+      dailyRefetch();
+      monthlyRefetch();
+    } catch (err) {
+      console.error(err);
+      toast.error("فشل تعديل العملية");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleEditCancel = () => {
+    setEditingEntry(null);
+  };
+
+  // Delete handler
+  const handleDelete = (entry: FinanceEntry) => {
+    if (!isAdmin) {
+      toast.warn("هذه العملية للمشرف فقط");
+      return;
+    }
+    setDeletingEntry(entry);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingEntry) return;
+
+    setIsSubmitting(true);
+    try {
+      await deleteFinance(token, deletingEntry._id);
+      toast.success("تم الحذف بنجاح");
+      setDeletingEntry(null);
+      entriesRefetch();
+      dailyRefetch();
+      monthlyRefetch();
+    } catch (err) {
+      console.error(err);
+      toast.error("فشل حذف العملية");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeletingEntry(null);
+  };
+
   // Computed values
   const totals = useMemo(() => computeMonthlyTotals(monthly), [monthly]);
   const entriesTotals = useMemo(() => computeEntriesTotals(entries), [entries]);
@@ -300,6 +385,9 @@ export default function FinanceDashboard() {
                 fmtLBP={fmtLBP}
                 fmtSignedUSD={fmtSignedUSD}
                 getEntrySums={getEntrySums}
+                isAdmin={isAdmin}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
               />
             ) : (
               <EntriesViewTable
@@ -308,11 +396,69 @@ export default function FinanceDashboard() {
                 fmtUSD={fmtUSD}
                 fmtLBP={fmtLBP}
                 getEntrySums={getEntrySums}
+                isAdmin={isAdmin}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
               />
             )}
           </div>
         )}
       </div>
+
+      {/* Edit Modal */}
+      {editingEntry && (
+        <div
+          className="finx-edit-modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          onClick={(e) => {
+            if (e.target === e.currentTarget && !isSubmitting) {
+              handleEditCancel();
+            }
+          }}
+        >
+          <div className="finx-edit-modal-card" dir="rtl">
+            <div className="finx-edit-modal-header">
+              <h3 className="finx-edit-modal-title">تعديل العملية المالية</h3>
+              <button
+                className="finx-edit-modal-close"
+                onClick={handleEditCancel}
+                disabled={isSubmitting}
+                aria-label="إغلاق"
+                type="button"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="finx-edit-modal-body">
+              <EditFinanceForm
+                entry={editingEntry}
+                cats={cats}
+                onSave={handleEditSave}
+                onCancel={handleEditCancel}
+                isSubmitting={isSubmitting}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deletingEntry && (
+        <ConfirmDeleteModal
+          entryDate={String(
+            deletingEntry.date || deletingEntry.createdAt || ""
+          ).slice(0, 10)}
+          entryCategory={catAr({
+            name:
+              deletingEntry.categoryName || deletingEntry.category?.name || "",
+          })}
+          entryKind={deletingEntry.kind}
+          onConfirm={handleDeleteConfirm}
+          onCancel={handleDeleteCancel}
+          isDeleting={isSubmitting}
+        />
+      )}
     </div>
   );
 }

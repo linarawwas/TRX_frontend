@@ -479,3 +479,161 @@
 .finx-autoMargin {
   margin-right: auto;
 }
+
+/* ---------- Edit/Delete Actions ---------- */
+.finx-actions-inline {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+}
+
+.finx-btn-icon {
+  background: transparent;
+  border: 1px solid var(--fx-border, #e6eaf0);
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.12s ease, border-color 0.12s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+}
+
+.finx-btn-icon:hover:not(:disabled) {
+  background: var(--fx-soft, #f3f6fb);
+  border-color: var(--fx-accent, #0d94dd);
+}
+
+.finx-btn-icon:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.finx-btn-icon:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.finx-btn-edit {
+  color: var(--fx-accent, #0d94dd);
+}
+
+.finx-btn-delete {
+  color: var(--fx-bad, #b91c1c);
+}
+
+.finx-entry-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--fx-border, #e6eaf0);
+}
+
+.finx-btn-sm {
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.finx-btn-edit.finx-btn-sm {
+  background: #e0f2fe;
+  border: 1px solid #bae6fd;
+  color: #0369a1;
+}
+
+.finx-btn-edit.finx-btn-sm:hover:not(:disabled) {
+  background: #bae6fd;
+  border-color: #7dd3fc;
+}
+
+.finx-btn-delete.finx-btn-sm {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+.finx-btn-delete.finx-btn-sm:hover:not(:disabled) {
+  background: #fecaca;
+  border-color: #fca5a5;
+}
+
+/* ---------- Edit Modal ---------- */
+.finx-edit-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.finx-edit-modal-card {
+  background: var(--fx-card, #ffffff);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(2, 6, 23, 0.15);
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.finx-edit-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--fx-border, #e6eaf0);
+  background: linear-gradient(180deg, #ffffff, #fbfdff);
+}
+
+.finx-edit-modal-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--fx-text, #0f172a);
+}
+
+.finx-edit-modal-close {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--fx-muted, #475569);
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.12s ease, color 0.12s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.finx-edit-modal-close:hover:not(:disabled) {
+  background: var(--fx-soft, #f3f6fb);
+  color: var(--fx-text, #0f172a);
+}
+
+.finx-edit-modal-close:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.finx-edit-modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}

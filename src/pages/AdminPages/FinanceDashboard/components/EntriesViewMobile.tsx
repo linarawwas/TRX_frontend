@@ -17,6 +17,9 @@ interface EntriesViewMobileProps {
   fmtLBP: (n: number) => string;
   fmtSignedUSD: (n: number) => string;
   getEntrySums: (e: FinanceEntry) => { usd: number; lbp: number; norm: number };
+  isAdmin?: boolean;
+  onEdit?: (entry: FinanceEntry) => void;
+  onDelete?: (entry: FinanceEntry) => void;
 }
 
 export default function EntriesViewMobile({
@@ -26,6 +29,9 @@ export default function EntriesViewMobile({
   fmtLBP,
   fmtSignedUSD,
   getEntrySums,
+  isAdmin = false,
+  onEdit,
+  onDelete,
 }: EntriesViewMobileProps) {
   // Group entries by date
   const entryGroups = React.useMemo(() => {
@@ -134,6 +140,28 @@ export default function EntriesViewMobile({
                           ))}
                         </div>
                       )}
+                    {isAdmin && (
+                      <div className="finx-entry-actions" style={{ marginTop: 8 }}>
+                        <button
+                          className="finx-btn finx-btn-sm finx-btn-edit"
+                          onClick={() => onEdit?.(e)}
+                          title="تعديل"
+                          type="button"
+                          aria-label="تعديل العملية"
+                        >
+                          ✏️ تعديل
+                        </button>
+                        <button
+                          className="finx-btn finx-btn-sm finx-btn-delete"
+                          onClick={() => onDelete?.(e)}
+                          title="حذف"
+                          type="button"
+                          aria-label="حذف العملية"
+                        >
+                          🗑️ حذف
+                        </button>
+                      </div>
+                    )}
                   </details>
                 );
               })}
