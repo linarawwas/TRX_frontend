@@ -1,6 +1,6 @@
 import storage from 'redux-persist/lib/storage'; // uses localStorage
 import { persistReducer } from 'redux-persist';
-import userReducer from './userReducer';
+import userReducer from './reducer';
 
 const userPersistConfig = {
   key: 'user',
@@ -9,3 +9,4 @@ const userPersistConfig = {
 };
 
 export default persistReducer(userPersistConfig, userReducer);
+

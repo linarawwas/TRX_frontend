@@ -15,7 +15,7 @@ export interface ShipmentTotals {
 }
 
 export function useTodayShipmentTotals(
-  token: string,
+  token: string | null,
   companyId?: string,
   date?: Date
 ) {
@@ -34,6 +34,10 @@ export function useTodayShipmentTotals(
   const [error, setError] = useState<string | null>(null);
 
   const refetch = async () => {
+    if (!token) {
+      setLoading(false);
+      return;
+    }
     const targetDate = date || new Date();
     const day = targetDate.getDate();
     const month = targetDate.getMonth() + 1;

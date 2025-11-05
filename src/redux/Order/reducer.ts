@@ -13,7 +13,7 @@ import {
   CLEAR_CUSTOMER_NAME,
   SET_CUSTOMER_PHONE_NB,
   CLEAR_CUSTOMER_PHONE_NB,
-} from "./actionTypes.js";
+} from "./actionTypes";
 
 const initialState = {
   area_Id: null,

@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import { selectUserToken, selectUserCompanyId } from "../../../redux/selectors/user";
 import { fetchOrdersByCompany, Order } from "../../../features/orders/apiOrders";
-import SpinLoader from "../../../components/UI reusables/SpinLoader/SpinLoader.jsx";
+import SpinLoader from "../../../components/UI reusables/SpinLoader/SpinLoader";
 import { t } from "../../../utils/i18n";
 
 const OrdersTable: React.FC = () => {

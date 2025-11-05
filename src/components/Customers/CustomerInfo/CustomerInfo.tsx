@@ -3,13 +3,13 @@ import SpinLoader from "../../UI reusables/SpinLoader/SpinLoader";
 import "./CustomerInfo.css";
 
 interface CustomerInfoProps {
-  customerData: any;
-  loading: boolean;
+  customerData?: any;
+  loading?: boolean;
 }
 
 const CustomerInfo: React.FC<CustomerInfoProps> = ({
   customerData,
-  loading,
+  loading = false,
 }) => {
   return (
     <div className="customer-info-card" dir="rtl">

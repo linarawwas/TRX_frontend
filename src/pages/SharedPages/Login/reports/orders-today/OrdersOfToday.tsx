@@ -53,6 +53,11 @@ export default function OrdersOfToday(): JSX.Element {
   const [rows, setRows] = useState<ShipmentWithOrders[]>([]);
 
   async function load(date?: string) {
+    if (!token) {
+      setErr("لا يوجد رمز مصادقة");
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setErr(null);
     try {

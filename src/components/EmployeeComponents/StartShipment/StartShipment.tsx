@@ -111,6 +111,7 @@ const StartShipment: React.FC = () => {
         )
       );
 
+    if (!token) return;
     preloadShipmentData({
       dayId: shipmentData.dayId,
       token,
@@ -219,11 +220,12 @@ const StartShipment: React.FC = () => {
    * and stash (dayId, year, month, day) into local component state.
    */
   useEffect(() => {
+    if (!token) return;
     const initializeDate = async () => {
       try {
         const { year, month, day, weekday } = getBeirutParts();
         const response = await fetch(
-          `https://trx-api.linarawas.com/api/days/name/${weekday}`,
+          `http://localhost:5000/api/days/name/${weekday}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         if (!response.ok) throw new Error("Day info fetch failed");
@@ -269,7 +271,7 @@ const StartShipment: React.FC = () => {
    * If you see empty shipment id later, reorder those calls.
    */
   const handleShipmentSubmit = async (formData: any) => {
-    if (isSubmitting) return;
+    if (isSubmitting || !token) return;
 
     // Basic guards: we must know today's dayId and date triple
     if (
@@ -473,6 +475,7 @@ const StartShipment: React.FC = () => {
           <br />
           <button
             onClick={async () => {
+              if (!token) return;
               try {
                 setPreloadError(false);
                 await preloadShipmentData({ dayId: shipmentData.dayId, token });
@@ -492,6 +495,7 @@ const StartShipment: React.FC = () => {
         <div style={{ textAlign: "center", marginTop: "1rem" }}>
           <button
             onClick={async () => {
+              if (!token) return;
               try {
                 await preloadShipmentData({ dayId: shipmentData.dayId, token });
                 navigate(`/areas/${shipmentData.dayId}`);

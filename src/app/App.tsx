@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
-import Layout from "../Layout/Layout.jsx";
+import Layout from "../Layout/Layout";
 import Login from "../pages/SharedPages/Login/Login";
 import { useDispatch } from "react-redux";
 import {
@@ -7,8 +7,8 @@ import {
   setIsAdmin,
   setToken,
   setUsername,
-} from "../redux/UserInfo/action.js";
-import useSyncOfflineOrders from "../hooks/useSyncOfflineOrders.js";
+} from "../redux/UserInfo/action";
+import useSyncOfflineOrders from "../hooks/useSyncOfflineOrders";
 import { initializeDB } from "../utils/indexedDB";
 
 export default function App() {
@@ -20,9 +20,9 @@ export default function App() {
 
   if (token) {
     dispatch(setToken(token));
-    dispatch(setCompanyId(companyId));
+    if (companyId) dispatch(setCompanyId(companyId));
     dispatch(setIsAdmin(isAdmin));
-    dispatch(setUsername(username));
+    if (username) dispatch(setUsername(username));
   }
   dispatch(setToken(token));
   const isAuthenticated = token !== null && token !== undefined;

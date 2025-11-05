@@ -11,7 +11,7 @@ declare global {
 // Define the type for the state returned by rootReducer
 type BaseRootState = ReturnType<typeof rootReducer>;
 
-// Override shipment type since the reducer is JS and TypeScript can't infer it properly
+// Override shipment type for proper TypeScript inference
 export type RootState = Omit<BaseRootState, 'shipment'> & {
   shipment: ShipmentState;
 };

@@ -104,6 +104,10 @@ export default function FinanceDashboard() {
       return;
     }
 
+    if (!token) {
+      toast.error("لا يوجد رمز مصادقة");
+      return;
+    }
     try {
       await createFinance(token, payload);
       toast.success("تم الحفظ بنجاح");
@@ -139,7 +143,7 @@ export default function FinanceDashboard() {
       date: string;
     }>;
   }) => {
-    if (!editingEntry) return;
+    if (!editingEntry || !token) return;
 
     setIsSubmitting(true);
     try {
@@ -171,7 +175,7 @@ export default function FinanceDashboard() {
   };
 
   const handleDeleteConfirm = async () => {
-    if (!deletingEntry) return;
+    if (!deletingEntry || !token) return;
 
     setIsSubmitting(true);
     try {

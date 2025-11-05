@@ -3,12 +3,16 @@ import { useEffect, useState } from "react";
 import { dailySummary } from "../../../utils/apiFinances";
 import { DailySummary } from "../types";
 
-export function useDailySummary(token: string, date: string) {
+export function useDailySummary(token: string | null, date: string) {
   const [data, setData] = useState<DailySummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const refetch = async () => {
+    if (!token) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {

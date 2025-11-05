@@ -150,8 +150,48 @@ const FeatureSection: React.FC = () => {
               <FaTimes />
             </button>
             {activeForm === "shipment" && <StartShipment />}
-            {activeForm === "profits" && <AddProfits />}
-            {activeForm === "expenses" && <AddExpenses />}
+            {activeForm === "profits" && (
+              <AddProfits
+                config={{
+                  modelName: t("profits.title"),
+                  title: t("profits.add.title"),
+                  buttonLabel: t("profits.add.buttonLabel"),
+                  fields: {
+                    name: { label: t("profits.fields.name"), "input-type": "text" },
+                    value: { label: t("profits.fields.value"), "input-type": "number" },
+                    paymentCurrency: {
+                      label: t("profits.fields.paymentCurrency"),
+                      "input-type": "selectOption",
+                      options: [
+                        { value: "USD", label: t("profits.currency.usd") },
+                        { value: "LBP", label: t("profits.currency.lbp") },
+                      ],
+                    },
+                  },
+                }}
+              />
+            )}
+            {activeForm === "expenses" && (
+              <AddExpenses
+                config={{
+                  modelName: t("expenses.title"),
+                  title: t("expenses.add.title"),
+                  buttonLabel: t("expenses.add.buttonLabel"),
+                  fields: {
+                    name: { label: t("expenses.fields.name"), "input-type": "text" },
+                    value: { label: t("expenses.fields.value"), "input-type": "number" },
+                    paymentCurrency: {
+                      label: t("expenses.fields.paymentCurrency"),
+                      "input-type": "selectOption",
+                      options: [
+                        { value: "USD", label: t("expenses.currency.usd") },
+                        { value: "LBP", label: t("expenses.currency.lbp") },
+                      ],
+                    },
+                  },
+                }}
+              />
+            )}
           </div>
         </div>
       )}

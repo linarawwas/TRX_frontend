@@ -9,6 +9,9 @@ interface EntriesViewTableProps {
   fmtUSD: (n: number) => string;
   fmtLBP: (n: number) => string;
   getEntrySums: (e: FinanceEntry) => { usd: number; lbp: number; norm: number };
+  isAdmin?: boolean;
+  onEdit?: (entry: FinanceEntry) => void;
+  onDelete?: (entry: FinanceEntry) => void;
 }
 
 export default function EntriesViewTable({
@@ -17,6 +20,9 @@ export default function EntriesViewTable({
   fmtUSD,
   fmtLBP,
   getEntrySums,
+  isAdmin = false,
+  onEdit,
+  onDelete,
 }: EntriesViewTableProps) {
   return (
     <div className="finx-tableWrap">

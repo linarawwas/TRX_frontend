@@ -1,4 +1,4 @@
-// action.js
+// action.ts
 import {
   SET_CUSTOMER_ID,
   SET_PRODUCT_PRICE,
@@ -12,37 +12,43 @@ import {
   SET_CUSTOMER_NAME,
   SET_CUSTOMER_PHONE_NB,
   CLEAR_CUSTOMER_PHONE_NB,
-} from "./actionTypes.js";
+} from "./actionTypes";
 
-export const setCustomerId = (customer_Id) => ({
+export const setCustomerId = (customer_Id: string) => ({
   type: SET_CUSTOMER_ID,
   payload: customer_Id,
 });
 
-export const setAreaId = (area_id) => ({
+export const setAreaId = (area_id: string) => ({
   type: SET_AREA_ID,
   payload: area_id,
 });
-export const setProductId = (product_id) => ({
+
+export const setProductId = (product_id: string) => ({
   type: SET_PRODUCT_ID,
   payload: product_id,
 });
-export const setProductName = (product_name) => ({
+
+export const setProductName = (product_name: string) => ({
   type: SET_PRODUCT_NAME,
   payload: product_name,
 });
-export const setProductPrice = (product_price) => ({
+
+export const setProductPrice = (product_price: number) => ({
   type: SET_PRODUCT_PRICE,
   payload: product_price,
 });
-export const setCustomerName = (name) => ({
+
+export const setCustomerName = (name: string) => ({
   type: SET_CUSTOMER_NAME,
   payload: name,
 });
-export const setCustomerPhoneNb = (phone) => ({
+
+export const setCustomerPhoneNb = (phone: string) => ({
   type: SET_CUSTOMER_PHONE_NB,
   payload: phone,
 });
+
 export const clearCustomerName = () => ({
   type: CLEAR_CUSTOMER_NAME,
 });
@@ -54,9 +60,12 @@ export const clearCustomerId = () => ({
 export const clearAreaId = () => ({
   type: CLEAR_AREA_ID,
 });
+
 export const clearProductId = () => ({
   type: CLEAR_PRODUCT_ID,
 });
+
 export const clearCustomerPhoneNb = () => ({
   type: CLEAR_CUSTOMER_PHONE_NB,
 });
+

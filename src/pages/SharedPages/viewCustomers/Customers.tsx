@@ -6,7 +6,7 @@ import { clearCustomerId } from "../../../redux/Order/action";
 import { selectUserToken } from "../../../redux/selectors/user";
 import { fetchCustomersByCompany } from "../../../features/customers/apiCustomers";
 import AddCustomer from "../../../components/Customers/AddCustomer/AddCustomer";
-import SpinLoader from "../../../components/UI reusables/SpinLoader/SpinLoader.jsx";
+import SpinLoader from "../../../components/UI reusables/SpinLoader/SpinLoader";
 import { t } from "../../../utils/i18n";
 
 interface Customer {

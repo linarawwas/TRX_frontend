@@ -2,22 +2,29 @@ import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import "./AreaSequencePicker.css";
 
+interface Customer {
+  _id: string;
+  name?: string;
+  sequence?: number;
+}
+
+interface AreaSequencePickerProps {
+  token: string;
+  companyId: string;
+  areaId: string;
+  currentCustomerId?: string;
+  value?: string;
+  mode?: "picker" | "apply";
+  onChange?: (value: string) => void;
+  onApplied?: () => void;
+  disabled?: boolean;
+  title?: string;
+}
+
 /**
  * Reusable area-sequence placement picker.
- *
- * Props:
- * - token (string)        : auth token
- * - companyId (string)    : company id
- * - areaId (string)       : current area id (required to load list)
- * - currentCustomerId?    : exclude this id from "after" options (update flow)
- * - value? (string)       : "__START__" | "__END__" | "<customerId>" (controlled)
- * - mode? (string)        : "picker" (no submit) | "apply" (shows Apply button). default "picker"
- * - onChange? (fn)        : called when value changes (picker mode)
- * - onApplied? (fn)       : called after successful apply (apply mode)
- * - disabled? (bool)      : disable control
- * - title? (string)       : heading text
  */
-const AreaSequencePicker = ({
+const AreaSequencePicker: React.FC<AreaSequencePickerProps> = ({
   token,
   companyId,
   areaId,
@@ -29,7 +36,7 @@ const AreaSequencePicker = ({
   disabled = false,
   title = "تغيير الترتيب داخل المنطقة",
 }) => {
-  const [list, setList] = useState([]);
+  const [list, setList] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(false);
   const [pos, setPos] = useState(value);
   const [busy, setBusy] = useState(false);
@@ -47,11 +54,11 @@ const AreaSequencePicker = ({
       try {
         setLoading(true);
         const r = await fetch(
-          `https://trx-api.linarawas.com/api/customers/area/${areaId}`,
+          `http://localhost:5000/api/customers/area/${areaId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         const data = await r.json();
-        const sorted = [...data].sort((a, b) => {
+        const sorted = [...data].sort((a: Customer, b: Customer) => {
           const sa = a.sequence ?? Number.POSITIVE_INFINITY;
           const sb = b.sequence ?? Number.POSITIVE_INFINITY;
           if (sa !== sb) return sa - sb;
@@ -72,7 +79,7 @@ const AreaSequencePicker = ({
     if (!areaId) return;
     setPos("__END__");
     onChange && onChange("__END__");
-  }, [areaId]);
+  }, [areaId, onChange]);
 
   // options, excluding the current customer (if provided)
   const options = useMemo(
@@ -80,7 +87,7 @@ const AreaSequencePicker = ({
     [list, currentCustomerId]
   );
 
-  const handleSelect = (v) => {
+  const handleSelect = (v: string) => {
     setPos(v);
     onChange && onChange(v);
   };
@@ -96,7 +103,7 @@ const AreaSequencePicker = ({
     const currentOrder = list.map((c) => c._id);
     const withoutMe = currentOrder.filter((id) => id !== currentCustomerId);
 
-    let next = [];
+    let next: string[] = [];
     if (pos === "__START__") next = [currentCustomerId, ...withoutMe];
     else if (pos === "__END__") next = [...withoutMe, currentCustomerId];
     else {
@@ -114,7 +121,7 @@ const AreaSequencePicker = ({
     setBusy(true);
     try {
       const res = await fetch(
-        `https://trx-api.linarawas.com/api/areas/${areaId}/reorder?companyId=${companyId}`,
+        `http://localhost:5000/api/areas/${areaId}/reorder?companyId=${companyId}`,
         {
           method: "POST",
           headers: {
@@ -184,3 +191,4 @@ const AreaSequencePicker = ({
 };
 
 export default AreaSequencePicker;
+

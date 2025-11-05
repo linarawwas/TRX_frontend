@@ -3,12 +3,16 @@ import { useEffect, useState } from "react";
 import { monthlySummary } from "../../../utils/apiFinances";
 import { MonthlyRow } from "../types";
 
-export function useMonthlySummary(token: string, y: number, m: number) {
+export function useMonthlySummary(token: string | null, y: number, m: number) {
   const [data, setData] = useState<MonthlyRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const refetch = async () => {
+    if (!token) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {

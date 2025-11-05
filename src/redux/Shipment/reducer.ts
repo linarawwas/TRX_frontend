@@ -32,8 +32,9 @@ import {
   SET_ROUND_INFO,
   CLEAR_ROUND_INFO,
 } from "./actionTypes";
+import { ShipmentState } from "./types";
 
-const initialState = {
+const initialState: ShipmentState = {
   _id: "",
   dayId: "",
   year: null,
@@ -65,10 +66,10 @@ const initialState = {
   prev_expensesInUSD: 0,
   CustomersWithFilledOrders: [],
   CustomersWithEmptyOrders: [],
-  CustomersWithPendingOrders: [], // <-- Make sure this key exists
+  CustomersWithPendingOrders: [],
   prev_CustomersWithFilledOrder: [],
   prev_CustomersWithEmptyOrders: [],
-  prev_CustomersWithPendingOrders: [], // Add this line
+  prev_CustomersWithPendingOrders: [],
   round: {
     sequence: null,
     targetAdded: 0,
@@ -84,7 +85,12 @@ const initialState = {
   },
 };
 
-const shipmentReducer = (state = initialState, action) => {
+interface Action {
+  type: string;
+  payload?: any;
+}
+
+const shipmentReducer = (state = initialState, action: Action): ShipmentState => {
   switch (action.type) {
     case SET_ROUND_INFO:
       return {
@@ -98,7 +104,7 @@ const shipmentReducer = (state = initialState, action) => {
         round: {
           sequence: null,
           targetAdded: 0,
-          baseDelivered: state.delivered, // optional: carry current as baseline
+          baseDelivered: state.delivered,
           baseReturned: state.returned,
           baseUsd: state.dollarPayments,
           baseLbp: state.liraPayments,
@@ -172,7 +178,7 @@ const shipmentReducer = (state = initialState, action) => {
         expensesInLiras: state.prev_expensesInLiras || state.expensesInLiras,
         profitsInLiras: state.prev_profitsInLiras || state.profitsInLiras,
         CustomersWithFilledOrders:
-          state.prev_CustomersWithFilledOrders ||
+          state.prev_CustomersWithFilledOrder ||
           state.CustomersWithFilledOrders,
         CustomersWithEmptyOrders:
           state.prev_CustomersWithEmptyOrders || state.CustomersWithEmptyOrders,
@@ -295,7 +301,6 @@ const shipmentReducer = (state = initialState, action) => {
         prev_target: state.target,
         prev_delivered: state.delivered,
         prev_returned: state.returned,
-        prev_payments: state.payments,
         prev_dollarPayments: state.dollarPayments,
         prev_liraPayments: state.liraPayments,
         prev_expensesInLiras: state.expensesInLiras,
@@ -319,7 +324,7 @@ const shipmentReducer = (state = initialState, action) => {
         profitsInUSD: 0,
         CustomersWithFilledOrders: [],
         CustomersWithEmptyOrders: [],
-        CustomersWithPendingOrders: [], // <-- Make sure this key exists
+        CustomersWithPendingOrders: [],
         round: {
           sequence: null,
           targetAdded: 0,
@@ -340,3 +345,4 @@ const shipmentReducer = (state = initialState, action) => {
 };
 
 export default shipmentReducer;
+

@@ -8,6 +8,12 @@ import {
   addCustomerWithFilledOrder,
 } from "../redux/Shipment/action";
 
+interface PendingRequest {
+  id: number;
+  url: string;
+  options: RequestInit & { body?: string };
+}
+
 const useSyncOfflineOrders = () => {
   const dispatch = useDispatch();
   const syncInProgress = useRef(false);
@@ -33,7 +39,7 @@ const useSyncOfflineOrders = () => {
 
       console.log("Fetching pending requests from IndexedDB...");
 
-      let pendingRequests;
+      let pendingRequests: PendingRequest[];
       try {
         pendingRequests = await getPendingRequests();
         console.log("Pending requests found:", pendingRequests);
@@ -52,7 +58,7 @@ const useSyncOfflineOrders = () => {
       for (const request of pendingRequests) {
         try {
           console.log("Processing request:", request);
-          const body = JSON.parse(request.options.body);
+          const body = JSON.parse(request.options.body || "{}");
 
           if (!request.url || !request.url.startsWith("http")) {
             console.error("Invalid request URL:", request.url);
@@ -70,9 +76,9 @@ const useSyncOfflineOrders = () => {
             await removeRequestFromDb(request.id);
 
             if (
-              parseInt(body.delivered) === 0 &&
-              parseInt(body.returned) === 0 &&
-              parseInt(body.paid) === 0
+              parseInt(String(body.delivered)) === 0 &&
+              parseInt(String(body.returned)) === 0 &&
+              parseInt(String(body.paid)) === 0
             ) {
               dispatch(addCustomerWithEmptyOrder(body.customerid));
             } else {
@@ -123,3 +129,4 @@ const useSyncOfflineOrders = () => {
 };
 
 export default useSyncOfflineOrders;
+

@@ -19,12 +19,12 @@ import {
   setShipmentReturned,
   setShipmentPaymentsInDollars,
   setShipmentPaymentsInLiras,
-} from "../../../redux/Shipment/action.js";
+} from "../../../redux/Shipment/action";
 import {
   setProductId,
   setProductName,
   setProductPrice,
-} from "../../../redux/Order/action.js";
+} from "../../../redux/Order/action";
 import { Link, useNavigate } from "react-router-dom";
 import { getProductTypeFromDB, saveRequest } from "../../../utils/indexedDB";
 import { fetchAndCacheCustomerInvoice } from "../../../utils/apiHelpers";
@@ -256,7 +256,7 @@ const RecordOrder: React.FC<Props> = (props) => {
     waMessage?: string | null
   ) => {
     const request = {
-      url: "https://trx-api.linarawas.com/api/orders",
+      url: "http://localhost:5000/api/orders",
       options: {
         method: "POST",
         headers: {

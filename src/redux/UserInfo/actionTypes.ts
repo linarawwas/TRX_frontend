@@ -11,3 +11,4 @@ export const CLEAR_TOKEN = 'CLEAR_TOKEN';
 export const CLEAR_COMPANY_ID = 'CLEAR_COMPANY_ID';
 export const CLEAR_IS_ADMIN = 'CLEAR_IS_ADMIN';
 export const CLEAR_USERNAME = 'CLEAR_USERNAME';
+

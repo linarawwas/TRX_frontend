@@ -10,13 +10,13 @@ export interface Product {
   companyId: string;
 }
 
-export function useProducts(token: string, companyId?: string) {
+export function useProducts(token: string | null, companyId?: string) {
   const [items, setItems] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const refetch = useCallback(async () => {
-    if (!companyId) return;
+    if (!companyId || !token) return;
     setLoading(true);
     setError(null);
     try {
@@ -31,6 +31,7 @@ export function useProducts(token: string, companyId?: string) {
 
   const remove = useCallback(
     async (productId: string) => {
+      if (!token) return;
       // optimistic
       const prev = items;
       setItems(items.filter((p) => p._id !== productId));

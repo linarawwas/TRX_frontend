@@ -4,7 +4,7 @@ import { listFinances } from "../../../utils/apiFinances";
 import { FinanceEntry } from "../types";
 
 export function useFinanceEntries(
-  token: string,
+  token: string | null,
   year: number,
   month: number,
   kind?: "income" | "expense" | "",
@@ -16,7 +16,7 @@ export function useFinanceEntries(
   const [error, setError] = useState<string | null>(null);
 
   const refetch = async () => {
-    if (!enabled) return;
+    if (!enabled || !token) return;
     setLoading(true);
     setError(null);
     try {

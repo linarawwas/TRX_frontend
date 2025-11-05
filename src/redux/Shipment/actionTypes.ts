@@ -1,4 +1,3 @@
-
 // Action types for setting day and date Info
 export const SET_DAY_ID = 'SET_DAY_ID';
 export const SET_ID = 'SET_ID';
@@ -37,3 +36,4 @@ export const CLEAR_DATE_DAY = 'CLEAR_DATE_DAY';
 export const CLEAR_DATE_MONTH = 'CLEAR_DATE_MONTH';
 export const CLEAR_DATE_YEAR = 'CLEAR_DATE_YEAR';
 export const CLEAR_ALL_SHIPMENT_INFO = 'CLEAR_ALL_SHIPMENT_INFO';
+

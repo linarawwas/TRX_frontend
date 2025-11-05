@@ -3,12 +3,16 @@ import { useEffect, useState } from "react";
 import { listCategories } from "../../../utils/apiFinances";
 import { Category } from "../types";
 
-export function useFinanceCategories(token: string) {
+export function useFinanceCategories(token: string | null) {
   const [cats, setCats] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const refetch = async () => {
+    if (!token) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {

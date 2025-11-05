@@ -1,6 +1,17 @@
-// utils/whatsapp.js
+// utils/whatsapp.ts
+interface WhatsAppLinkParams {
+  to: string; // E.164 – ex: "9613248982"
+  customerName: string;
+  delivered: number;
+  returned: number;
+  paidUSD: number;
+  paidLBP: number;
+  totalDue: number;
+  driverName?: string;
+}
+
 export const buildWhatsAppLink = ({
-  to,                 // E.164 – ex: "9613248982"
+  to,
   customerName,
   delivered,
   returned,
@@ -8,11 +19,11 @@ export const buildWhatsAppLink = ({
   paidLBP,
   totalDue,
   driverName = "سائق TRX",
-}) => {
+}: WhatsAppLinkParams): string => {
   const msg = `
 مرحباً ${customerName}! ✅ تم تسليم طلبك.
 📦 القناني المسلّمة: ${delivered}
-🔁 القناني المرجَّعة: ${returned}
+🔁 القناني المرجَّعة: ${returned}
 💵 المدفوع بالدولار: ${paidUSD} $
 💴 المدفوع بالليرة: ${paidLBP.toLocaleString()} ل.ل
 💰 المبلغ المتبقّي: ${totalDue} $
@@ -22,3 +33,4 @@ export const buildWhatsAppLink = ({
 
   return `https://wa.me/${to}?text=${encodeURIComponent(msg)}`;
 };
+

@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { RootState } from "../../../redux/store";
 import "./ProductsList.css";
 import "../../../components/Customers/CustomerInvoices/CustomerInvoices.css";
-import SpinLoader from "../../../components/UI reusables/SpinLoader/SpinLoader.jsx";
+import SpinLoader from "../../../components/UI reusables/SpinLoader/SpinLoader";
 import AddProducts from "../../../components/Products/AddProducts";
 import ProductCard from "../../../components/Products/ProductCard";
 import { useProducts } from "../../../features/products/hooks/useProducts";

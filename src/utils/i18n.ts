@@ -300,6 +300,7 @@ const translations: Record<TranslationKey, string> = {
   'customersForArea.pending.title': 'بانتظار الإرسال ({{count}})',
   'customersForArea.pending.empty': 'لا يوجد طلبات بانتظار الإرسال',
   'customersForArea.completed.title': 'المُنجَز ({{total}}) — معبّأ: {{filled}} | فارغ: {{empty}}',
+  'customersForArea.completed.filled': 'معبّأ',
   'customersForArea.completed.empty': 'لا يوجد زبائن مُنجَزون بعد',
   'customersForArea.completed.emptyText': 'لا يوجد زبائن مُنجَزون بعد',
   'customersForArea.active.title': 'المتبقّي ({{count}})',
