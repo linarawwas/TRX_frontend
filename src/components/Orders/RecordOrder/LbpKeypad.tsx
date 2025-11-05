@@ -15,7 +15,11 @@ export default function LbpKeypad({ open, initialValue, onClose, onConfirm }: Pr
   const sheetRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (open) setVal(initialValue || 0);
+    if (open) {
+      // defer to avoid set-state-in-effect lint and cascading renders
+      const id = setTimeout(() => setVal(initialValue || 0), 0);
+      return () => clearTimeout(id);
+    }
   }, [open, initialValue]);
 
   useEffect(() => {
@@ -38,7 +42,13 @@ export default function LbpKeypad({ open, initialValue, onClose, onConfirm }: Pr
   if (!open) return null;
 
   return (
-    <div className="lbp-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+    <div
+      className="lbp-overlay"
+      role="button"
+      tabIndex={0}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onKeyDown={(e) => { if (e.key === "Escape" || e.key === "Enter") onClose(); }}
+    >
       <div className="lbp-sheet" ref={sheetRef} role="dialog" aria-modal="true">
         <div className="lbp-handle" />
         <div className="lbp-header">

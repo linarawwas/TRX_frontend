@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import "./TripleDigitPicker.css";
 
 interface TripleDigitPickerProps {
@@ -11,7 +11,7 @@ const TripleDigitPicker: React.FC<TripleDigitPickerProps> = ({ onChange }) => {
   const [hundreds, setHundreds] = useState<number | null>(0);
   const [tens, setTens] = useState<number | null>(0);
   const [ones, setOnes] = useState<number | null>(0);
-  const [lastSentValue, setLastSentValue] = useState<number | null>(null);
+  const lastSentValueRef = useRef<number | null>(null);
 
   // Only call onChange when the full number is valid and it has changed
   useEffect(() => {
@@ -21,13 +21,12 @@ const TripleDigitPicker: React.FC<TripleDigitPickerProps> = ({ onChange }) => {
       ones !== null
     ) {
       const total = hundreds * 100 + tens * 10 + ones;
-      if (total !== lastSentValue) {
-        setLastSentValue(total);
-        console.log("Selected number:", total);
+      if (total !== lastSentValueRef.current) {
+        lastSentValueRef.current = total;
         onChange(total);
       }
     }
-  }, [hundreds, tens, ones, onChange, lastSentValue]);
+  }, [hundreds, tens, ones, onChange]);
 
   const renderDigitColumn = useCallback((
     selectedValue: number | null,
@@ -39,7 +38,12 @@ const TripleDigitPicker: React.FC<TripleDigitPickerProps> = ({ onChange }) => {
           <div
             key={digit}
             className={`digit-option ${selectedValue === digit ? "selected" : ""}`}
+            role="button"
+            tabIndex={0}
             onClick={() => onSelect(digit)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") onSelect(digit);
+            }}
           >
             {digit}
           </div>

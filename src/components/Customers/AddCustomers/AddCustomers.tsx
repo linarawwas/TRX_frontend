@@ -33,7 +33,7 @@ const AddCustomers = (): JSX.Element => {
         if (Array.isArray(data) && data.length > 0 && Array.isArray(data[0])) {
           const headers: string[] = data[0].map((header: any) => String(header));
   
-          const customerData = [];
+          const customerData: Array<Record<string, unknown>> = [];
           let stopProcessing = false;
   
           for (let i = 1; i < data.length && !stopProcessing; i++) {

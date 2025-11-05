@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import "./AddPaymentForm.css";
 
 const AddPaymentForm = ({ orderId, orderData, setOrderData, onSuccess }) => {
-  const token = useSelector((s) => s.user.token);
+  const token = useSelector((s: any) => s.user.token);
 
   const rateLBP = useMemo(() => {
     const v = Number(orderData?.companyExchangeRateLBPAtSale);

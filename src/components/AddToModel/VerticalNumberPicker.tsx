@@ -26,7 +26,12 @@ const VerticalNumberPicker: React.FC<Props> = ({
           <div
             key={num}
             className={`number-option ${value === num ? "active" : ""}`}
+            role="button"
+            tabIndex={0}
             onClick={() => onChange(num)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") onChange(num);
+            }}
           >
             {num}
           </div>

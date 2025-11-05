@@ -12,6 +12,7 @@ import {
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import DiscountCard from "./DiscountCard";
+import { RootState } from "../../../redux/store";
 
 interface CustomerData {
   hasDiscount: boolean;
@@ -21,14 +22,14 @@ interface CustomerData {
 }
 
 function RecordOrderForCustomer(): JSX.Element {
-  const customerId = useSelector((state: any) => state.order.customer_Id);
-  const token = useSelector((state: any) => state.user.token);
+  const customerId = useSelector((state: RootState) => state.order.customer_Id);
+  const token = useSelector((state: RootState) => state.user.token);
   const [customerDiscountStatus, setCustomerDiscountStatus] =
     useState<CustomerData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { state } = useLocation();
-  const isExternal = Boolean((state as any)?.isExternal);
+  const isExternal = Boolean((state as { isExternal?: boolean })?.isExternal);
   console.log("isExternal:", isExternal);
 
   useEffect(() => {
@@ -96,7 +97,7 @@ function RecordOrderForCustomer(): JSX.Element {
         />
       )}
       <RecordOrder
-        customerData={customerDiscountStatus}
+        customerData={customerDiscountStatus || null}
         isExternal={isExternal}
       />
     </div>

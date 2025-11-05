@@ -113,7 +113,7 @@ const CustomerOrders: React.FC = () => {
                       {p.currency === "USD" ? fmtUSD(p.amount) : fmtLBP(p.amount)}
                     </strong>
                   </div>
-                  {p.currency === "LBP" && r > 0 && (
+                  {p.currency === "LBP" && r != null && r > 0 && (
                     <div className="payment-meta">
                       <span>المعادِل:</span> {fmtUSD(usdEq!)} • <span>السعر:</span> {fmtRateLBP(r)}
                     </div>

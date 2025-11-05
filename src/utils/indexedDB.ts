@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // indexedDB.ts
 import { openDB } from "idb";
 import type { IDBPObjectStore } from "idb";

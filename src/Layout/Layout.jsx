@@ -43,7 +43,7 @@ function Layout() {
       .catch((error) => {
         console.error("Error fetching user data:", error);
       });
-  }, []);
+  }, [dispatch, token]);
   return (
     <Fragment>
       <ToastContainer position="top-right" autoClose={3000} />

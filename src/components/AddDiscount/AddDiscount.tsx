@@ -90,7 +90,7 @@ const AddDiscount: React.FC = () => {
     field: keyof FormData,
     value: string | boolean
   ) => {
-    setFormData((prev) => ({ ...prev, [field]: value as any }));
+    setFormData((prev) => ({ ...prev, [field]: value as string | boolean }));
   };
 
   const handleValueChange = (e: ChangeEvent<HTMLInputElement>) => {

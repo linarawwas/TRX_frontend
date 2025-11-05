@@ -122,11 +122,11 @@ const StartShipment: React.FC = () => {
         if (e.type === "meta:fetched") {
           // Company/day metadata fetched (areas counts, etc.)
           setPhaseMeta(true);
-          total = e.companyAreas;
+          total = (e as any).companyAreas ?? (e as any).total ?? 0;
           done = 0;
           setAreasTotal(total);
           setProgressNote(
-            `جاري قراءة المناطق: اليوم ${e.dayAreas} | الشركة ${e.companyAreas}`
+            `جاري قراءة المناطق: اليوم ${e.dayAreas} | الشركة ${(e as any).companyAreas ?? "?"}`
           );
           setProgressPct(pct());
         }

@@ -45,7 +45,15 @@ const PaymentSheet: React.FC<{
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
   return (
-    <div className="sheet-backdrop" role="presentation" onClick={onClose}>
+    <div
+      className="sheet-backdrop"
+      role="button"
+      tabIndex={0}
+      onClick={onClose}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") onClose();
+      }}
+    >
       <div
         className="sheet-panel"
         role="dialog"
@@ -467,9 +475,10 @@ const CustomerStatement: React.FC = () => {
           onClose={() => setShowSheet(false)}
         >
           <div className="st-sheet-fields">
-            <label className="st-label">اختر الفاتورة</label>
+            <label className="st-label" htmlFor="st-order-select">اختر الفاتورة</label>
             <select
               className="st-select"
+              id="st-order-select"
               value={targetOrderId || ""}
               onChange={(e) => setTargetOrderId(e.target.value || null)}
             >

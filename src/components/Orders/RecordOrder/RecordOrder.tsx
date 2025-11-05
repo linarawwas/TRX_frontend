@@ -30,53 +30,104 @@ import { getProductTypeFromDB, saveRequest } from "../../../utils/indexedDB";
 import { fetchAndCacheCustomerInvoice } from "../../../utils/apiHelpers";
 import CustomerInvoices from "../../Customers/CustomerInvoices/CustomerInvoices";
 import { selectRoundProgress } from "../../../redux/selectors/shipment";
+// ---- Types (top of RecordOrder.tsx) ----
+type RootState = {
+  user: { companyId: string; token: string };
+  order: {
+    customer_Id: string;
+    customer_name: string;
+    phone: string;
+    product_name: string;
+    product_id: string | number;
+    product_price: number;
+  };
+  shipment: {
+    _id: string;
+    exchangeRateLBP?: number;
+    delivered?: number;
+    returned?: number;
+    dollarPayments?: number;
+    liraPayments?: number;
+  };
+};
+
+type CustomerData = {
+  hasDiscount?: boolean;
+  valueAfterDiscount?: number;
+};
 
 type Props = {
-  customerData?: any;
+  customerData?: CustomerData | null;
   isExternal?: boolean;
+};
+
+type Payment = { amount: number; currency: "USD" | "LBP" };
+
+type OrderPayload = {
+  delivered: number;
+  returned: number;
+  customerid: string;
+  productId: string | number;
+  shipmentId: string;
+  payments: Payment[];
+  // your code uses 2 (internal) or 3 (external)
+  type?: 2 | 3;
 };
 
 const RecordOrder: React.FC<Props> = (props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const companyId = useSelector((s) => s.user.companyId);
-  const { targetRound, deliveredThisRound, remainingRound } =
+  const companyId = useSelector((s: RootState) => s.user.companyId);
+  const { targetRound, /* deliveredThisRound, */ remainingRound } =
     useSelector(selectRoundProgress);
-
-  // Use remainingRound everywhere you clamp or block delivery
-  const remaining = remainingRound;
-  const token = useSelector((s) => s.user.token);
-  const customerId = useSelector((s) => s.order.customer_Id);
-  const customerName = useSelector((s) => s.order.customer_name);
-  const customerPhoneRaw = useSelector((s) => s.order.phone);
-  const shipmentId = useSelector((s) => s.shipment._id);
-  console.log(customerPhoneRaw, "this is customerPhoneRaw");
-  const product_name = useSelector((s) => s.order.product_name);
-  console.log(product_name, "this is product_name");
-  const productId = useSelector((s) => s.order.product_id);
-  const productPrice = useSelector((s) => s.order.product_price);
-  const orderSlice = useSelector((s: any) => s.order);
-  console.log({ orderSlice }, "order slice");
-  // Pull redux rate if you store it there (optional, but good)
+    const remaining = remainingRound;
+  const token = useSelector((s: RootState) => s.user.token);
+  const customerId = useSelector((s: RootState) => s.order.customer_Id);
+  const customerName = useSelector((s: RootState) => s.order.customer_name);
+  const customerPhoneRaw = useSelector((s: RootState) => s.order.phone);
+  const shipmentId = useSelector((s: RootState) => s.shipment._id);
+  const product_name = useSelector((s: RootState) => s.order.product_name);
+  const productId = useSelector((s: RootState) => s.order.product_id);
+  const productPrice = useSelector((s: RootState) => s.order.product_price);
   const reduxRateLBP =
-    useSelector((s: any) => s.shipment.exchangeRateLBP) || undefined;
-  console.log({ reduxRateLBP }, "redux rate");
-  // Shipment totals (for incremental updates)
-  const shipmentDelivered = useSelector((s) => s.shipment.delivered) ?? 0;
-  const shipmentReturned = useSelector((s) => s.shipment.returned) ?? 0;
-  const shipmentUsd = useSelector((s) => s.shipment.dollarPayments) ?? 0;
-  const shipmentLbp = useSelector((s) => s.shipment.liraPayments) ?? 0;
+    useSelector((s: RootState) => s.shipment.exchangeRateLBP) || undefined;
+  const shipmentDelivered =
+    useSelector((s: RootState) => s.shipment.delivered) ?? 0;
+  const shipmentReturned =
+    useSelector((s: RootState) => s.shipment.returned) ?? 0;
+  const shipmentUsd =
+    useSelector((s: RootState) => s.shipment.dollarPayments) ?? 0;
+  const shipmentLbp =
+    useSelector((s: RootState) => s.shipment.liraPayments) ?? 0;
 
   const [showLbpPad, setShowLbpPad] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [overModal, setOverModal] = useState<{ want: number } | null>(null);
-
   const [form, setForm] = useState({
     delivered: 0,
     returned: 0,
     paidUSD: 0,
     paidLBP: 0,
   });
+  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    // Empty => 0 (stay numeric)
+    const clean = value === "" ? "0" : value;
+  
+    // numeric only, strip leading zeros except “0”
+    const cleaned = String(clean).replace(/^0+(?!$)/, "");
+    if (Number.isNaN(Number(cleaned))) return;
+  
+    let next = parseInt(cleaned, 10);
+  
+    if (name === "delivered") {
+      next = Math.max(0, Math.min(next, remaining));
+    }
+  
+    setForm((p) => ({ ...p, [name]: next }));
+  };
+  
 
   /* ---------- cache default product ---------- */
   useEffect(() => {
@@ -102,27 +153,6 @@ const RecordOrder: React.FC<Props> = (props) => {
       (Number(form.delivered) || 0)
     : (productPrice || 0) * (Number(form.delivered) || 0);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-
-    if (value === "") {
-      setForm((p) => ({ ...p, [name]: "" }));
-      return;
-    }
-
-    // keep numeric only, strip leading zeros
-    const cleaned = String(value).replace(/^0+(?!$)/, "");
-    if (Number.isNaN(Number(cleaned))) return;
-
-    let next = parseInt(cleaned, 10);
-
-    // clamp on change
-    if (name === "delivered") {
-      next = Math.max(0, Math.min(next, remaining));
-    }
-
-    setForm((p) => ({ ...p, [name]: next }));
-  };
 
   const handleLbpChange = useCallback(
     (val: number) => setForm((p) => ({ ...p, paidLBP: val })),
@@ -152,18 +182,18 @@ const RecordOrder: React.FC<Props> = (props) => {
   }: {
     customerName: string;
     productName: string;
-    payload: { delivered: number; returned: number; payments: any[] };
+    payload: { delivered: number; returned: number; payments: Payment[] };
     checkoutUSD: number;
     preview: { bottlesLeftAfter: number; totalUsdAfter: number };
     lastRateLBP?: number;
   }) {
     const sumUSD = (payload.payments || [])
-      .filter((p: any) => p.currency === "USD")
-      .reduce((s: number, p: any) => s + (p.amount || 0), 0);
+    .filter((p) => p.currency === "USD")
+    .reduce((s, p) => s + (p.amount || 0), 0);
 
-    const sumLBP = (payload.payments || [])
-      .filter((p: any) => p.currency === "LBP")
-      .reduce((s: number, p: any) => s + (p.amount || 0), 0);
+  const sumLBP = (payload.payments || [])
+    .filter((p) => p.currency === "LBP")
+    .reduce((s, p) => s + (p.amount || 0), 0);
 
     const usdStr = sumUSD ? `${sumUSD} $` : "0 $";
     const lbpStr = sumLBP ? `${sumLBP.toLocaleString()} ل.ل` : "0 ل.ل";
@@ -191,9 +221,9 @@ const RecordOrder: React.FC<Props> = (props) => {
 شكراً لتعاملكم معنا`;
   }
 
-  function normalizePhone(raw: string, defaultCountry = "961") {
+  function normalizePhone(raw: string, defaultCountry = "961"): string {
     if (!raw) return "";
-    let cleaned = raw.replace(/[^0-9]/g, ""); // digits only
+    const cleaned = raw.replace(/[^0-9]/g, ""); // digits only
 
     // 00CC... -> strip 00
     if (cleaned.startsWith("00")) return cleaned.slice(2);
@@ -219,8 +249,9 @@ const RecordOrder: React.FC<Props> = (props) => {
     return defaultCountry + cleaned;
   }
 
+
   const actuallySubmit = async (
-    payload: { delivered: number; returned: number; payments?: { amount: number; currency: "USD" | "LBP" }[] },
+    payload: OrderPayload,
     waWindow?: Window | null,
     waMessage?: string | null
   ) => {
@@ -282,11 +313,11 @@ const RecordOrder: React.FC<Props> = (props) => {
       dispatch(setShipmentReturned(shipmentReturned + payload.returned));
 
     const sumUSD = (payload.payments || [])
-      .filter((p) => p.currency === "USD")
-      .reduce((s, p) => s + (p.amount || 0), 0);
-    const sumLBP = (payload.payments || [])
-      .filter((p) => p.currency === "LBP")
-      .reduce((s, p) => s + (p.amount || 0), 0);
+    .filter((p) => p.currency === "USD")
+    .reduce((s, p) => s + (p.amount || 0), 0);
+  const sumLBP = (payload.payments || [])
+    .filter((p) => p.currency === "LBP")
+    .reduce((s, p) => s + (p.amount || 0), 0);
 
     if (sumUSD) dispatch(setShipmentPaymentsInDollars(shipmentUsd + sumUSD));
     if (sumLBP) dispatch(setShipmentPaymentsInLiras(shipmentLbp + sumLBP));
@@ -345,19 +376,20 @@ const RecordOrder: React.FC<Props> = (props) => {
 
     setIsSubmitting(true);
 
-    const payments: { amount: number; currency: "USD" | "LBP" }[] = [];
-    if (payUSD > 0) payments.push({ amount: payUSD, currency: "USD" });
-    if (payLBP > 0) payments.push({ amount: payLBP, currency: "LBP" });
+const payments: Payment[] = [];
+if (payUSD > 0) payments.push({ amount: payUSD, currency: "USD" });
+if (payLBP > 0) payments.push({ amount: payLBP, currency: "LBP" });
 
-    const orderPayload = {
-      delivered: dDelivered,
-      returned: dReturned,
-      customerid: customerId,
-      productId, // numeric code
-      shipmentId, // ObjectId
-      payments,
-      type: props.isExternal ? 3 : 2,
-    };
+const orderPayload: OrderPayload = {
+  delivered: dDelivered,
+  returned: dReturned,
+  customerid: customerId,
+  productId,
+  shipmentId,
+  payments,
+  type: props.isExternal ? 3 : 2,
+};
+
 
     // 1) Get “before” and ensure we have a rate
     const before = await getAdjustedInvoiceSums(customerId, companyId);
@@ -523,7 +555,7 @@ const RecordOrder: React.FC<Props> = (props) => {
 
         {/* LBP quick input */}
         <div className="roc-lbp">
-          <label className="roc-lbp-label">المدفوع بالليرة</label>
+          <div className="roc-lbp-label">المدفوع بالليرة</div>
           <button
             type="button"
             className="roc-lbp-field"
@@ -626,7 +658,10 @@ const RecordOrder: React.FC<Props> = (props) => {
                   const payLBP = Number(form.paidLBP) || 0;
                   const dReturned = Number(form.returned) || 0;
 
-                  const payments = [];
+                  const payments: {
+                    amount: number;
+                    currency: "USD" | "LBP";
+                  }[] = [];
                   if (payUSD > 0)
                     payments.push({ amount: payUSD, currency: "USD" });
                   if (payLBP > 0)

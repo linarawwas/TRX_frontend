@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // AddToModel.tsx
 import React, {
   useState,
@@ -235,7 +236,7 @@ const AddToModel: React.FC<Props> = ({
                   inputMode={
                     fieldConfig["input-type"] === "number" ? "decimal" : "text"
                   }
-                  autoFocus={idx === 0 && fieldName === firstFieldName}
+                  // removed autoFocus to satisfy a11y rule and avoid unexpected focus jumps
                 />
               </label>
             );

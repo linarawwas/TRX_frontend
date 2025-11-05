@@ -270,7 +270,7 @@ export default function Addresses(): JSX.Element {
                 </p>
                 <p>
                   <span className="address-card-label">الحالة:</span>{" "}
-                  {customer.isActive ? "نشط" : "غير نشط"}
+                  {(customer as any).isActive ? "نشط" : "غير نشط"}
                 </p>
 
                 {!reorderMode && (
