@@ -4,29 +4,11 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
-import { RootState } from "../../../redux/store";
+import { selectUserToken, selectUserCompanyId } from "../../../redux/selectors/user";
+import { fetchShipmentsByRange, DateObject, ShipmentData } from "../../../features/shipments/apiShipments";
+import { formatUSD, formatLBP, formatDMY, computeShipmentTotals } from "../../../features/shipments/utils/formatShipment";
 import SpinLoader from "../../../components/UI reusables/SpinLoader/SpinLoader";
-
-interface ShipmentData {
-  _id: string;
-  dayId: string;
-  date: { day: number; month: number; year: number };
-  companyId: string;
-  carryingForDelivery: number;
-  calculatedDelivered: number;
-  calculatedReturned: number;
-  shipmentLiraPayments: number;
-  shipmentUSDPayments: number;
-  shipmentLiraExtraProfits: number;
-  shipmentUSDExtraProfits: number;
-  shipmentLiraExpenses: number;
-  shipmentUSDExpenses: number;
-}
-interface DateObject {
-  day: number | null;
-  month: number | null;
-  year: number | null;
-}
+import { t } from "../../../utils/i18n";
 
 const ShipmentsList: React.FC = () => {
   const [fromDate, setFromDate] = useState<DateObject>({
@@ -41,11 +23,10 @@ const ShipmentsList: React.FC = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [shipments, setShipments] = useState<ShipmentData[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-  const token = useSelector((s: any) => s.user.token);
-  const companyId = useSelector((s: RootState) => s.user.companyId);
-
-  const notifyError = (m: string) => toast.error(m);
+  const token = useSelector(selectUserToken);
+  const companyId = useSelector(selectUserCompanyId);
 
   const formatDateObject = (d: DateObject): DateObject => ({
     day: d.day || null,
@@ -54,13 +35,6 @@ const ShipmentsList: React.FC = () => {
   });
   const dateObjectToDate = (d: DateObject): Date | null =>
     d.day && d.month && d.year ? new Date(d.year, d.month - 1, d.day) : null;
-
-  const formatUSD = (n: number) =>
-    `$ ${Number(n || 0).toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
-  const formatLBP = (n: number) =>
-    `${Number(n || 0).toLocaleString("en-US")} ل.ل`;
-  const formatDMY = (s: ShipmentData) =>
-    `${s.date.day}/${s.date.month}/${s.date.year}`;
 
   const fetchShipments = async () => {
     const fFrom = formatDateObject(fromDate);
@@ -73,61 +47,29 @@ const ShipmentsList: React.FC = () => {
       !fTo.month ||
       !fTo.year
     ) {
-      notifyError("اختر تاريخي البداية والنهاية.");
+      toast.error(t("shipments.filter.dateRequired"));
+      return;
+    }
+    if (!token || !companyId) {
+      toast.error(t("common.error"));
       return;
     }
     try {
       setIsLoading(true);
-      const res = await fetch(`http://localhost:5000/api/shipments/range`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ companyId, fromDate: fFrom, toDate: fTo }),
-      });
-      if (!res.ok) throw new Error("Failed to fetch shipments");
-      const { shipments: fetched } = await res.json();
+      setError(null);
+      const fetched = await fetchShipmentsByRange(token, companyId, fFrom, fTo);
       setShipments(fetched || []);
     } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
       console.error(e);
-      notifyError("تعذّر جلب الشحنات. يرجى المحاولة لاحقاً.");
+      setError(message);
+      toast.error(t("shipments.filter.fetchError"));
     } finally {
       setIsLoading(false);
     }
   };
 
-  const totals = useMemo(() => {
-    const t = {
-      carryingForDelivery: 0,
-      calculatedDelivered: 0,
-      calculatedReturned: 0,
-      shipmentLiraPayments: 0,
-      shipmentUSDPayments: 0,
-      shipmentLiraExtraProfits: 0,
-      shipmentUSDExtraProfits: 0,
-      shipmentLiraExpenses: 0,
-      shipmentUSDExpenses: 0,
-    };
-    shipments.forEach((s) => {
-      t.carryingForDelivery += Number(s.carryingForDelivery) || 0;
-      t.calculatedDelivered += Number(s.calculatedDelivered) || 0;
-      t.calculatedReturned += Number(s.calculatedReturned) || 0;
-      t.shipmentLiraPayments += Number(s.shipmentLiraPayments) || 0;
-      t.shipmentUSDPayments += Number(s.shipmentUSDPayments) || 0;
-      t.shipmentLiraExtraProfits += Number(s.shipmentLiraExtraProfits) || 0;
-      t.shipmentUSDExtraProfits += Number(s.shipmentUSDExtraProfits) || 0;
-      t.shipmentLiraExpenses += Number(s.shipmentLiraExpenses) || 0;
-      t.shipmentUSDExpenses += Number(s.shipmentUSDExpenses) || 0;
-    });
-    const USD_overall =
-      t.shipmentUSDPayments + t.shipmentUSDExtraProfits - t.shipmentUSDExpenses;
-    const LIRA_overall =
-      t.shipmentLiraPayments +
-      t.shipmentLiraExtraProfits -
-      t.shipmentLiraExpenses;
-    return { ...t, USD_overall, LIRA_overall };
-  }, [shipments]);
+  const totals = useMemo(() => computeShipmentTotals(shipments), [shipments]);
 
   // Quick ranges (optional)
   const setQuickRange = (days: number) => {
@@ -150,14 +92,14 @@ const ShipmentsList: React.FC = () => {
     <div className="ship-page" dir="rtl">
       <ToastContainer position="top-right" autoClose={2500} />
       <header className="ship-header">
-        <h1 className="ship-title">قائمة الشحنات</h1>
+        <h1 className="ship-title">{t("shipments.title")}</h1>
       </header>
 
       {/* Filter bar */}
       <section className="filter-card">
         <div className="filters">
           <div className="picker">
-            <label>من</label>
+            <label>{t("shipments.filter.from")}</label>
             <DatePicker
               selected={dateObjectToDate(fromDate)}
               onChange={(d) =>
@@ -171,12 +113,12 @@ const ShipmentsList: React.FC = () => {
                     : { day: null, month: null, year: null }
                 )
               }
-              placeholderText="اختر تاريخ البداية"
+              placeholderText={t("shipments.filter.from")}
               dateFormat="dd/MM/yyyy"
             />
           </div>
           <div className="picker">
-            <label>إلى</label>
+            <label>{t("shipments.filter.to")}</label>
             <DatePicker
               selected={dateObjectToDate(toDate)}
               onChange={(d) =>
@@ -190,28 +132,26 @@ const ShipmentsList: React.FC = () => {
                     : { day: null, month: null, year: null }
                 )
               }
-              placeholderText="اختر تاريخ النهاية"
+              placeholderText={t("shipments.filter.to")}
               dateFormat="dd/MM/yyyy"
             />
           </div>
-          <button className="btn-primary" onClick={fetchShipments}>
-            عرض
+          <button type="button" className="btn-primary" onClick={fetchShipments}>
+            {t("shipments.filter.show")}
           </button>
         </div>
 
         <div className="quick-row">
-          <button className="chip" onClick={() => setQuickRange(1)}>
-            اليوم
+          <button type="button" className="chip" onClick={() => setQuickRange(1)}>
+            {t("shipments.filter.quick.today")}
           </button>
-          <button className="chip" onClick={() => setQuickRange(7)}>
-            آخر 7 أيام
+          <button type="button" className="chip" onClick={() => setQuickRange(7)}>
+            {t("shipments.filter.quick.last7Days")}
           </button>
-          {/* <button className="chip" onClick={() => setQuickRange(30)}>آخر 30 يوماً</button> */}
         </div>
       </section>
 
       {/* KPIs */}
-
       <section className="kpi-grid">
         {isLoading ? (
           Array.from({ length: 6 }).map((_, i) => (
@@ -223,63 +163,63 @@ const ShipmentsList: React.FC = () => {
         ) : (
           <>
             <div className="kpi">
-              <div className="kpi-label">عدد الشحنات</div>
+              <div className="kpi-label">{t("shipments.kpi.count")}</div>
               <div className="kpi-value">
                 {shipments.length.toLocaleString("en-US")}
               </div>
             </div>
             <div className="kpi">
-              <div className="kpi-label">المُسلّمة</div>
+              <div className="kpi-label">{t("shipments.kpi.delivered")}</div>
               <div className="kpi-value">
                 {totals.calculatedDelivered.toLocaleString("en-US")}
               </div>
             </div>
             <div className="kpi">
-              <div className="kpi-label">المُعادة</div>
+              <div className="kpi-label">{t("shipments.kpi.returned")}</div>
               <div className="kpi-value">
                 {totals.calculatedReturned.toLocaleString("en-US")}
               </div>
             </div>
             <div className="kpi accent">
-              <div className="kpi-label">إجمالي بالدولار</div>
+              <div className="kpi-label">{t("shipments.kpi.totalUSD")}</div>
               <div className="kpi-value">{formatUSD(totals.USD_overall)}</div>
             </div>
             <div className="kpi accent">
-              <div className="kpi-label">إجمالي بالليرة</div>
+              <div className="kpi-label">{t("shipments.kpi.totalLBP")}</div>
               <div className="kpi-value">{formatLBP(totals.LIRA_overall)}</div>
             </div>
             <div className="kpi">
-              <div className="kpi-label">ليرة (مدفوعات)</div>
+              <div className="kpi-label">{t("shipments.kpi.paymentsLBP")}</div>
               <div className="kpi-value">
                 {formatLBP(totals.shipmentLiraPayments)}
               </div>
             </div>
             <div className="kpi">
-              <div className="kpi-label">دولار (مدفوعات)</div>
+              <div className="kpi-label">{t("shipments.kpi.paymentsUSD")}</div>
               <div className="kpi-value">
                 {formatUSD(totals.shipmentUSDPayments)}
               </div>
             </div>
             <div className="kpi">
-              <div className="kpi-label">نفقات $</div>
+              <div className="kpi-label">{t("shipments.kpi.expensesUSD")}</div>
               <div className="kpi-value">
                 {formatUSD(totals.shipmentUSDExpenses)}
               </div>
             </div>
             <div className="kpi">
-              <div className="kpi-label">نفقات بالليرة</div>
+              <div className="kpi-label">{t("shipments.kpi.expensesLBP")}</div>
               <div className="kpi-value">
                 {formatUSD(totals.shipmentLiraExpenses)}
               </div>
             </div>
             <div className="kpi">
-              <div className="kpi-label">أرباح إضافية $</div>
+              <div className="kpi-label">{t("shipments.kpi.profitsUSD")}</div>
               <div className="kpi-value">
                 {formatUSD(totals.shipmentUSDExtraProfits)}
               </div>
             </div>
             <div className="kpi">
-              <div className="kpi-label">أرباح إضافية ل.ل</div>
+              <div className="kpi-label">{t("shipments.kpi.profitsLBP")}</div>
               <div className="kpi-value">
                 {formatUSD(totals.shipmentLiraExtraProfits)}
               </div>
@@ -292,49 +232,53 @@ const ShipmentsList: React.FC = () => {
       <section className="cards">
         {isLoading ? (
           <SpinLoader />
+        ) : error ? (
+          <div className="empty" role="alert">
+            {t("common.error")}: {error}
+          </div>
         ) : shipments.length === 0 ? (
-          <div className="empty">لا توجد شحنات ضمن المدى الزمني المحدد.</div>
+          <div className="empty">{t("shipments.empty")}</div>
         ) : (
           shipments.map((s) => (
             <article className="ship-card" key={s._id}>
               <header className="ship-card-head">
-                <div className="ship-date">التاريخ: {formatDMY(s)}</div>
+                <div className="ship-date">{t("shipments.card.date")}: {formatDMY(s)}</div>
               </header>
               <div className="ship-grid">
                 <div className="item">
-                  <span>للتوصيل</span>
+                  <span>{t("shipments.card.forDelivery")}</span>
                   <strong>{s.carryingForDelivery}</strong>
                 </div>
                 <div className="item">
-                  <span>مُسلّمة</span>
+                  <span>{t("shipments.card.delivered")}</span>
                   <strong>{s.calculatedDelivered}</strong>
                 </div>
                 <div className="item">
-                  <span>مُعادة</span>
+                  <span>{t("shipments.card.returned")}</span>
                   <strong>{s.calculatedReturned}</strong>
                 </div>
                 <div className="item">
-                  <span>مدفوعات ل.ل</span>
+                  <span>{t("shipments.card.paymentsLBP")}</span>
                   <strong>{formatLBP(s.shipmentLiraPayments)}</strong>
                 </div>
                 <div className="item">
-                  <span>مدفوعات $</span>
+                  <span>{t("shipments.card.paymentsUSD")}</span>
                   <strong>{formatUSD(s.shipmentUSDPayments)}</strong>
                 </div>
                 <div className="item">
-                  <span>نفقات ل.ل</span>
+                  <span>{t("shipments.card.expensesLBP")}</span>
                   <strong>{formatLBP(s.shipmentLiraExpenses)}</strong>
                 </div>
                 <div className="item">
-                  <span>نفقات $</span>
+                  <span>{t("shipments.card.expensesUSD")}</span>
                   <strong>{formatUSD(s.shipmentUSDExpenses)}</strong>
                 </div>
                 <div className="item">
-                  <span>أرباح إضافية ل.ل</span>
+                  <span>{t("shipments.card.profitsLBP")}</span>
                   <strong>{formatLBP(s.shipmentLiraExtraProfits)}</strong>
                 </div>
                 <div className="item">
-                  <span>أرباح إضافية $</span>
+                  <span>{t("shipments.card.profitsUSD")}</span>
                   <strong>{formatUSD(s.shipmentUSDExtraProfits)}</strong>
                 </div>
               </div>

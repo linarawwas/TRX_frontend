@@ -4,6 +4,10 @@ import "./Addresses.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
+import { selectUserToken, selectUserCompanyId } from "../../../redux/selectors/user";
+import { fetchCustomersByArea, reorderCustomersInArea } from "../../../features/areas/apiAreas";
+import { sortCustomersBySequence } from "../../../features/areas/utils/sortCustomers";
+import { t } from "../../../utils/i18n";
 
 interface Customer {
   _id: string;
@@ -11,15 +15,17 @@ interface Customer {
   name: string;
   phone: string;
   sequence?: number | null;
+  isActive?: boolean;
 }
 
 export default function Addresses(): JSX.Element {
-  const token: string = useSelector((s: any) => s.user.token);
-  const companyId: string = useSelector((s: any) => s.user.companyId);
+  const token = useSelector(selectUserToken);
+  const companyId = useSelector(selectUserCompanyId);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const { areaId } = useParams();
+  const { areaId } = useParams<{ areaId: string }>();
 
   // Reorder mode
   const [reorderMode, setReorderMode] = useState(false);
@@ -29,33 +35,35 @@ export default function Addresses(): JSX.Element {
   const dragIndex = useRef<number | null>(null);
 
   useEffect(() => {
+    if (!areaId || !token) return;
+
+    let cancelled = false;
+
     (async () => {
       try {
         setLoading(true);
-        const res = await fetch(
-          `http://localhost:5000/api/customers/area/${areaId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        const data: Customer[] = await res.json();
+        setError(null);
+        const data = await fetchCustomersByArea(token, areaId);
+        if (cancelled) return;
 
-        // Order by sequence (nulls last) then name
-        const sorted = [...data].sort((a, b) => {
-          const sa = a.sequence ?? Number.POSITIVE_INFINITY;
-          const sb = b.sequence ?? Number.POSITIVE_INFINITY;
-          if (sa !== sb) return sa - sb;
-          return (a.name || "").localeCompare(b.name || "", "ar");
-        });
-
+        const sorted = sortCustomersBySequence(data);
         setCustomers(sorted);
         setOrderIds(sorted.map((c) => c._id));
       } catch (e) {
+        if (cancelled) return;
+        const err = e instanceof Error ? e.message : String(e);
+        setError(err);
         console.error("Error fetching customers:", e);
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [areaId, token]);
 
   const filtered = useMemo(() => {
@@ -153,36 +161,21 @@ export default function Addresses(): JSX.Element {
     e?.preventDefault();
     e?.stopPropagation();
     if (!areaId || !companyId) {
-      toast.error("بيانات غير مكتملة (areaId/companyId)");
+      toast.error(t("addresses.reorder.incompleteData"));
       return;
     }
 
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/areas/${areaId}/reorder?companyId=${companyId}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            orderedCustomerIds: orderIds,
-            force: true,
-            startAt: 1,
-          }),
-        }
-      );
-      const data = await res.json().catch(() => ({} as any));
-      if (!res.ok) {
-        toast.error(data?.error || "فشل حفظ الترتيب");
-        return;
-      }
-      toast.success("تم حفظ الترتيب الجديد");
+      await reorderCustomersInArea(token, areaId, companyId, orderIds, {
+        force: true,
+        startAt: 1,
+      });
+      toast.success(t("addresses.reorder.saveSuccess"));
       setReorderMode(false);
-    } catch (err: any) {
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
       console.error("applyReorder error:", err);
-      toast.error(err?.message || "تعذر الاتصال");
+      toast.error(message || t("addresses.reorder.connectionError"));
     }
   };
 
@@ -197,31 +190,39 @@ export default function Addresses(): JSX.Element {
       <ToastContainer position="top-right" autoClose={1500} />
 
       <div className="address-card-header">
-        <h2 className="address-card-title">عناوين الزبائن</h2>
+        <h2 className="address-card-title">{t("addresses.title")}</h2>
 
         <div className="address-toolbar">
           <input
             type="text"
-            placeholder="بحث بالاسم"
+            placeholder={t("addresses.search.placeholder")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="address-card-search-bar"
             disabled={reorderMode}
+            aria-label={t("addresses.search.placeholder")}
           />
           <button
             type="button"
             className={`reorder-toggle ${reorderMode ? "on" : ""}`}
             onClick={() => setReorderMode((v) => !v)}
+            aria-pressed={reorderMode}
           >
-            {reorderMode ? "إنهاء إعادة الترتيب" : "إعادة الترتيب"}
+            {reorderMode ? t("addresses.reorder.end") : t("addresses.reorder.toggle")}
           </button>
         </div>
       </div>
 
       {loading ? (
-        <p className="address-card-loading">جارٍ التحميل...</p>
+        <p className="address-card-loading" role="status" aria-live="polite">
+          {t("addresses.loading")}
+        </p>
+      ) : error ? (
+        <p className="address-card-empty" role="alert">
+          {t("common.error")}: {error}
+        </p>
       ) : filtered.length === 0 ? (
-        <p className="address-card-empty">لا يوجد زبائن بهذه المواصفات</p>
+        <p className="address-card-empty">{t("addresses.empty")}</p>
       ) : (
         <div className={`address-card-list ${reorderMode ? "reorder" : ""}`}>
           {filtered.map((customer, i) => {
@@ -235,20 +236,22 @@ export default function Addresses(): JSX.Element {
                       <button
                         type="button"
                         className="mv-btn"
-                        onClick={(e) => (
-                          e.stopPropagation(), moveItem(customer._id, "up")
-                        )}
-                        aria-label="تحريك لأعلى"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          moveItem(customer._id, "up");
+                        }}
+                        aria-label={t("addresses.customer.moveUp")}
                       >
                         ▲
                       </button>
                       <button
                         type="button"
                         className="mv-btn"
-                        onClick={(e) => (
-                          e.stopPropagation(), moveItem(customer._id, "down")
-                        )}
-                        aria-label="تحريك لأسفل"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          moveItem(customer._id, "down");
+                        }}
+                        aria-label={t("addresses.customer.moveDown")}
                       >
                         ▼
                       </button>
@@ -257,25 +260,27 @@ export default function Addresses(): JSX.Element {
                 )}
 
                 <p>
-                  <span className="address-card-label">الاسم:</span>{" "}
+                  <span className="address-card-label">{t("addresses.customer.name")}:</span>{" "}
                   {customer.name}
                 </p>
                 <p>
-                  <span className="address-card-label">الهاتف:</span>{" "}
+                  <span className="address-card-label">{t("addresses.customer.phone")}:</span>{" "}
                   {customer.phone}
                 </p>
                 <p>
-                  <span className="address-card-label">العنوان:</span>{" "}
+                  <span className="address-card-label">{t("addresses.customer.address")}:</span>{" "}
                   {customer.address}
                 </p>
                 <p>
-                  <span className="address-card-label">الحالة:</span>{" "}
-                  {(customer as any).isActive ? "نشط" : "غير نشط"}
+                  <span className="address-card-label">{t("addresses.customer.status")}:</span>{" "}
+                  {customer.isActive
+                    ? t("addresses.customer.status.active")
+                    : t("addresses.customer.status.inactive")}
                 </p>
 
                 {!reorderMode && (
                   <p className="address-card-seq">
-                    <span className="address-card-label">الترتيب:</span>{" "}
+                    <span className="address-card-label">{t("addresses.customer.sequence")}:</span>{" "}
                     {customer.sequence ?? "—"}
                   </p>
                 )}
@@ -286,14 +291,14 @@ export default function Addresses(): JSX.Element {
               <div
                 key={customer._id}
                 className={`address-card ${reorderMode ? "draggable" : ""}`}
-                draggable={reorderMode && !("ontouchstart" in window)} // disable native DnD on touch
+                draggable={reorderMode && !("ontouchstart" in window)}
                 onDragStart={onDragStart(i)}
                 onDragOver={onDragOver(i)}
                 onDragEnd={onDragEnd()}
                 onDrop={onDrop(i)}
                 title={
                   reorderMode
-                    ? "اسحب (سطح مكتب) أو استخدم الأسهم لإعادة الترتيب"
+                    ? t("addresses.reorder.hint")
                     : ""
                 }
               >
@@ -316,17 +321,17 @@ export default function Addresses(): JSX.Element {
       {/* Fixed save bar to guarantee clicks land */}
       {reorderMode && (
         <form className="apply-bar" onSubmit={applyReorder}>
-          <div className="apply-hint">رتّب البطاقات ثم اضغط حفظ</div>
+          <div className="apply-hint">{t("addresses.reorder.hint")}</div>
           <div className="apply-actions">
             <button
               type="button"
               className="btn-cancel"
               onClick={cancelReorder}
             >
-              إلغاء
+              {t("addresses.reorder.cancel")}
             </button>
             <button type="submit" className="btn-apply">
-              حفظ الترتيب
+              {t("addresses.reorder.apply")}
             </button>
           </div>
         </form>

@@ -3,8 +3,11 @@ import { Link } from "react-router-dom";
 import "./Customers.css";
 import { useDispatch, useSelector } from "react-redux";
 import { clearCustomerId } from "../../../redux/Order/action";
+import { selectUserToken } from "../../../redux/selectors/user";
+import { fetchCustomersByCompany } from "../../../features/customers/apiCustomers";
 import AddCustomer from "../../../components/Customers/AddCustomer/AddCustomer";
 import SpinLoader from "../../../components/UI reusables/SpinLoader/SpinLoader.jsx";
+import { t } from "../../../utils/i18n";
 
 interface Customer {
   _id: string;
@@ -14,11 +17,11 @@ interface Customer {
 }
 
 const Customers: React.FC = () => {
-  const token: string = useSelector((state: any) => state.user.token);
-  // companyId not needed anymore (the backend infers it from auth)
+  const token = useSelector(selectUserToken);
   const [activeCustomers, setActiveCustomers] = useState<Customer[]>([]);
   const [inactiveCustomers, setInactiveCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [showInsertOne, setShowInsertOne] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -31,20 +34,34 @@ const Customers: React.FC = () => {
   useEffect(() => {
     dispatch(clearCustomerId());
 
-    setLoading(true);
-    fetch(`http://localhost:5000/api/customers/company`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => r.json())
-      .then((data: { active: Customer[]; inactive: Customer[] }) => {
+    if (!token) return;
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await fetchCustomersByCompany(token);
+        if (cancelled) return;
         setActiveCustomers(Array.isArray(data?.active) ? data.active : []);
         setInactiveCustomers(Array.isArray(data?.inactive) ? data.inactive : []);
-      })
-      .catch((err) => {
+      } catch (err) {
+        if (cancelled) return;
+        const message = err instanceof Error ? err.message : String(err);
+        setError(message);
         console.error("Error fetching customers:", err);
-      })
-      .finally(() => setLoading(false));
-  }, [token, showInsertOne]);
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token, showInsertOne, dispatch]);
 
   // one filter function applied to BOTH lists
   const matches = (c: Customer) => {
@@ -75,18 +92,21 @@ const Customers: React.FC = () => {
   return (
     <div className="customers-body" dir="rtl">
       <div className="customer-header">
-        <h2 className="customers-title">الزبائن</h2>
+        <h2 className="customers-title">{t("customers.title")}</h2>
 
         <div className="customer-adding-options">
           <button
+            type="button"
             className="customer-adding-option"
             onClick={() => setShowInsertOne(!showInsertOne)}
+            aria-expanded={showInsertOne}
+            aria-controls="add-customer-form"
           >
-            {showInsertOne ? "عرض الزبائن" : "إضافة زبون؟"}
+            {showInsertOne ? t("customers.showCustomers") : t("customers.addToggle")}
           </button>
 
           {showInsertOne && (
-            <div className="customer-form-wrapper">
+            <div id="add-customer-form" className="customer-form-wrapper">
               <AddCustomer />
             </div>
           )}
@@ -95,16 +115,19 @@ const Customers: React.FC = () => {
         <div className="search-bar">
           <input
             type="text"
-            placeholder="ابحث عن الزبائن (نشط وغير نشط)"
+            placeholder={t("customers.search.placeholder")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
+            aria-label={t("customers.search.placeholder")}
           />
         </div>
       </div>
 
       {loading ? (
         <SpinLoader />
+      ) : error ? (
+        <p role="alert">{t("common.error")}: {error}</p>
       ) : (
         !showInsertOne && (
           <div className="accordion">
@@ -118,7 +141,7 @@ const Customers: React.FC = () => {
                 onClick={() => setOpenActive((s) => !s)}
               >
                 <span className={`chev ${openActive ? "open" : ""}`}>▸</span>
-                <span className="acc-title">الزبائن الناشطون</span>
+                <span className="acc-title">{t("customers.active.title")}</span>
                 <span className="badge">
                   {filteredActive.length}/{activeCustomers.length}
                 </span>
@@ -133,7 +156,7 @@ const Customers: React.FC = () => {
                           key={customer._id}
                           to={`/updateCustomer/${customer._id}`}
                           className="customer-card-link"
-                          title={`تعديل ${customer.name}`}
+                          title={`${t("common.edit")} ${customer.name}`}
                         >
                           <div className="customer-card">
                             <div className="customer-card-content">
@@ -145,7 +168,7 @@ const Customers: React.FC = () => {
                       ))}
                     </div>
                   ) : (
-                    <p className="muted-center">لا نتائج ضمن الناشطين</p>
+                    <p className="muted-center">{t("customers.active.empty")}</p>
                   )}
                 </div>
               )}
@@ -161,7 +184,7 @@ const Customers: React.FC = () => {
                 onClick={() => setOpenInactive((s) => !s)}
               >
                 <span className={`chev ${openInactive ? "open" : ""}`}>▸</span>
-                <span className="acc-title">الزبائن غير الناشطين</span>
+                <span className="acc-title">{t("customers.inactive.title")}</span>
                 <span className="badge gray">
                   {filteredInactive.length}/{inactiveCustomers.length}
                 </span>
@@ -176,12 +199,12 @@ const Customers: React.FC = () => {
                           key={customer._id}
                           to={`/updateCustomer/${customer._id}`}
                           className="customer-card-link"
-                          title={`تعديل ${customer.name}`}
+                          title={`${t("common.edit")} ${customer.name}`}
                         >
                           <div className="customer-card inactive-card">
                             <div className="customer-card-content">
                               <span className="customer-name">{customer.name}</span>
-                              <span className="status-chip">غير نشط</span>
+                              <span className="status-chip">{t("addresses.customer.status.inactive")}</span>
                               <span className="edit-customer-icon">📝</span>
                             </div>
                           </div>
@@ -189,7 +212,7 @@ const Customers: React.FC = () => {
                       ))}
                     </div>
                   ) : (
-                    <p className="muted-center">لا نتائج ضمن غير الناشطين</p>
+                    <p className="muted-center">{t("customers.inactive.empty")}</p>
                   )}
                 </div>
               )}
@@ -197,7 +220,7 @@ const Customers: React.FC = () => {
 
             {noResults && (
               <p className="muted-center" style={{ marginTop: 8 }}>
-                لا توجد نتائج للبحث الحالي
+                {t("customers.noResults")}
               </p>
             )}
           </div>

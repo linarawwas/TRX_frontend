@@ -1,7 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
-import "./EmployeeHomePage.css";
 import TodaySnapshot from "../../../components/AsideMenu/Right/TodaySnapshot";
 import FeatureSection from "../../../components/LandingPage/FeatureSection";
 import RoundSnapshot from "../../../components/AsideMenu/Right/RoundSnapshot";

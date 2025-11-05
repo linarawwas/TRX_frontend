@@ -8,11 +8,13 @@ import RecordOrder from "../../../components/Orders/RecordOrder/RecordOrder";
 import {
   saveCustomerDiscountToDB,
   getCustomerDiscountFromDB,
-} from "../../../utils/indexedDB"; // Adjust path as needed
+} from "../../../utils/indexedDB";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import DiscountCard from "./DiscountCard";
-import { RootState } from "../../../redux/store";
+import { selectOrderCustomerId } from "../../../redux/selectors/order";
+import { selectUserToken } from "../../../redux/selectors/user";
+import { t } from "../../../utils/i18n";
 
 interface CustomerData {
   hasDiscount: boolean;
@@ -22,32 +24,30 @@ interface CustomerData {
 }
 
 function RecordOrderForCustomer(): JSX.Element {
-  const customerId = useSelector((state: RootState) => state.order.customer_Id);
-  const token = useSelector((state: RootState) => state.user.token);
+  const customerId = useSelector(selectOrderCustomerId);
+  const token = useSelector(selectUserToken);
   const [customerDiscountStatus, setCustomerDiscountStatus] =
     useState<CustomerData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { state } = useLocation();
   const isExternal = Boolean((state as { isExternal?: boolean })?.isExternal);
-  console.log("isExternal:", isExternal);
 
   useEffect(() => {
+    if (!customerId) return;
+
     const fetchDiscountFromCache = async () => {
       setIsLoading(true);
       try {
         const cachedDiscountData = await getCustomerDiscountFromDB(customerId);
         if (cachedDiscountData) {
           setCustomerDiscountStatus(cachedDiscountData);
-          console.log(
-            "Loaded discount data from IndexedDB:",
-            cachedDiscountData
-          );
         } else {
           console.warn("❌ No discount data found in IndexedDB");
           toast.warn("⚠️ لم يتم العثور على بيانات الخصم في وضع عدم الاتصال.");
         }
       } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
         console.error("Error loading discount from IndexedDB", error);
         toast.error("⚠️ فشل تحميل بيانات الخصم من الذاكرة المؤقتة.");
       }
@@ -62,13 +62,12 @@ function RecordOrderForCustomer(): JSX.Element {
       className="record-order-for-customer-container"
       style={{ direction: "rtl", textAlign: "right" }}
     >
-      {" "}
       <div className="back-row">
         <button
           type="button"
           className="back-pill"
           onClick={() => navigate(-1)}
-          aria-label="الرجوع"
+          aria-label={t("common.back")}
         >
           {/* chevron points right for RTL */}
           <svg
@@ -86,14 +85,13 @@ function RecordOrderForCustomer(): JSX.Element {
               strokeLinejoin="round"
             />
           </svg>
-          <span className="back-text">الرجوع</span>
+          <span className="back-text">{t("common.back")}</span>
         </button>
       </div>
       {customerDiscountStatus?.hasDiscount && (
         <DiscountCard
           unitPriceUSD={customerDiscountStatus.valueAfterDiscount}
           note={customerDiscountStatus.noteAboutCustomer}
-          /* rateLBP={companyRateInLBP} // optional if you have it */
         />
       )}
       <RecordOrder

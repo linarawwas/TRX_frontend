@@ -1,167 +1,149 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useSelector } from "react-redux";
 import "../../../components/Customers/CustomerInvoices/CustomerInvoices.css";
 import "./ViewProfits.css";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { selectUserToken, selectUserCompanyId, selectUserIsAdmin } from "../../../redux/selectors/user";
+import { fetchExtraProfits, deleteExtraProfit, ExtraProfit } from "../../../features/finance/apiFinance";
+import { formatTimestamp } from "../../../features/finance/utils/formatTimestamp";
 import SpinLoader from "../../../components/UI reusables/SpinLoader/SpinLoader";
 import AddProfits from "../../../components/Profits/AddProfits/AddProfits";
+import { t } from "../../../utils/i18n";
 
-interface ExtraProfit {
-  _id: string;
-  name: string;
-  value: number | string;
-  paymentCurrency: string;
-  exchangeRate: string;
-  valueInUSD: number;
-  companyId: string;
-  shipmentId: string;
-  timestamp: string;
-  recordedBy: string;
-  __v: number;
-}
 const ExtraProfits: React.FC = () => {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [recordsPerPage] = useState(4);
-  const [showAddProfits, setShowAddProfits] = useState<Boolean>(false);
-  const companyId = useSelector((state: any) => state.user.companyId);
+  const [showAddProfits, setShowAddProfits] = useState<boolean>(false);
+  const companyId = useSelector(selectUserCompanyId);
   const [extraProfits, setExtraProfits] = useState<ExtraProfit[]>([]);
   const [loading, setLoading] = useState(true);
-  const isAdmin = useSelector((state: any) => state.user.isAdmin);
-  const token: string = useSelector((state: any) => state.user.token);
+  const [error, setError] = useState<string | null>(null);
+  const isAdmin = useSelector(selectUserIsAdmin);
+  const token = useSelector(selectUserToken);
+
   useEffect(() => {
-    const fetchExtraProfits = async () => {
+    if (!token || !companyId) return;
+
+    let cancelled = false;
+
+    (async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:5000/api/extraProfits/company/${companyId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const data = response.data;
+        setLoading(true);
+        setError(null);
+        const data = await fetchExtraProfits(token, companyId);
+        if (cancelled) return;
         setExtraProfits(data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching extra profits:", error);
-        setLoading(false);
+      } catch (err) {
+        if (cancelled) return;
+        const message = err instanceof Error ? err.message : String(err);
+        setError(message);
+        console.error("Error fetching extra profits:", err);
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
+    })();
+
+    return () => {
+      cancelled = true;
     };
-    if (companyId) {
-      fetchExtraProfits();
-    }
   }, [companyId, token, showAddProfits]);
 
-  const formatTimestamp = (timestamp: string) => {
-    const date = new Date(timestamp);
-    // Adjust the received timestamp by subtracting 2 hours for the Beirut timezone
-    date.setHours(date.getHours() - 2);
-
-    const options: Intl.DateTimeFormatOptions = {
-      timeZone: "Asia/Beirut",
-      year: "numeric",
-      month: "numeric",
-      day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-      second: "numeric",
-      hour12: true, // Set to true for 12-hour format
-    };
-
-    return date.toLocaleString("en-US", options);
-  };
   const handleDeleteProfit = async (profitId: string) => {
+    if (!token) return;
     try {
-      const response = await fetch(
-        `http://localhost:5000/api/extraProfits/${profitId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        toast.success("profit deleted successfully");
-        setTimeout(() => {
-          window.location.reload();
-        }, 1500);
-      } else {
-        toast.error("Error deleting profit");
+      await deleteExtraProfit(token, profitId);
+      toast.success(t("profits.delete.success"));
+      // Refetch profits
+      if (companyId) {
+        const data = await fetchExtraProfits(token, companyId);
+        setExtraProfits(data);
       }
     } catch (error) {
-      toast.error("Error deleting profit");
+      const message = error instanceof Error ? error.message : String(error);
+      toast.error(t("profits.delete.error"));
       console.error("Error deleting profit:", error);
     }
   };
+
   return (
     <div className="extra-profits" dir="rtl">
       <ToastContainer position="top-right" autoClose={1000} />
-  
-      <h2>الأرباح الإضافية</h2>
+
+      <h2>{t("profits.title")}</h2>
       {isAdmin ? (
         <></>
       ) : (
         <>
-          <h3
+          <button
+            type="button"
             className="show-add-profits"
             onClick={() => {
               setShowAddProfits(!showAddProfits);
             }}
+            aria-expanded={showAddProfits}
+            aria-controls="add-profits-form"
           >
-            {showAddProfits ? "إخفاء النموذج؟" : "إضافة أرباح جديدة؟"}
-          </h3>
-          {showAddProfits && <AddProfits />}
+            {showAddProfits ? t("profits.hideForm") : t("profits.addToggle")}
+          </button>
+          {showAddProfits && (
+            <div id="add-profits-form">
+              <AddProfits />
+            </div>
+          )}
         </>
       )}
-  
+
       {loading ? (
         <SpinLoader />
+      ) : error ? (
+        <p role="alert">{t("common.error")}: {error}</p>
       ) : extraProfits.length > 0 ? (
         <div className="receipt-details-container">
           {extraProfits?.map((profit) => (
             <div className="receipt-details" key={profit._id}>
               <div className="container-button-div">
                 <button
+                  type="button"
                   className="delete-btn"
                   onClick={() => {
                     handleDeleteProfit(profit._id);
                   }}
+                  aria-label={`${t("profits.delete")} ${profit.name}`}
                 >
-                  حذف
+                  {t("profits.delete")}
                 </button>
               </div>
-  
+
               <div className="receipt-detail">
-                <p className="detail-name">الاسم:</p>
+                <p className="detail-name">{t("profits.fields.name")}:</p>
                 <p className="detail-value">{profit?.name}</p>
               </div>
-  
+
               <div className="receipt-detail">
-                <p className="detail-name">القيمة:</p>
+                <p className="detail-name">{t("profits.fields.value")}:</p>
                 <p className="detail-value">{profit?.value}</p>
               </div>
-  
+
               <div className="receipt-detail">
-                <p className="detail-name">العملة:</p>
+                <p className="detail-name">{t("profits.fields.currency")}:</p>
                 <p className="detail-value">{profit?.paymentCurrency}</p>
               </div>
-  
+
               <div className="receipt-detail">
-                <p className="detail-name">القيمة بالدولار:</p>
+                <p className="detail-name">{t("profits.fields.valueUSD")}:</p>
                 <p className="detail-value">
                   {typeof profit.valueInUSD === "number"
                     ? profit.valueInUSD.toFixed(2)
                     : profit.valueInUSD}
                 </p>
               </div>
-  
+
               <div className="receipt-detail timestamp">
-                <p className="detail-name">التاريخ:</p>
+                <p className="detail-name">{t("profits.fields.date")}:</p>
                 <p className="detail-value">
                   {formatTimestamp(profit.timestamp)}
                 </p>
@@ -170,11 +152,10 @@ const ExtraProfits: React.FC = () => {
           ))}
         </div>
       ) : (
-        <p>لا توجد أرباح إضافية لهذه الشركة</p>
+        <p>{t("profits.empty")}</p>
       )}
     </div>
   );
-  
 };
 
 export default ExtraProfits;

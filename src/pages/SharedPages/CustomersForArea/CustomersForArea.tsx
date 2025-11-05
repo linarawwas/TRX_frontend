@@ -13,13 +13,19 @@ import {
   setCustomerPhoneNb,
 } from "../../../redux/Order/action";
 import { getCustomersFromDB } from "../../../utils/indexedDB";
+import {
+  selectCustomersWithFilledOrders,
+  selectCustomersWithEmptyOrders,
+  selectCustomersWithPendingOrders,
+} from "../../../redux/selectors/shipment";
+import { t } from "../../../utils/i18n";
 
 interface Customer {
   _id: string;
   name: string;
   address: string;
   phone: string;
-  sequence?: number | null; // ⬅️ add this
+  sequence?: number | null;
 }
 
 const COMPLETED_KEY = (areaId?: string) =>
@@ -42,24 +48,19 @@ const CustomersForArea = (): JSX.Element => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { areaId } = useParams();
+  const { areaId } = useParams<{ areaId: string }>();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isExternalArea, setIsExternalArea] = useState<boolean>(
-    Boolean((location.state as any)?.isExternal)
+    Boolean((location.state as { isExternal?: boolean })?.isExternal)
   );
-  const customersWithFilledOrders: string[] = useSelector(
-    (state: any) => state.shipment?.CustomersWithFilledOrders ?? []
-  );
-  const customersWithPendingOrders: string[] = useSelector(
-    (state: any) => state.shipment?.CustomersWithPendingOrders ?? []
-  );
-  const customersWithEmptyOrders: string[] = useSelector(
-    (state: any) => state.shipment?.CustomersWithEmptyOrders ?? []
-  );
+  const customersWithFilledOrders = useSelector(selectCustomersWithFilledOrders);
+  const customersWithPendingOrders = useSelector(selectCustomersWithPendingOrders);
+  const customersWithEmptyOrders = useSelector(selectCustomersWithEmptyOrders);
   const { state: routeState } = useLocation() as {
     state?: { isExternal?: boolean };
   };
@@ -72,6 +73,7 @@ const CustomersForArea = (): JSX.Element => {
     const loadCachedCustomers = async () => {
       try {
         setLoading(true);
+        setError(null);
         const cached = await getCustomersFromDB(areaId!);
         if (cached) {
           setCustomers(cached);
@@ -79,7 +81,9 @@ const CustomersForArea = (): JSX.Element => {
           setCustomers([]);
         }
       } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
         console.error("❌ IndexedDB load error:", e);
+        setError(message);
         setCustomers([]);
       } finally {
         setLoading(false);
@@ -134,8 +138,8 @@ const CustomersForArea = (): JSX.Element => {
         c.phone?.includes(q) ||
         c.address.toLowerCase().includes(q);
 
-      const norm = (v: any) =>
-        typeof v === "string" ? v : v?._id ? String(v._id) : String(v);
+      const norm = (v: unknown) =>
+        typeof v === "string" ? v : (v as { _id?: string })?._id ? String((v as { _id: string })._id) : String(v);
 
       const filledSet = new Set((customersWithFilledOrders ?? []).map(norm));
       const emptySet = new Set((customersWithEmptyOrders ?? []).map(norm));
@@ -195,27 +199,35 @@ const CustomersForArea = (): JSX.Element => {
           <div className="dot" aria-hidden />
           <div className="pb-text">
             {isOnline
-              ? `يوجد ${pendingList.length} طلب بانتظار الإرسال — سيتم مزامنتهم تلقائياً.`
-              : `وضع عدم الاتصال: يوجد ${pendingList.length} طلب بانتظار الإرسال.`}
+              ? t("customersForArea.pending.banner.online", { count: pendingList.length })
+              : t("customersForArea.pending.banner.offline", { count: pendingList.length })}
           </div>
         </div>
       )}
-      <h3 className="area-title">الزبائن في هذه المنطقة</h3>
+      <h3 className="area-title">{t("customersForArea.title")}</h3>
       <input
         type="text"
         className="customer-search-input"
-        placeholder="🔍 ابحث عن اسم الزبون..."
+        placeholder={t("customersForArea.search.placeholder")}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         inputMode="search"
+        aria-label={t("customersForArea.search.placeholder")}
       />
       {loading ? (
-        <p className="loading-text">⏳ جارٍ تحميل الزبائن...</p>
+        <p className="loading-text" role="status" aria-live="polite">
+          {t("customersForArea.loading")}
+        </p>
+      ) : error ? (
+        <p className="loading-text" role="alert">
+          {t("common.error")}: {error}
+        </p>
       ) : (
         <>
           {/* Pending (collapsible) */}
           <section className="section">
             <button
+              type="button"
               className={`accordion-header pending-hdr ${
                 pendingCollapsed ? "collapsed" : ""
               }`}
@@ -224,7 +236,7 @@ const CustomersForArea = (): JSX.Element => {
               aria-controls="pending-section"
             >
               <span className="accordion-title">
-                بانتظار الإرسال ({pendingList.length})
+                {t("customersForArea.pending.title", { count: pendingList.length })}
               </span>
               <span className="accordion-arrow" />
             </button>
@@ -238,7 +250,7 @@ const CustomersForArea = (): JSX.Element => {
               }`}
             >
               {pendingList.length === 0 ? (
-                <p className="muted">لا يوجد طلبات بانتظار الإرسال</p>
+                <p className="muted">{t("customersForArea.pending.empty")}</p>
               ) : (
                 <div className="customer-list">
                   {pendingList.map(({ c }) => (
@@ -246,13 +258,15 @@ const CustomersForArea = (): JSX.Element => {
                       key={c._id}
                       className="customer-card pending"
                       onClick={() => {
-                        console.log(
-                          c._id,
-                          c.name,
-                          c.phone,
-                          "this is our customer"
-                        );
                         handleOrderState(c._id, c.name, c.phone);
+                      }}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          handleOrderState(c._id, c.name, c.phone);
+                        }
                       }}
                       aria-label={`${c.name} — طلب غير مرسل بعد`}
                     >
@@ -264,8 +278,8 @@ const CustomersForArea = (): JSX.Element => {
                         <span className="badge badge-pending">🚩</span>
                       </div>
                       <div className="customer-details">
-                        <span>📍العنوان: {c.address}</span>
-                        <span>📞 {c.phone}</span>
+                        <span>{t("customersForArea.customer.address")}: {c.address}</span>
+                        <span>{t("customersForArea.customer.phone")} {c.phone}</span>
                       </div>
                     </div>
                   ))}
@@ -277,6 +291,7 @@ const CustomersForArea = (): JSX.Element => {
           {/* Completed (collapsible) */}
           <section className="section">
             <button
+              type="button"
               className={`accordion-header ${
                 completedCollapsed ? "collapsed" : ""
               }`}
@@ -285,8 +300,11 @@ const CustomersForArea = (): JSX.Element => {
               aria-controls="completed-section"
             >
               <span className="accordion-title">
-                المُنجَز ({counts.total}) — معبّأ: {counts.filled} | فارغ:{" "}
-                {counts.empty}
+                {t("customersForArea.completed.title", {
+                  total: counts.total,
+                  filled: counts.filled,
+                  empty: counts.empty,
+                })}
               </span>
               <span className="accordion-arrow" />
             </button>
@@ -300,19 +318,27 @@ const CustomersForArea = (): JSX.Element => {
               }`}
             >
               {completedList.length === 0 ? (
-                <p className="muted">لا يوجد زبائن مُنجَزون بعد</p>
+                <p className="muted">{t("customersForArea.completed.emptyText")}</p>
               ) : (
                 <div className="customer-list">
                   {completedList.map(({ c, statusClass }) => (
                     <div
                       key={c._id}
                       className={`customer-card ${statusClass}`}
-                      onClick={() =>handleOrderState(c._id, c.name, c.phone)}
+                      onClick={() => handleOrderState(c._id, c.name, c.phone)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          handleOrderState(c._id, c.name, c.phone);
+                        }
+                      }}
                     >
                       <div className="customer-name">{c.name}</div>
                       <div className="customer-details">
-                        <span>📍العنوان: {c.address}</span>
-                        <span>📞 {c.phone}</span>
+                        <span>{t("customersForArea.customer.address")}: {c.address}</span>
+                        <span>{t("customersForArea.customer.phone")} {c.phone}</span>
                       </div>
                     </div>
                   ))}
@@ -321,11 +347,11 @@ const CustomersForArea = (): JSX.Element => {
             </div>
           </section>
 
-          {/* Active (what’s left) */}
+          {/* Active (what's left) */}
           <section className="section">
             <div className="section-header">
               <span className="section-title">
-                المتبقّي ({activeList.length})
+                {t("customersForArea.active.title", { count: activeList.length })}
               </span>
             </div>
             <div className="customer-list">
@@ -334,17 +360,25 @@ const CustomersForArea = (): JSX.Element => {
                   <div
                     key={c._id}
                     className="customer-card"
-                    onClick={() =>handleOrderState(c._id, c.name, c.phone)}
+                    onClick={() => handleOrderState(c._id, c.name, c.phone)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        handleOrderState(c._id, c.name, c.phone);
+                      }
+                    }}
                   >
                     <div className="customer-name">{c.name}</div>
                     <div className="customer-details">
-                      <span>📍العنوان: {c.address}</span>
-                      <span>📞 {c.phone}</span>
+                      <span>{t("customersForArea.customer.address")}: {c.address}</span>
+                      <span>{t("customersForArea.customer.phone")} {c.phone}</span>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="loading-text">😕 لا يوجد نتائج مطابقة</p>
+                <p className="loading-text">{t("customersForArea.active.empty")}</p>
               )}
             </div>
           </section>
@@ -352,13 +386,14 @@ const CustomersForArea = (): JSX.Element => {
       )}
       {showScrollTop && (
         <button
+          type="button"
           className="scroll-to-top-btn"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          aria-label="العودة للأعلى"
+          aria-label={t("common.back")}
         >
           ⬆️
         </button>
-      )}{" "}
+      )}
     </div>
   );
 };

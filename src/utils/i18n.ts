@@ -50,7 +50,134 @@ type TranslationKey =
   | 'emp.actions.addExpenses'
   | 'emp.actions.startShipment'
   | 'emp.actions.close'
-  | 'emp.footer.copyright';
+  | 'emp.footer.copyright'
+  | 'addresses.title'
+  | 'addresses.search.placeholder'
+  | 'addresses.reorder.toggle'
+  | 'addresses.reorder.end'
+  | 'addresses.reorder.apply'
+  | 'addresses.reorder.cancel'
+  | 'addresses.reorder.hint'
+  | 'addresses.reorder.saveSuccess'
+  | 'addresses.reorder.saveError'
+  | 'addresses.reorder.connectionError'
+  | 'addresses.reorder.incompleteData'
+  | 'addresses.loading'
+  | 'addresses.empty'
+  | 'addresses.customer.name'
+  | 'addresses.customer.phone'
+  | 'addresses.customer.address'
+  | 'addresses.customer.status'
+  | 'addresses.customer.status.active'
+  | 'addresses.customer.status.inactive'
+  | 'addresses.customer.sequence'
+  | 'addresses.customer.moveUp'
+  | 'addresses.customer.moveDown'
+  | 'addresses.areas.title'
+  | 'addresses.areas.addToggle'
+  | 'addresses.areas.showAreas'
+  | 'addresses.areas.addNew'
+  | 'addresses.areasForDay.title'
+  | 'addresses.areasForDay.loading'
+  | 'addresses.areasForDay.empty'
+  | 'addresses.areasForDay.unknownDay'
+  | 'addresses.areasForDay.loadError'
+  | 'addresses.areasForDay.otherAreas'
+  | 'customers.title'
+  | 'customers.search.placeholder'
+  | 'customers.addToggle'
+  | 'customers.showCustomers'
+  | 'customers.addNew'
+  | 'customers.active.title'
+  | 'customers.inactive.title'
+  | 'customers.active.empty'
+  | 'customers.inactive.empty'
+  | 'customers.noResults'
+  | 'customersForArea.title'
+  | 'customersForArea.search.placeholder'
+  | 'customersForArea.loading'
+  | 'customersForArea.pending.title'
+  | 'customersForArea.pending.empty'
+  | 'customersForArea.completed.title'
+  | 'customersForArea.completed.filled'
+  | 'customersForArea.completed.empty'
+  | 'customersForArea.completed.emptyText'
+  | 'customersForArea.active.title'
+  | 'customersForArea.active.empty'
+  | 'customersForArea.pending.banner.online'
+  | 'customersForArea.pending.banner.offline'
+  | 'customersForArea.customer.address'
+  | 'customersForArea.customer.phone'
+  | 'orders.title'
+  | 'orders.table.customer'
+  | 'orders.table.delivered'
+  | 'orders.table.returned'
+  | 'orders.table.seeMore'
+  | 'shipments.title'
+  | 'shipments.filter.from'
+  | 'shipments.filter.to'
+  | 'shipments.filter.show'
+  | 'shipments.filter.quick.today'
+  | 'shipments.filter.quick.last7Days'
+  | 'shipments.filter.quick.last30Days'
+  | 'shipments.filter.dateRequired'
+  | 'shipments.filter.fetchError'
+  | 'shipments.kpi.count'
+  | 'shipments.kpi.delivered'
+  | 'shipments.kpi.returned'
+  | 'shipments.kpi.totalUSD'
+  | 'shipments.kpi.totalLBP'
+  | 'shipments.kpi.paymentsLBP'
+  | 'shipments.kpi.paymentsUSD'
+  | 'shipments.kpi.expensesUSD'
+  | 'shipments.kpi.expensesLBP'
+  | 'shipments.kpi.profitsUSD'
+  | 'shipments.kpi.profitsLBP'
+  | 'shipments.empty'
+  | 'shipments.card.date'
+  | 'shipments.card.forDelivery'
+  | 'shipments.card.delivered'
+  | 'shipments.card.returned'
+  | 'shipments.card.paymentsLBP'
+  | 'shipments.card.paymentsUSD'
+  | 'shipments.card.expensesLBP'
+  | 'shipments.card.expensesUSD'
+  | 'shipments.card.profitsLBP'
+  | 'shipments.card.profitsUSD'
+  | 'expenses.title'
+  | 'expenses.addToggle'
+  | 'expenses.hideForm'
+  | 'expenses.addNew'
+  | 'expenses.empty'
+  | 'expenses.delete'
+  | 'expenses.delete.success'
+  | 'expenses.delete.error'
+  | 'expenses.fields.name'
+  | 'expenses.fields.value'
+  | 'expenses.fields.currency'
+  | 'expenses.fields.valueUSD'
+  | 'expenses.fields.date'
+  | 'profits.title'
+  | 'profits.addToggle'
+  | 'profits.hideForm'
+  | 'profits.addNew'
+  | 'profits.empty'
+  | 'profits.delete'
+  | 'profits.delete.success'
+  | 'profits.delete.error'
+  | 'profits.fields.name'
+  | 'profits.fields.value'
+  | 'profits.fields.currency'
+  | 'profits.fields.valueUSD'
+  | 'profits.fields.date'
+  | 'common.loading'
+  | 'common.error'
+  | 'common.back'
+  | 'common.delete'
+  | 'common.cancel'
+  | 'common.save'
+  | 'common.apply'
+  | 'common.edit';
 
 const translations: Record<TranslationKey, string> = {
   'dashboard.hello': 'مرحباً',
@@ -103,9 +230,141 @@ const translations: Record<TranslationKey, string> = {
   'emp.actions.startShipment': 'بدء شحنة جديدة',
   'emp.actions.close': 'إغلاق النموذج',
   'emp.footer.copyright': '© 2025 تيركس بواسطة لينة الرواّس. جميع الحقوق محفوظة.',
+  'addresses.title': 'عناوين الزبائن',
+  'addresses.search.placeholder': 'بحث بالاسم',
+  'addresses.reorder.toggle': 'إعادة الترتيب',
+  'addresses.reorder.end': 'إنهاء إعادة الترتيب',
+  'addresses.reorder.apply': 'حفظ الترتيب',
+  'addresses.reorder.cancel': 'إلغاء',
+  'addresses.reorder.hint': 'رتّب البطاقات ثم اضغط حفظ',
+  'addresses.reorder.saveSuccess': 'تم حفظ الترتيب الجديد',
+  'addresses.reorder.saveError': 'فشل حفظ الترتيب',
+  'addresses.reorder.connectionError': 'تعذر الاتصال',
+  'addresses.reorder.incompleteData': 'بيانات غير مكتملة (areaId/companyId)',
+  'addresses.loading': 'جارٍ التحميل...',
+  'addresses.empty': 'لا يوجد زبائن بهذه المواصفات',
+  'addresses.customer.name': 'الاسم',
+  'addresses.customer.phone': 'الهاتف',
+  'addresses.customer.address': 'العنوان',
+  'addresses.customer.status': 'الحالة',
+  'addresses.customer.status.active': 'نشط',
+  'addresses.customer.status.inactive': 'غير نشط',
+  'addresses.customer.sequence': 'الترتيب',
+  'addresses.customer.moveUp': 'تحريك لأعلى',
+  'addresses.customer.moveDown': 'تحريك لأسفل',
+  'addresses.areas.title': 'مناطق التوزيع',
+  'addresses.areas.addToggle': '➕ إضافة منطقة جديدة؟',
+  'addresses.areas.showAreas': 'عرض المناطق',
+  'addresses.areas.addNew': 'إضافة منطقة جديدة؟',
+  'addresses.areasForDay.title': '🚚 اختر المنطقة ليوم {{dayName}}',
+  'addresses.areasForDay.loading': '⏳ جارٍ التحميل...',
+  'addresses.areasForDay.empty': '😕 لا توجد مناطق محفوظة لهذا اليوم',
+  'addresses.areasForDay.unknownDay': 'يوم غير معروف',
+  'addresses.areasForDay.loadError': 'خطأ في التحميل',
+  'addresses.areasForDay.otherAreas': 'مناطق أخرى: طلبات خارجية (تتطلب انترنت)',
+  'customers.title': 'الزبائن',
+  'customers.search.placeholder': 'ابحث عن الزبائن (نشط وغير نشط)',
+  'customers.addToggle': 'إضافة زبون؟',
+  'customers.showCustomers': 'عرض الزبائن',
+  'customers.addNew': 'إضافة زبون؟',
+  'customers.active.title': 'الزبائن الناشطون',
+  'customers.inactive.title': 'الزبائن غير الناشطين',
+  'customers.active.empty': 'لا نتائج ضمن الناشطين',
+  'customers.inactive.empty': 'لا نتائج ضمن غير الناشطين',
+  'customers.noResults': 'لا توجد نتائج للبحث الحالي',
+  'customersForArea.title': 'الزبائن في هذه المنطقة',
+  'customersForArea.search.placeholder': '🔍 ابحث عن اسم الزبون...',
+  'customersForArea.loading': '⏳ جارٍ تحميل الزبائن...',
+  'customersForArea.pending.title': 'بانتظار الإرسال ({{count}})',
+  'customersForArea.pending.empty': 'لا يوجد طلبات بانتظار الإرسال',
+  'customersForArea.completed.title': 'المُنجَز ({{total}}) — معبّأ: {{filled}} | فارغ: {{empty}}',
+  'customersForArea.completed.empty': 'لا يوجد زبائن مُنجَزون بعد',
+  'customersForArea.completed.emptyText': 'لا يوجد زبائن مُنجَزون بعد',
+  'customersForArea.active.title': 'المتبقّي ({{count}})',
+  'customersForArea.active.empty': '😕 لا يوجد نتائج مطابقة',
+  'customersForArea.pending.banner.online': 'يوجد {{count}} طلب بانتظار الإرسال — سيتم مزامنتهم تلقائياً.',
+  'customersForArea.pending.banner.offline': 'وضع عدم الاتصال: يوجد {{count}} طلب بانتظار الإرسال.',
+  'customersForArea.customer.address': '📍العنوان',
+  'customersForArea.customer.phone': '📞',
+  'orders.title': 'Orders',
+  'orders.table.customer': 'Customer',
+  'orders.table.delivered': 'Delivered',
+  'orders.table.returned': 'Returned',
+  'orders.table.seeMore': 'See More...',
+  'shipments.title': 'قائمة الشحنات',
+  'shipments.filter.from': 'من',
+  'shipments.filter.to': 'إلى',
+  'shipments.filter.show': 'عرض',
+  'shipments.filter.quick.today': 'اليوم',
+  'shipments.filter.quick.last7Days': 'آخر 7 أيام',
+  'shipments.filter.quick.last30Days': 'آخر 30 يوماً',
+  'shipments.filter.dateRequired': 'اختر تاريخي البداية والنهاية.',
+  'shipments.filter.fetchError': 'تعذّر جلب الشحنات. يرجى المحاولة لاحقاً.',
+  'shipments.kpi.count': 'عدد الشحنات',
+  'shipments.kpi.delivered': 'المُسلّمة',
+  'shipments.kpi.returned': 'المُعادة',
+  'shipments.kpi.totalUSD': 'إجمالي بالدولار',
+  'shipments.kpi.totalLBP': 'إجمالي بالليرة',
+  'shipments.kpi.paymentsLBP': 'ليرة (مدفوعات)',
+  'shipments.kpi.paymentsUSD': 'دولار (مدفوعات)',
+  'shipments.kpi.expensesUSD': 'نفقات $',
+  'shipments.kpi.expensesLBP': 'نفقات بالليرة',
+  'shipments.kpi.profitsUSD': 'أرباح إضافية $',
+  'shipments.kpi.profitsLBP': 'أرباح إضافية ل.ل',
+  'shipments.empty': 'لا توجد شحنات ضمن المدى الزمني المحدد.',
+  'shipments.card.date': 'التاريخ',
+  'shipments.card.forDelivery': 'للتوصيل',
+  'shipments.card.delivered': 'مُسلّمة',
+  'shipments.card.returned': 'مُعادة',
+  'shipments.card.paymentsLBP': 'مدفوعات ل.ل',
+  'shipments.card.paymentsUSD': 'مدفوعات $',
+  'shipments.card.expensesLBP': 'نفقات ل.ل',
+  'shipments.card.expensesUSD': 'نفقات $',
+  'shipments.card.profitsLBP': 'أرباح إضافية ل.ل',
+  'shipments.card.profitsUSD': 'أرباح إضافية $',
+  'expenses.title': 'نفقات إضافية',
+  'expenses.addToggle': 'إضافة نفقة جديدة؟',
+  'expenses.hideForm': 'إخفاء النموذج؟',
+  'expenses.addNew': 'إضافة نفقة جديدة؟',
+  'expenses.empty': 'لا توجد نفقات إضافية لهذه الشركة',
+  'expenses.delete': 'حذف',
+  'expenses.delete.success': 'expense deleted successfully',
+  'expenses.delete.error': 'Error deleting expense',
+  'expenses.fields.name': 'الاسم',
+  'expenses.fields.value': 'القيمة',
+  'expenses.fields.currency': 'العملة',
+  'expenses.fields.valueUSD': 'القيمة بالدولار',
+  'expenses.fields.date': 'التاريخ',
+  'profits.title': 'الأرباح الإضافية',
+  'profits.addToggle': 'إضافة أرباح جديدة؟',
+  'profits.hideForm': 'إخفاء النموذج؟',
+  'profits.addNew': 'إضافة أرباح جديدة؟',
+  'profits.empty': 'لا توجد أرباح إضافية لهذه الشركة',
+  'profits.delete': 'حذف',
+  'profits.delete.success': 'profit deleted successfully',
+  'profits.delete.error': 'Error deleting profit',
+  'profits.fields.name': 'الاسم',
+  'profits.fields.value': 'القيمة',
+  'profits.fields.currency': 'العملة',
+  'profits.fields.valueUSD': 'القيمة بالدولار',
+  'profits.fields.date': 'التاريخ',
+  'common.loading': 'جارٍ التحميل...',
+  'common.error': 'حدث خطأ',
+  'common.back': 'الرجوع',
+  'common.delete': 'حذف',
+  'common.cancel': 'إلغاء',
+  'common.save': 'حفظ',
+  'common.apply': 'تطبيق',
+  'common.edit': 'تعديل',
 };
 
-export function t(key: TranslationKey): string {
-  return translations[key] || key;
+export function t(key: TranslationKey, params?: Record<string, string | number>): string {
+  let text = translations[key] || key;
+  if (params) {
+    Object.entries(params).forEach(([k, v]) => {
+      text = text.replace(new RegExp(`{{${k}}}`, 'g'), String(v));
+    });
+  }
+  return text;
 }
 

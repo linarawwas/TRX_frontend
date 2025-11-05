@@ -72,3 +72,12 @@ export function selectRoundProgress(s: RootState) {
     remainingRound,
   };
 }
+
+export const selectCustomersWithFilledOrders = (s: RootState): string[] =>
+  Array.isArray(s.shipment?.CustomersWithFilledOrders) ? s.shipment.CustomersWithFilledOrders : [];
+
+export const selectCustomersWithEmptyOrders = (s: RootState): string[] =>
+  Array.isArray(s.shipment?.CustomersWithEmptyOrders) ? s.shipment.CustomersWithEmptyOrders : [];
+
+export const selectCustomersWithPendingOrders = (s: RootState): string[] =>
+  Array.isArray(s.shipment?.CustomersWithPendingOrders) ? s.shipment.CustomersWithPendingOrders : [];

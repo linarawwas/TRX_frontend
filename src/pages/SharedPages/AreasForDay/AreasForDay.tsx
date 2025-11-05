@@ -6,6 +6,7 @@ import { clearAreaId, setAreaId } from "../../../redux/Order/action";
 import { getAreasByDayFromDB, getDayFromDB } from "../../../utils/indexedDB";
 import "./AreasForDay.css";
 import RoundSnapshot from "../../../components/AsideMenu/Right/RoundSnapshot";
+import { t } from "../../../utils/i18n";
 
 interface Area {
   _id: string;
@@ -28,6 +29,7 @@ export default function AreasForDay(): JSX.Element {
 
   const [dayAreas, setDayAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [dayName, setDayName] = useState<string>("");
 
   useEffect(() => {
@@ -36,10 +38,12 @@ export default function AreasForDay(): JSX.Element {
     const loadCachedData = async () => {
       try {
         setLoading(true);
+        setError(null);
 
         if (!dayId) {
           setDayAreas([]);
-          setDayName("يوم غير معروف");
+          setDayName(t("addresses.areasForDay.unknownDay"));
+          setLoading(false);
           return;
         }
 
@@ -53,11 +57,13 @@ export default function AreasForDay(): JSX.Element {
         if (cachedDay?.name) {
           setDayName(cachedDay.name);
         } else {
-          setDayName("يوم غير معروف");
+          setDayName(t("addresses.areasForDay.unknownDay"));
         }
-      } catch (error) {
-        console.error("❌ Failed to load from IndexedDB:", error);
-        setDayName("خطأ في التحميل");
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        console.error("❌ Failed to load from IndexedDB:", err);
+        setError(message);
+        setDayName(t("addresses.areasForDay.loadError"));
         setDayAreas([]);
       } finally {
         setLoading(false);
@@ -82,21 +88,29 @@ export default function AreasForDay(): JSX.Element {
 
   return (
     <div className="areas-container" dir="rtl">
-      <h2 className="areas-title">🚚 اختر المنطقة ليوم {translatedDayName}</h2>
+      <h2 className="areas-title">
+        {t("addresses.areasForDay.title", { dayName: translatedDayName })}
+      </h2>
 
       <div className="areas-list">
         {loading ? (
-          <p className="loading-text">⏳ جارٍ التحميل...</p>
+          <p className="loading-text" role="status" aria-live="polite">
+            {t("addresses.areasForDay.loading")}
+          </p>
+        ) : error ? (
+          <p className="no-areas-text" role="alert">
+            {t("common.error")}: {error}
+          </p>
         ) : dayAreas.length > 0 ? (
           dayAreas.map(renderAreaCard)
         ) : (
-          <p className="no-areas-text">😕 لا توجد مناطق محفوظة لهذا اليوم</p>
+          <p className="no-areas-text">{t("addresses.areasForDay.empty")}</p>
         )}
       </div>
       <Link to={"/areas"}>
         <div className="other-areas-section" style={{ marginTop: "1rem" }}>
           <button type="button" className="external-shipment-button">
-            مناطق أخرى: طلبات خارجية (تتطلب انترنت)
+            {t("addresses.areasForDay.otherAreas")}
           </button>
         </div>
       </Link>
