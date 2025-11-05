@@ -1,5 +1,6 @@
 import { createStore } from 'redux';
 import rootReducer from './rootReducer';
+import { ShipmentState } from './Shipment/types';
 
 declare global {
   interface Window {
@@ -8,7 +9,12 @@ declare global {
 }
 
 // Define the type for the state returned by rootReducer
-export type RootState = ReturnType<typeof rootReducer>;
+type BaseRootState = ReturnType<typeof rootReducer>;
+
+// Override shipment type since the reducer is JS and TypeScript can't infer it properly
+export type RootState = Omit<BaseRootState, 'shipment'> & {
+  shipment: ShipmentState;
+};
 
 // Load the state from localStorage when initializing the Redux store
 const savedState = localStorage.getItem('reduxState');

@@ -28,7 +28,7 @@ import { OpeningEditor } from "./OpeningEditor";
 type Area = { _id: string; name: string };
 
 // ——— helpers ———
-const API_BASE = "http://localhost:5000";
+const API_BASE = "https://trx-api.linarawas.com";
 const t = (s: any) => (typeof s === "string" ? s.trim() : "");
 const initials = (name?: string) =>
   (name || "")
@@ -592,6 +592,7 @@ export default function UpdateCustomer() {
                   currentCustomerId={customerId}
                   mode="apply"
                   title="تغيير الترتيب داخل المنطقة"
+                  onChange={() => {}} // No-op for apply mode
                   onApplied={fetchCustomer}
                 />
               </div>

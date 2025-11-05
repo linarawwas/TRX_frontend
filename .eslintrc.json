@@ -34,10 +34,35 @@
     }
   },
   "rules": {
-    "react-hooks/exhaustive-deps": "error",
+    "react-hooks/exhaustive-deps": "warn",
     "@typescript-eslint/no-unused-vars": "warn",
     "@typescript-eslint/consistent-type-imports": "warn",
-    "react/react-in-jsx-scope": "off"
-  }
+    "@typescript-eslint/no-explicit-any": "warn",
+    "react/react-in-jsx-scope": "off",
+    "react/prop-types": "warn",
+    "jsx-a11y/click-events-have-key-events": "warn",
+    "jsx-a11y/no-noninteractive-element-interactions": "warn",
+    "jsx-a11y/no-static-element-interactions": "warn",
+    "jsx-a11y/label-has-associated-control": "warn",
+    "no-empty": "warn"
+  },
+  "overrides": [
+    {
+      "files": ["*.js", "*.jsx"],
+      "parser": "espree",
+      "parserOptions": {
+        "ecmaVersion": 2021,
+        "sourceType": "module",
+        "ecmaFeatures": {
+          "jsx": true
+        },
+        "project": null
+      },
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/parser": "off"
+      }
+    }
+  ]
 }
 

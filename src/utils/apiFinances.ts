@@ -1,7 +1,7 @@
 // src/utils/apiFinances.ts
 import { API_BASE } from "../config/api";
 
-const API = API_BASE || "http://localhost:5000";
+const API = API_BASE || "https://trx-api.linarawas.com";
 
 export async function createFinance(token: string, body: any) {
   const res = await fetch(`${API}/api/finances`, {

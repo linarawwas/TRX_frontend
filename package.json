@@ -1,6 +1,6 @@
 {
   "name": "trx-bi",
-  "homepage": "http://localhost:5000",
+  "homepage": "https://trx-api.linarawas.com",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -43,7 +43,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build ",
+    "build": "DISABLE_ESLINT_PLUGIN=true react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",

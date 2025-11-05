@@ -119,14 +119,14 @@ export const setShipmentPaymentsInDollars = (dollarPayments) => ({
 export const setRoundInfo = (payload: {
   sequence: number, // round #
   targetAdded: number, // bottles added in this round
-  baseDelivered: number,
-  baseReturned: number,
-  baseUsd: number,
-  baseLbp: number,
-  baseExpUsd: number,
-  baseExpLbp: number,
-  baseProfUsd: number,
-  baseProfLbp: number,
+  baseDelivered?: number,
+  baseReturned?: number,
+  baseUsd?: number,
+  baseLbp?: number,
+  baseExpUsd?: number,
+  baseExpLbp?: number,
+  baseProfUsd?: number,
+  baseProfLbp?: number,
   startedAt?: string, // ISO timestamp (optional)
 }) => ({ type: SET_ROUND_INFO, payload });
 
