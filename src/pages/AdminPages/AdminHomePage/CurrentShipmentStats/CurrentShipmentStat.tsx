@@ -2,8 +2,9 @@ import React from "react";
 import "../../../SharedPages/Shipment/ShipmentsList.css";
 import { useSelector } from "react-redux";
 import SpinLoader from "../../../../components/UI reusables/SpinLoader/SpinLoader";
-import { RootState } from "../../../../redux/store";
 import { useTodayShipmentTotals } from "../../../../features/shipments/hooks/useTodayShipmentTotals";
+import { RootState } from "../../../../redux/store";
+import { computeNetTotals } from "../../../../features/shipments/utils/totals";
 
 const CurrentShipmentStat: React.FC = () => {
   const companyId = useSelector((state: RootState) => state.user.companyId);
@@ -14,15 +15,7 @@ const CurrentShipmentStat: React.FC = () => {
     companyId
   );
 
-  const USD_overall =
-    totals.shipmentUSDPayments +
-    totals.shipmentUSDExtraProfits -
-    totals.shipmentUSDExpenses;
-
-  const LIRA_overall =
-    totals.shipmentLiraPayments +
-    totals.shipmentLiraExtraProfits -
-    totals.shipmentLiraExpenses;
+  const { usd, lbp } = computeNetTotals(totals);
 
   return (
     <div className="shipments-container" dir="rtl">
@@ -42,8 +35,8 @@ const CurrentShipmentStat: React.FC = () => {
             <div>المصاريف بالليرة: {totals.shipmentLiraExpenses.toLocaleString("en-US")}</div>
             <div>الأرباح الإضافية بالدولار: {totals.shipmentUSDExtraProfits.toFixed(2)}</div>
             <div>الأرباح الإضافية بالليرة: {totals.shipmentLiraExtraProfits.toLocaleString("en-US")}</div>
-            <div>الإجمالي بالليرة: {LIRA_overall.toLocaleString("en-US")}</div>
-            <div>الإجمالي بالدولار: {USD_overall.toFixed(2)}</div>
+            <div>الإجمالي بالليرة: {lbp.toLocaleString("en-US")}</div>
+            <div>الإجمالي بالدولار: {usd.toFixed(2)}</div>
           </div>
         )}
       </div>

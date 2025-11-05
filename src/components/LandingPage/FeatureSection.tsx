@@ -3,7 +3,7 @@ import { FaTimes } from "react-icons/fa";
 import AddProfits from "../Profits/AddProfits/AddProfits";
 import AddExpenses from "../Expenses/AddExpenses/AddExpenses";
 import StartShipment from "../EmployeeComponents/StartShipment/StartShipment";
-import "../../pages/AdminPages/AdminLandingPage/LandingPage.css";
+import "../../pages/AdminPages/AdminHomePage/LandingPage.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faTruck,

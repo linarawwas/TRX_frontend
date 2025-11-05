@@ -1,6 +1,6 @@
-# AdminLandingPage
+# AdminHomePage
 
-**Path:** `src/pages/AdminPages/AdminLandingPage/AdminLandingPage.tsx`  
+**Path:** `src/pages/AdminPages/AdminHomePage/AdminHomePage.tsx`  
 **Role:** Admin home container that orchestrates hero section, quick actions, snapshot KPIs, live shipment statistics, and lazy-loaded finance dashboard.  
 **Owner/Area:** Admin Pages
 
@@ -13,7 +13,7 @@
 - Coordinates data fetching for today's shipment totals via [useTodayShipmentTotals](../../../../features/shipments/hooks/useTodayShipmentTotals.ts)
 
 ## Public API (Props & Exports)
-- `AdminLandingPage()` - Default export, no props (reads token/companyId from Redux)
+- `AdminHomePage()` - Default export, no props (reads token/companyId from Redux)
 
 ## Internal Structure
 
@@ -131,7 +131,7 @@
 3. **Data Display** - KPI cards show correct values from `useTodayShipmentTotals`
 4. **Progress Ring** - Calculates and displays correct percentage from `today.calculatedDelivered / today.carryingForDelivery`
 5. **Lazy Loading** - FinanceDashboard loads with Suspense fallback
-6. **Shared Data** - Both AdminLandingPage and CurrentShipmentStat read from same hook (verify single API call)
+6. **Shared Data** - Both AdminHomePage and CurrentShipmentStat read from same hook (verify single API call)
 
 ## Gotchas & Future Work
 

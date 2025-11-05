@@ -8,7 +8,7 @@ import {
   setToken,
   setUsername,
 } from "../redux/UserInfo/action.js";
-import useSyncOfflineOrders from "../Hooks/useSyncOfflineOrders.js";
+import useSyncOfflineOrders from "../hooks/useSyncOfflineOrders.js";
 import { initializeDB } from "../utils/indexedDB";
 
 export default function App() {

@@ -18,12 +18,13 @@ import MonthlyViewMobile from "./components/MonthlyViewMobile";
 import MonthlyViewTable from "./components/MonthlyViewTable";
 import EntriesViewMobile from "./components/EntriesViewMobile";
 import EntriesViewTable from "./components/EntriesViewTable";
+import { RootState } from "../../../redux/store";
 
 type TabKey = "daily" | "monthly" | "add" | "entries";
 
 export default function FinanceDashboard() {
-  const token = useSelector((s: any) => s.user.token);
-  const isAdmin = useSelector((s: any) => s.user.isAdmin);
+  const token = useSelector((s: RootState) => s.user.token);
+  const isAdmin = useSelector((s: RootState) => s.user.isAdmin);
 
   const [active, setActive] = useState<TabKey>("daily");
   const compact = useMediaQuery("(max-width: 720px)");

@@ -87,3 +87,26 @@
 .pane-title{
   margin: 0 0 8px; color: var(--ink); font-size: 16px; font-weight: 900;
 }
+
+/* Skeleton loading states */
+.skeleton {
+  background: linear-gradient(90deg, #f2f4f7 25%, #e9eef2 37%, #f2f4f7 63%);
+  border-radius: 8px;
+  animation: shimmer 1.2s infinite linear;
+  width: 100%;
+}
+.skeleton-label {
+  height: 12px;
+  margin-bottom: 8px;
+}
+.skeleton-value {
+  height: 22px;
+}
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: 200px 0;
+  }
+}

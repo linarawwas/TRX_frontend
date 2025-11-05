@@ -22,7 +22,7 @@ import ExtraProfits from "../pages/SharedPages/ViewProfits/ViewProfits.tsx";
 import Expenses from "../pages/SharedPages/ViewExpenses/ViewExpenses.tsx";
 import Products from "../pages/AdminPages/ProductsList/Products.tsx";
 import CustomerInfo from "../components/Customers/CustomerInfo/CustomerInfo.tsx";
-import AdminLandingPage from "../pages/AdminPages/AdminLandingPage/AdminLandingPage.tsx";
+import AdminHomePage from "../pages/AdminPages/AdminHomePage/AdminHomePage.tsx";
 import RecordOrderForCustomer from "../pages/SharedPages/RecordOrderForCustomer/RecordOrderForCustomer.tsx";
 import OrdersOfToday from "../pages/SharedPages/Login/reports/orders-today/OrdersOfToday.tsx";
 import CustomerStatement from "../components/Customers/CustomerStatement/CustomerStatement.tsx";
@@ -31,7 +31,7 @@ function AdminRouter() {
     <>
       <div className="userRouter">
         <Routes>
-          <Route index element={<AdminLandingPage />} />
+          <Route index element={<AdminHomePage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/distributors" element={<DistributorsPage />} />
           <Route path="/distributors/:id" element={<DistributorDetails />} />

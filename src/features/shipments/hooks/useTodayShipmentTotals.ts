@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { listShipmentsRange } from "../../../utils/apiShipments";
 
-interface ShipmentTotals {
+export interface ShipmentTotals {
   carryingForDelivery: number;
   calculatedDelivered: number;
   calculatedReturned: number;
