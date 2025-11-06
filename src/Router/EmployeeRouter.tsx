@@ -8,6 +8,8 @@ import AddProfits from "../components/Profits/AddProfits/AddProfits";
 import RecordOrderForCustomer from "../pages/SharedPages/RecordOrderForCustomer/RecordOrderForCustomer";
 import OrdersTable from "../pages/SharedPages/OrdersTable/OrdersTable";
 import UpdateOrder from "../components/Orders/UpdateOrder/UpdateOrder";
+import ExtraProfits from "../pages/SharedPages/ViewProfits/ViewProfits";
+import Expenses from "../pages/SharedPages/ViewExpenses/ViewExpenses";
 import UpdateCustomer from "../components/Customers/UpdateCustomer/UpdateCustomer";
 import CustomersForArea from "../pages/SharedPages/CustomersForArea/CustomersForArea";
 import ShipmentsList from "../pages/SharedPages/Shipment/ShipmentsList";
@@ -36,6 +38,8 @@ function EmployeeRouter() {
           path="/customers/:customerId/statement"
           element={<CustomerStatement />}
         />
+        <Route path="/Profits" element={<ExtraProfits />} />
+        <Route path="/Expenses" element={<Expenses />} />
         <Route
           path="/updateCustomer/:customerId"
           element={<UpdateCustomer />}

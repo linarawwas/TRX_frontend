@@ -28,7 +28,7 @@ import { OpeningEditor } from "./OpeningEditor";
 type Area = { _id: string; name: string };
 
 // ——— helpers ———
-const API_BASE = "https://trx-api.linarawas.com";
+const API_BASE = "http://localhost:5000";
 const t = (s: any) => (typeof s === "string" ? s.trim() : "");
 const initials = (name?: string) =>
   (name || "")
@@ -79,7 +79,13 @@ export default function UpdateCustomer() {
     valueAfterDiscount: 0,
     discountCurrency: "",
     noteAboutCustomer: "",
+    sequence: "",
   });
+  const [areaSequenceInfo, setAreaSequenceInfo] = useState<{
+    loading: boolean;
+    taken: number[];
+    next: number;
+  }>({ loading: false, taken: [], next: 1 });
 
   // ——— fetchers ———
   const fetchAreas = useCallback(() => {
@@ -119,6 +125,53 @@ export default function UpdateCustomer() {
     fetchCustomer();
   }, [fetchAreas, fetchCustomer]);
 
+  const currentAreaId = customerData?.areaId?._id || "";
+  const areaChanged =
+    !!updatedInfo.areaId && updatedInfo.areaId !== currentAreaId;
+
+  useEffect(() => {
+    if (!areaChanged || !updatedInfo.areaId) {
+      setAreaSequenceInfo({ loading: false, taken: [], next: 1 });
+      return;
+    }
+
+    let cancelled = false;
+    (async () => {
+      try {
+        setAreaSequenceInfo((prev) => ({ ...prev, loading: true }));
+        const res = await fetch(
+          `${API_BASE}/api/customers/area/${updatedInfo.areaId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const data = await res.json();
+        if (cancelled) return;
+        const taken = Array.isArray(data)
+          ? data
+              .map((c: any) =>
+                typeof c.sequence === "number" ? c.sequence : null
+              )
+              .filter((n: number | null): n is number =>
+                n != null && Number.isInteger(n) && n >= 1
+              )
+              .sort((a: number, b: number) => a - b)
+          : [];
+        const next = taken.length ? taken[taken.length - 1] + 1 : 1;
+        setAreaSequenceInfo({ loading: false, taken, next });
+      } catch (err) {
+        if (cancelled) return;
+        console.error("load area sequences error", err);
+        setAreaSequenceInfo({ loading: false, taken: [], next: 1 });
+        toast.error("تعذر تحميل الترتيب الحالي للمنطقة المختارة");
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [areaChanged, updatedInfo.areaId, token]);
+
   // ——— handlers ———
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -126,6 +179,21 @@ export default function UpdateCustomer() {
     const { name, value } = e.target;
     if (name === "phone" && !/^\d*$/.test(value))
       return toast.error("أدخل أرقام فقط");
+    if (name === "sequence") {
+      if (value === "" || /^\d*$/.test(value)) {
+        setUpdatedInfo((prev) => ({ ...prev, sequence: value }));
+      }
+      return;
+    }
+    if (name === "areaId") {
+      setUpdatedInfo((prev) => ({
+        ...prev,
+        areaId: value,
+        sequence:
+          value && customerData?.areaId?._id === value ? prev.sequence : "",
+      }));
+      return;
+    }
     setUpdatedInfo((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -135,7 +203,16 @@ export default function UpdateCustomer() {
     if (t(updatedInfo.name)) changes.name = t(updatedInfo.name);
     if (t(updatedInfo.phone)) changes.phone = t(updatedInfo.phone);
     if (t(updatedInfo.address)) changes.address = t(updatedInfo.address);
-    if (t(updatedInfo.areaId)) changes.areaId = t(updatedInfo.areaId);
+    if (areaChanged && !updatedInfo.sequence) {
+      return toast.error("عيّن رقم الترتيب الجديد قبل الحفظ");
+    }
+
+    if (t(updatedInfo.areaId) && areaChanged)
+      changes.areaId = t(updatedInfo.areaId);
+
+    if (updatedInfo.sequence) {
+      changes.sequence = Number(updatedInfo.sequence);
+    }
 
     if (Object.keys(changes).length === 0)
       return toast.info("لا توجد تغييرات لإرسالها");
@@ -161,6 +238,7 @@ export default function UpdateCustomer() {
         phone: "",
         address: "",
         areaId: "",
+        sequence: "",
       }));
       fetchCustomer();
     } catch (e: any) {
@@ -484,6 +562,74 @@ export default function UpdateCustomer() {
                   ))}
                 </select>
               </div>
+
+              {(areaChanged || customerData?.sequence) && (
+                <div className="ucx-field ucx-field--full">
+                  <label htmlFor="ucx-sequence" className="ucx-label">
+                    الترتيب داخل المنطقة
+                  </label>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "0.5rem",
+                      alignItems: "center",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <input
+                      id="ucx-sequence"
+                      className="ucx-input"
+                      type="number"
+                      min={1}
+                      inputMode="numeric"
+                      name="sequence"
+                      value={updatedInfo.sequence}
+                      placeholder={
+                        areaChanged
+                          ? areaSequenceInfo.loading
+                            ? "جارٍ التحميل…"
+                            : `مثال: ${areaSequenceInfo.next}`
+                          : customerData?.sequence
+                          ? String(customerData.sequence)
+                          : "أدخل الرقم"
+                      }
+                      onChange={handleChange}
+                    />
+                    {areaChanged && (
+                      <button
+                        type="button"
+                        className="ucx-btn secondary sm"
+                        onClick={() =>
+                          setUpdatedInfo((prev) => ({
+                            ...prev,
+                            sequence: String(areaSequenceInfo.next || 1),
+                          }))
+                        }
+                        disabled={areaSequenceInfo.loading}
+                      >
+                        استخدام {areaSequenceInfo.next}
+                      </button>
+                    )}
+                  </div>
+                  {areaChanged ? (
+                    <small className="ucx-hint">
+                      {areaSequenceInfo.loading
+                        ? "جارٍ تحميل مواقع الزبائن في المنطقة الجديدة…"
+                        : areaSequenceInfo.taken.length
+                        ? `الأرقام المستخدمة حاليًا: ${areaSequenceInfo.taken
+                            .slice(0, 12)
+                            .join(", ")}${
+                            areaSequenceInfo.taken.length > 12 ? " …" : ""
+                          }. الرقم التالي المتاح: ${areaSequenceInfo.next}`
+                        : "لا يوجد زبائن نشطون في هذه المنطقة. أي رقم يبدأ من 1 متاح."}
+                    </small>
+                  ) : customerData?.sequence ? (
+                    <small className="ucx-hint">
+                      الترتيب الحالي: #{customerData.sequence}
+                    </small>
+                  ) : null}
+                </div>
+              )}
             </div>
 
             <div className="ucx-formCard__actions">

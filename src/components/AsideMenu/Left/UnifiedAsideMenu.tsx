@@ -77,16 +77,16 @@ const AsideMenu: React.FC = () => {
           </Link>
           <Link to="/distributors" onClick={toggleMenu}>
             👥 الموزعين (قيد التطوير 🚧)
+          </Link>{" "}
+          <Link to="/Expenses" onClick={toggleMenu}>
+            🧾 المصاريف
+          </Link>
+          <Link to="/Profits" onClick={toggleMenu}>
+            💰 الأرباح
           </Link>
           {/* Admin-only Links */}
           {isAdmin && (
             <>
-              <Link to="/Expenses" onClick={toggleMenu}>
-                🧾 المصاريف
-              </Link>
-              <Link to="/Profits" onClick={toggleMenu}>
-                💰 الأرباح
-              </Link>
               <Link to="/Products" onClick={toggleMenu}>
                 📦 المنتجات
               </Link>

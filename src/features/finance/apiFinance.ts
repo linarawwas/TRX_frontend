@@ -46,7 +46,7 @@ export async function deleteExpense(token: string, expenseId: string): Promise<v
 }
 
 export async function fetchExtraProfits(token: string, companyId: string): Promise<ExtraProfit[]> {
-  const { data } = await axios.get(`${BASE}/api/extraProfits/company/${companyId}`, {
+  const { data } = await axios.get(`${BASE}/api/extraProfits`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return Array.isArray(data) ? data : [];
@@ -90,6 +90,48 @@ export async function createExtraProfit(
   payload: CreateExtraProfitPayload
 ): Promise<ExtraProfit> {
   const { data } = await axios.post(`${BASE}/api/extraProfits`, payload, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return data;
+}
+
+export interface UpdateExpensePayload {
+  name?: string;
+  value?: number;
+  paymentCurrency?: "USD" | "LBP";
+  shipmentId?: string;
+}
+
+export async function updateExpense(
+  token: string,
+  expenseId: string,
+  payload: UpdateExpensePayload
+): Promise<Expense> {
+  const { data } = await axios.put(`${BASE}/api/expenses/${expenseId}`, payload, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return data;
+}
+
+export interface UpdateExtraProfitPayload {
+  name?: string;
+  value?: number;
+  paymentCurrency?: "USD" | "LBP";
+  shipmentId?: string;
+}
+
+export async function updateExtraProfit(
+  token: string,
+  profitId: string,
+  payload: UpdateExtraProfitPayload
+): Promise<ExtraProfit> {
+  const { data } = await axios.put(`${BASE}/api/extraProfits/${profitId}`, payload, {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,

@@ -1,14 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { FaTimes } from "react-icons/fa";
-import AddProfits from "../Profits/AddProfits/AddProfits";
-import AddExpenses from "../Expenses/AddExpenses/AddExpenses";
 import StartShipment from "../EmployeeComponents/StartShipment/StartShipment";
 import "../../pages/AdminPages/AdminHomePage/LandingPage.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faTruck,
-  faWallet,
-  faDollarSign,
 } from "@fortawesome/free-solid-svg-icons";
 import "./FeatureSection.css";
 import { useSelector } from "react-redux";
@@ -18,13 +14,13 @@ import { selectShipmentMeta } from "../../redux/selectors/shipment";
 import { t } from "../../utils/i18n";
 
 const FeatureSection: React.FC = () => {
-  const [activeForm, setActiveForm] = useState<string | null>(null);
+  const [activeForm, setActiveForm] = useState<"shipment" | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const { dayId } = useSelector(selectShipmentMeta);
 
-  const toggleForm = useCallback((form: string) => {
-    setActiveForm((prev) => (prev === form ? null : form));
+  const handleShipmentToggle = useCallback(() => {
+    setActiveForm((prev) => (prev === "shipment" ? null : "shipment"));
   }, []);
 
   const closeModal = useCallback(() => setActiveForm(null), []);
@@ -70,59 +66,25 @@ const FeatureSection: React.FC = () => {
             </li>
           )}
 
-          <li className="show-form-li">
-            <button
-              type="button"
-              onClick={() => toggleForm("profits")}
-              style={{ background: "none", border: "none", padding: 0, cursor: "pointer", color: "inherit" }}
-              aria-label={activeForm === "profits" ? t("emp.actions.close") : t("emp.actions.addProfits")}
-            >
-              {activeForm === "profits" ? (
-                <FaTimes aria-label={t("emp.actions.close")} />
-              ) : (
-                <FontAwesomeIcon
-                  icon={faDollarSign}
-                  size="2x"
-                  aria-label={t("emp.actions.addProfits")}
-                />
-              )}
-            </button>
-          </li>
-
-          <li className="show-form-li">
-            <button
-              type="button"
-              onClick={() => toggleForm("expenses")}
-              style={{ background: "none", border: "none", padding: 0, cursor: "pointer", color: "inherit" }}
-              aria-label={activeForm === "expenses" ? t("emp.actions.close") : t("emp.actions.addExpenses")}
-            >
-              {activeForm === "expenses" ? (
-                <FaTimes aria-label={t("emp.actions.close")} />
-              ) : (
-                <FontAwesomeIcon
-                  icon={faWallet}
-                  size="2x"
-                  aria-label={t("emp.actions.addExpenses")}
-                />
-              )}
-            </button>
-          </li>
-
           {/* 🔁 Now: Open StartShipment modal */}
           <li className="show-form-li end-shipment">
             <button
               type="button"
-              onClick={() => toggleForm("shipment")}
+              onClick={handleShipmentToggle}
               style={{ background: "none", border: "none", padding: 0, cursor: "pointer", color: "inherit" }}
-              aria-label={t("emp.actions.startShipment")}
+              aria-label={activeForm === "shipment" ? t("emp.actions.close") : t("emp.actions.startShipment")}
             >
-              <FontAwesomeIcon
-                icon={faTruck}
-                size="2x"
-                className="shipment-logo mirrored"
-                style={{ color: "white" }}
-                aria-label={t("emp.actions.startShipment")}
-              />
+              {activeForm === "shipment" ? (
+                <FaTimes aria-label={t("emp.actions.close")} />
+              ) : (
+                <FontAwesomeIcon
+                  icon={faTruck}
+                  size="2x"
+                  className="shipment-logo mirrored"
+                  style={{ color: "white" }}
+                  aria-label={t("emp.actions.startShipment")}
+                />
+              )}
             </button>
           </li>
         </ul>
@@ -150,48 +112,6 @@ const FeatureSection: React.FC = () => {
               <FaTimes />
             </button>
             {activeForm === "shipment" && <StartShipment />}
-            {activeForm === "profits" && (
-              <AddProfits
-                config={{
-                  modelName: t("profits.title"),
-                  title: t("profits.add.title"),
-                  buttonLabel: t("profits.add.buttonLabel"),
-                  fields: {
-                    name: { label: t("profits.fields.name"), "input-type": "text" },
-                    value: { label: t("profits.fields.value"), "input-type": "number" },
-                    paymentCurrency: {
-                      label: t("profits.fields.paymentCurrency"),
-                      "input-type": "selectOption",
-                      options: [
-                        { value: "USD", label: t("profits.currency.usd") },
-                        { value: "LBP", label: t("profits.currency.lbp") },
-                      ],
-                    },
-                  },
-                }}
-              />
-            )}
-            {activeForm === "expenses" && (
-              <AddExpenses
-                config={{
-                  modelName: t("expenses.title"),
-                  title: t("expenses.add.title"),
-                  buttonLabel: t("expenses.add.buttonLabel"),
-                  fields: {
-                    name: { label: t("expenses.fields.name"), "input-type": "text" },
-                    value: { label: t("expenses.fields.value"), "input-type": "number" },
-                    paymentCurrency: {
-                      label: t("expenses.fields.paymentCurrency"),
-                      "input-type": "selectOption",
-                      options: [
-                        { value: "USD", label: t("expenses.currency.usd") },
-                        { value: "LBP", label: t("expenses.currency.lbp") },
-                      ],
-                    },
-                  },
-                }}
-              />
-            )}
           </div>
         </div>
       )}

@@ -1,14 +1,12 @@
 // src/features/products/hooks/useProducts.ts
 import { useEffect, useState, useCallback } from "react";
-import { listCompanyProducts, deleteProductById } from "../apiProducts";
+import {
+  listCompanyProducts,
+  deleteProductById,
+  type ProductResponse,
+} from "../apiProducts";
 
-export interface Product {
-  _id: string;
-  type: string;
-  priceInDollars: number;
-  isReturnable: boolean;
-  companyId: string;
-}
+export type Product = ProductResponse;
 
 export function useProducts(token: string | null, companyId?: string) {
   const [items, setItems] = useState<Product[]>([]);

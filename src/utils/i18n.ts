@@ -1,6 +1,6 @@
 // src/utils/i18n.ts
 // Simple translation utility - can be extended with proper i18n library later
-type TranslationKey = 
+export type TranslationKey = 
   | 'dashboard.hello'
   | 'dashboard.today'
   | 'dashboard.quickActions.viewShipments'
@@ -29,6 +29,10 @@ type TranslationKey =
   | 'products.fields.returnable'
   | 'products.add.title'
   | 'products.add.buttonLabel'
+  | 'products.confirmDelete'
+  | 'products.confirmUpdate'
+  | 'products.update.success'
+  | 'products.update.error'
   | 'expenses.add.title'
   | 'expenses.add.buttonLabel'
   | 'profits.add.title'
@@ -160,6 +164,10 @@ type TranslationKey =
   | 'expenses.delete'
   | 'expenses.delete.success'
   | 'expenses.delete.error'
+  | 'expenses.confirmDelete'
+  | 'expenses.confirmUpdate'
+  | 'expenses.update.success'
+  | 'expenses.update.error'
   | 'expenses.fields.name'
   | 'expenses.fields.value'
   | 'expenses.fields.currency'
@@ -176,6 +184,10 @@ type TranslationKey =
   | 'profits.delete'
   | 'profits.delete.success'
   | 'profits.delete.error'
+  | 'profits.confirmDelete'
+  | 'profits.confirmUpdate'
+  | 'profits.update.success'
+  | 'profits.update.error'
   | 'profits.fields.name'
   | 'profits.fields.value'
   | 'profits.fields.currency'
@@ -191,6 +203,8 @@ type TranslationKey =
   | 'common.cancel'
   | 'common.save'
   | 'common.apply'
+  | 'common.moreOptions'
+  | 'common.noChanges'
   | 'common.edit';
 
 const translations: Record<TranslationKey, string> = {
@@ -222,6 +236,10 @@ const translations: Record<TranslationKey, string> = {
   'products.fields.returnable': 'هل يمكن إرجاعه',
   'products.add.title': 'إضافة إلى المنتجات',
   'products.add.buttonLabel': 'إضافة منتج',
+  'products.confirmDelete': 'هل تريد بالتأكيد حذف {{name}}؟ سيتم حذف البيانات نهائياً.',
+  'products.confirmUpdate': 'تأكيد حفظ التعديلات على {{name}}؟',
+  'products.update.success': 'تم تحديث المنتج بنجاح',
+  'products.update.error': 'تعذر تحديث المنتج',
   'expenses.add.title': 'إضافة مصاريف',
   'expenses.add.buttonLabel': 'إضافة مصاريف',
   'profits.add.title': 'إضافة إلى الأرباح',
@@ -310,10 +328,10 @@ const translations: Record<TranslationKey, string> = {
   'customersForArea.customer.address': '📍العنوان',
   'customersForArea.customer.phone': '📞',
   'orders.title': 'Orders',
-  'orders.table.customer': 'Customer',
-  'orders.table.delivered': 'Delivered',
-  'orders.table.returned': 'Returned',
-  'orders.table.seeMore': 'See More...',
+  'orders.table.customer': 'الزبون',
+  'orders.table.delivered': 'المُسلّمة',
+  'orders.table.returned': 'المُعادة',
+  'orders.table.seeMore': 'عرض المزيد...',
   'shipments.title': 'قائمة الشحنات',
   'shipments.filter.from': 'من',
   'shipments.filter.to': 'إلى',
@@ -351,8 +369,12 @@ const translations: Record<TranslationKey, string> = {
   'expenses.addNew': 'إضافة نفقة جديدة؟',
   'expenses.empty': 'لا توجد نفقات إضافية لهذه الشركة',
   'expenses.delete': 'حذف',
-  'expenses.delete.success': 'expense deleted successfully',
-  'expenses.delete.error': 'Error deleting expense',
+  'expenses.delete.success': 'تم الحذف بنجاح',
+  'expenses.delete.error': 'تعذر الحذف',
+  'expenses.confirmDelete': 'هل تريد بالتأكيد حذف {{name}}؟ سيتم حذف البيانات نهائياً.',
+  'expenses.confirmUpdate': 'تأكيد حفظ التعديلات على {{name}}؟',
+  'expenses.update.success': 'تم تحديث النفقة بنجاح',
+  'expenses.update.error': 'تعذر تحديث النفقة',
   'expenses.fields.name': 'الاسم',
   'expenses.fields.value': 'القيمة',
   'expenses.fields.currency': 'العملة',
@@ -367,8 +389,12 @@ const translations: Record<TranslationKey, string> = {
   'profits.addNew': 'إضافة أرباح جديدة؟',
   'profits.empty': 'لا توجد أرباح إضافية لهذه الشركة',
   'profits.delete': 'حذف',
-  'profits.delete.success': 'profit deleted successfully',
-  'profits.delete.error': 'Error deleting profit',
+  'profits.delete.success': 'تم الحذف بنجاح',
+  'profits.delete.error': 'تعذر الحذف',
+  'profits.confirmDelete': 'هل تريد بالتأكيد حذف {{name}}؟ سيتم حذف البيانات نهائياً.',
+  'profits.confirmUpdate': 'تأكيد حفظ التعديلات على {{name}}؟',
+  'profits.update.success': 'تم تحديث الربح بنجاح',
+  'profits.update.error': 'تعذر تحديث الربح',
   'profits.fields.name': 'الاسم',
   'profits.fields.value': 'القيمة',
   'profits.fields.currency': 'العملة',
@@ -384,10 +410,15 @@ const translations: Record<TranslationKey, string> = {
   'common.cancel': 'إلغاء',
   'common.save': 'حفظ',
   'common.apply': 'تطبيق',
+  'common.moreOptions': 'المزيد من الخيارات لـ {{name}}',
+  'common.noChanges': 'لا يوجد تغييرات للحفظ',
   'common.edit': 'تعديل',
 };
 
-export function t(key: TranslationKey, params?: Record<string, string | number>): string {
+export function t(
+  key: TranslationKey | (string & {}),
+  params?: Record<string, string | number>
+): string {
   let text = translations[key] || key;
   if (params) {
     Object.entries(params).forEach(([k, v]) => {
