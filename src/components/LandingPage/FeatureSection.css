@@ -10,12 +10,11 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 .feature-section ul {
-  list-style: none;
   padding: 0;
   margin: 0;
   display: grid;
   gap: 10px;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
 }
 
 .show-form-li {

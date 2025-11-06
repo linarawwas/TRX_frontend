@@ -22,6 +22,7 @@ interface Props {
   moneyProf?: Money;
   extraFoot?: React.ReactNode; // optional foot content (e.g., lock message)
   children?: React.ReactNode;  // optional extra sections (e.g., RoundsHistory)
+  showProgressSummary?: boolean;
 }
 
 const ProgressSnapshot: React.FC<Props> = ({
@@ -29,7 +30,8 @@ const ProgressSnapshot: React.FC<Props> = ({
   target, delivered, returned,
   pctForBar, pctDisplay, overBy, reached,
   moneyToday, moneyExp, moneyProf,
-  extraFoot, children
+  extraFoot, children,
+  showProgressSummary = true,
 }) => (
   <section className="snap-card" dir="rtl">
     <button 
@@ -44,18 +46,20 @@ const ProgressSnapshot: React.FC<Props> = ({
     </button>
 
     <div id={id} className={`snap-panel ${open ? "open" : ""}`}>
-      <div className={`progress ${reached ? "reached" : ""}`}>
-        <div className="progress-head">
-          <div>{t("emp.snap.goal")}: <strong>{target}</strong></div>
-          <div>{t("emp.snap.delivered")}: <strong>{delivered}</strong>{overBy > 0 && <span className="over-badge">+{overBy}</span>}</div>
+      {showProgressSummary && (
+        <div className={`progress ${reached ? "reached" : ""}`}>
+          <div className="progress-head">
+            <div>{t("emp.snap.goal")}: <strong>{target}</strong></div>
+            <div>{t("emp.snap.delivered")}: <strong>{delivered}</strong>{overBy > 0 && <span className="over-badge">+{overBy}</span>}</div>
+          </div>
+          <div className="bar"><div className="bar-fill" style={{ width: `${pctForBar}%` }} /></div>
+          <div className="progress-foot">
+            <span>{pctDisplay}{t("emp.snap.percentOfGoal")}</span>
+            <span>{t("emp.snap.returned")}: {returned}</span>
+          </div>
+          {extraFoot}
         </div>
-        <div className="bar"><div className="bar-fill" style={{ width: `${pctForBar}%` }} /></div>
-        <div className="progress-foot">
-          <span>{pctDisplay}{t("emp.snap.percentOfGoal")}</span>
-          <span>{t("emp.snap.returned")}: {returned}</span>
-        </div>
-        {extraFoot}
-      </div>
+      )}
 
       <div className="kpis">
         {moneyToday && (

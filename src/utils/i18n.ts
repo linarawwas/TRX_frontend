@@ -416,7 +416,7 @@ const translations: Record<TranslationKey, string> = {
 };
 
 export function t(
-  key: TranslationKey | (string & {}),
+  key: TranslationKey | (string & object),
   params?: Record<string, string | number>
 ): string {
   let text = translations[key] || key;

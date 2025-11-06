@@ -9,7 +9,7 @@ import ProgressSnapshot from "../../snapshots/ProgressSnapshot";
 import { t } from "../../../utils/i18n";
 
 const TodaySnapshot: React.FC = () => {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   const { id: shipmentId } = useSelector(selectShipmentMeta);
   const { target, delivered, returned, paidUSD, paidLBP, expUSD, expLBP, profUSD, profLBP } = useSelector(selectTodayProgress);
@@ -35,6 +35,7 @@ const TodaySnapshot: React.FC = () => {
       moneyToday={moneyToday}
       moneyExp={moneyExp}
       moneyProf={moneyProf}
+      showProgressSummary={false}
     >
       {shipmentId && (
         <RoundsHistory

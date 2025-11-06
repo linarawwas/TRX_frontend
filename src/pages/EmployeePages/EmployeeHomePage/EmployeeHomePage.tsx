@@ -11,7 +11,7 @@ const EmployeeHomePage: React.FC = () => {
 
   return (
     <div className="emp-home" dir="rtl">
-      <header className="emp-hero">
+      <header className="emp-hero" style={{ padding: "10px" }}>
         <h1 className="emp-title">{t("emp.home.hello")} {name}</h1>
         <div className="emp-sub">
           {new Date().toLocaleDateString("ar-LB", {
