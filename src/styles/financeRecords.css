@@ -239,6 +239,84 @@
   background: rgba(214, 69, 69, 0.12);
 }
 
+.finance-card--skeleton {
+  pointer-events: none;
+}
+
+.finance-card--skeleton .finance-card__menu,
+.finance-card--skeleton .finance-card__title-group,
+.finance-card--skeleton .finance-grid__item {
+  gap: 0.35rem;
+}
+
+.skeleton-line,
+.skeleton-pill {
+  display: inline-block;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(8, 35, 56, 0.08) 25%, rgba(8, 35, 56, 0.16) 37%, rgba(8, 35, 56, 0.08) 63%);
+  background-size: 400% 100%;
+  animation: finance-skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+.skeleton-line {
+  width: 100%;
+  height: 0.65rem;
+  border-radius: 0.5rem;
+}
+
+.skeleton-line--xs {
+  width: 45%;
+  height: 0.5rem;
+}
+
+.skeleton-line--sm {
+  width: 55%;
+}
+
+.skeleton-line--md {
+  width: 70%;
+  height: 0.75rem;
+}
+
+.skeleton-line--lg {
+  width: 80%;
+  height: 0.9rem;
+}
+
+.skeleton-pill {
+  height: 0.9rem;
+  min-width: 2.5rem;
+}
+
+.skeleton-pill--badge {
+  width: 4.5rem;
+  height: 1.1rem;
+}
+
+.skeleton-pill--icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+}
+
+.finance-card--skeleton .finance-card__menu-btn,
+.finance-card--skeleton .finance-card__menu-item {
+  display: none;
+}
+
+.finance-card--skeleton .finance-grid__item {
+  padding: 0.5rem 0.65rem;
+}
+
+@keyframes finance-skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
 .finance-card__content {
   display: flex;
   flex-direction: column;

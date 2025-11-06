@@ -13,7 +13,7 @@ import {
 } from "../../../features/finance/apiFinance";
 import { formatTimestamp } from "../../../features/finance/utils/formatTimestamp";
 import AddExpenses from "../../../components/Expenses/AddExpenses/AddExpenses";
-import SpinLoader from "../../../components/UI reusables/SpinLoader/SpinLoader";
+import FinanceCardSkeleton from "../../../components/Finance/FinanceCardSkeleton";
 import { t, TranslationKey } from "../../../utils/i18n";
 const EXPENSES_UPDATE_SUCCESS = "expenses.update.success" as TranslationKey;
 const EXPENSES_UPDATE_ERROR = "expenses.update.error" as TranslationKey;
@@ -352,9 +352,7 @@ const Expenses: React.FC = () => {
 
       <section className="finance-section">
         {loading ? (
-          <div className="finance-state">
-            <SpinLoader />
-          </div>
+          <FinanceCardSkeleton count={4} />
         ) : error ? (
           <p role="alert" className="finance-state finance-state--error">
             {t("common.error")}: {error}

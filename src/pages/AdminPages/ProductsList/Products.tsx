@@ -3,7 +3,6 @@ import { useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import "../../../styles/financeRecords.css";
 import "../../../components/Customers/CustomerInvoices/CustomerInvoices.css";
-import SpinLoader from "../../../components/UI reusables/SpinLoader/SpinLoader";
 import AddProducts from "../../../components/Products/AddProducts";
 import {
   selectUserCompanyId,
@@ -12,6 +11,7 @@ import {
 } from "../../../redux/selectors/user";
 import { useProducts, Product } from "../../../features/products/hooks/useProducts";
 import { updateProduct, UpdateProductPayload } from "../../../features/products/apiProducts";
+import FinanceCardSkeleton from "../../../components/Finance/FinanceCardSkeleton";
 import { t, TranslationKey } from "../../../utils/i18n";
 
 const PRODUCTS_UPDATE_SUCCESS = "products.update.success" as TranslationKey;
@@ -269,9 +269,7 @@ const ProductsList: React.FC = () => {
 
       <section className="finance-section">
         {loading ? (
-          <div className="finance-state">
-            <SpinLoader />
-          </div>
+          <FinanceCardSkeleton count={4} />
         ) : error ? (
           <p role="alert" className="finance-state finance-state--error">
             {errorMessage}

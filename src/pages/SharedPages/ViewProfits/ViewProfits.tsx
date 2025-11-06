@@ -16,8 +16,8 @@ import {
   UpdateExtraProfitPayload,
 } from "../../../features/finance/apiFinance";
 import { formatTimestamp } from "../../../features/finance/utils/formatTimestamp";
-import SpinLoader from "../../../components/UI reusables/SpinLoader/SpinLoader";
 import AddProfits from "../../../components/Profits/AddProfits/AddProfits";
+import FinanceCardSkeleton from "../../../components/Finance/FinanceCardSkeleton";
 import { t, TranslationKey } from "../../../utils/i18n";
 const PROFITS_UPDATE_SUCCESS = "profits.update.success" as TranslationKey;
 const PROFITS_UPDATE_ERROR = "profits.update.error" as TranslationKey;
@@ -357,9 +357,7 @@ const ExtraProfits: React.FC = () => {
 
       <section className="finance-section">
         {loading ? (
-          <div className="finance-state">
-            <SpinLoader />
-          </div>
+          <FinanceCardSkeleton count={4} />
         ) : error ? (
           <p role="alert" className="finance-state finance-state--error">
             {t("common.error")}: {error}
