@@ -6,7 +6,7 @@
 export function formatTimestamp(timestamp: string): string {
   const date = new Date(timestamp);
   // Adjust the received timestamp by subtracting 2 hours for the Beirut timezone
-  date.setHours(date.getHours() - 2);
+  date.setHours(date.getHours());
 
   const options: Intl.DateTimeFormatOptions = {
     timeZone: "Asia/Beirut",
