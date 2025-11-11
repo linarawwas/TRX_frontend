@@ -26,6 +26,7 @@ import AssignDistributorInline from "../../Distributors/AssignDistributorInline"
 import { OpeningEditor } from "./OpeningEditor";
 
 type Area = { _id: string; name: string };
+type CustomerLite = { _id: string; name: string; sequence?: number | null };
 
 // ——— helpers ———
 const API_BASE = "http://localhost:5000";
@@ -79,13 +80,12 @@ export default function UpdateCustomer() {
     valueAfterDiscount: 0,
     discountCurrency: "",
     noteAboutCustomer: "",
-    sequence: "",
+    placement: "",
   });
-  const [areaSequenceInfo, setAreaSequenceInfo] = useState<{
-    loading: boolean;
-    taken: number[];
-    next: number;
-  }>({ loading: false, taken: [], next: 1 });
+  const [areaCustomers, setAreaCustomers] = useState<CustomerLite[]>([]);
+  const [placementLoading, setPlacementLoading] = useState(false);
+const [confirmOpen, setConfirmOpen] = useState(false);
+const [pendingChanges, setPendingChanges] = useState<Record<string, any> | null>(null);
 
   // ——— fetchers ———
   const fetchAreas = useCallback(() => {
@@ -128,49 +128,64 @@ export default function UpdateCustomer() {
   const currentAreaId = customerData?.areaId?._id || "";
   const areaChanged =
     !!updatedInfo.areaId && updatedInfo.areaId !== currentAreaId;
+  const targetAreaId = updatedInfo.areaId || currentAreaId;
 
   useEffect(() => {
-    if (!areaChanged || !updatedInfo.areaId) {
-      setAreaSequenceInfo({ loading: false, taken: [], next: 1 });
+    if (!targetAreaId) {
+      setAreaCustomers([]);
       return;
     }
-
     let cancelled = false;
     (async () => {
       try {
-        setAreaSequenceInfo((prev) => ({ ...prev, loading: true }));
+        setPlacementLoading(true);
         const res = await fetch(
-          `${API_BASE}/api/customers/area/${updatedInfo.areaId}`,
+          `${API_BASE}/api/customers/area/${targetAreaId}/active`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        const data = await res.json();
+        if (!res.ok) throw new Error("Failed to fetch customers");
+        const list: CustomerLite[] = await res.json();
         if (cancelled) return;
-        const taken = Array.isArray(data)
-          ? data
-              .map((c: any) =>
-                typeof c.sequence === "number" ? c.sequence : null
-              )
-              .filter((n: number | null): n is number =>
-                n != null && Number.isInteger(n) && n >= 1
-              )
-              .sort((a: number, b: number) => a - b)
+        const filtered = Array.isArray(list)
+          ? list.filter((c) => String(c._id) !== String(customerId))
           : [];
-        const next = taken.length ? taken[taken.length - 1] + 1 : 1;
-        setAreaSequenceInfo({ loading: false, taken, next });
+        const sorted = [...filtered].sort((a, b) => {
+          const sa = a.sequence ?? Number.POSITIVE_INFINITY;
+          const sb = b.sequence ?? Number.POSITIVE_INFINITY;
+          if (sa !== sb) return sa - sb;
+          return (a.name || "").localeCompare(b.name || "", "ar");
+        });
+        setAreaCustomers(sorted);
       } catch (err) {
         if (cancelled) return;
-        console.error("load area sequences error", err);
-        setAreaSequenceInfo({ loading: false, taken: [], next: 1 });
-        toast.error("تعذر تحميل الترتيب الحالي للمنطقة المختارة");
+        console.error("Unable to load placement options", err);
+        setAreaCustomers([]);
+        toast.error("تعذر تحميل زبائن المنطقة للترتيب");
+      } finally {
+        if (!cancelled) setPlacementLoading(false);
       }
     })();
-
     return () => {
       cancelled = true;
     };
-  }, [areaChanged, updatedInfo.areaId, token]);
+  }, [targetAreaId, token, customerId]);
+
+  const placementOptions = useMemo(() => {
+    const base = [
+      { value: "__START__", label: "في بداية القائمة" },
+      { value: "__END__", label: "في نهاية القائمة" },
+    ];
+    if (!targetAreaId || areaCustomers.length === 0) return base;
+    return [
+      ...base,
+      ...areaCustomers.map((c) => ({
+        value: c._id,
+        label: `${c.sequence ? `#${c.sequence} — ` : ""}${c.name}`,
+      })),
+    ];
+  }, [areaCustomers, targetAreaId]);
 
   // ——— handlers ———
   const handleChange = (
@@ -179,44 +194,52 @@ export default function UpdateCustomer() {
     const { name, value } = e.target;
     if (name === "phone" && !/^\d*$/.test(value))
       return toast.error("أدخل أرقام فقط");
-    if (name === "sequence") {
-      if (value === "" || /^\d*$/.test(value)) {
-        setUpdatedInfo((prev) => ({ ...prev, sequence: value }));
-      }
-      return;
-    }
     if (name === "areaId") {
       setUpdatedInfo((prev) => ({
         ...prev,
         areaId: value,
-        sequence:
-          value && customerData?.areaId?._id === value ? prev.sequence : "",
+        placement:
+          value && customerData?.areaId?._id === value ? prev.placement : "__END__",
+      }));
+      return;
+    }
+    if (name === "placement") {
+      setUpdatedInfo((prev) => ({
+        ...prev,
+        placement: value,
       }));
       return;
     }
     setUpdatedInfo((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     const changes: any = {};
     if (t(updatedInfo.name)) changes.name = t(updatedInfo.name);
     if (t(updatedInfo.phone)) changes.phone = t(updatedInfo.phone);
     if (t(updatedInfo.address)) changes.address = t(updatedInfo.address);
-    if (areaChanged && !updatedInfo.sequence) {
-      return toast.error("عيّن رقم الترتيب الجديد قبل الحفظ");
+    if (areaChanged && !updatedInfo.placement) {
+      return toast.error("عيّن ترتيبًا جديدًا داخل المنطقة قبل الحفظ");
     }
 
     if (t(updatedInfo.areaId) && areaChanged)
       changes.areaId = t(updatedInfo.areaId);
 
-    if (updatedInfo.sequence) {
-      changes.sequence = Number(updatedInfo.sequence);
+    if (updatedInfo.placement) {
+      changes.placement = updatedInfo.placement;
     }
 
     if (Object.keys(changes).length === 0)
       return toast.info("لا توجد تغييرات لإرسالها");
 
+    setPendingChanges(changes);
+    setConfirmOpen(true);
+  };
+
+  const submitUpdate = async () => {
+    if (!pendingChanges) return;
+    setIsMutating(true);
     try {
       const res = await fetch(`${API_BASE}/api/customers/${customerId}`, {
         method: "PATCH",
@@ -224,7 +247,7 @@ export default function UpdateCustomer() {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(changes),
+        body: JSON.stringify(pendingChanges),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -238,11 +261,15 @@ export default function UpdateCustomer() {
         phone: "",
         address: "",
         areaId: "",
-        sequence: "",
+        placement: "",
       }));
+      setConfirmOpen(false);
+      setPendingChanges(null);
       fetchCustomer();
     } catch (e: any) {
       toast.error(e?.message || "فشل التحديث");
+    } finally {
+      setIsMutating(false);
     }
   };
 
@@ -563,71 +590,40 @@ export default function UpdateCustomer() {
                 </select>
               </div>
 
-              {(areaChanged || customerData?.sequence) && (
+              <div className="ucx-field ucx-field--full">
+                <label htmlFor="ucx-placement" className="ucx-label">
+                  الموضع داخل المنطقة
+                </label>
+                <select
+                  id="ucx-placement"
+                  name="placement"
+                  className="ucx-select"
+                  value={updatedInfo.placement}
+                  onChange={handleChange}
+                  disabled={placementLoading || !targetAreaId}
+                >
+                  <option value="">
+                    {targetAreaId
+                      ? "(احتفظ بالموضع الحالي)"
+                      : "اختر منطقة أولاً"}
+                  </option>
+                  {placementOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                <small className="ucx-hint">
+                  {placementLoading
+                    ? "جارٍ تحميل مواقع الزبائن…"
+                    : "يمكنك تحديد موقع الزبون بالنسبة لباقي زبائن المنطقة."}
+                </small>
+              </div>
+
+              {customerData?.sequence != null && (
                 <div className="ucx-field ucx-field--full">
-                  <label htmlFor="ucx-sequence" className="ucx-label">
-                    الترتيب داخل المنطقة
-                  </label>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "0.5rem",
-                      alignItems: "center",
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    <input
-                      id="ucx-sequence"
-                      className="ucx-input"
-                      type="number"
-                      min={1}
-                      inputMode="numeric"
-                      name="sequence"
-                      value={updatedInfo.sequence}
-                      placeholder={
-                        areaChanged
-                          ? areaSequenceInfo.loading
-                            ? "جارٍ التحميل…"
-                            : `مثال: ${areaSequenceInfo.next}`
-                          : customerData?.sequence
-                          ? String(customerData.sequence)
-                          : "أدخل الرقم"
-                      }
-                      onChange={handleChange}
-                    />
-                    {areaChanged && (
-                      <button
-                        type="button"
-                        className="ucx-btn secondary sm"
-                        onClick={() =>
-                          setUpdatedInfo((prev) => ({
-                            ...prev,
-                            sequence: String(areaSequenceInfo.next || 1),
-                          }))
-                        }
-                        disabled={areaSequenceInfo.loading}
-                      >
-                        استخدام {areaSequenceInfo.next}
-                      </button>
-                    )}
-                  </div>
-                  {areaChanged ? (
-                    <small className="ucx-hint">
-                      {areaSequenceInfo.loading
-                        ? "جارٍ تحميل مواقع الزبائن في المنطقة الجديدة…"
-                        : areaSequenceInfo.taken.length
-                        ? `الأرقام المستخدمة حاليًا: ${areaSequenceInfo.taken
-                            .slice(0, 12)
-                            .join(", ")}${
-                            areaSequenceInfo.taken.length > 12 ? " …" : ""
-                          }. الرقم التالي المتاح: ${areaSequenceInfo.next}`
-                        : "لا يوجد زبائن نشطون في هذه المنطقة. أي رقم يبدأ من 1 متاح."}
-                    </small>
-                  ) : customerData?.sequence ? (
-                    <small className="ucx-hint">
-                      الترتيب الحالي: #{customerData.sequence}
-                    </small>
-                  ) : null}
+                  <label className="ucx-label">الترتيب الحالي</label>
+                  <div className="ucx-readonly">#{customerData.sequence}</div>
                 </div>
               )}
             </div>
@@ -746,6 +742,87 @@ export default function UpdateCustomer() {
           )}
         </main>
       </div>
+
+      {confirmOpen && pendingChanges && (
+        <div className="ucx-modal" role="dialog" aria-modal="true">
+          <div className="ucx-modal__panel">
+            <div className="ucx-modal__header">
+              <h3>تأكيد تحديث الزبون</h3>
+              <button
+                className="ucx-iconBtn"
+                onClick={() => {
+                  if (!isMutating) {
+                    setConfirmOpen(false);
+                    setPendingChanges(null);
+                  }
+                }}
+                aria-label="إغلاق"
+                disabled={isMutating}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="ucx-modal__body">
+              <p className="ucx-hint">راجع التعديلات التالية قبل حفظها:</p>
+              <ul className="ucx-summary">
+                {pendingChanges.name && (
+                  <li>
+                    <strong>الاسم:</strong> {pendingChanges.name}
+                  </li>
+                )}
+                {pendingChanges.phone && (
+                  <li>
+                    <strong>الهاتف:</strong> {pendingChanges.phone}
+                  </li>
+                )}
+                {pendingChanges.address && (
+                  <li>
+                    <strong>العنوان:</strong> {pendingChanges.address}
+                  </li>
+                )}
+                {pendingChanges.areaId && (
+                  <li>
+                    <strong>المنطقة الجديدة:</strong>{" "}
+                    {areas.find((a) => a._id === pendingChanges.areaId)?.name ||
+                      pendingChanges.areaId}
+                  </li>
+                )}
+                {pendingChanges.placement && (
+                  <li>
+                    <strong>الموضع داخل المنطقة:</strong>{" "}
+                    {
+                      placementOptions.find(
+                        (opt) => String(opt.value) === String(pendingChanges.placement)
+                      )?.label
+                    }
+                  </li>
+                )}
+              </ul>
+            </div>
+            <div className="ucx-modal__actions">
+              <button
+                className="ucx-btn secondary"
+                onClick={() => {
+                  if (!isMutating) {
+                    setConfirmOpen(false);
+                    setPendingChanges(null);
+                  }
+                }}
+                disabled={isMutating}
+              >
+                تعديل
+              </button>
+              <button
+                className="ucx-btn primary"
+                onClick={submitUpdate}
+                disabled={isMutating}
+              >
+                {isMutating ? "جارٍ الحفظ…" : "تأكيد الحفظ"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Delete modal */}
       {showDeleteModal && (
