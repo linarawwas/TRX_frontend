@@ -109,6 +109,7 @@ const RecordOrder: React.FC<Props> = (props) => {
     paidUSD: 0,
     paidLBP: 0,
   });
+  const [maxReturnable, setMaxReturnable] = useState<number>(0);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -124,9 +125,47 @@ const RecordOrder: React.FC<Props> = (props) => {
     if (name === "delivered") {
       next = Math.max(0, Math.min(next, remaining));
     }
+    if (name === "returned") {
+      next = Math.max(0, Math.min(next, maxReturnable));
+    }
   
     setForm((p) => ({ ...p, [name]: next }));
   };
+  useEffect(() => {
+    let cancelled = false;
+    if (!customerId) {
+      setMaxReturnable(0);
+      return;
+    }
+
+    (async () => {
+      try {
+        const sums = await getAdjustedInvoiceSums(customerId, companyId);
+        if (cancelled) return;
+        const limit = Math.max(0, sums?.bottlesLeft || 0);
+        setMaxReturnable(limit);
+        setForm((prev) => {
+          if (prev.returned > limit) {
+            return { ...prev, returned: limit };
+          }
+          return prev;
+        });
+      } catch (error) {
+        console.error("Failed to load current bottles left", error);
+        if (!cancelled) {
+          setMaxReturnable(0);
+          setForm((prev) =>
+            prev.returned > 0 ? { ...prev, returned: 0 } : prev
+          );
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [customerId, companyId]);
+
   
 
   /* ---------- cache default product ---------- */
@@ -164,6 +203,7 @@ const RecordOrder: React.FC<Props> = (props) => {
       const step = field === "paidLBP" ? 1000 : 1;
       let next = Number(p[field] || 0) + step;
       if (field === "delivered") next = Math.min(next, remaining);
+      if (field === "returned") next = Math.min(next, maxReturnable);
       return { ...p, [field]: Math.max(0, next) };
     });
 
@@ -514,6 +554,14 @@ const orderPayload: OrderPayload = {
               >
                 +
               </button>
+            </div>
+            <div className={`roc-hint ${maxReturnable === 0 ? "locked" : ""}`}>
+              الحد الأقصى للإرجاع: <strong>{maxReturnable}</strong>{" "}
+              {maxReturnable === 0 && (
+                <>
+                  • <span className="lock">لا يمكنك إرجاع أكثر من القناني المتبقية</span>
+                </>
+              )}
             </div>
           </div>
 
