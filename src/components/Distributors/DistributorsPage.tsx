@@ -6,26 +6,61 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Link } from "react-router-dom";
 import AddToModel from "../AddToModel/AddToModel";
+import { createDistributor } from "../../utils/distributorApi";
 import {
-  distributorsSummary,
-  createDistributor,
-} from "../../utils/distributorApi";
+  fetchCustomersByCompany,
+  CustomersResponse,
+  Customer as CustomerRecord,
+} from "../../features/customers/apiCustomers";
+import {
+  fetchOrdersByCompany,
+  Order,
+} from "../../features/orders/apiOrders";
+import {
+  listCompanyProducts,
+  ProductResponse,
+} from "../../features/products/apiProducts";
 
 /** Date helpers */
 function iso(d: Date) {
   return d.toISOString().slice(0, 10);
 }
-function thisMonthRange() {
-  const now = new Date();
-  const from = new Date(now.getFullYear(), now.getMonth(), 1);
-  const to = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-  return { from: iso(from), to: iso(to) };
+
+function monthKeyFromDate(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  return `${year}-${month}`;
 }
-function lastMonthRange() {
-  const now = new Date();
-  const from = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const to = new Date(now.getFullYear(), now.getMonth(), 0);
-  return { from: iso(from), to: iso(to) };
+
+function addMonths(base: Date, offset: number) {
+  const clone = new Date(base.getTime());
+  clone.setMonth(clone.getMonth() + offset);
+  return clone;
+}
+
+function computeMonthRange(monthKey: string) {
+  const [yearPart, monthPart] = monthKey.split("-");
+  const year = Number(yearPart);
+  const monthIndex = Number(monthPart) - 1;
+  if (
+    !Number.isFinite(year) ||
+    !Number.isFinite(monthIndex) ||
+    monthIndex < 0 ||
+    monthIndex > 11
+  ) {
+    throw new Error(`Invalid month key: ${monthKey}`);
+  }
+  const start = new Date(year, monthIndex, 1);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(year, monthIndex + 1, 0);
+  end.setHours(23, 59, 59, 999);
+  return {
+    key: monthKey,
+    from: iso(start),
+    to: iso(end),
+    start,
+    end,
+  };
 }
 
 /** Shape guards to normalize API responses */
@@ -36,34 +71,49 @@ function normalizeListResponse(json: any) {
   if (Array.isArray(json?.data)) return json.data;
   return [];
 }
-function normalizeSummaryResponse(json: any) {
-  if (Array.isArray(json)) return json;
-  if (Array.isArray(json?.summaries)) return json.summaries;
-  if (Array.isArray(json?.data)) return json.data;
-  return [];
-}
+
+type DistributorRow = {
+  _id: string;
+  name?: string;
+  phone?: string;
+  commissionPct?: number;
+};
+
+type CustomerWithDistributor = CustomerRecord & {
+  distributorId?: string | null;
+};
 
 const DistributorsPage: React.FC = () => {
   const token = useSelector((s: RootState) => s.user.token) as string;
+  const companyId = useSelector((s: RootState) => s.user.companyId) as string;
 
-  /** Range & controls */
-  const [range, setRange] = useState(thisMonthRange());
-  const isThisMonth = useMemo(
-    () => JSON.stringify(range) === JSON.stringify(thisMonthRange()),
-    [range]
-  );
-  const isLastMonth = useMemo(
-    () => JSON.stringify(range) === JSON.stringify(lastMonthRange()),
-    [range]
-  );
+  /** Month range selection */
+  const [monthKey, setMonthKey] = useState(() => monthKeyFromDate(new Date()));
+  const thisMonthKey = monthKeyFromDate(new Date());
+  const lastMonthKey = monthKeyFromDate(addMonths(new Date(), -1));
+  const range = useMemo(() => {
+    try {
+      return computeMonthRange(monthKey);
+    } catch (error) {
+      console.error("Invalid month key, falling back to current month:", error);
+      return computeMonthRange(thisMonthKey);
+    }
+  }, [monthKey, thisMonthKey]);
+  const isThisMonth = monthKey === thisMonthKey;
+  const isLastMonth = monthKey === lastMonthKey;
 
   /** Base directory list (id, name, …) */
-  const [distributors, setDistributors] = useState<any[]>([]);
+  const [distributors, setDistributors] = useState<DistributorRow[]>([]);
   const [listLoading, setListLoading] = useState(true);
 
-  /** Range-based summary rows (revenue, commission, delivered, counts, …) */
-  const [summaries, setSummaries] = useState<any[]>([]);
-  const [summaryLoading, setSummaryLoading] = useState(false);
+  /** Supporting data for metric calculations */
+  const [customers, setCustomers] = useState<CustomerWithDistributor[]>([]);
+  const [customersLoading, setCustomersLoading] = useState(false);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [products, setProducts] = useState<ProductResponse[]>([]);
+  const [productsLoading, setProductsLoading] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState<string>("");
 
   /** UI: search & create modal */
   const [search, setSearch] = useState("");
@@ -77,7 +127,7 @@ const DistributorsPage: React.FC = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       const json = await res.json().catch(() => null);
-      setDistributors(normalizeListResponse(json));
+      setDistributors(normalizeListResponse(json) as DistributorRow[]);
     } catch (e) {
       console.error("Failed to load distributors:", e);
       setDistributors([]);
@@ -87,27 +137,71 @@ const DistributorsPage: React.FC = () => {
     }
   }, [token]);
 
-  /** Fetch range-based summaries */
-  const fetchSummaries = useCallback(async () => {
-    setSummaryLoading(true);
+  /** Fetch all customers (active + inactive) belonging to the company */
+  const fetchCustomers = useCallback(async () => {
+    setCustomersLoading(true);
     try {
-      const raw = await distributorsSummary(token, range); // GET /api/distributors/summary?from&to
-      setSummaries(normalizeSummaryResponse(raw));
+      const payload: CustomersResponse = await fetchCustomersByCompany(token);
+      const active = Array.isArray(payload?.active) ? payload.active : [];
+      const inactive = Array.isArray(payload?.inactive) ? payload.inactive : [];
+      setCustomers([
+        ...(active as CustomerWithDistributor[]),
+        ...(inactive as CustomerWithDistributor[]),
+      ]);
     } catch (e: any) {
-      toast.error(e?.message || "فشل تحميل بيانات الملخص");
-      setSummaries([]);
+      console.error("Failed to load customers:", e);
+      setCustomers([]);
+      toast.error(e?.message || "فشل تحميل بيانات العملاء");
     } finally {
-      setSummaryLoading(false);
+      setCustomersLoading(false);
     }
-  }, [token, range]);
+  }, [token]);
+
+  /** Fetch all orders for the company (filtered locally by month) */
+  const fetchOrders = useCallback(async () => {
+    if (!companyId) return;
+    setOrdersLoading(true);
+    try {
+      const payload = await fetchOrdersByCompany(token, companyId);
+      setOrders(Array.isArray(payload) ? payload : []);
+    } catch (e: any) {
+      console.error("Failed to load orders:", e);
+      setOrders([]);
+      toast.error(e?.message || "فشل تحميل الطلبيات");
+    } finally {
+      setOrdersLoading(false);
+    }
+  }, [token, companyId]);
+
+  /** Fetch products once so user can choose the pricing basis */
+  const fetchProducts = useCallback(async () => {
+    if (!companyId) return;
+    setProductsLoading(true);
+    try {
+      const payload = await listCompanyProducts(token, companyId);
+      setProducts(Array.isArray(payload) ? payload : []);
+    } catch (e: any) {
+      console.error("Failed to load products:", e);
+      setProducts([]);
+      toast.error(e?.message || "فشل تحميل المنتجات");
+    } finally {
+      setProductsLoading(false);
+    }
+  }, [token, companyId]);
 
   /** Initial load + range updates */
   useEffect(() => {
     fetchList();
   }, [fetchList]);
   useEffect(() => {
-    fetchSummaries();
-  }, [fetchSummaries]);
+    fetchCustomers();
+  }, [fetchCustomers]);
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   /** Filter by search (name/phone) */
   const filtered = useMemo(() => {
@@ -121,28 +215,79 @@ const DistributorsPage: React.FC = () => {
     );
   }, [distributors, search]);
 
+  const selectedProduct = useMemo(
+    () => products.find((p) => p._id === selectedProductId) || null,
+    [products, selectedProductId]
+  );
+  const pricePerBottle = selectedProduct?.priceInDollars ?? 0;
+
+  /** Build lookup tables for customers -> distributors */
+  const customerLookups = useMemo(() => {
+    const customerToDistributor = new Map<string, string>();
+    const customerIdsByDistributor = new Map<string, Set<string>>();
+    for (const c of customers) {
+      const distributorId = c?.distributorId ? String(c.distributorId) : "";
+      if (!distributorId) continue;
+      const cid = String(c._id);
+      customerToDistributor.set(cid, distributorId);
+      if (!customerIdsByDistributor.has(distributorId)) {
+        customerIdsByDistributor.set(distributorId, new Set<string>());
+      }
+      customerIdsByDistributor.get(distributorId)!.add(cid);
+    }
+    return { customerToDistributor, customerIdsByDistributor };
+  }, [customers]);
+
+  const deliveredByDistributor = useMemo(() => {
+    const map = new Map<string, number>();
+    const startTime = range.start.getTime();
+    const endTime = range.end.getTime();
+    for (const order of orders) {
+      const rawCustomerId =
+        (order as any).customerid ?? order.customerId ?? order.customer?._id;
+      if (!rawCustomerId) continue;
+      const distributorId = customerLookups.customerToDistributor.get(
+        String(rawCustomerId)
+      );
+      if (!distributorId) continue;
+      const timestamp = order.timestamp ? new Date(order.timestamp).getTime() : NaN;
+      if (!Number.isFinite(timestamp)) continue;
+      if (timestamp < startTime || timestamp > endTime) continue;
+      const delivered = Number(order.delivered ?? 0);
+      map.set(distributorId, (map.get(distributorId) ?? 0) + (Number.isFinite(delivered) ? delivered : 0));
+    }
+    return map;
+  }, [orders, range, customerLookups.customerToDistributor]);
+
   /**
-   * Merge base directory with summaries by distributorId/_id
-   * - O(1) lookup using Map
-   * - Ensures cards show consistent, real KPIs for the selected range
+   * Merge base directory with locally-computed metrics
+   * - Customers counted via customer list
+   * - Delivered sum filtered by selected month
+   * - Revenue and commission derived from selected product price
    */
   const enriched = useMemo(() => {
-    const byId = new Map<string, any>();
-    for (const row of summaries) {
-      const key = String(row.distributorId ?? row._id ?? "");
-      if (key) byId.set(key, row);
-    }
     return filtered.map((d) => {
       const key = String(d._id);
-      const s = byId.get(key) || {};
-      // Normalize KPI fields with safe fallbacks
-      const customersCount = s.customersCount ?? d.customersCount ?? 0;
-      const deliveredSum = s.deliveredSum ?? s.bottlesDelivered ?? 0;
-      const revenueUSD = Number(s.revenueUSD ?? 0);
-      const commissionUSD = Number(s.commissionUSD ?? 0);
-      return { ...d, customersCount, deliveredSum, revenueUSD, commissionUSD };
+      const customerIds =
+        customerLookups.customerIdsByDistributor.get(key) ?? new Set<string>();
+      const customersCount = customerIds.size;
+      const deliveredSum = deliveredByDistributor.get(key) ?? 0;
+      const revenueUSD =
+        pricePerBottle > 0 ? Number((deliveredSum * pricePerBottle).toFixed(2)) : 0;
+      const commissionPct = Number(d.commissionPct ?? 0);
+      const commissionUSD = Number(
+        ((revenueUSD * commissionPct) / 100 || 0).toFixed(2)
+      );
+      return {
+        ...d,
+        customersCount,
+        deliveredSum,
+        revenueUSD,
+        commissionUSD,
+        commissionPct,
+      };
     });
-  }, [filtered, summaries]);
+  }, [filtered, customerLookups.customerIdsByDistributor, deliveredByDistributor, pricePerBottle]);
 
   /** Create distributor modal fields */
   const createFields = {
@@ -151,7 +296,8 @@ const DistributorsPage: React.FC = () => {
   } as const;
 
   /** Unified loading/empty handling */
-  const loading = listLoading || summaryLoading;
+  const loading =
+    listLoading || customersLoading || ordersLoading || productsLoading;
   const isEmpty = !loading && enriched.length === 0;
 
   return (
@@ -166,33 +312,51 @@ const DistributorsPage: React.FC = () => {
           <div className="range">
             <button
               className={`chip ${isThisMonth ? "active" : ""}`}
-              onClick={() => setRange(thisMonthRange())}
+              onClick={() => setMonthKey(thisMonthKey)}
             >
               هذا الشهر
             </button>
             <button
               className={`chip ${isLastMonth ? "active" : ""}`}
-              onClick={() => setRange(lastMonthRange())}
+              onClick={() => setMonthKey(lastMonthKey)}
             >
               الشهر الماضي
             </button>
             <div className="custom-range">
               <input
-                type="date"
-                value={range.from}
-                onChange={(e) =>
-                  setRange((r) => ({ ...r, from: e.target.value }))
-                }
-              />
-              <span>—</span>
-              <input
-                type="date"
-                value={range.to}
-                onChange={(e) =>
-                  setRange((r) => ({ ...r, to: e.target.value }))
-                }
+                type="month"
+                value={monthKey}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value) {
+                    setMonthKey(value);
+                  }
+                }}
               />
             </div>
+          </div>
+
+          {/* Product select controls sales calculation */}
+          <div className="product-filter">
+            <label htmlFor="dist-product" className="product-filter__label">
+              سعر المنتج للحساب
+            </label>
+            <select
+              id="dist-product"
+              className="product-filter__select"
+              value={selectedProductId}
+              onChange={(e) => setSelectedProductId(e.target.value)}
+              disabled={productsLoading || products.length === 0}
+            >
+              <option value="">
+                {productsLoading ? "جارٍ التحميل…" : "اختر المنتج"}
+              </option>
+              {products.map((product) => (
+                <option key={product._id} value={product._id}>
+                  {product.type} — ${product.priceInDollars.toFixed(2)}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Search (wired to filter) */}
@@ -241,7 +405,12 @@ const DistributorsPage: React.FC = () => {
                 </div>
                 <div className="metric">
                   <div className="k">العمولة $</div>
-                  <div className="v">{d.commissionUSD.toFixed(2)}</div>
+                  <div className="v">
+                    {d.commissionUSD.toFixed(2)}{" "}
+                    <span className="metric__hint">
+                      ({Number(d.commissionPct || 0).toFixed(0)}%)
+                    </span>
+                  </div>
                 </div>
               </div>
             </Link>
@@ -270,7 +439,7 @@ const DistributorsPage: React.FC = () => {
             setShowCreate(false);
             // Refresh both lists so card appears with correct KPIs
             await fetchList();
-            await fetchSummaries();
+            await fetchCustomers();
           }}
           onCancel={() => setShowCreate(false)}
           confirmBuilder={(data) => ({

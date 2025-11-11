@@ -109,3 +109,33 @@
   font-weight: 800;
   color: #082338;
 }
+
+.product-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.product-filter__label {
+  font-size: 0.85rem;
+  color: #35506b;
+}
+
+.product-filter__select {
+  min-width: 220px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid #cdd5df;
+  background: #fff;
+  color: #082338;
+}
+
+.metric__hint {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #35506b;
+  margin-inline-start: 4px;
+}
