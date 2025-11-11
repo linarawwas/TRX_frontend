@@ -222,7 +222,6 @@ const DistributorDetails: React.FC = () => {
               <div className="table">
                 <div className="row head">
                   <div className="c name">الاسم</div>
-                  <div className="c area">المنطقة</div>
                   <div className="c delivered">المسلّم</div>
                   <div className="c total">التكلفة $</div>
                   <div className="c actions">إجراء</div>
@@ -235,7 +234,6 @@ const DistributorDetails: React.FC = () => {
                       </Link>
                       {c.phone ? <span className="muted"> • {c.phone}</span> : null}
                     </div>
-                    <div className="c area">{c.areaName || "—"}</div>
                     <div className="c delivered">{c.deliveredSum ?? 0}</div>
                     <div className="c total">{(c.revenueUSD ?? 0).toFixed(2)}</div>
                     <div className="c actions">
