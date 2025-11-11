@@ -73,14 +73,6 @@ const DistributorDetails: React.FC = () => {
     return distributors.find((d) => String(d._id) === String(id)) || null;
   }, [distributors, id]);
 
-  useEffect(() => {
-    if (!distributor) return;
-    if (distributor.name) setEditName(distributor.name);
-    if (typeof distributor.commissionPct === "number") {
-      setEditPct(String(distributor.commissionPct));
-    }
-  }, [distributor]);
-
   const selectedProduct = useMemo(
     () => products.find((p) => p._id === selectedProductId) || null,
     [products, selectedProductId]
@@ -138,6 +130,17 @@ const DistributorDetails: React.FC = () => {
     }
   };
 
+  const startEditing = () => {
+    if (!distributor) return;
+    setEditName(distributor.name ?? "");
+    setEditPct(
+      typeof distributor.commissionPct === "number"
+        ? String(distributor.commissionPct)
+        : ""
+    );
+    setEditing(true);
+  };
+
   return (
     <div className="distd-wrap" dir="rtl">
       <ToastContainer position="top-right" autoClose={1200} />
@@ -173,7 +176,7 @@ const DistributorDetails: React.FC = () => {
           </div>
 
           {!editing ? (
-            <button className="btn secondary" onClick={()=>setEditing(true)}>تعديل</button>
+            <button className="btn secondary" onClick={startEditing}>تعديل</button>
           ) : (
             <div className="edit-actions">
               <button className="btn secondary" onClick={()=>setEditing(false)}>إلغاء</button>
