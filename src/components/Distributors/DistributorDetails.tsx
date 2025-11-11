@@ -1,72 +1,123 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./DistributorDetails.css";
 import { useParams, useSearchParams, Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { distributorSummary, distributorCustomers, unassignCustomerFromDistributor, updateDistributor } from "../../utils/distributorApi";
-
-function iso(d: Date) { return d.toISOString().slice(0,10); }
-function thisMonthRange() {
-  const now = new Date();
-  return { from: iso(new Date(now.getFullYear(), now.getMonth(), 1)), to: iso(new Date(now.getFullYear(), now.getMonth()+1,0)) };
-}
-function lastMonthRange() {
-  const now = new Date();
-  return { from: iso(new Date(now.getFullYear(), now.getMonth()-1, 1)), to: iso(new Date(now.getFullYear(), now.getMonth(), 0)) };
-}
+import { unassignCustomerFromDistributor, updateDistributor } from "../../utils/distributorApi";
+import MonthPicker from "./MonthPicker";
+import { deriveInitialMonthKeyFromRange, useMonthRange } from "./hooks/useMonthRange";
+import { useCompanyDistributorData } from "./hooks/useCompanyDistributorData";
+import { buildDistributorAnalytics } from "./utils/metrics";
+import { setDefaultProduct } from "../../redux/Defaults/action";
 
 const DistributorDetails: React.FC = () => {
   const token = useSelector((s: RootState) => s.user.token) as string;
+  const companyId = useSelector((s: RootState) => s.user.companyId) as string;
+  const selectedProductId = useSelector(
+    (s: RootState) => (s as any)?.default?.default_product || ""
+  );
+  const dispatch = useDispatch();
   const { id } = useParams<{ id: string }>();
   const [sp, setSp] = useSearchParams();
-  const [range, setRange] = useState(() => ({
-    from: sp.get("from") || thisMonthRange().from,
-    to: sp.get("to") || thisMonthRange().to
-  }));
 
-  const [summary, setSummary] = useState<any | null>(null);
-  const [customers, setCustomers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const initialMonthKey =
+    deriveInitialMonthKeyFromRange(sp.get("from"), sp.get("to")) ?? undefined;
+  const {
+    monthKey,
+    range,
+    setMonthKey,
+    thisMonthKey,
+    lastMonthKey,
+    isThisMonth,
+    isLastMonth,
+  } = useMonthRange({ initialMonthKey });
+
+  const {
+    distributors,
+    distributorsLoading,
+    customers,
+    customersLoading,
+    orders,
+    ordersLoading,
+    products,
+    productsLoading,
+    refreshCustomers,
+    refreshOrders,
+    refreshDistributors,
+  } = useCompanyDistributorData(token, companyId);
+
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState("");
   const [editPct, setEditPct] = useState<string>("");
 
-  const syncSearchParams = (r: {from:string; to:string}) => {
+  useEffect(() => {
     const next = new URLSearchParams(sp);
-    next.set("from", r.from); next.set("to", r.to);
+    const currentFrom = sp.get("from");
+    const currentTo = sp.get("to");
+    if (currentFrom === range.from && currentTo === range.to) return;
+    next.set("from", range.from);
+    next.set("to", range.to);
     setSp(next, { replace: true });
-  };
+  }, [range.from, range.to, setSp, sp]);
 
-  const load = async () => {
-    if (!id) return;
-    try {
-      setLoading(true);
-      const [s, cs] = await Promise.all([
-        distributorSummary(token, id, range),
-        distributorCustomers(token, id),
-      ]);
-      setSummary(s || null);
-      setCustomers(cs || []);
-      if (s?.name) setEditName(s.name);
-      if (typeof s?.commissionPct === "number") setEditPct(String(s.commissionPct));
-    } catch (e: any) {
-      toast.error(e?.message || "فشل التحميل");
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (!selectedProductId && products.length > 0) {
+      dispatch(setDefaultProduct(products[0]._id));
     }
-  };
+  }, [dispatch, products, selectedProductId]);
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [id, range.from, range.to]);
+  const distributor = useMemo(() => {
+    if (!id) return null;
+    return distributors.find((d) => String(d._id) === String(id)) || null;
+  }, [distributors, id]);
 
-  const totalRows = useMemo(() => customers.length, [customers]);
+  useEffect(() => {
+    if (!distributor) return;
+    if (distributor.name) setEditName(distributor.name);
+    if (typeof distributor.commissionPct === "number") {
+      setEditPct(String(distributor.commissionPct));
+    }
+  }, [distributor]);
+
+  const selectedProduct = useMemo(
+    () => products.find((p) => p._id === selectedProductId) || null,
+    [products, selectedProductId]
+  );
+  const pricePerBottle = selectedProduct?.priceInDollars ?? 0;
+
+  const analytics = useMemo(
+    () =>
+      buildDistributorAnalytics({
+        distributors,
+        customers,
+        orders,
+        range,
+        pricePerBottle,
+      }),
+    [distributors, customers, orders, range, pricePerBottle]
+  );
+
+  const distributorMetrics = distributor
+    ? analytics.distributors.get(String(distributor._id))
+    : undefined;
+
+  const customerRows = useMemo(() => {
+    if (!distributor) return [];
+    return analytics.customersByDistributor.get(String(distributor._id)) ?? [];
+  }, [analytics.customersByDistributor, distributor]);
+
+  const totalRows = customerRows.length;
+
+  const loading =
+    distributorsLoading || customersLoading || ordersLoading || productsLoading;
 
   const unassign = async (customerId: string) => {
     try {
       await unassignCustomerFromDistributor(token, customerId);
       toast.success("تم إلغاء الربط");
-      setCustomers((cs) => cs.filter((c) => c._id !== customerId));
+      await Promise.all([refreshCustomers(), refreshOrders(), refreshDistributors()]);
     } catch (e:any) {
       toast.error(e?.message || "فشل إلغاء الربط");
     }
@@ -81,7 +132,7 @@ const DistributorDetails: React.FC = () => {
       await updateDistributor(token, id, payload);
       toast.success("تم الحفظ");
       setEditing(false);
-      load();
+      await refreshDistributors();
     } catch (e:any) {
       toast.error(e?.message || "فشل التحديث");
     }
@@ -95,7 +146,12 @@ const DistributorDetails: React.FC = () => {
         <Link to="/distributors" className="back">↩︎</Link>
         {!editing ? (
           <h2 className="distd-title">
-            {summary?.name || "موزّع"} {typeof summary?.commissionPct === "number" ? <span className="pct">• عمولة: {summary.commissionPct}%</span> : null}
+            {distributor?.name || "موزّع"}{" "}
+            {typeof distributorMetrics?.commissionPct === "number" ? (
+              <span className="pct">
+                • عمولة: {distributorMetrics.commissionPct}%
+              </span>
+            ) : null}
           </h2>
         ) : (
           <div className="edit-row">
@@ -106,13 +162,14 @@ const DistributorDetails: React.FC = () => {
 
         <div className="distd-actions">
           <div className="range">
-            <button className={`chip ${JSON.stringify(range)===JSON.stringify(thisMonthRange())?"active":""}`} onClick={()=>{const r=thisMonthRange(); setRange(r); syncSearchParams(r);}}>هذا الشهر</button>
-            <button className={`chip ${JSON.stringify(range)===JSON.stringify(lastMonthRange())?"active":""}`} onClick={()=>{const r=lastMonthRange(); setRange(r); syncSearchParams(r);}}>الشهر الماضي</button>
-            <div className="custom-range">
-              <input type="date" value={range.from} onChange={(e)=>{const r={...range,from:e.target.value}; setRange(r); syncSearchParams(r);}} />
-              <span>—</span>
-              <input type="date" value={range.to} onChange={(e)=>{const r={...range,to:e.target.value}; setRange(r); syncSearchParams(r);}} />
-            </div>
+            <MonthPicker
+              monthKey={monthKey}
+              onMonthChange={setMonthKey}
+              thisMonthKey={thisMonthKey}
+              lastMonthKey={lastMonthKey}
+              isThisMonth={isThisMonth}
+              isLastMonth={isLastMonth}
+            />
           </div>
 
           {!editing ? (
@@ -128,26 +185,30 @@ const DistributorDetails: React.FC = () => {
 
       {loading ? (
         <p className="loading">جارٍ التحميل…</p>
-      ) : !summary ? (
+      ) : !distributor ? (
         <p className="empty">لا يوجد بيانات</p>
       ) : (
         <>
           <section className="distd-cards">
             <div className="card">
               <div className="k">العملاء</div>
-              <div className="v">{summary.customersCount ?? 0}</div>
+              <div className="v">{distributorMetrics?.customersCount ?? 0}</div>
             </div>
             <div className="card">
               <div className="k">المسلّم</div>
-              <div className="v">{summary.deliveredSum ?? 0}</div>
+              <div className="v">{distributorMetrics?.deliveredSum ?? 0}</div>
             </div>
             <div className="card">
               <div className="k">المبيعات $</div>
-              <div className="v">{(summary.revenueUSD ?? 0).toFixed(2)}</div>
+              <div className="v">
+                {(distributorMetrics?.revenueUSD ?? 0).toFixed(2)}
+              </div>
             </div>
             <div className="card">
               <div className="k">العمولة $</div>
-              <div className="v">{(summary.commissionUSD ?? 0).toFixed(2)}</div>
+              <div className="v">
+                {(distributorMetrics?.commissionUSD ?? 0).toFixed(2)}
+              </div>
             </div>
           </section>
 
@@ -155,7 +216,7 @@ const DistributorDetails: React.FC = () => {
             <div className="tbl-head">
               <div className="title">العملاء المرتبطون ({totalRows})</div>
             </div>
-            {customers.length === 0 ? (
+            {customerRows.length === 0 ? (
               <p className="muted">لا يوجد عملاء مرتبطون بهذا الموزّع.</p>
             ) : (
               <div className="table">
@@ -163,20 +224,27 @@ const DistributorDetails: React.FC = () => {
                   <div className="c name">الاسم</div>
                   <div className="c area">المنطقة</div>
                   <div className="c delivered">المسلّم</div>
-                  <div className="c total">الرصيد $</div>
+                  <div className="c total">التكلفة $</div>
                   <div className="c actions">إجراء</div>
                 </div>
-                {customers.map((c) => (
-                  <div className="row" key={c._id}>
+                {customerRows.map((c) => (
+                  <div className="row" key={c.customerId}>
                     <div className="c name">
-                      <Link to={`/updateCustomer/${c._id}`} className="link">{c.name}</Link>
+                      <Link to={`/updateCustomer/${c.customerId}`} className="link">
+                        {c.name}
+                      </Link>
                       {c.phone ? <span className="muted"> • {c.phone}</span> : null}
                     </div>
-                    <div className="c area">{c.areaId?.name || "—"}</div>
+                    <div className="c area">{c.areaName || "—"}</div>
                     <div className="c delivered">{c.deliveredSum ?? 0}</div>
-                    <div className="c total">{(c.totalUSD ?? 0).toFixed(2)}</div>
+                    <div className="c total">{(c.revenueUSD ?? 0).toFixed(2)}</div>
                     <div className="c actions">
-                      <button className="btn danger" onClick={()=>unassign(c._id)}>إلغاء الربط</button>
+                      <button
+                        className="btn danger"
+                        onClick={() => unassign(c.customerId)}
+                      >
+                        إلغاء الربط
+                      </button>
                     </div>
                   </div>
                 ))}
