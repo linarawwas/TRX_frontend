@@ -225,7 +225,7 @@ const StartShipment: React.FC = () => {
       try {
         const { year, month, day, weekday } = getBeirutParts();
         const response = await fetch(
-          `http://localhost:5000/api/days/name/${weekday}`,
+          `https://trx-api.linarawas.com/api/days/name/${weekday}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         if (!response.ok) throw new Error("Day info fetch failed");

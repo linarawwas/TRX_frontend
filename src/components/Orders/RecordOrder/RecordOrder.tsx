@@ -296,7 +296,7 @@ const RecordOrder: React.FC<Props> = (props) => {
     waMessage?: string | null
   ) => {
     const request = {
-      url: "http://localhost:5000/api/orders",
+      url: "https://trx-api.linarawas.com/api/orders",
       options: {
         method: "POST",
         headers: {
