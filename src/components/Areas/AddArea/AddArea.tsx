@@ -26,7 +26,7 @@ const AddArea: React.FC = () => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("https://trx-api.linarawas.com/api/days", {
+        const res = await fetch("http://localhost:5000/api/days", {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -69,7 +69,7 @@ const AddArea: React.FC = () => {
       companyId, // server may already infer it; include if your API expects it
     };
 
-    const res = await fetch("https://trx-api.linarawas.com/api/areas", {
+    const res = await fetch("http://localhost:5000/api/areas", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
