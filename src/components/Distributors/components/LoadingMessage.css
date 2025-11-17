@@ -1,0 +1,105 @@
+.loading-message {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 1px solid #bae6fd;
+  border-radius: 12px;
+  margin: 16px 0;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-message {
+    animation: none;
+  }
+}
+
+.loading-message__icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-message__icon {
+    animation: none;
+  }
+}
+
+.loading-message__content {
+  flex: 1;
+}
+
+.loading-message__text {
+  font-weight: 700;
+  color: #082338;
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.loading-message__subtext {
+  font-size: 0.85rem;
+  color: #35506b;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Enhanced visual feedback */
+.loading-message::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    #0d94dd 0%,
+    #06355e 50%,
+    #0d94dd 100%
+  );
+  background-size: 200% 100%;
+  animation: progress 2s ease-in-out infinite;
+  border-radius: 12px 12px 0 0;
+}
+
+@keyframes progress {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-message::before {
+    animation: none;
+    background: #0d94dd;
+  }
+}
+
+.loading-message {
+  position: relative;
+}
+

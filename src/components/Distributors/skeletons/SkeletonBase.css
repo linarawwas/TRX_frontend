@@ -1,0 +1,63 @@
+/* Base skeleton styles with shimmer animation */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 0%,
+    #f8f8f8 50%,
+    #f0f0f0 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+    background: #f0f0f0;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Skeleton variants */
+.skeleton-text {
+  height: 1em;
+  width: 100%;
+}
+
+.skeleton-text--short {
+  width: 60%;
+}
+
+.skeleton-text--medium {
+  width: 80%;
+}
+
+.skeleton-button {
+  height: 36px;
+  min-width: 80px;
+  border-radius: 10px;
+}
+
+.skeleton-card {
+  background: #fff;
+  border: 1px solid #cdd5df;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.skeleton-input {
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid #cdd5df;
+}
+

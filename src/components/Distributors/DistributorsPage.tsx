@@ -12,6 +12,11 @@ import { useCompanyDistributorData } from "./hooks/useCompanyDistributorData";
 import MonthPicker from "./MonthPicker";
 import { useMonthRange } from "./hooks/useMonthRange";
 import { buildDistributorAnalytics } from "./utils/metrics";
+import MonthPickerSkeleton from "./skeletons/MonthPickerSkeleton";
+import ProductSelectSkeleton from "./skeletons/ProductSelectSkeleton";
+import DistributorListSkeleton from "./skeletons/DistributorListSkeleton";
+import LoadingMessage from "./components/LoadingMessage";
+import { useLoadingMessage } from "./hooks/useLoadingMessage";
 
 const DistributorsPage: React.FC = () => {
   const token = useSelector((s: RootState) => s.user.token) as string;
@@ -109,6 +114,14 @@ const DistributorsPage: React.FC = () => {
     distributorsLoading || customersLoading || ordersLoading || productsLoading;
   const isEmpty = !loading && enriched.length === 0;
 
+  /** Context-aware loading message */
+  const loadingMessage = useLoadingMessage({
+    distributorsLoading,
+    customersLoading,
+    ordersLoading,
+    productsLoading,
+  });
+
   return (
     <div className="dist-wrap" dir="rtl">
       <ToastContainer position="top-right" autoClose={1200} />
@@ -116,39 +129,48 @@ const DistributorsPage: React.FC = () => {
       <header className="dist-head">
         <h2 className="dist-title">الموزّعون</h2>
 
-        <div className="dist-actions">
+        <div className="dist-actions" aria-busy={loading}>
           {/* Date range chips + manual pickers */}
-          <MonthPicker
-            monthKey={monthKey}
-            onMonthChange={setMonthKey}
-            thisMonthKey={thisMonthKey}
-            lastMonthKey={lastMonthKey}
-            isThisMonth={isThisMonth}
-            isLastMonth={isLastMonth}
-          />
+          {loading ? (
+            <MonthPickerSkeleton />
+          ) : (
+            <MonthPicker
+              monthKey={monthKey}
+              onMonthChange={setMonthKey}
+              thisMonthKey={thisMonthKey}
+              lastMonthKey={lastMonthKey}
+              isThisMonth={isThisMonth}
+              isLastMonth={isLastMonth}
+            />
+          )}
 
           {/* Product select controls sales calculation */}
-          <div className="product-filter">
-            <label htmlFor="dist-product" className="product-filter__label">
-              سعر المنتج للحساب
-            </label>
-            <select
-              id="dist-product"
-              className="product-filter__select"
-              value={selectedProductId}
-              onChange={(e) => dispatch(setDefaultProduct(e.target.value))}
-              disabled={productsLoading || products.length === 0}
-            >
-              <option value="">
-                {productsLoading ? "جارٍ التحميل…" : "اختر المنتج"}
-              </option>
-              {products.map((product) => (
-                <option key={product._id} value={product._id}>
-                  {product.type} — ${product.priceInDollars.toFixed(2)}
+          {productsLoading ? (
+            <ProductSelectSkeleton />
+          ) : (
+            <div className="product-filter">
+              <label htmlFor="dist-product" className="product-filter__label">
+                سعر المنتج للحساب
+              </label>
+              <select
+                id="dist-product"
+                className="product-filter__select"
+                value={selectedProductId}
+                onChange={(e) => dispatch(setDefaultProduct(e.target.value))}
+                disabled={productsLoading || products.length === 0}
+                aria-disabled={productsLoading || products.length === 0}
+              >
+                <option value="">
+                  {productsLoading ? "جارٍ التحميل…" : "اختر المنتج"}
                 </option>
-              ))}
-            </select>
-          </div>
+                {products.map((product) => (
+                  <option key={product._id} value={product._id}>
+                    {product.type} — ${product.priceInDollars.toFixed(2)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* Search (wired to filter) */}
           <div className="search">
@@ -157,11 +179,18 @@ const DistributorsPage: React.FC = () => {
               placeholder="🔎 ابحث عن موزّع…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              disabled={loading}
+              aria-disabled={loading}
             />
           </div>
 
           {/* Create */}
-          <button className="btn primary" onClick={() => setShowCreate(true)}>
+          <button
+            className="btn primary"
+            onClick={() => setShowCreate(true)}
+            disabled={loading}
+            aria-disabled={loading}
+          >
             + إضافة موزّع
           </button>
         </div>
@@ -169,11 +198,20 @@ const DistributorsPage: React.FC = () => {
 
       {/* Body states */}
       {loading ? (
-        <p className="loading">جارٍ التحميل…</p>
+        <>
+          {loadingMessage && (
+            <LoadingMessage
+              message={loadingMessage.message}
+              submessage={loadingMessage.submessage}
+              icon={loadingMessage.icon}
+            />
+          )}
+          <DistributorListSkeleton itemCount={6} />
+        </>
       ) : isEmpty ? (
-        <div className="empty">لا يوجد موزّعون</div>
+        <div className="empty" role="status">لا يوجد موزّعون</div>
       ) : (
-        <div className="dist-grid">
+        <div className="dist-grid" aria-busy="false">
           {enriched.map((d) => (
             <Link
               to={`/distributors/${d._id}?from=${range.from}&to=${range.to}`}
