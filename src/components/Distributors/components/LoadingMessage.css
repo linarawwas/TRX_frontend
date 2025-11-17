@@ -7,18 +7,7 @@
   border: 1px solid #bae6fd;
   border-radius: 12px;
   margin: 16px 0;
-  animation: pulse 2s ease-in-out infinite;
 }
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.8;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .loading-message {
     animation: none;

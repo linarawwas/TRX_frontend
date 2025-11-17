@@ -17,6 +17,7 @@ import DistributorSummarySkeleton from "./skeletons/DistributorSummarySkeleton";
 import AffiliatedCustomersSkeleton from "./skeletons/AffiliatedCustomersSkeleton";
 import LoadingMessage from "./components/LoadingMessage";
 import { useLoadingMessage } from "./hooks/useLoadingMessage";
+import ProductSelectionPrompt from "./components/ProductSelectionPrompt";
 
 const DistributorDetails: React.FC = () => {
   const token = useSelector((s: RootState) => s.user.token) as string;
@@ -70,11 +71,7 @@ const DistributorDetails: React.FC = () => {
     setSp(next, { replace: true });
   }, [range.from, range.to, setSp, sp]);
 
-  useEffect(() => {
-    if (!selectedProductId && products.length > 0) {
-      dispatch(setDefaultProduct(products[0]._id));
-    }
-  }, [dispatch, products, selectedProductId]);
+  // Removed auto-selection - user must explicitly choose a product
 
   const distributor = useMemo(() => {
     if (!id) return null;
@@ -87,17 +84,19 @@ const DistributorDetails: React.FC = () => {
   );
   const pricePerBottle = selectedProduct?.priceInDollars ?? 0;
 
-  const analytics = useMemo(
-    () =>
-      buildDistributorAnalytics({
-        distributors,
-        customers,
-        orders,
-        range,
-        pricePerBottle,
-      }),
-    [distributors, customers, orders, range, pricePerBottle]
-  );
+  // Only calculate analytics if product is selected
+  const analytics = useMemo(() => {
+    if (!selectedProductId || pricePerBottle === 0) {
+      return { distributors: new Map(), customersByDistributor: new Map() };
+    }
+    return buildDistributorAnalytics({
+      distributors,
+      customers,
+      orders,
+      range,
+      pricePerBottle,
+    });
+  }, [distributors, customers, orders, range, pricePerBottle, selectedProductId]);
 
   const distributorMetrics = distributor
     ? analytics.distributors.get(String(distributor._id))
@@ -254,6 +253,16 @@ const DistributorDetails: React.FC = () => {
         )}
       </header>
 
+      {/* Product selection prompt - shown when no product is selected */}
+      {!productsLoading && products.length > 0 && !selectedProductId && distributor && (
+        <ProductSelectionPrompt
+          products={products}
+          selectedProductId={selectedProductId}
+          onSelect={(productId) => dispatch(setDefaultProduct(productId))}
+          loading={productsLoading}
+        />
+      )}
+
       {loading && !distributor ? (
         <>
           {loadingMessage && (
@@ -268,6 +277,15 @@ const DistributorDetails: React.FC = () => {
         </>
       ) : !distributor ? (
         <p className="empty" role="status">لا يوجد بيانات</p>
+      ) : !selectedProductId && !productsLoading ? (
+        <div className="empty" role="status">
+          <p style={{ fontSize: "1.1rem", marginBottom: "8px" }}>
+            ⚠️ يرجى اختيار منتج أولاً
+          </p>
+          <p style={{ color: "#64748b" }}>
+            اختر منتجاً من الأعلى لعرض بيانات المبيعات والعمولات
+          </p>
+        </div>
       ) : (
         <>
           {loading ? (

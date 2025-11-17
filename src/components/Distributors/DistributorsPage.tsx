@@ -17,6 +17,7 @@ import ProductSelectSkeleton from "./skeletons/ProductSelectSkeleton";
 import DistributorListSkeleton from "./skeletons/DistributorListSkeleton";
 import LoadingMessage from "./components/LoadingMessage";
 import { useLoadingMessage } from "./hooks/useLoadingMessage";
+import ProductSelectionPrompt from "./components/ProductSelectionPrompt";
 
 const DistributorsPage: React.FC = () => {
   const token = useSelector((s: RootState) => s.user.token) as string;
@@ -53,11 +54,7 @@ const DistributorsPage: React.FC = () => {
   const [search, setSearch] = useState("");
   const [showCreate, setShowCreate] = useState(false);
 
-  useEffect(() => {
-    if (!selectedProductId && products.length > 0) {
-      dispatch(setDefaultProduct(products[0]._id));
-    }
-  }, [dispatch, products, selectedProductId]);
+  // Removed auto-selection - user must explicitly choose a product
 
   /** Filter by search (name/phone) */
   const filtered = useMemo(() => {
@@ -77,19 +74,32 @@ const DistributorsPage: React.FC = () => {
   );
   const pricePerBottle = selectedProduct?.priceInDollars ?? 0;
 
-  const analytics = useMemo(
-    () =>
-      buildDistributorAnalytics({
-        distributors,
-        customers,
-        orders,
-        range,
-        pricePerBottle,
-      }),
-    [distributors, customers, orders, range, pricePerBottle]
-  );
+  // Only calculate analytics if product is selected
+  const analytics = useMemo(() => {
+    if (!selectedProductId || pricePerBottle === 0) {
+      return { distributors: new Map(), customersByDistributor: new Map() };
+    }
+    return buildDistributorAnalytics({
+      distributors,
+      customers,
+      orders,
+      range,
+      pricePerBottle,
+    });
+  }, [distributors, customers, orders, range, pricePerBottle, selectedProductId]);
 
   const enriched = useMemo(() => {
+    if (!selectedProductId) {
+      // Return distributors without sales/commission data
+      return filtered.map((distributor) => ({
+        ...distributor,
+        customersCount: 0,
+        deliveredSum: 0,
+        revenueUSD: 0,
+        commissionUSD: 0,
+        commissionPct: distributor.commissionPct ?? 0,
+      }));
+    }
     return filtered.map((distributor) => {
       const metrics = analytics.distributors.get(String(distributor._id));
       return {
@@ -101,7 +111,7 @@ const DistributorsPage: React.FC = () => {
         commissionPct: metrics?.commissionPct ?? distributor.commissionPct ?? 0,
       };
     });
-  }, [analytics.distributors, filtered]);
+  }, [analytics.distributors, filtered, selectedProductId]);
 
   /** Create distributor modal fields */
   const createFields = {
@@ -144,21 +154,23 @@ const DistributorsPage: React.FC = () => {
             />
           )}
 
-          {/* Product select controls sales calculation */}
+          {/* Product select controls sales calculation - always visible for quick switching */}
           {productsLoading ? (
             <ProductSelectSkeleton />
           ) : (
-            <div className="product-filter">
+            <div className="product-filter product-filter--required">
               <label htmlFor="dist-product" className="product-filter__label">
-                سعر المنتج للحساب
+                <span className="product-filter__required-mark">*</span>
+                المنتج للحساب
               </label>
               <select
                 id="dist-product"
-                className="product-filter__select"
+                className={`product-filter__select ${!selectedProductId ? "product-filter__select--empty" : ""}`}
                 value={selectedProductId}
                 onChange={(e) => dispatch(setDefaultProduct(e.target.value))}
                 disabled={productsLoading || products.length === 0}
                 aria-disabled={productsLoading || products.length === 0}
+                aria-required="true"
               >
                 <option value="">
                   {productsLoading ? "جارٍ التحميل…" : "اختر المنتج"}
@@ -196,6 +208,16 @@ const DistributorsPage: React.FC = () => {
         </div>
       </header>
 
+      {/* Product selection prompt - shown when no product is selected */}
+      {!productsLoading && products.length > 0 && !selectedProductId && (
+        <ProductSelectionPrompt
+          products={products}
+          selectedProductId={selectedProductId}
+          onSelect={(productId) => dispatch(setDefaultProduct(productId))}
+          loading={productsLoading}
+        />
+      )}
+
       {/* Body states */}
       {loading ? (
         <>
@@ -208,6 +230,15 @@ const DistributorsPage: React.FC = () => {
           )}
           <DistributorListSkeleton itemCount={6} />
         </>
+      ) : !selectedProductId && !productsLoading ? (
+        <div className="empty" role="status">
+          <p style={{ fontSize: "1.1rem", marginBottom: "8px" }}>
+            ⚠️ يرجى اختيار منتج أولاً
+          </p>
+          <p style={{ color: "#64748b" }}>
+            اختر منتجاً من الأعلى لعرض بيانات المبيعات والعمولات
+          </p>
+        </div>
       ) : isEmpty ? (
         <div className="empty" role="status">لا يوجد موزّعون</div>
       ) : (
