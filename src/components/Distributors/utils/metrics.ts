@@ -68,6 +68,9 @@ export function buildDistributorAnalytics({
   const endTime = range.end.getTime();
 
   for (const order of orders) {
+    // Exclude initial orders (type=1)
+    if (order.type === 1) continue;
+    
     const rawCustomerId =
       (order as any).customerid ?? order.customerId ?? order.customer?._id;
     if (!rawCustomerId) continue;

@@ -35,6 +35,7 @@ export interface Product {
 export interface Order {
   _id: string;
   recordedBy: string;
+  type?: number; // 1: Initial, 2: Normal, 3: External
   delivered: number;
   returned: number;
   customerId: string;
