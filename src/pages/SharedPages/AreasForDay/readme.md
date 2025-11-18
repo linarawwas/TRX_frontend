@@ -18,7 +18,7 @@ This React component fetches and displays a list of areas assigned to a specific
 
 ## **2️⃣ Fetching Areas & IndexedDB Handling**
 ### **🔹 API Request (if Online)**
-- **Sends a `POST` request** to `http://localhost:5000/api/areas/days/${dayId}` with `companyId` in the request body.
+- **Sends a `POST` request** to `https://trx-api.linarawas.com//api/areas/days/${dayId}` with `companyId` in the request body.
 - If the response is **successful**, it:
   - Updates the `areas` state.
   - Saves the areas to **IndexedDB** for offline access.
@@ -42,7 +42,7 @@ This React component fetches and displays a list of areas assigned to a specific
 ---
 
 ## **3️⃣ Fetching Day Name**
-- A separate `useEffect` fetches the day name using `GET http://localhost:5000/api/days/${dayId}`.
+- A separate `useEffect` fetches the day name using `GET https://trx-api.linarawas.com//api/days/${dayId}`.
 - If the request fails, `dayName` is set to `"Unknown Day"`.
 
 ---

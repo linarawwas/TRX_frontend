@@ -54,7 +54,7 @@ const AddCustomers = (): JSX.Element => {
           }
   
           try {
-            const response = await fetch('http://localhost:5000/api/customers/many', {
+            const response = await fetch('https://trx-api.linarawas.com//api/customers/many', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',

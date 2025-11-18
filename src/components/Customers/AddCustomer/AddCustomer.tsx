@@ -19,7 +19,7 @@ const AddCustomer: React.FC = () => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/areas/company", {
+        const res = await fetch("https://trx-api.linarawas.com//api/areas/company", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error();
@@ -40,7 +40,7 @@ const AddCustomer: React.FC = () => {
     (async () => {
       try {
         const res = await fetch(
-          `http://localhost:5000/api/customers/area/${currentAreaId}/active`,
+          `https://trx-api.linarawas.com//api/customers/area/${currentAreaId}/active`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         if (!res.ok) throw new Error();
@@ -120,7 +120,7 @@ const AddCustomer: React.FC = () => {
     };
 
     const res = await fetch(
-      "http://localhost:5000/api/customers/create-with-sequence",
+      "https://trx-api.linarawas.com//api/customers/create-with-sequence",
       {
         method: "POST",
         headers: {

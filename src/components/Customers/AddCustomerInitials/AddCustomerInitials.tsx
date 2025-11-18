@@ -16,7 +16,7 @@ const AddCustomerInitials = (): JSX.Element => {
     const fetchAreas = async () => {
       try {
         const response = await fetch(
-          "http://localhost:5000/api/areas/company",
+          "https://trx-api.linarawas.com//api/areas/company",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -72,7 +72,7 @@ const AddCustomerInitials = (): JSX.Element => {
       setLoadingStep("Uploading to database...");
 
       const response = await fetch(
-        "http://localhost:5000/api/customers/uploadCustomersWithOrders",
+        "https://trx-api.linarawas.com//api/customers/uploadCustomersWithOrders",
         {
           method: "POST",
           headers: {
