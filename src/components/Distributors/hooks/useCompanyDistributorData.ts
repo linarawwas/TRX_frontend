@@ -43,7 +43,7 @@ export function useCompanyDistributorData(token: string, companyId?: string | nu
   const refreshDistributors = useCallback(async () => {
     setDistributorsLoading(true);
     try {
-      const res = await fetch("https://trx-api.linarawas.com//api/distributors", {
+      const res = await fetch("http://localhost:5000/api/distributors", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const json = await res.json().catch(() => null);

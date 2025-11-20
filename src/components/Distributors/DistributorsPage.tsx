@@ -53,6 +53,7 @@ const DistributorsPage: React.FC = () => {
   /** UI: search & create modal */
   const [search, setSearch] = useState("");
   const [showCreate, setShowCreate] = useState(false);
+  const [isAdminView, setIsAdminView] = useState(true); // true = admin view (shows revenueUSD), false = distributor view (hides revenueUSD)
 
   // Removed auto-selection - user must explicitly choose a product
 
@@ -196,6 +197,17 @@ const DistributorsPage: React.FC = () => {
             />
           </div>
 
+          {/* View Toggle */}
+          <button
+            className="btn secondary"
+            onClick={() => setIsAdminView(!isAdminView)}
+            disabled={loading}
+            aria-disabled={loading}
+            title={isAdminView ? "عرض للموزّع" : "عرض للإدارة"}
+          >
+            {isAdminView ? "عرض للموزّع" : "عرض للإدارة"}
+          </button>
+
           {/* Create */}
           <button
             className="btn primary"
@@ -259,10 +271,12 @@ const DistributorsPage: React.FC = () => {
                   <div className="k">المسلّم</div>
                   <div className="v">{d.deliveredSum}</div>
                 </div>
-                <div className="metric">
-                  <div className="k">المبيعات $</div>
-                  <div className="v">{d.revenueUSD.toFixed(2)}</div>
-                </div>
+                {isAdminView && (
+                  <div className="metric">
+                    <div className="k">المبيعات $</div>
+                    <div className="v">{d.revenueUSD.toFixed(2)}</div>
+                  </div>
+                )}
                 <div className="metric">
                   <div className="k">العمولة $</div>
                   <div className="v">

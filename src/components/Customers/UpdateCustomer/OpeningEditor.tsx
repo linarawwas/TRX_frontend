@@ -45,7 +45,7 @@ export function OpeningEditor({
       body.allowCheckoutBump = !!allowBump;
 
       const res = await fetch(
-        `https://trx-api.linarawas.com//api/customers/${customerId}/opening`,
+        `http://localhost:5000/api/customers/${customerId}/opening`,
         {
           method: "PATCH",
           headers: {

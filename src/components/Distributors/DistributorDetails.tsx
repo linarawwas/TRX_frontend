@@ -60,6 +60,7 @@ const DistributorDetails: React.FC = () => {
   const [editPct, setEditPct] = useState<string>("");
   const [unassigningCustomerId, setUnassigningCustomerId] = useState<string | null>(null);
   const [savingHeader, setSavingHeader] = useState(false);
+  const [isAdminView, setIsAdminView] = useState(true); // true = admin view (shows revenueUSD), false = distributor view (hides revenueUSD)
 
   useEffect(() => {
     const next = new URLSearchParams(sp);
@@ -217,6 +218,17 @@ const DistributorDetails: React.FC = () => {
                 )}
               </div>
 
+              {/* View Toggle */}
+              <button
+                className="btn secondary"
+                onClick={() => setIsAdminView(!isAdminView)}
+                disabled={loading}
+                aria-disabled={loading}
+                title={isAdminView ? "عرض للموزّع" : "عرض للإدارة"}
+              >
+                {isAdminView ? "عرض للموزّع" : "عرض للإدارة"}
+              </button>
+
               {!editing ? (
                 <button
                   className="btn secondary"
@@ -309,12 +321,14 @@ const DistributorDetails: React.FC = () => {
                 <div className="k">المسلّم</div>
                 <div className="v">{distributorMetrics?.deliveredSum ?? 0}</div>
               </div>
-              <div className="card">
-                <div className="k">المبيعات $</div>
-                <div className="v">
-                  {(distributorMetrics?.revenueUSD ?? 0).toFixed(2)}
+              {isAdminView && (
+                <div className="card">
+                  <div className="k">المبيعات $</div>
+                  <div className="v">
+                    {(distributorMetrics?.revenueUSD ?? 0).toFixed(2)}
+                  </div>
                 </div>
-              </div>
+              )}
               <div className="card">
                 <div className="k">العمولة $</div>
                 <div className="v">
@@ -347,7 +361,7 @@ const DistributorDetails: React.FC = () => {
                   <div className="row head">
                     <div className="c name">الاسم</div>
                     <div className="c delivered">المسلّم</div>
-                    <div className="c total">التكلفة $</div>
+                    {isAdminView && <div className="c total">التكلفة $</div>}
                     <div className="c actions">إجراء</div>
                   </div>
                   {customerRows.map((c) => {
@@ -361,7 +375,9 @@ const DistributorDetails: React.FC = () => {
                           {c.phone ? <span className="muted"> • {c.phone}</span> : null}
                         </div>
                         <div className="c delivered">{c.deliveredSum ?? 0}</div>
-                        <div className="c total">{(c.revenueUSD ?? 0).toFixed(2)}</div>
+                        {isAdminView && (
+                          <div className="c total">{(c.revenueUSD ?? 0).toFixed(2)}</div>
+                        )}
                         <div className="c actions">
                           <button
                             className="btn danger"

@@ -75,9 +75,7 @@ const AsideMenu: React.FC = () => {
           <Link to="/reports/orders-today" onClick={toggleMenu}>
             🧾 طلبات شحنات اليوم
           </Link>
-          <Link to="/distributors" onClick={toggleMenu}>
-            👥 الموزعين
-          </Link>{" "}
+
           <Link to="/Expenses" onClick={toggleMenu}>
             🧾 المصاريف
           </Link>
@@ -87,6 +85,10 @@ const AsideMenu: React.FC = () => {
           {/* Admin-only Links */}
           {isAdmin && (
             <>
+              {" "}
+              <Link to="/distributors" onClick={toggleMenu}>
+                👥 الموزعين
+              </Link>
               <Link to="/Products" onClick={toggleMenu}>
                 📦 المنتجات
               </Link>

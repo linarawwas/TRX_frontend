@@ -68,7 +68,7 @@ export async function createRoundOrShipment(opts: {
   const { token, payload, prevShipmentId, prevDayId } = opts;
 
   // ⚠️ NOTE: hard-coded URL. Consider centralizing your API base URL in one config.
-  const res = await fetch("https://trx-api.linarawas.com//api/shipments", {
+  const res = await fetch("http://localhost:5000/api/shipments", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

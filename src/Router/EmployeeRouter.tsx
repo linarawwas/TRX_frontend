@@ -20,8 +20,6 @@ import Addresses from "../pages/SharedPages/Addresses/Addresses";
 import AddArea from "../components/Areas/AddArea/AddArea";
 import OrdersOfToday from "../pages/SharedPages/Login/reports/orders-today/OrdersOfToday";
 import CustomerStatement from "../components/Customers/CustomerStatement/CustomerStatement";
-import DistributorsPage from "../components/Distributors/DistributorsPage";
-import DistributorDetails from "../components/Distributors/DistributorDetails";
 import { t } from "../utils/i18n";
 
 function EmployeeRouter() {
@@ -30,8 +28,6 @@ function EmployeeRouter() {
       <Routes>
         <Route index element={<EmployeeHomePage />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/distributors" element={<DistributorsPage />} />
-        <Route path="/distributors/:id" element={<DistributorDetails />} />
         <Route path="/customers" element={<Customers />} />
         <Route path="/updateOrder/:orderId" element={<UpdateOrder />} />
         <Route
