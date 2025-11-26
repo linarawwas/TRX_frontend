@@ -258,7 +258,10 @@ const RecordOrder: React.FC<Props> = (props) => {
 القناني المتبقية بعد الطلب: ${preview.bottlesLeftAfter}
 الرصيد الإجمالي بعد الطلب: ${overallUSD} $${overallLBP}
 
-شكراً لتعاملكم معنا`;
+شكراً لتعاملكم معنا
+______________
+
+تم الإرسال من موزع المياه خاصتكم، بواسطة برنامج TRX للذكاء التجاري`;
   }
 
   function normalizePhone(raw: string, defaultCountry = "961"): string {
