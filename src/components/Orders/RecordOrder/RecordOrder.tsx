@@ -261,7 +261,7 @@ const RecordOrder: React.FC<Props> = (props) => {
 شكراً لتعاملكم معنا
 ______________
 
-تم الإرسال من موزع المياه خاصتكم، بواسطة برنامج TRX للذكاء التجاري`;
+تم الإرسال بواسطة برنامج TRX للذكاء التجاري، بتطوير لينة الرواس.، لخدماتنا البرمجية: info@theagilelabs.com`;
   }
 
   function normalizePhone(raw: string, defaultCountry = "961"): string {
@@ -299,7 +299,7 @@ ______________
     waMessage?: string | null
   ) => {
     const request = {
-      url: "http://localhost:5000/api/orders",
+      url: "https://trx-api.theagilelabs.com/api/orders",
       options: {
         method: "POST",
         headers: {

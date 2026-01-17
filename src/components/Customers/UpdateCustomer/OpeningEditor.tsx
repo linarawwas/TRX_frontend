@@ -45,7 +45,7 @@ export function OpeningEditor({
       body.allowCheckoutBump = !!allowBump;
 
       const res = await fetch(
-        `http://localhost:5000/api/customers/${customerId}/opening`,
+        `https://trx-api.theagilelabs.com/api/customers/${customerId}/opening`,
         {
           method: "PATCH",
           headers: {

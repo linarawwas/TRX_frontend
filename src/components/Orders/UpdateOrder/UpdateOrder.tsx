@@ -88,7 +88,7 @@ function UpdateOrder(): JSX.Element {
   const [showDelete, setShowDelete] = useState(false);
   const [deleteStep, setDeleteStep] = useState<1 | 2>(1);
 
-  const API = "http://localhost:5000";
+  const API = "https://trx-api.theagilelabs.com";
 
   useEffect(() => {
     (async () => {

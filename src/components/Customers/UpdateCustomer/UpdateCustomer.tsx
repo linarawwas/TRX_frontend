@@ -29,7 +29,7 @@ type Area = { _id: string; name: string };
 type CustomerLite = { _id: string; name: string; sequence?: number | null };
 
 // ——— helpers ———
-const API_BASE = "http://localhost:5000";
+const API_BASE = "https://trx-api.theagilelabs.com";
 const t = (s: any) => (typeof s === "string" ? s.trim() : "");
 const initials = (name?: string) =>
   (name || "")
