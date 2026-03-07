@@ -32,7 +32,7 @@ function Layout() {
     // Dispatch the setToken action to save the token in the Redux store
     if (token) {
       dispatch(setToken(token));
-      fetch("http://localhost:5000/api/users/me", {
+      fetch("https://trx-api.theagilelabs.com/api/users/me", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,

@@ -8,6 +8,7 @@ import {
   saveAreasByDayToDB,
   saveExchangeRateToDB, // NEW
 } from "./indexedDB";
+import { API_BASE } from "../config/api";
 
 type Area = { _id: string; name: string; [k: string]: any };
 
@@ -39,12 +40,9 @@ export async function preloadShipmentData({
     emit({ type: "start" });
     const auth = { Authorization: `Bearer ${token}` };
 
-    // --- Core fetches (ONLY today's context) ---
-    const dayRes = fetch(`http://localhost:5000/api/days/${dayId}`, {
-      headers: auth,
-    });
-    const areasByDayRes = fetch(
-      `http://localhost:5000/api/areas/day/${dayId}`,
+    // Single optimized endpoint that fetches everything
+    const response = await fetch(
+      `${API_BASE}/api/shipments/preload/${dayId}`,
       { headers: auth }
     );
 

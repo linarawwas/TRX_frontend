@@ -1,6 +1,6 @@
 {
   "name": "trx-bi",
-  "homepage": "http://localhost:5000",
+  "homepage": "https://trx-api.theagilelabs.com",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

@@ -43,7 +43,7 @@ const RoundsHistory: React.FC<Props> = ({ shipmentId, totalToday, title }) => {
         setLoading(true);
         setError(null);
         const res = await fetch(
-          `http://localhost:5000/api/shipments/${shipmentId}/rounds`,
+          `https://trx-api.theagilelabs.com/api/shipments/${shipmentId}/rounds`,
           { headers: { Authorization: `Bearer ${token}` }, signal: ctrl.signal }
         );
         if (!res.ok) throw new Error("Failed to load rounds");
