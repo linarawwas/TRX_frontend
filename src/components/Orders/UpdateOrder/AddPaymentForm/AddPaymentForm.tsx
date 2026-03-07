@@ -57,7 +57,7 @@ const AddPaymentForm = ({ orderId, orderData, setOrderData, onSuccess }) => {
       };
 
       const res = await fetch(
-        `https://trx-api.theagilelabs.com/api/orders/addPayment/${orderId}`,
+        `http://localhost:5000/api/orders/addPayment/${orderId}`,
         {
           method: "PUT",
           headers: {
@@ -77,7 +77,7 @@ const AddPaymentForm = ({ orderId, orderData, setOrderData, onSuccess }) => {
       toast.success("تمت إضافة الدفعة بنجاح");
 
       // refresh order so receipt updates
-      const updated = await fetch(`https://trx-api.theagilelabs.com/api/orders/${orderId}`, {
+      const updated = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (updated.ok) {

@@ -299,7 +299,7 @@ ______________
     waMessage?: string | null
   ) => {
     const request = {
-      url: "https://trx-api.theagilelabs.com/api/orders",
+      url: "http://localhost:5000/api/orders",
       options: {
         method: "POST",
         headers: {
