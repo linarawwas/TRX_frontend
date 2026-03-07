@@ -54,7 +54,7 @@ const AreaSequencePicker: React.FC<AreaSequencePickerProps> = ({
       try {
         setLoading(true);
         const r = await fetch(
-          `https://trx-api.theagilelabs.com/api/customers/area/${areaId}`,
+          `http://localhost:5000/api/customers/area/${areaId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         const data = await r.json();
@@ -121,7 +121,7 @@ const AreaSequencePicker: React.FC<AreaSequencePickerProps> = ({
     setBusy(true);
     try {
       const res = await fetch(
-        `https://trx-api.theagilelabs.com/api/areas/${areaId}/reorder?companyId=${companyId}`,
+        `http://localhost:5000/api/areas/${areaId}/reorder?companyId=${companyId}`,
         {
           method: "POST",
           headers: {

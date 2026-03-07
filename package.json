@@ -1,6 +1,6 @@
 {
   "name": "trx-bi",
-  "homepage": "https://trx-api.theagilelabs.com",
+  "homepage": "http://localhost:5000",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -36,6 +36,7 @@
     "safe-buffer": "^5.2.1",
     "stream-browserify": "^3.0.0",
     "ts-jest": "^29.4.4",
+    "typescript": "^5.9.3",
     "util": "^0.12.5",
     "web-vitals": "^2.1.4",
     "xlsx": "^0.18.5",
@@ -72,6 +73,7 @@
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "babel-loader": "^9.1.3",
+    "baseline-browser-mapping": "^2.10.0",
     "css-loader": "^6.8.1",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
