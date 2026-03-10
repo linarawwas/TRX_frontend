@@ -72,16 +72,25 @@ Located at `src/utils/indexedDB.ts`.
 
 ### Auth and session
 
-Today, session is managed via a mix of:
+Auth/session is centered around:
 
 - `localStorage` keys (`token`, `companyId`, `isAdmin`, `username`).
-- `UserInfo` Redux slice, seeded in:
-  - `App.tsx` (on startup).
-  - `Layout.tsx` (after fetching `/api/users/me`).
+- `UserInfo` Redux slice (`src/redux/UserInfo/*`) which is effectively the `AuthState` for the app.
+- A small auth feature module in `src/features/auth/`:
+  - `authStorage.ts` — `loadAuthFromStorage`, `hydrateAuthFromStorage`, `persistAuthToStorage`, `clearAuth`.
+  - `authApi.ts` — `fetchMeAndSync(token, dispatch)` wraps `/api/users/me`, persists the result to both Redux and `localStorage`.
+  - `useAuth.ts` — `useAuth()` hook exposing `{ token, companyId, isAdmin, username, isAuthenticated, bootstrapFromStorage, logout }`.
 
-Future direction:
+Usage:
 
-- Extract this into a dedicated `src/features/auth/` module with a `useAuth` hook, and move all `localStorage` access and profile fetching there.
+- `App.tsx`
+  - Calls `hydrateAuthFromStorage(dispatch)` on each render to keep the Redux user slice aligned with auth‑related `localStorage`.
+  - Derives `isAuthenticated` from the (possibly hydrated) `token` and gates routing.
+- `Layout.tsx`
+  - Reads `token` and `isAdmin` from Redux.
+  - On mount (and when `token` changes), calls `fetchMeAndSync(token, dispatch)` to load `/api/users/me` and synchronize `companyId`, `isAdmin`, and `username` to both Redux and `localStorage`.
+
+New auth‑related code should prefer the helpers in `src/features/auth/` (or the `useAuth` hook) instead of reading/writing `localStorage` directly.
 
 ### Local component state
 

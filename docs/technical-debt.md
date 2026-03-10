@@ -22,12 +22,15 @@ This document tracks known architectural issues and planned improvements. It is 
 ### Medium-term refactors
 
 1. **Auth/session scattered across components**
-   - **Current state:** `App.tsx` and `Layout.tsx` both read/write `localStorage` and dispatch user actions; `/api/users/me` call is hardcoded in `Layout`.
-   - **Risk:** Harder to change auth flows or add features like refresh tokens.
-   - **Direction:** Create `src/features/auth/` with:
-     - Typed `AuthState` and slice.
-     - A `useAuth` hook exposing login/logout, user profile, and role.
-     - Centralized `localStorage` and `/me` handling.
+   - **Completed on:** 2026-03-10
+   - **What changed:**
+     - Introduced `src/features/auth/` with:
+       - `authStorage.ts` to centralize reading/writing auth‑related `localStorage` keys (`token`, `companyId`, `isAdmin`, `username`) and hydrating the `UserInfo` Redux slice (`hydrateAuthFromStorage`, `persistAuthToStorage`, `clearAuth`).
+       - `authApi.ts` with `fetchMeAndSync(token, dispatch)` wrapping `/api/users/me`, syncing `companyId`, `isAdmin`, and `username` into both Redux and `localStorage`.
+       - `useAuth.ts` providing a `useAuth()` hook that exposes the current auth state plus helpers like `bootstrapFromStorage` and `logout`.
+     - Updated `App.tsx` to derive `isAuthenticated` from the token returned by `hydrateAuthFromStorage(dispatch)` instead of manually reading `localStorage` and dispatching user actions inline.
+     - Updated `Layout.tsx` to read `token`/`isAdmin` from Redux and call `fetchMeAndSync(token, dispatch)` instead of manually calling `/api/users/me` and mutating `localStorage` in place.
+   - **Notes:** Future auth flows (login/logout, token refresh) should build on the `src/features/auth/` helpers and `useAuth` hook rather than dispatching `UserInfo` actions or touching `localStorage` directly.
 
 2. **Redux is classic, not Toolkit**
    - **Current state:** Manual action types and reducers across `UserInfo`, `Order`, `Shipment`, and `Defaults`.

@@ -1,31 +1,17 @@
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import Layout from "../Layout/Layout";
 import Login from "../pages/SharedPages/Login/Login";
-import { useDispatch } from "react-redux";
-import {
-  setCompanyId,
-  setIsAdmin,
-  setToken,
-  setUsername,
-} from "../redux/UserInfo/action";
+import { useDispatch, useSelector } from "react-redux";
 import useSyncOfflineOrders from "../hooks/useSyncOfflineOrders";
 import { initializeDB } from "../utils/indexedDB";
+import { hydrateAuthFromStorage } from "../features/auth/authStorage";
+import type { RootState } from "../redux/store";
 
 export default function App() {
   const dispatch = useDispatch();
-  const token = localStorage.getItem("token");
-  const companyId = localStorage.getItem("companyId");
-  const isAdmin = JSON.parse(localStorage.getItem("isAdmin") || "false");
-  const username = localStorage.getItem("username");
-
-  if (token) {
-    dispatch(setToken(token));
-    if (companyId) dispatch(setCompanyId(companyId));
-    dispatch(setIsAdmin(isAdmin));
-    if (username) dispatch(setUsername(username));
-  }
-  dispatch(setToken(token));
-  const isAuthenticated = token !== null && token !== undefined;
+  // Keep Redux user slice in sync with auth-related localStorage on each render.
+  const { token } = hydrateAuthFromStorage(dispatch);
+  const isAuthenticated = Boolean(token);
 
   initializeDB();
   useSyncOfflineOrders();
