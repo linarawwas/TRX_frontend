@@ -10,9 +10,9 @@ This document tracks known architectural issues and planned improvements. It is 
    - **Notes:** New code should always import `API_BASE` (or a small helper built on it) instead of reading environment variables or hardcoding hostnames.
 
 2. **Router duplication**
-   - **Current state:** `EmployeeRouter` contains duplicated routes; several paths overlap between `AdminRouter` and `EmployeeRouter`.
-   - **Risk:** Inconsistent behavior, higher maintenance cost when updating a route.
-   - **Direction:** Extract a small shared route config for common routes; remove duplicates within `EmployeeRouter`.
+   - **Completed on:** 2026-03-10
+   - **What changed:** Extracted a `CommonRoutes` component (`src/Router/CommonRoutes.tsx`) that defines all routes shared between admin and employee experiences, and refactored both `AdminRouter` and `EmployeeRouter` to delegate to it. Removed duplicated route definitions inside `EmployeeRouter` so each path is now declared exactly once.
+   - **Notes:** New shared routes should be added to `CommonRoutes` and kept role-specific routes inside the respective router components.
 
 3. **IndexedDB docs out of date**
    - **Current state:** `src/utils/readme.md` describes an older DB schema and version.
