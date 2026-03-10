@@ -222,7 +222,7 @@ Create a `.env` file at the project root, for example:
 REACT_APP_API_BASE=https://api.example.com
 ```
 
-The frontend reads `REACT_APP_API_BASE` (with `REACT_APP_API_BASE_URL` still supported for backwards compatibility) and falls back to `http://localhost:5000` when none are provided. All API modules consume the normalized `API_BASE` exported from `src/config/api.ts`.
+The frontend reads  `REACT_APP_API_BASE_URL` from the .env file. All API modules consume the normalized `API_BASE` exported from `src/config/api.ts`.
 
 ### Scripts
 
