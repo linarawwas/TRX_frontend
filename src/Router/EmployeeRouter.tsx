@@ -10,7 +10,7 @@ function EmployeeRouter() {
       <Routes>
         <Route index element={<EmployeeHomePage />} />
         <Route path="/newShipment" element={<StartShipment />} />
-        <CommonRoutes />
+        {CommonRoutes()}
       </Routes>
     </div>
   );

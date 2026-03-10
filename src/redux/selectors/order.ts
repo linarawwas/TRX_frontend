@@ -5,7 +5,7 @@ export const selectOrderAreaId = (s: RootState): string | null => s.order?.area_
 export const selectOrderCustomerId = (s: RootState): string | null => s.order?.customer_Id || null;
 export const selectOrderCustomerName = (s: RootState): string => s.order?.customer_name || "";
 export const selectOrderCustomerPhone = (s: RootState): string => s.order?.phone || "";
-export const selectOrderProductId = (s: RootState): number | null => s.order?.product_id || null;
+export const selectOrderProductId = (s: RootState): string | null => s.order?.product_id || null;
 export const selectOrderProductName = (s: RootState): string => s.order?.product_name || "";
 export const selectOrderProductPrice = (s: RootState): number => s.order?.product_price || 0;
 

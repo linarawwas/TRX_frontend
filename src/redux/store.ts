@@ -6,6 +6,7 @@ import { trxApi } from '../features/api/trxApi';
 declare global {
   interface Window {
     __REDUX_DEVTOOLS_EXTENSION__?: () => any;
+    __REDUX_DEVTOOLS_EXTENSION_COMPOSE__?: typeof compose;
   }
 }
 
@@ -29,7 +30,7 @@ export const store = createStore(
   rootReducer,
   initialState,
   composeEnhancers(
-    applyMiddleware(trxApi.middleware),
+    applyMiddleware(trxApi.middleware as any),
   )
 );
 

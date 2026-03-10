@@ -20,7 +20,7 @@ function AdminRouter() {
           <Route path="/addCustomers" element={<AddCustomers />} />
           <Route path="/customerInfo" element={<CustomerInfo />} />
           <Route path="/Products" element={<Products />} />
-          <CommonRoutes />
+          {CommonRoutes()}
         </Routes>
       </div>
     </>

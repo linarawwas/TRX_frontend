@@ -42,8 +42,8 @@ const AddCustomers = (): JSX.Element => {
             const customer: { [key: string]: any } = {};
   
             headers.forEach((header: string, index: number) => {
-              if (index < row.length) {
-                customer[header] = row[index];
+              if (index < (row as any).length) {
+                customer[header] = (row as any)[index];
               }
             });
   

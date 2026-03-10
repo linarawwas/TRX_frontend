@@ -12,7 +12,7 @@ export const expenseSchema = z.object({
       .nonnegative("قيمة غير صالحة")
   ),
   paymentCurrency: z.enum(["USD", "LBP"], {
-    errorMap: () => ({ message: "عملة غير صالحة" }),
+    message: "عملة غير صالحة",
   }),
 });
 
@@ -28,7 +28,7 @@ export const profitSchema = z.object({
       .nonnegative("قيمة غير صالحة")
   ),
   paymentCurrency: z.enum(["USD", "LBP"], {
-    errorMap: () => ({ message: "عملة غير صالحة" }),
+    message: "عملة غير صالحة",
   }),
 });
 

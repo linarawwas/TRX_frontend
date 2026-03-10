@@ -23,102 +23,95 @@ import { t } from "../utils/i18n";
 
 /**
  * Routes shared between admin and employee experiences.
- *
- * Each top-level router (`AdminRouter`, `EmployeeRouter`) is responsible
- * for its own index route and any role-specific screens; everything else
- * that should be reachable by both roles lives here.
+ * Returns an array of <Route> elements so they can be used as direct children of <Routes>.
  */
 export function CommonRoutes() {
-  return (
-    <>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-
-      <Route path="/viewOrders" element={<OrdersTable />} />
-      <Route path="/reports/orders-today" element={<OrdersOfToday />} />
-
-      <Route
-        path="/recordOrderforCustomer"
-        element={<RecordOrderForCustomer />}
-      />
-      <Route
-        path="/customers/:customerId/statement"
-        element={<CustomerStatement />}
-      />
-
-      <Route path="/areas" element={<Areas />} />
-      <Route path="/customers" element={<Customers />} />
-      <Route path="/addresses/:areaId" element={<Addresses />} />
-      <Route path="/areas/:dayId" element={<AreasForDay />} />
-      <Route path="/customers/:areaId" element={<CustomersForArea />} />
-      <Route path="/areas/add" element={<AddArea />} />
-
-      <Route path="/updateOrder/:orderId" element={<UpdateOrder />} />
-      <Route
-        path="/updateCustomer/:customerId"
-        element={<UpdateCustomer />}
-      />
-
-      <Route
-        path="/addExpenses"
-        element={
-          <AddExpenses
-            config={{
-              modelName: t("expenses.title"),
-              title: t("expenses.add.title"),
-              buttonLabel: t("expenses.add.buttonLabel"),
-              fields: {
-                name: { label: t("expenses.fields.name"), "input-type": "text" },
-                value: {
-                  label: t("expenses.fields.value"),
-                  "input-type": "number",
-                },
-                paymentCurrency: {
-                  label: t("expenses.fields.paymentCurrency"),
-                  "input-type": "selectOption",
-                  options: [
-                    { value: "USD", label: t("expenses.currency.usd") },
-                    { value: "LBP", label: t("expenses.currency.lbp") },
-                  ],
-                },
+  return [
+    <Route key="login" path="/login" element={<Login />} />,
+    <Route key="register" path="/register" element={<Register />} />,
+    <Route key="viewOrders" path="/viewOrders" element={<OrdersTable />} />,
+    <Route key="orders-today" path="/reports/orders-today" element={<OrdersOfToday />} />,
+    <Route
+      key="recordOrderforCustomer"
+      path="/recordOrderforCustomer"
+      element={<RecordOrderForCustomer />}
+    />,
+    <Route
+      key="customerStatement"
+      path="/customers/:customerId/statement"
+      element={<CustomerStatement />}
+    />,
+    <Route key="areas" path="/areas" element={<Areas />} />,
+    <Route key="customers" path="/customers" element={<Customers />} />,
+    <Route key="addresses" path="/addresses/:areaId" element={<Addresses />} />,
+    <Route key="areasForDay" path="/areas/:dayId" element={<AreasForDay />} />,
+    <Route key="customersForArea" path="/customers/:areaId" element={<CustomersForArea />} />,
+    <Route key="areasAdd" path="/areas/add" element={<AddArea />} />,
+    <Route key="updateOrder" path="/updateOrder/:orderId" element={<UpdateOrder />} />,
+    <Route
+      key="updateCustomer"
+      path="/updateCustomer/:customerId"
+      element={<UpdateCustomer />}
+    />,
+    <Route
+      key="addExpenses"
+      path="/addExpenses"
+      element={
+        <AddExpenses
+          config={{
+            modelName: t("expenses.title"),
+            title: t("expenses.add.title"),
+            buttonLabel: t("expenses.add.buttonLabel"),
+            fields: {
+              name: { label: t("expenses.fields.name"), "input-type": "text" },
+              value: {
+                label: t("expenses.fields.value"),
+                "input-type": "number",
               },
-            }}
-          />
-        }
-      />
-
-      <Route
-        path="/addProfits"
-        element={
-          <AddProfits
-            config={{
-              modelName: t("profits.title"),
-              title: t("profits.add.title"),
-              buttonLabel: t("profits.add.buttonLabel"),
-              fields: {
-                name: { label: t("profits.fields.name"), "input-type": "text" },
-                value: {
-                  label: t("profits.fields.value"),
-                  "input-type": "number",
-                },
-                paymentCurrency: {
-                  label: t("profits.fields.paymentCurrency"),
-                  "input-type": "selectOption",
-                  options: [
-                    { value: "USD", label: t("profits.currency.usd") },
-                    { value: "LBP", label: t("profits.currency.lbp") },
-                  ],
-                },
+              paymentCurrency: {
+                label: t("expenses.fields.paymentCurrency"),
+                "input-type": "selectOption",
+                options: [
+                  { value: "USD", label: t("expenses.currency.usd") },
+                  { value: "LBP", label: t("expenses.currency.lbp") },
+                ],
               },
-            }}
-          />
-        }
-      />
-
-      <Route path="/currentShipment" element={<ShipmentsList />} />
-      <Route path="/Profits" element={<ExtraProfits />} />
-      <Route path="/Expenses" element={<Expenses />} />
-    </>
-  );
+            },
+          }}
+        />
+      }
+    />,
+    <Route
+      key="addProfits"
+      path="/addProfits"
+      element={
+        <AddProfits
+          config={{
+            modelName: t("profits.title"),
+            title: t("profits.add.title"),
+            buttonLabel: t("profits.add.buttonLabel"),
+            fields: {
+              name: { label: t("profits.fields.name"), "input-type": "text" },
+              value: {
+                label: t("profits.fields.value"),
+                "input-type": "number",
+              },
+              paymentCurrency: {
+                label: t("profits.fields.paymentCurrency"),
+                "input-type": "selectOption",
+                options: [
+                  { value: "USD", label: t("profits.currency.usd") },
+                  { value: "LBP", label: t("profits.currency.lbp") },
+                ],
+              },
+            },
+          }}
+        />
+      }
+    />,
+    <Route key="currentShipment" path="/currentShipment" element={<ShipmentsList />} />,
+    <Route key="Profits" path="/Profits" element={<ExtraProfits />} />,
+    <Route key="Expenses" path="/Expenses" element={<Expenses />} />,
+  ];
 }
 

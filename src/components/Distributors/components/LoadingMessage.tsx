@@ -18,7 +18,7 @@ const LoadingMessage: React.FC<LoadingMessageProps> = ({
 }) => {
   // Extract icon from message if it starts with an emoji, otherwise use prop
   const messageIcon = message.match(/^[\p{Emoji}]/u)?.[0] || icon;
-  const messageText = message.replace(/^[\p{Emoji}]\s*/, "").trim();
+  const messageText = message.replace(/^[\p{Emoji}]\s*/u, "").trim();
   
   return (
     <div className="loading-message" role="status" aria-live="polite">
