@@ -15,9 +15,9 @@ This document tracks known architectural issues and planned improvements. It is 
    - **Notes:** New shared routes should be added to `CommonRoutes` and kept role-specific routes inside the respective router components.
 
 3. **IndexedDB docs out of date**
-   - **Current state:** `src/utils/readme.md` describes an older DB schema and version.
-   - **Risk:** Confuses contributors; makes debugging offline behavior harder.
-   - **Direction:** Update or replace that doc to match `indexedDB.ts` (current stores and `DB_VERSION`).
+   - **Completed on:** 2026-03-10
+   - **What changed:** Rewrote `src/utils/readme.md` to accurately document the current `indexedDB.ts` module, including `DB_VERSION = 15`, all active object stores (requests, customers, areas, invoices, products, discounts, exchange rates, etc.), and the public helper APIs.
+   - **Notes:** Any future changes to `src/utils/indexedDB.ts` (new stores or helpers) should be reflected in `src/utils/readme.md` and, if user-visible, cross-referenced from `docs/state-management.md`.
 
 ### Medium-term refactors
 
