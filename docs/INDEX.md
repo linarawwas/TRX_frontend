@@ -53,4 +53,11 @@ Docs colocated with code; useful when working inside a specific feature or page.
 - **IndexedDB** — Implementation and API are documented in [src/utils/readme.md](../src/utils/readme.md) (next to `indexedDB.ts`).
 - **API base** — Configuration is in [src/config/api.ts](../src/config/api.ts); see README “Local development” for env vars.
 
-When adding new documentation, add an entry here (and in the README Documentation map if it’s a top-level doc) so the index stays up to date.
+
+---
+## How to add documentation
+
+1. **Add an entry to this index** — In the table that matches your doc's location (root `docs/`, `docs/pages/`, `docs/components/`, `docs/css/`, or "Feature- and page-level docs"). Include the path and a short description.
+2. **Update the README** — If the doc is top-level or important for navigation, add a link in the [README Documentation map](../README.md#documentation-map).
+3. **Keep conventions** — See [technical-debt.md § Architecture conventions](technical-debt.md#architecture-conventions-ongoing) for the standing rule on keeping the index up to date.
+

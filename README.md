@@ -183,11 +183,10 @@ Feature- and page-level docs under `src/` are linked from [docs/INDEX.md](docs/I
 
 ## Improvement roadmap
 
-The codebase is feature-oriented and hook-driven. Many items in [**docs/technical-debt.md**](docs/technical-debt.md) are already done (API base, router consolidation, auth feature, Redux Toolkit slices, RTK Query, error boundaries, IndexedDB docs, forms validation, documentation index).
+The codebase is feature-oriented and hook-driven. The items tracked in [**docs/technical-debt.md**](docs/technical-debt.md) are largely complete (API base, router consolidation, auth feature, Redux Toolkit store and slices, RTK Query, error boundaries, IndexedDB docs, forms validation, documentation index). In addition:
 
-Remaining and longer-term directions (see technical-debt for details):
+- **Conventions (done)** — [Architecture conventions](docs/technical-debt.md#architecture-conventions-ongoing) are documented: (1) use RTK Query for new data-heavy features, (2) memoize selectors that return objects/arrays with `createSelector`, (3) add new docs to [docs/INDEX.md](docs/INDEX.md) (see [How to add documentation](docs/INDEX.md#how-to-add-documentation)). All Redux selectors that return non-primitives are now memoized.
 
-- **Ongoing** — Prefer RTK Query for new data-heavy features; keep selectors memoized; add new docs to `docs/INDEX.md`.
-- **Optional** — Error boundaries per feature area; further form/validation standardization; grow test coverage for selectors, hooks, and critical flows.
+**Optional, longer-term:** Error boundaries per feature area; further form/validation standardization; grow test coverage for selectors, hooks, and critical flows.
 
 When refactors land, update `docs/technical-debt.md` so the roadmap stays accurate.

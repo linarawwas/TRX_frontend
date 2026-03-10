@@ -19,9 +19,9 @@ Located in `src/redux/`.
   - Exposes `RootState` type, used by typed selectors.
 
 - **Selectors**
-  - `src/redux/selectors/user.ts` — `selectUserToken`, `selectUserCompanyId`, `selectUserIsAdmin`, etc.
-  - `src/redux/selectors/order.ts` — `selectOrderCustomerId`, `selectOrderProductId`, etc.
-  - `src/redux/selectors/shipment.ts` — shipment meta and progress selectors.
+  - `src/redux/selectors/user.ts` — `selectUserToken`, `selectUserCompanyId`, `selectUserIsAdmin`, etc.; `selectUser` is memoized with `createSelector`.
+  - `src/redux/selectors/order.ts` — `selectOrderCustomerId`, `selectOrderProductId`, etc.; `selectOrder` is memoized.
+  - `src/redux/selectors/shipment.ts` — Shipment meta, today/round progress, and customer-list selectors; all selectors that return objects or arrays use `createSelector` to avoid unnecessary rerenders. See [technical-debt.md § Architecture conventions](technical-debt.md#architecture-conventions-ongoing).
 
 New global concerns that need to be shared across multiple features should usually be added as a new slice plus selectors.
 

@@ -38,7 +38,7 @@ This document tracks known architectural issues and planned improvements. It is 
      - All Redux slices (`UserInfo`, `Order`, `Shipment`, `Defaults`) are now implemented using Redux Toolkit `createSlice`, while preserving their existing public action APIs via re‑exports in the respective `action.ts` files.
      - `Shipment` reducer logic was ported into a `shipmentSlice` that keeps all previous behaviors (round info, pending orders, previous shipment snapshot, payments, profits/expenses, date fields) but benefits from immutable updates via Immer and stronger typing.
      - `Defaults` was migrated to a small `defaultsSlice` with typed state and reducers for `default_product` and `default_language`.
-   - **Notes:** The store is still wired via `createStore` for now; a future follow‑up can move `store.ts` to `configureStore` to simplify middleware/devtools configuration, but all slices themselves are now Toolkit‑based and easier to evolve.
+   - **Notes:** The store was later moved to `configureStore` with `getDefaultMiddleware().concat(trxApi.middleware)` so thunks and RTK Query work correctly.
 
 3. **Forms and validation are not standardized**
    - **Completed on:** 2026-03-10 (first step)
@@ -64,3 +64,18 @@ This document tracks known architectural issues and planned improvements. It is 
 
 Each time a refactor lands, update this file to move items from “planned” to “done” or to refine the direction.
 
+
+---
+## Architecture conventions (ongoing)
+
+Formalized 2026-03. These are standing rules for all new and touched code. All Redux selectors that return objects or arrays have been migrated to `createSelector`; [docs/INDEX.md](INDEX.md) now includes a [How to add documentation](INDEX.md#how-to-add-documentation) section.
+
+1. **RTK Query for data-heavy features**
+   - New read-heavy or list/detail API flows must use the shared API slice in `src/features/api/trxApi.ts`: add endpoints and use the generated hooks (e.g. `useXQuery`). Do not add ad-hoc `fetch`/`axios` calls in features for server state.
+   - Existing flows that still use `axios` in feature `api*.ts` files can stay as-is until they are refactored; when touching them, prefer migrating to RTK Query.
+
+2. **Memoized selectors**
+   - Any Redux selector that returns an object or array must be implemented with `createSelector` from `@reduxjs/toolkit` so that the same reference is returned when inputs are unchanged. This avoids unnecessary rerenders and satisfies Redux's expectations. Primitive-returning selectors do not need memoization.
+
+3. **Documentation index**
+   - When adding new documentation (under `docs/` or under `src/**/docs/`), add an entry to [docs/INDEX.md](INDEX.md). For top-level or user-facing docs, also add a link in the README [Documentation map](../README.md#documentation-map) if appropriate.

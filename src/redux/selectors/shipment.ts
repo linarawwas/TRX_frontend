@@ -1,9 +1,19 @@
 // redux/selectors/shipment.ts
 import { createSelector } from "@reduxjs/toolkit";
 import { RootState } from "../store";
+import type { ShipmentState } from "../Shipment/types";
 
-export const selectShipment = (s: RootState) => s.shipment || {};
-export const selectRound    = (s: RootState) => (s.shipment && s.shipment.round) || {};
+const EMPTY_SHIPMENT = {} as ShipmentState;
+const EMPTY_STRING_ARRAY: string[] = [];
+
+export const selectShipment = createSelector(
+  [(s: RootState) => s.shipment],
+  (shipment): ShipmentState => shipment ?? EMPTY_SHIPMENT
+);
+export const selectRound = createSelector(
+  [(s: RootState) => s.shipment?.round],
+  (round) => round ?? ({} as NonNullable<ShipmentState["round"]>)
+);
 
 export const selectShipmentMeta = createSelector(
   [(s: RootState) => s.shipment?._id ?? "", (s: RootState) => s.shipment?.dayId ?? ""],
@@ -101,11 +111,15 @@ export const selectRoundProgress = createSelector(
   }
 );
 
-export const selectCustomersWithFilledOrders = (s: RootState): string[] =>
-  Array.isArray(s.shipment?.CustomersWithFilledOrders) ? s.shipment.CustomersWithFilledOrders : [];
-
-export const selectCustomersWithEmptyOrders = (s: RootState): string[] =>
-  Array.isArray(s.shipment?.CustomersWithEmptyOrders) ? s.shipment.CustomersWithEmptyOrders : [];
-
-export const selectCustomersWithPendingOrders = (s: RootState): string[] =>
-  Array.isArray(s.shipment?.CustomersWithPendingOrders) ? s.shipment.CustomersWithPendingOrders : [];
+export const selectCustomersWithFilledOrders = createSelector(
+  [(s: RootState) => s.shipment?.CustomersWithFilledOrders],
+  (arr): string[] => (Array.isArray(arr) ? arr : EMPTY_STRING_ARRAY)
+);
+export const selectCustomersWithEmptyOrders = createSelector(
+  [(s: RootState) => s.shipment?.CustomersWithEmptyOrders],
+  (arr): string[] => (Array.isArray(arr) ? arr : EMPTY_STRING_ARRAY)
+);
+export const selectCustomersWithPendingOrders = createSelector(
+  [(s: RootState) => s.shipment?.CustomersWithPendingOrders],
+  (arr): string[] => (Array.isArray(arr) ? arr : EMPTY_STRING_ARRAY)
+);
