@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import "./AreaSequencePicker.css";
+import { API_BASE } from "../../config/api";
 
 interface Customer {
   _id: string;
@@ -54,7 +55,7 @@ const AreaSequencePicker: React.FC<AreaSequencePickerProps> = ({
       try {
         setLoading(true);
         const r = await fetch(
-          `http://localhost:5000/api/customers/area/${areaId}`,
+          `${API_BASE}/api/customers/area/${areaId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         const data = await r.json();
@@ -121,7 +122,7 @@ const AreaSequencePicker: React.FC<AreaSequencePickerProps> = ({
     setBusy(true);
     try {
       const res = await fetch(
-        `http://localhost:5000/api/areas/${areaId}/reorder?companyId=${companyId}`,
+        `${API_BASE}/api/areas/${areaId}/reorder?companyId=${companyId}`,
         {
           method: "POST",
           headers: {

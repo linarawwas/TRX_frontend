@@ -1,4 +1,6 @@
 // utils/distributorApi.ts
+import { API_BASE } from "../config/api";
+
 export type DateRange = { from?: string; to?: string };
 
 function authHeaders(token: string) {
@@ -10,7 +12,7 @@ function authHeaders(token: string) {
 
 /** GET /api/distributors (lightweight list) */
 export async function listDistributors(token: string) {
-  const res = await fetch("http://localhost:5000/api/distributors", {
+  const res = await fetch(`${API_BASE}/api/distributors`, {
     headers: authHeaders(token),
   });
   if (!res.ok) throw new Error("Failed to list distributors");
@@ -24,7 +26,7 @@ export async function distributorsSummary(token: string, range: DateRange) {
   if (range.from) qs.set("from", range.from);
   if (range.to) qs.set("to", range.to);
   const res = await fetch(
-    `http://localhost:5000/api/distributors/summary?${qs.toString()}`,
+    `${API_BASE}/api/distributors/summary?${qs.toString()}`,
     {
       headers: authHeaders(token),
     }
@@ -38,7 +40,7 @@ export async function createDistributor(
   token: string,
   payload: { name: string; commissionPct?: number }
 ) {
-  const res = await fetch("http://localhost:5000/api/distributors", {
+  const res = await fetch(`${API_BASE}/api/distributors`, {
     method: "POST",
     headers: authHeaders(token),
     body: JSON.stringify(payload),
@@ -54,7 +56,7 @@ export async function updateDistributor(
   id: string,
   payload: Partial<{ name: string; commissionPct: number }>
 ) {
-  const res = await fetch(`http://localhost:5000/api/distributors/${id}`, {
+  const res = await fetch(`${API_BASE}/api/distributors/${id}`, {
     method: "PATCH",
     headers: authHeaders(token),
     body: JSON.stringify(payload),
@@ -66,7 +68,7 @@ export async function updateDistributor(
 
 /** DELETE /api/distributors/:id */
 export async function deleteDistributor(token: string, id: string) {
-  const res = await fetch(`http://localhost:5000/api/distributors/${id}`, {
+  const res = await fetch(`${API_BASE}/api/distributors/${id}`, {
     method: "DELETE",
     headers: authHeaders(token),
   });
@@ -78,7 +80,7 @@ export async function deleteDistributor(token: string, id: string) {
 /** GET /api/distributors/:id/customers */
 export async function distributorCustomers(token: string, id: string) {
   const res = await fetch(
-    `http://localhost:5000/api/distributors/${id}/customers`,
+    `${API_BASE}/api/distributors/${id}/customers`,
     {
       headers: authHeaders(token),
     }
@@ -97,7 +99,7 @@ export async function distributorSummary(
   if (range.from) qs.set("from", range.from);
   if (range.to) qs.set("to", range.to);
   const res = await fetch(
-    `http://localhost:5000/api/distributors/${id}/detail?${qs.toString()}`,
+    `${API_BASE}/api/distributors/${id}/detail?${qs.toString()}`,
     {
       headers: authHeaders(token),
     }
@@ -113,7 +115,7 @@ export async function assignCustomerToDistributor(
   distributorId: string
 ) {
   const res = await fetch(
-    `http://localhost:5000/api/distributors/customers/${customerId}/assign`,
+    `${API_BASE}/api/distributors/customers/${customerId}/assign`,
     {
       method: "PATCH",
       headers: authHeaders(token),
@@ -131,7 +133,7 @@ export async function unassignCustomerFromDistributor(
   customerId: string
 ) {
   const res = await fetch(
-    `http://localhost:5000/api/distributors/customers/${customerId}/unassign`,
+    `${API_BASE}/api/distributors/customers/${customerId}/unassign`,
     {
       method: "PATCH",
       headers: authHeaders(token),

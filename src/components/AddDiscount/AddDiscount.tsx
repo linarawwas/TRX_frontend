@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { toast } from "react-toastify";
 import "./AddDiscount.css";
+import { API_BASE } from "../../config/api";
 
 interface Area {
   _id: string;
@@ -50,7 +51,7 @@ const AddDiscount: React.FC = () => {
 
   // Fetch areas
   useEffect(() => {
-    fetch("http://localhost:5000/api/areas/company", {
+    fetch(`${API_BASE}/api/areas/company`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -60,7 +61,7 @@ const AddDiscount: React.FC = () => {
 
   // Fetch company exchange rate (read-only, server-managed)
   useEffect(() => {
-    fetch(`http://localhost:5000/api/exchange-rate`, {
+    fetch(`${API_BASE}/api/exchange-rate`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(async (res) => {
@@ -77,7 +78,7 @@ const AddDiscount: React.FC = () => {
   // Fetch customers by area
   useEffect(() => {
     if (!formData.areaId) return;
-    fetch(`http://localhost:5000/api/customers/area/${formData.areaId}`, {
+    fetch(`${API_BASE}/api/customers/area/${formData.areaId}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -158,7 +159,7 @@ const AddDiscount: React.FC = () => {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/customers/${formData.customerId}`,
+        `${API_BASE}/api/customers/${formData.customerId}`,
         {
           method: "PUT",
           headers: {

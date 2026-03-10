@@ -14,6 +14,7 @@ import AsideMenu from "../components/AsideMenu/Left/UnifiedAsideMenu";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { RootState } from "../redux/store";
+import { API_BASE } from "../config/api";
 
 interface UserData {
   companyId: string;
@@ -32,7 +33,7 @@ function Layout() {
     // Dispatch the setToken action to save the token in the Redux store
     if (token) {
       dispatch(setToken(token));
-      fetch("http://localhost:5000/api/users/me", {
+      fetch(`${API_BASE}/api/users/me`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,

@@ -1,9 +1,10 @@
 import { saveCustomerInvoicesToDB } from "./indexedDB";
+import { API_BASE } from "../config/api";
 
 export async function fetchAndCacheCustomerInvoice(customerId: string, token: string) {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/customers/reciept/${customerId}`,
+        `${API_BASE}/api/customers/reciept/${customerId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

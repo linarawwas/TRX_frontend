@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useSelector } from 'react-redux';
 import SpinLoader from '../UI reusables/SpinLoader/SpinLoader';
 import './DefaultProducts.css'
+import { API_BASE } from '../../config/api';
 interface DefaultProduct {
     _id: string;
     key: string;
@@ -21,7 +22,7 @@ const DefaultProducts: React.FC = () => {
         const fetchData = async () => {
             try {
                 const response = await axios.get<DefaultProduct[]>(
-                    `http://localhost:5000/api/adminDeterminedDefaults/company/${companyId}`, {
+                    `${API_BASE}/api/adminDeterminedDefaults/company/${companyId}`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }

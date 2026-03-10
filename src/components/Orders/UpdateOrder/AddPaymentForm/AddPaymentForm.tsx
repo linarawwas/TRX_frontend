@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "./AddPaymentForm.css";
+import { API_BASE } from "../../../../config/api";
 
 const AddPaymentForm = ({ orderId, orderData, setOrderData, onSuccess }) => {
   const token = useSelector((s: any) => s.user.token);
@@ -57,7 +58,7 @@ const AddPaymentForm = ({ orderId, orderData, setOrderData, onSuccess }) => {
       };
 
       const res = await fetch(
-        `http://localhost:5000/api/orders/addPayment/${orderId}`,
+        `${API_BASE}/api/orders/addPayment/${orderId}`,
         {
           method: "PUT",
           headers: {
@@ -77,7 +78,7 @@ const AddPaymentForm = ({ orderId, orderData, setOrderData, onSuccess }) => {
       toast.success("تمت إضافة الدفعة بنجاح");
 
       // refresh order so receipt updates
-      const updated = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
+      const updated = await fetch(`${API_BASE}/api/orders/${orderId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (updated.ok) {

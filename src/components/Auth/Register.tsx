@@ -3,6 +3,7 @@ import './Register.css'; // Import your CSS file
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from 'react-redux';
+import { API_BASE } from '../../config/api';
 
 const Register: React.FC = () => {
   const token: string = useSelector((state: any) => state.user.token);
@@ -26,7 +27,7 @@ const Register: React.FC = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/register', {
+      const response = await fetch(`${API_BASE}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

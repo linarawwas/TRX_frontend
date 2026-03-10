@@ -5,9 +5,9 @@ This document tracks known architectural issues and planned improvements. It is 
 ### Quick wins
 
 1. **API base configuration is duplicated**
-   - **Current state:** Some modules use `API_BASE` from `src/config/api.ts`, others use `REACT_APP_API_BASE_URL || API_BASE`, and a few still hardcode `http://localhost:5000`.
-   - **Risk:** Harder to deploy to multiple environments; subtle bugs when changing API URLs.
-   - **Direction:** Standardize on a single helper (e.g. `getApiBase()`) and remove hardcoded URLs.
+   - **Completed on:** 2026-03-10
+   - **What changed:** Centralized all frontend API calls on the normalized `API_BASE` exported from `src/config/api.ts`, removed direct uses of `REACT_APP_API_BASE_URL` in feature APIs, and replaced hardcoded `http://localhost:5000` URLs in the codebase with `API_BASE`. `API_BASE` now derives from `REACT_APP_API_BASE` (with `REACT_APP_API_BASE_URL` kept for backwards compatibility) and falls back to `http://localhost:5000`.
+   - **Notes:** New code should always import `API_BASE` (or a small helper built on it) instead of reading environment variables or hardcoding hostnames.
 
 2. **Router duplication**
    - **Current state:** `EmployeeRouter` contains duplicated routes; several paths overlap between `AdminRouter` and `EmployeeRouter`.

@@ -5,6 +5,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./CustomerStatement.css";
 import AddPaymentForm from "../../Orders/UpdateOrder/AddPaymentForm/AddPaymentForm";
+import { API_BASE } from "../../../config/api";
 type InitialSummary = {
   bottlesLeft: number;
   balanceUSD: number;
@@ -113,12 +114,12 @@ const CustomerStatement: React.FC = () => {
       try {
         setLoading(true);
         const [cRes, oRes] = await Promise.all([
-          fetch(`http://localhost:5000/api/customers/${customerId}`, {
+          fetch(`${API_BASE}/api/customers/${customerId}`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
           // ✅ new endpoint
           fetch(
-            `http://localhost:5000/api/orders/customer/${customerId}/with-initial`,
+            `${API_BASE}/api/orders/customer/${customerId}/with-initial`,
             { headers: { Authorization: `Bearer ${token}` } }
           ),
         ]);
@@ -143,10 +144,10 @@ const CustomerStatement: React.FC = () => {
       try {
         setLoading(true);
         const [cRes, oRes] = await Promise.all([
-          fetch(`http://localhost:5000/api/customers/${customerId}`, {
+          fetch(`${API_BASE}/api/customers/${customerId}`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch(`http://localhost:5000/api/orders/customer/${customerId}`, {
+          fetch(`${API_BASE}/api/orders/customer/${customerId}`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -501,7 +502,7 @@ const CustomerStatement: React.FC = () => {
                 // refresh statement after payment
                 try {
                   const res = await fetch(
-                    `http://localhost:5000/api/orders/customer/${customerId}`,
+                    `${API_BASE}/api/orders/customer/${customerId}`,
                     {
                       headers: { Authorization: `Bearer ${token}` },
                     }

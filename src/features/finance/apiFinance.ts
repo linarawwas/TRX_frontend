@@ -2,8 +2,6 @@
 import axios from "axios";
 import { API_BASE } from "../../config/api";
 
-const BASE = process.env.REACT_APP_API_BASE_URL || API_BASE;
-
 export interface Expense {
   _id: string;
   name: string;
@@ -33,27 +31,27 @@ export interface ExtraProfit {
 }
 
 export async function fetchExpenses(token: string): Promise<Expense[]> {
-  const { data } = await axios.get(`${BASE}/api/expenses`, {
+  const { data } = await axios.get(`${API_BASE}/api/expenses`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return Array.isArray(data) ? data : [];
 }
 
 export async function deleteExpense(token: string, expenseId: string): Promise<void> {
-  await axios.delete(`${BASE}/api/expenses/${expenseId}`, {
+  await axios.delete(`${API_BASE}/api/expenses/${expenseId}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 }
 
 export async function fetchExtraProfits(token: string, companyId: string): Promise<ExtraProfit[]> {
-  const { data } = await axios.get(`${BASE}/api/extraProfits`, {
+  const { data } = await axios.get(`${API_BASE}/api/extraProfits`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return Array.isArray(data) ? data : [];
 }
 
 export async function deleteExtraProfit(token: string, profitId: string): Promise<void> {
-  await axios.delete(`${BASE}/api/extraProfits/${profitId}`, {
+  await axios.delete(`${API_BASE}/api/extraProfits/${profitId}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 }
@@ -69,7 +67,7 @@ export async function createExpense(
   token: string,
   payload: CreateExpensePayload
 ): Promise<Expense> {
-  const { data } = await axios.post(`${BASE}/api/expenses`, payload, {
+  const { data } = await axios.post(`${API_BASE}/api/expenses`, payload, {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
@@ -89,7 +87,7 @@ export async function createExtraProfit(
   token: string,
   payload: CreateExtraProfitPayload
 ): Promise<ExtraProfit> {
-  const { data } = await axios.post(`${BASE}/api/extraProfits`, payload, {
+  const { data } = await axios.post(`${API_BASE}/api/extraProfits`, payload, {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
@@ -110,7 +108,7 @@ export async function updateExpense(
   expenseId: string,
   payload: UpdateExpensePayload
 ): Promise<Expense> {
-  const { data } = await axios.put(`${BASE}/api/expenses/${expenseId}`, payload, {
+  const { data } = await axios.put(`${API_BASE}/api/expenses/${expenseId}`, payload, {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
@@ -131,7 +129,7 @@ export async function updateExtraProfit(
   profitId: string,
   payload: UpdateExtraProfitPayload
 ): Promise<ExtraProfit> {
-  const { data } = await axios.put(`${BASE}/api/extraProfits/${profitId}`, payload, {
+  const { data } = await axios.put(`${API_BASE}/api/extraProfits/${profitId}`, payload, {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,

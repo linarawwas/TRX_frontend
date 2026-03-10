@@ -2,6 +2,7 @@
 import * as React from "react";
 import { toast } from "react-toastify";
 import "./OpeningEditor.css";
+import { API_BASE } from "../../../config/api";
 export function OpeningEditor({
   customerId,
   token,
@@ -45,7 +46,7 @@ export function OpeningEditor({
       body.allowCheckoutBump = !!allowBump;
 
       const res = await fetch(
-        `http://localhost:5000/api/customers/${customerId}/opening`,
+        `${API_BASE}/api/customers/${customerId}/opening`,
         {
           method: "PATCH",
           headers: {

@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import "../AddCustomers/AddCustomers.css";
 import "./AddCustomerInitials.css";
+import { API_BASE } from "../../../config/api";
 const AddCustomerInitials = (): JSX.Element => {
   const [file, setFile] = useState<File | null>(null);
   const [areas, setAreas] = useState<Array<{ _id: string; name: string }>>([]);
@@ -16,7 +17,7 @@ const AddCustomerInitials = (): JSX.Element => {
     const fetchAreas = async () => {
       try {
         const response = await fetch(
-          "http://localhost:5000/api/areas/company",
+          `${API_BASE}/api/areas/company`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -72,7 +73,7 @@ const AddCustomerInitials = (): JSX.Element => {
       setLoadingStep("Uploading to database...");
 
       const response = await fetch(
-        "http://localhost:5000/api/customers/uploadCustomersWithOrders",
+        `${API_BASE}/api/customers/uploadCustomersWithOrders`,
         {
           method: "POST",
           headers: {

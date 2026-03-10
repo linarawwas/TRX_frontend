@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./RoundsHistory.css";
 import { useSelector } from "react-redux";
+import { API_BASE } from "../../../config/api";
 
 type Round = {
   _id: string;
@@ -43,7 +44,7 @@ const RoundsHistory: React.FC<Props> = ({ shipmentId, totalToday, title }) => {
         setLoading(true);
         setError(null);
         const res = await fetch(
-          `http://localhost:5000/api/shipments/${shipmentId}/rounds`,
+          `${API_BASE}/api/shipments/${shipmentId}/rounds`,
           { headers: { Authorization: `Bearer ${token}` }, signal: ctrl.signal }
         );
         if (!res.ok) throw new Error("Failed to load rounds");

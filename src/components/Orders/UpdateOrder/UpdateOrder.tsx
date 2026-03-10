@@ -5,6 +5,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
 import "./UpdateOrder.css";
+import { API_BASE } from "../../../config/api";
 import AddPaymentForm from "./AddPaymentForm/AddPaymentForm";
 import OrderReceipt from "./OrderReceipt/OrderReceipt";
 
@@ -88,12 +89,10 @@ function UpdateOrder(): JSX.Element {
   const [showDelete, setShowDelete] = useState(false);
   const [deleteStep, setDeleteStep] = useState<1 | 2>(1);
 
-  const API = "http://localhost:5000";
-
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch(`${API}/api/orders/${orderId}`, {
+        const res = await fetch(`${API_BASE}/api/orders/${orderId}`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -162,7 +161,7 @@ function UpdateOrder(): JSX.Element {
     if (l !== undefined) body.lbpTotal = l;
 
     try {
-      const res = await fetch(`${API}/api/orders/${orderId}`, {
+      const res = await fetch(`${API_BASE}/api/orders/${orderId}`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -189,7 +188,7 @@ function UpdateOrder(): JSX.Element {
   const performDelete = async () => {
     if (!orderId) return;
     try {
-      const res = await fetch(`${API}/api/orders/${orderId}`, {
+      const res = await fetch(`${API_BASE}/api/orders/${orderId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });

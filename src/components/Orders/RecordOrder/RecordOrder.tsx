@@ -28,6 +28,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { getProductTypeFromDB, saveRequest } from "../../../utils/indexedDB";
 import { fetchAndCacheCustomerInvoice } from "../../../utils/apiHelpers";
+import { API_BASE } from "../../../config/api";
 import CustomerInvoices from "../../Customers/CustomerInvoices/CustomerInvoices";
 import { selectRoundProgress } from "../../../redux/selectors/shipment";
 // ---- Types (top of RecordOrder.tsx) ----
@@ -299,7 +300,7 @@ ______________
     waMessage?: string | null
   ) => {
     const request = {
-      url: "http://localhost:5000/api/orders",
+      url: `${API_BASE}/api/orders`,
       options: {
         method: "POST",
         headers: {

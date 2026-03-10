@@ -4,6 +4,7 @@ import { CustomersResponse, fetchCustomersByCompany } from "../../../features/cu
 import { fetchOrdersByCompany, Order } from "../../../features/orders/apiOrders";
 import { listCompanyProducts, ProductResponse } from "../../../features/products/apiProducts";
 import { normalizeListResponse } from "../utils/normalize";
+import { API_BASE } from "../../../config/api";
 
 export interface DistributorRow {
   _id: string;
@@ -42,10 +43,10 @@ export function useCompanyDistributorData(token: string, companyId?: string | nu
 
   const refreshDistributors = useCallback(async () => {
     setDistributorsLoading(true);
-    try {
-      const res = await fetch("http://localhost:5000/api/distributors", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      try {
+        const res = await fetch(`${API_BASE}/api/distributors`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
       const json = await res.json().catch(() => null);
       setDistributors(normalizeListResponse(json));
     } catch (error) {

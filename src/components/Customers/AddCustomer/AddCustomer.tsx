@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import AddToModel from "../../AddToModel/AddToModel";
+import { API_BASE } from "../../../config/api";
 
 type Area = { _id: string; name: string };
 type CustomerLite = { _id: string; name: string; sequence?: number | null };
@@ -19,7 +20,7 @@ const AddCustomer: React.FC = () => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/areas/company", {
+        const res = await fetch(`${API_BASE}/api/areas/company`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error();
@@ -40,7 +41,7 @@ const AddCustomer: React.FC = () => {
     (async () => {
       try {
         const res = await fetch(
-          `http://localhost:5000/api/customers/area/${currentAreaId}/active`,
+          `${API_BASE}/api/customers/area/${currentAreaId}/active`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         if (!res.ok) throw new Error();
@@ -120,7 +121,7 @@ const AddCustomer: React.FC = () => {
     };
 
     const res = await fetch(
-      "http://localhost:5000/api/customers/create-with-sequence",
+      `${API_BASE}/api/customers/create-with-sequence`,
       {
         method: "POST",
         headers: {

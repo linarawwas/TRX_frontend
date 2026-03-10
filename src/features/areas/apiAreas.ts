@@ -2,8 +2,6 @@
 import axios from "axios";
 import { API_BASE } from "../../config/api";
 
-const BASE = process.env.REACT_APP_API_BASE_URL || API_BASE;
-
 export interface Area {
   _id: string;
   name: string;
@@ -11,7 +9,7 @@ export interface Area {
 }
 
 export async function fetchAreasByCompany(token: string): Promise<Area[]> {
-  const { data } = await axios.get(`${BASE}/api/areas/company`, {
+  const { data } = await axios.get(`${API_BASE}/api/areas/company`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return Array.isArray(data) ? data : [];
@@ -19,7 +17,7 @@ export async function fetchAreasByCompany(token: string): Promise<Area[]> {
 
 export async function fetchAreasByDay(token: string, dayId: string, companyId: string): Promise<Area[]> {
   const { data } = await axios.post(
-    `${BASE}/api/areas/days/${dayId}`,
+    `${API_BASE}/api/areas/days/${dayId}`,
     { companyId },
     { headers: { Authorization: `Bearer ${token}` } }
   );
@@ -34,7 +32,7 @@ export async function fetchCustomersByArea(token: string, areaId: string): Promi
   sequence?: number | null;
   isActive?: boolean;
 }>> {
-  const { data } = await axios.get(`${BASE}/api/customers/area/${areaId}`, {
+  const { data } = await axios.get(`${API_BASE}/api/customers/area/${areaId}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return Array.isArray(data) ? data : [];
@@ -48,7 +46,7 @@ export async function reorderCustomersInArea(
   options?: { force?: boolean; startAt?: number }
 ): Promise<void> {
   await axios.post(
-    `${BASE}/api/areas/${areaId}/reorder?companyId=${companyId}`,
+    `${API_BASE}/api/areas/${areaId}/reorder?companyId=${companyId}`,
     {
       orderedCustomerIds,
       force: options?.force ?? true,

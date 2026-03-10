@@ -220,11 +220,9 @@ Create a `.env` file at the project root, for example:
 
 ```bash
 REACT_APP_API_BASE=https://api.example.com
-# or
-REACT_APP_API_BASE_URL=https://api.example.com
 ```
 
-The app currently supports both `REACT_APP_API_BASE` and `REACT_APP_API_BASE_URL` and falls back to `http://localhost:5000` when none are provided. The long‑term goal is to converge on a single env variable.
+The frontend reads `REACT_APP_API_BASE` (with `REACT_APP_API_BASE_URL` still supported for backwards compatibility) and falls back to `http://localhost:5000` when none are provided. All API modules consume the normalized `API_BASE` exported from `src/config/api.ts`.
 
 ### Scripts
 

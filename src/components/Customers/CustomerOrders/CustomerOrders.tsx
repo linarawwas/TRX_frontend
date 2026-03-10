@@ -6,6 +6,7 @@ import SpinLoader from "../../UI reusables/SpinLoader/SpinLoader";
 import { Link } from "react-router-dom";
 import "./CustomerOrders.css";
 import { fmtUSD, fmtLBP, fmtRateLBP, lbpToUsd, usdToLbp } from "../../../utils/money";
+import { API_BASE } from "../../../config/api";
 
 interface Payment {
   date: string;
@@ -47,7 +48,7 @@ const CustomerOrders: React.FC = () => {
     const fetchCustomerOrders = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/orders/customer/${customerId}`,
+          `${API_BASE}/api/orders/customer/${customerId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setCustomerOrders(response.data);

@@ -299,7 +299,7 @@ All pages implement:
 ### API Calls
 All API calls:
 - Use feature-specific API modules
-- Use `API_BASE` from config (via `process.env.REACT_APP_API_BASE_URL`)
+- Use `API_BASE` from `src/config/api.ts` as the single source of truth for the backend base URL
 - Include proper error handling
 - Support cancellation via cleanup functions
 

@@ -41,6 +41,7 @@ import {
 import AddToModel from "../../AddToModel/AddToModel";
 import { preloadShipmentData } from "../../../utils/preloadShipmentData";
 import { createRoundOrShipment } from "../../../utils/createRoundOrShipment";
+import { API_BASE } from "../../../config/api";
 import "./StartShipment.css";
 
 /**
@@ -225,7 +226,7 @@ const StartShipment: React.FC = () => {
       try {
         const { year, month, day, weekday } = getBeirutParts();
         const response = await fetch(
-          `http://localhost:5000/api/days/name/${weekday}`,
+          `${API_BASE}/api/days/name/${weekday}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         if (!response.ok) throw new Error("Day info fetch failed");

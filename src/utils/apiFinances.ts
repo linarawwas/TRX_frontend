@@ -1,10 +1,8 @@
 // src/utils/apiFinances.ts
 import { API_BASE } from "../config/api";
 
-const API = API_BASE || "http://localhost:5000";
-
 export async function createFinance(token: string, body: any) {
-  const res = await fetch(`${API}/api/finances`, {
+  const res = await fetch(`${API_BASE}/api/finances`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -18,7 +16,7 @@ export async function createFinance(token: string, body: any) {
 }
 
 export async function updateFinance(token: string, id: string, body: any) {
-  const res = await fetch(`${API}/api/finances/${id}`, {
+  const res = await fetch(`${API_BASE}/api/finances/${id}`, {
     method: "PATCH",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -32,7 +30,7 @@ export async function updateFinance(token: string, id: string, body: any) {
 }
 
 export async function deleteFinance(token: string, id: string) {
-  const res = await fetch(`${API}/api/finances/${id}`, {
+  const res = await fetch(`${API_BASE}/api/finances/${id}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -44,7 +42,7 @@ export async function deleteFinance(token: string, id: string) {
 }
 
 export async function dailySummary(token: string, dateISO: string) {
-  const url = new URL(`${API}/api/finances/summary/daily`);
+  const url = new URL(`${API_BASE}/api/finances/summary/daily`);
   url.searchParams.set("date", dateISO);
   const res = await fetch(url.toString(), {
     headers: { Authorization: `Bearer ${token}` },
@@ -53,7 +51,7 @@ export async function dailySummary(token: string, dateISO: string) {
   return res.json();
 }
 export async function monthlySummary(token: string, y: number, m: number) {
-  const url = new URL(`${API}/api/finances/summary/monthly`);
+  const url = new URL(`${API_BASE}/api/finances/summary/monthly`);
   url.searchParams.set("year", String(y));
   url.searchParams.set("month", String(m));
   const res = await fetch(url.toString(), {
@@ -63,7 +61,7 @@ export async function monthlySummary(token: string, y: number, m: number) {
   return res.json();
 }
 export async function listCategories(token: string) {
-  const res = await fetch(`${API}/api/finance-categories`, {
+  const res = await fetch(`${API_BASE}/api/finance-categories`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return res.json();
@@ -84,7 +82,7 @@ export async function listFinances(
     const from = firstDay.toISOString().split('T')[0];
     const to = lastDay.toISOString().split('T')[0];
 
-    const url = new URL(`${API}/api/finances`);
+    const url = new URL(`${API_BASE}/api/finances`);
     url.searchParams.set("from", from);
     url.searchParams.set("to", to);
     // Note: kind and categoryId filtering would need to be done on backend or client-side

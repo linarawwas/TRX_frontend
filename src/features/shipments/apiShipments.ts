@@ -2,8 +2,6 @@
 import axios from "axios";
 import { API_BASE } from "../../config/api";
 
-const BASE = process.env.REACT_APP_API_BASE_URL || API_BASE;
-
 export interface DateObject {
   day: number | null;
   month: number | null;
@@ -37,7 +35,7 @@ export async function fetchShipmentsByRange(
   toDate: DateObject
 ): Promise<ShipmentData[]> {
   const { data } = await axios.post<ShipmentsRangeResponse>(
-    `${BASE}/api/shipments/range`,
+    `${API_BASE}/api/shipments/range`,
     { companyId, fromDate, toDate },
     {
       headers: {

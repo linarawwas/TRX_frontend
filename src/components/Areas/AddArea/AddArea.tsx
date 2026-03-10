@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import AddToModel from "../../AddToModel/AddToModel";
+import { API_BASE } from "../../../config/api";
 
 type Day = { _id: string; name: string };
 
@@ -26,7 +27,7 @@ const AddArea: React.FC = () => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/days", {
+        const res = await fetch(`${API_BASE}/api/days`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -69,7 +70,7 @@ const AddArea: React.FC = () => {
       companyId, // server may already infer it; include if your API expects it
     };
 
-    const res = await fetch("http://localhost:5000/api/areas", {
+    const res = await fetch(`${API_BASE}/api/areas`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -2,8 +2,6 @@
 import axios from "axios";
 import { API_BASE } from "../../config/api";
 
-const BASE = process.env.REACT_APP_API_BASE_URL || API_BASE;
-
 export interface Payment {
   date: string;
   amount: number;
@@ -57,7 +55,7 @@ export interface Order {
 }
 
 export async function fetchOrdersByCompany(token: string, companyId: string): Promise<Order[]> {
-  const { data } = await axios.get(`${BASE}/api/orders/company/${companyId}`, {
+  const { data } = await axios.get(`${API_BASE}/api/orders/company/${companyId}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return Array.isArray(data) ? data : [];

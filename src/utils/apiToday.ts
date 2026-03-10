@@ -1,4 +1,6 @@
 // src/utils/apiToday.ts
+import { API_BASE } from "../config/api";
+
 export async function fetchShipmentsOrders(
   token: string,
   opts?: { date?: string; includeExternal?: boolean }
@@ -7,7 +9,7 @@ export async function fetchShipmentsOrders(
   params.set("includeExternal", opts?.includeExternal ? "true" : "false");
   if (opts?.date) params.set("date", opts.date);
 
-  const url = `http://localhost:5000/api/shipments/orders/by-date?${params.toString()}`;
+  const url = `${API_BASE}/api/shipments/orders/by-date?${params.toString()}`;
   const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
