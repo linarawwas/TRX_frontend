@@ -13,7 +13,7 @@ Located in `src/redux/`.
   - `Defaults` — configuration values and defaults.
 
 - **Store configuration (`store.ts`)**
-  - Combines reducers via `rootReducer`.
+  - Uses Redux Toolkit `configureStore` with `rootReducer`, plus `getDefaultMiddleware().concat(trxApi.middleware)` so thunks and RTK Query work.
   - Hydrates initial state from `localStorage` (`reduxState` key).
   - Persists the entire Redux state back to `localStorage` on every change.
   - Exposes `RootState` type, used by typed selectors.
@@ -116,9 +116,14 @@ When a piece of state:
 
 This hook is the main bridge between **persistent offline data** and **in‑memory Redux state** for orders.
 
+### RTK Query
+
+- `src/features/api/trxApi.ts` defines the RTK Query API slice (`listShipmentsRange` and related).
+- Hooks such as `useTodayShipmentTotals` use `useListShipmentsRangeQuery`. New read-heavy flows should add endpoints to `trxApi` and use the generated hooks.
+
 ### Future improvements
 
-- Migrate slices to **Redux Toolkit** for more concise reducers.
-- Consider **RTK Query** or similar for shared data fetching, caching, and invalidation.
-- Introduce an `auth` feature and move session logic out of `App` and `Layout`.
+- Slices are already on **Redux Toolkit** (`createSlice`); store uses `configureStore`.
+- **RTK Query** is in use for shipment range data; extend it for other shared server state.
+- **Auth** is centralized in `src/features/auth/`. Optional: further isolate session logic from `App`/`Layout` or add token refresh.
 

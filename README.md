@@ -1,204 +1,130 @@
-## Project overview
+# TRX Frontend
 
-This repository contains the frontend for TRX: an offline‑first, mobile‑first SaaS application that digitizes the delivery and collection workflow for bottled‑water and gas‑cylinder distribution companies.
+Offline-first, mobile-first frontend for TRX: a SaaS application that digitizes delivery and collection workflow for bottled-water and gas-cylinder distribution companies.
+
+---
+
+## Project overview
 
 The app provides:
 
-- An **admin experience** for monitoring shipments, customers, areas, distributors, and financial performance.
-- An **employee experience** optimized for field work, including offline order capture and daily routes.
-- A fully **RTL, Arabic‑first UI** with dual‑currency (USD/LBP) support.
+- **Admin experience** — Monitoring shipments, customers, areas, distributors, and financial performance.
+- **Employee experience** — Field work, offline order capture, and daily routes.
+- **RTL, Arabic-first UI** with dual-currency (USD/LBP) support.
 
-For a deep product and feature walkthrough, see  
-[`docs/trx-product-overview-frontend.md`](docs/trx-product-overview-frontend.md).
+For product and feature details, see [**docs/trx-product-overview-frontend.md**](docs/trx-product-overview-frontend.md).
 
 ## Why this system exists
 
-Delivery and cash‑collection work in Lebanon happens under:
+Delivery and cash-collection in Lebanon face:
 
-- **Unstable connectivity** (routes out of coverage for long periods).
-- **Dual‑currency constraints** (USD and LBP).
-- **Manual, paper‑based operations** that are hard to audit and scale.
+- **Unstable connectivity** — Routes often out of coverage.
+- **Dual-currency** — USD and LBP.
+- **Manual, paper-based operations** — Hard to audit and scale.
 
-This frontend is designed to:
+This frontend:
 
-- Let drivers **record deliveries, returns, and payments entirely offline** and sync later.
-- Give admins and accountants **real‑time visibility** into shipments and finances.
-- Organize customers, areas, and rounds into a workflow that can scale with multiple distributors.
+- Lets drivers **record deliveries, returns, and payments offline** and sync later.
+- Gives admins **real-time visibility** into shipments and finances.
+- Organizes customers, areas, and rounds for multiple distributors.
 
 ## Key capabilities
 
-From the frontend’s perspective, TRX enables:
-
-- **Shipments & rounds**
-  - Start shipments and additional rounds during the day.
-  - Track delivered vs returned vs carrying, per day and per round.
-  - View shipment lists with KPIs and per‑shipment breakdowns.
-
-- **Orders & customers**
-  - Record orders per customer (delivered, returned, payments in USD/LBP).
-  - See customer statements and invoices with running balances.
-  - Browse and search customers by area, sequence, and status.
-
-- **Finance**
-  - Record expenses and extra profits per shipment and per day.
-  - Inspect daily and monthly finance dashboards with normalized totals.
-  - Filter and edit entries by type, category, and period.
-
-- **Offline‑aware workflows**
-  - Preload and cache areas, customers, products, discounts, and invoices.
-  - Queue orders when offline and **sync later** with background retry.
-  - Indicate pending offline orders in the UI.
-
-- **Role‑based UI**
-  - **Admin**: dashboards, finance, products, distributors, reports.
-  - **Employee**: today’s snapshot, routes, record order, current shipment.
+- **Shipments & rounds** — Start shipments and rounds; track delivered/returned/carrying per day and per round; shipment lists and KPIs.
+- **Orders & customers** — Record orders per customer (delivered, returned, USD/LBP payments); customer statements and invoices; browse by area, sequence, status.
+- **Finance** — Record expenses and extra profits per shipment/day; daily and monthly dashboards; filter and edit by type, category, period.
+- **Offline** — Preload/cache areas, customers, products, discounts, invoices; queue orders when offline and sync when back online; UI shows pending offline orders.
+- **Role-based UI** — **Admin**: dashboards, finance, products, distributors, reports. **Employee**: today snapshot, routes, record order, current shipment.
 
 ## Architecture overview
 
 ### Tech stack
 
-- **React 18 + TypeScript**
-- **Redux** (classic) for core global state
-- **React Router v6** for routing
-- **IndexedDB** via `idb` for offline caching and background sync
-- **Axios / fetch** for HTTP calls
-- **react‑toastify** for notifications
-- **Custom i18n** utility for typed Arabic translation keys
-- **Create React App** tooling and a custom service worker registration
+| Layer | Technology |
+|-------|------------|
+| UI | React 18, TypeScript |
+| State | Redux Toolkit (`configureStore`, `createSlice`), RTK Query for API caching |
+| Routing | React Router v6 |
+| Offline | IndexedDB via `idb`; service worker in production |
+| HTTP | Axios / fetch; API base from `src/config/api.ts` |
+| UI feedback | react-toastify |
+| i18n | Custom typed Arabic translation keys (`src/utils/i18n.ts`) |
+| Tooling | Create React App (react-scripts) |
 
-### High‑level layers
+### High-level layers
 
-- **UI & pages** — `src/pages/**`, `src/components/**`
-  - Page containers per role (admin/employee) and shared flows.
-  - Presentational components for KPIs, progress rings, lists, and forms.
+| Layer | Location | Purpose |
+|-------|----------|---------|
+| **App bootstrap** | `src/index.tsx` → `src/app/main.tsx` | React root, Redux Provider, service worker registration |
+| **Layout & routing** | `src/Layout/`, `src/Router/` | Authenticated layout, role-based AdminRouter / EmployeeRouter, shared CommonRoutes |
+| **Pages** | `src/pages/AdminPages/`, `EmployeePages/`, `SharedPages/` | Role-specific and shared page containers |
+| **Components** | `src/components/` | Reusable and domain UI (KPI, snapshots, forms, ErrorBoundary, etc.) |
+| **Features** | `src/features/` | Domain modules: auth, finance, shipments, products, orders, customers, areas, API (RTK Query) |
+| **Global state** | `src/redux/` | Store (Toolkit), slices (UserInfo, Order, Shipment, Defaults), memoized selectors |
+| **Infrastructure** | `src/utils/`, `src/hooks/`, `src/config/` | IndexedDB, API config, i18n, offline sync, shared hooks |
 
-- **Feature modules** — `src/features/**`
-  - Domain modules for finance, shipments, products, orders, customers, and areas.
-  - Provide typed APIs, hooks, selectors, and utilities per feature.
+See [**docs/folder-structure.md**](docs/folder-structure.md) for a detailed breakdown.
 
-- **Global state** — `src/redux/**`
-  - Slices for user/session, current order context, shipment state, and defaults.
-  - Store is hydrated from `localStorage` and persisted back on each change.
+### Redux and RTK Query
 
-- **Infrastructure & utilities** — `src/utils/**`, `src/hooks/**`, `src/config/**`
-  - IndexedDB abstraction, API base configuration, i18n, offline sync, shared hooks.
+- **Store** (`src/redux/store.ts`) — `configureStore` with `rootReducer`, `localStorage` preload and subscribe, and middleware: `getDefaultMiddleware().concat(trxApi.middleware)` so thunks and RTK Query work.
+- **Slices** — UserInfo, Order, Shipment, Defaults are implemented with `createSlice`. Selectors that return objects/arrays (e.g. `selectTodayProgress`, `selectRoundProgress`) use `createSelector` to avoid unnecessary rerenders.
+- **RTK Query** — `src/features/api/trxApi.ts` defines the API slice; `useListShipmentsRangeQuery` and hooks like `useTodayShipmentTotals` use it. New read-heavy flows should add endpoints here.
 
-### Offline & service worker
+### Auth and session
 
-- A service worker is registered in production (`src/app/main.tsx`) to cache built assets and coordinate updates.
-- IndexedDB (`src/utils/indexedDB.ts`) stores:
-  - Pending API requests (offline orders),
-  - Customers, areas, products, discounts, invoices, days, and exchange rates.
-- `src/hooks/useSyncOfflineOrders.ts`:
-  - Listens for `online` events.
-  - Replays pending order requests and updates Redux.
-  - Uses toasts and retries to keep the user informed.
+- **Auth feature** — `src/features/auth/`: `authStorage.ts` (load/save auth to `localStorage`, hydrate Redux), `authApi.ts` (`fetchMeAndSync`), `useAuth.ts`.
+- **App** — `App.tsx` uses `hydrateAuthFromStorage(dispatch)` and gates routes by `isAuthenticated`. `Layout.tsx` calls `fetchMeAndSync(token, dispatch)` to refresh user profile and role.
+
+### Offline and service worker
+
+- **Service worker** — Registered in production in `src/app/main.tsx`; caches assets and supports update flow (reload on controller change).
+- **IndexedDB** (`src/utils/indexedDB.ts`) — Stores pending requests, customers, areas, products, discounts, invoices, days, exchange rates. See `src/utils/readme.md`.
+- **Sync** — `src/hooks/useSyncOfflineOrders.ts` (mounted from `App.tsx`) replays pending order requests when back online and updates Redux.
+
+### Error handling
+
+- **ErrorBoundary** — Wraps the authenticated app shell in `App.tsx`. Renders `AuthAppErrorFallback` (RTL-aware refresh and login links) so render errors don’t white-screen the app. Login route is outside the boundary.
 
 ## Folder structure (high level)
 
 ```text
 src/
-  app/            # Bootstrap (React root, SW registration, App)
-  Layout/         # Authenticated layout + role-based routing (admin vs employee)
-  Router/         # AdminRouter and EmployeeRouter (react-router v6)
-  pages/          # AdminPages, EmployeePages, SharedPages
-  components/     # Reusable UI and domain components (KPI, snapshots, forms, etc.)
-  features/       # Domain feature modules (finance, shipments, products, orders, customers, areas)
-  redux/          # Redux store, reducers, and typed selectors
-  utils/          # IndexedDB, API helpers, i18n, money, WhatsApp, date utils, etc.
-  hooks/          # Shared hooks (media query, offline sync)
-  config/         # API base and environment configuration
-  shared/styles/  # Global styles
-  types/          # Shared TypeScript declarations
+  index.tsx           # CRA entry; delegates to app/main
+  app/                # main.tsx (React root, Provider, SW), App.tsx (routing, auth gate)
+  Layout/              # Layout.tsx (menu, toasts, AdminRouter | EmployeeRouter)
+  Router/              # AdminRouter, EmployeeRouter, CommonRoutes
+  pages/               # AdminPages, EmployeePages, SharedPages
+  components/          # UI reusables, dashboard, visuals, domain components, ErrorBoundary
+  features/            # auth, api (trxApi), finance, shipments, products, orders, customers, areas
+  redux/               # store, rootReducer, slices, selectors
+  utils/               # indexedDB, API helpers, i18n, money, date, etc.
+  hooks/               # useMediaQuery, useSyncOfflineOrders
+  config/              # api.ts (API_BASE)
+  shared/styles/       # Global styles
+  types/               # Shared TypeScript declarations
 ```
 
-See [`docs/folder-structure.md`](docs/folder-structure.md) for a more detailed breakdown.
+Details: [**docs/folder-structure.md**](docs/folder-structure.md).
 
 ## Core technical decisions
 
-- **Redux for core global state**
-  - User/session, shipment metrics, and current order selection are centralized in Redux.
-  - The store loads from `localStorage` at startup and persists on every change.
+- **Redux Toolkit for global state** — Slices with `createSlice`; store with `configureStore` and thunk + RTK Query middleware. State is hydrated from `localStorage` and persisted on change.
+- **RTK Query for server state** — Shared caching, deduplication, and lifecycle for API data; extend via new endpoints in `trxApi.ts`.
+- **Feature modules for domain logic** — Features own types, API, hooks, selectors, utils; pages stay thin and use hooks.
+- **IndexedDB as offline layer** — Centralized in `src/utils/indexedDB.ts`; used for queuing and caching; see `src/utils/readme.md`.
+- **Typed i18n** — `TranslationKey` union and `t(key, params?)` in `src/utils/i18n.ts`.
+- **Single API base** — All calls use `API_BASE` (or `apiUrl()`) from `src/config/api.ts`; no direct env or hardcoded hosts in features.
 
-- **Feature modules for domain logic**
-  - Newer domains (finance, products, shipments, shared pages) follow a feature‑first pattern:
-    - `types.ts`, `api*.ts`, `hooks/*`, `selectors.ts`, `utils/*`, and docs.
-  - Page components coordinate hooks and UI, staying relatively thin.
+## Data flow (high level)
 
-- **IndexedDB as a first‑class storage layer**
-  - Centralized in `src/utils/indexedDB.ts` with logging, timing, and separate stores per domain.
-  - Used both for offline queuing (pending requests) and caching (customers, areas, invoices, exchange rate).
+1. **App startup** — `index.tsx` → `main.tsx` → Provider + `App`. `App` runs `hydrateAuthFromStorage(dispatch)` and routes to `/login` or authenticated layout by `isAuthenticated`.
+2. **After login** — `Layout` mounts, calls `fetchMeAndSync(token, dispatch)` (`/api/users/me`), updates Redux and `localStorage`, then renders AdminRouter or EmployeeRouter.
+3. **Routes** — `CommonRoutes` holds shared routes; each router adds role-specific routes and uses `CommonRoutes()` so only `<Route>` elements are children of `<Routes>`.
+4. **Example: Admin today** — `AdminHomePage` uses `useTodayShipmentTotals(token, companyId)` (RTK Query); renders RingCard, KPI cards, CurrentShipmentStat.
+5. **Example: Offline orders** — Orders stored in IndexedDB; `useSyncOfflineOrders` replays on `online`, updates Shipment slice and shows toasts.
 
-- **Typed i18n**
-  - `TranslationKey` union ensures translation keys are type‑checked.
-  - `t(key, params?)` handles interpolation and keeps Arabic text out of components when possible.
-
-- **Service worker with explicit update flow**
-  - A small update routine sends `SKIP_WAITING` to the waiting worker and reloads the page when a new SW activates.
-
-## Data / request flow (high level)
-
-### Authentication and routing
-
-1. `src/app/App.tsx`:
-   - Reads `token`, `companyId`, `isAdmin`, `username` from `localStorage`.
-   - Seeds Redux with this information.
-   - Routes `/login` vs `/*` based on authentication.
-
-2. `src/Layout/Layout.tsx`:
-   - On mount, calls `/api/users/me` to refresh user profile and role.
-   - Writes updated `companyId`, `isAdmin`, and `username` to Redux and `localStorage`.
-   - Renders the side menu and either `AdminRouter` or `EmployeeRouter`.
-
-3. `AdminRouter` and `EmployeeRouter`:
-   - Define page routes for each role using React Router v6.
-
-### Example: Admin dashboard (today)
-
-- `AdminHomePage`:
-  - Reads `token` and `companyId` from Redux.
-  - Uses `useTodayShipmentTotals(token, companyId)` (`src/features/shipments/hooks/useTodayShipmentTotals.ts`).
-  - Computes net USD/LBP and trend data using shipment utilities.
-  - Renders:
-    - `RingCard` with a visual delivery rate,
-    - KPI cards for net USD, LBP payments, and LBP expenses,
-    - Current shipment stats.
-
-### Example: Offline order sync
-
-- When offline:
-  - Order submissions are stored to IndexedDB via the `requests` store.
-
-- When connectivity returns:
-  - `useSyncOfflineOrders`:
-    - Loads all pending requests.
-    - Replays them against the API.
-    - On success: removes them from IndexedDB, updates shipment Redux state, and shows a success toast.
-    - On failure: logs and shows an error toast, then schedules a retry.
-
-For a more narrative explanation of user flows, see  
-[`docs/trx-product-overview-frontend.md`](docs/trx-product-overview-frontend.md).
-
-## State management
-
-- **Redux slices** (`src/redux/*`):
-  - `UserInfo` — session token, companyId, isAdmin, username.
-  - `Order` — currently selected area, customer, product, and price.
-  - `Shipment` — shipment identifiers, date, metrics, customer lists, and round state.
-  - `Defaults` — configuration values and defaults.
-
-- **Feature hooks** (`src/features/**/hooks/*`):
-  - Encapsulate data fetching and derived logic for:
-    - Finance summaries and entries,
-    - Products,
-    - Shipments,
-    - Orders,
-    - Customers and areas.
-
-- **IndexedDB**:
-  - Used for caching and offline persistence, especially for customers, areas, invoices, exchange rates, and queued requests.
-
-See [`docs/state-management.md`](docs/state-management.md) for details and examples.
+More narrative flows: [**docs/trx-product-overview-frontend.md**](docs/trx-product-overview-frontend.md). State details: [**docs/state-management.md**](docs/state-management.md).
 
 ## Local development
 
@@ -206,7 +132,7 @@ See [`docs/state-management.md`](docs/state-management.md) for details and examp
 
 - Node.js (LTS)
 - npm or yarn
-- A running backend API compatible with the endpoints used in `src/features/**` and `src/utils/api*.ts`
+- Backend API compatible with the endpoints used in `src/features/**` and `src/utils/api*.ts`
 
 ### Setup
 
@@ -216,72 +142,52 @@ npm install
 
 ### Environment variables
 
-Create a `.env` file at the project root, for example:
+- **API base** — All requests use `API_BASE` from `src/config/api.ts`.
+  - When the app runs on **localhost** (any port), the frontend **always** uses `http://localhost:5000` so dev never hits a remote API.
+  - Otherwise it uses `REACT_APP_API_BASE_URL` or `REACT_APP_API_BASE` from `.env` (no trailing slash).
+
+Example `.env` for non-localhost:
 
 ```bash
-REACT_APP_API_BASE=https://api.example.com
+REACT_APP_API_BASE_URL=https://api.example.com
 ```
-
-The frontend reads  `REACT_APP_API_BASE_URL` from the .env file. All API modules consume the normalized `API_BASE` exported from `src/config/api.ts`.
 
 ### Scripts
 
-- `npm start` — start development server.
-- `npm run build` — production build.
-- `npm test` — run tests (via CRA).
-- `npm run lint` / `npm run lint:fix` — run ESLint.
-- `npm run format` / `npm run format:check` — run Prettier on `src/**/*`.
+| Command | Description |
+|--------|-------------|
+| `npm start` | Development server |
+| `npm run build` | Production build |
+| `npm test` | Run tests (CRA) |
+| `npm run lint` / `npm run lint:fix` | ESLint |
+| `npm run format` / `npm run format:check` | Prettier on `src/**/*` |
 
-## Environment & debugging
+## Environment and debugging
 
-- **Service worker**
-  - Only registered in production builds.
-  - Logs registration info and update events to the console.
-
-- **IndexedDB debugging**
-  - Add `?idbdebug=1` to the URL **or** set `localStorage.IDB_DEBUG = "1"` to enable verbose IndexedDB logs.
+- **Service worker** — Production only; registration and update events logged to console.
+- **IndexedDB** — Add `?idbdebug=1` or set `localStorage.IDB_DEBUG = "1"` for verbose logs.
 
 ## Documentation map
 
-For a single index of all documentation (including feature-level docs under `src/`), see [docs/INDEX.md](docs/INDEX.md).
+**Single index:** [**docs/INDEX.md**](docs/INDEX.md) — Lists all docs under `docs/` and feature-level docs under `src/`.
 
-High‑level and product:
+| Area | Documents |
+|------|-----------|
+| **Product** | [trx-product-overview-frontend.md](docs/trx-product-overview-frontend.md) |
+| **Pages** | [AdminHomePage](docs/pages/AdminHomePage.md), [EmployeeHomePage](docs/pages/EmployeeHomePage.md), [ProductsList](docs/pages/ProductsList.md), [SharedPages](docs/pages/SharedPages.md) |
+| **Components** | [RefactoredComponents](docs/components/RefactoredComponents.md) |
+| **CSS** | [RefactorGuide](docs/css/RefactorGuide.md) |
+| **Architecture** | [folder-structure](docs/folder-structure.md), [state-management](docs/state-management.md), [technical-debt](docs/technical-debt.md) |
 
-- [`docs/trx-product-overview-frontend.md`](docs/trx-product-overview-frontend.md) — Product, user roles, flows, and frontend features.
+Feature- and page-level docs under `src/` are linked from [docs/INDEX.md](docs/INDEX.md).
 
-Pages:
+## Improvement roadmap
 
-- [`docs/pages/AdminHomePage.md`](docs/pages/AdminHomePage.md) — Admin dashboard.
-- [`docs/pages/EmployeeHomePage.md`](docs/pages/EmployeeHomePage.md) — Employee dashboard.
-- [`docs/pages/ProductsList.md`](docs/pages/ProductsList.md) — Products management page.
-- [`docs/pages/SharedPages.md`](docs/pages/SharedPages.md) — Shared pages (addresses, areas, shipments list, customers, orders, etc.).
+The codebase is feature-oriented and hook-driven. Many items in [**docs/technical-debt.md**](docs/technical-debt.md) are already done (API base, router consolidation, auth feature, Redux Toolkit slices, RTK Query, error boundaries, IndexedDB docs, forms validation, documentation index).
 
-Components:
+Remaining and longer-term directions (see technical-debt for details):
 
-- [`docs/components/RefactoredComponents.md`](docs/components/RefactoredComponents.md) — Shared UI components, hooks, and patterns.
+- **Ongoing** — Prefer RTK Query for new data-heavy features; keep selectors memoized; add new docs to `docs/INDEX.md`.
+- **Optional** — Error boundaries per feature area; further form/validation standardization; grow test coverage for selectors, hooks, and critical flows.
 
-Architecture & glue:
-
-- [`docs/folder-structure.md`](docs/folder-structure.md) — Where things live in `src/`.
-- [`docs/state-management.md`](docs/state-management.md) — Redux, feature hooks, IndexedDB, and how they interact.
-- [`docs/technical-debt.md`](docs/technical-debt.md) — Known architectural risks and planned improvements.
-
-## Improvement roadmap (architecture)
-
-The codebase is being evolved from a classic Redux + utils structure into a feature‑oriented, hook‑driven architecture.
-
-Planned directions (described in more detail in `docs/technical-debt.md`):
-
-- **Quick wins**
-  - Standardize API base configuration and remove remaining hardcoded URLs.
-  - Clean up route duplication and naming inconsistencies.
-  - Ensure all docs referencing IndexedDB match the current implementation.
-
-- **Medium term**
-  - Extract an `auth` feature for session and role management.
-  - Migrate Redux slices to Redux Toolkit.
-
-- **Long term**
-  - Introduce RTK Query or a similar data‑fetching abstraction.
-  - Standardize forms and validation around a shared pattern.
-  - Grow test coverage around feature selectors, hooks, and critical workflows.
+When refactors land, update `docs/technical-debt.md` so the roadmap stays accurate.
