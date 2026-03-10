@@ -243,6 +243,8 @@ The frontend reads  `REACT_APP_API_BASE_URL` from the .env file. All API modules
 
 ## Documentation map
 
+For a single index of all documentation (including feature-level docs under `src/`), see [docs/INDEX.md](docs/INDEX.md).
+
 High‑level and product:
 
 - [`docs/trx-product-overview-frontend.md`](docs/trx-product-overview-frontend.md) — Product, user roles, flows, and frontend features.

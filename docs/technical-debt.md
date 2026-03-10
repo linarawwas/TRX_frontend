@@ -58,9 +58,9 @@ This document tracks known architectural issues and planned improvements. It is 
    - **Notes:** The login route is intentionally not wrapped so that auth remains usable if the error is in the authenticated shell. For finer isolation, consider wrapping individual feature sections (e.g. `FinanceDashboard`, shipment views) in their own `ErrorBoundary` components in a later pass.
 
 3. **Documentation consolidation**
-   - **Current state:** Rich docs exist under `docs/` and `src/**/docs`, but there is no single index.
-   - **Risk:** Hard for newcomers to discover all documentation.
-   - **Direction:** Maintain a short `docs/INDEX.md` (or rely on the Documentation map in the README) and keep it updated when new docs are added.
+   - **Completed on:** 2026-03-10
+   - **What changed:** Added [docs/INDEX.md](INDEX.md) as the single entry point for all project documentation. It lists every doc under `docs/` (root, pages, components, css) and feature/page-level docs under `src/**/docs`, with short descriptions and links. The root README’s Documentation map now points to `docs/INDEX.md` for the full index while keeping the curated high-level list.
+   - **Notes:** When adding new documentation, add an entry to `docs/INDEX.md` (and to the README Documentation map if it’s a top-level doc) so the index stays discoverable.
 
 Each time a refactor lands, update this file to move items from “planned” to “done” or to refine the direction.
 
