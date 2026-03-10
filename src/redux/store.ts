@@ -1,14 +1,7 @@
-import { applyMiddleware, compose, createStore } from 'redux';
+import { configureStore } from '@reduxjs/toolkit';
 import rootReducer from './rootReducer';
 import { ShipmentState } from './Shipment/types';
 import { trxApi } from '../features/api/trxApi';
-
-declare global {
-  interface Window {
-    __REDUX_DEVTOOLS_EXTENSION__?: () => any;
-    __REDUX_DEVTOOLS_EXTENSION_COMPOSE__?: typeof compose;
-  }
-}
 
 // Define the type for the state returned by rootReducer
 type BaseRootState = ReturnType<typeof rootReducer>;
@@ -20,19 +13,15 @@ export type RootState = Omit<BaseRootState, 'shipment'> & {
 
 // Load the state from localStorage when initializing the Redux store
 const savedState = localStorage.getItem('reduxState');
-const initialState = savedState ? JSON.parse(savedState) : {};
+const preloadedState = savedState ? JSON.parse(savedState) : undefined;
 
-// Reducers usually take the initial state as the second argument
-const composeEnhancers =
-  window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-
-export const store = createStore(
-  rootReducer,
-  initialState,
-  composeEnhancers(
-    applyMiddleware(trxApi.middleware as any),
-  )
-);
+export const store = configureStore({
+  reducer: rootReducer,
+  preloadedState,
+  // @ts-expect-error - getDefaultMiddleware().concat(trxApi.middleware) is correct at runtime; TS complains due to redux vs @reduxjs/toolkit Middleware typings
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(trxApi.middleware),
+});
 
 // Save the Redux state to localStorage whenever it changes
 store.subscribe(() => {
