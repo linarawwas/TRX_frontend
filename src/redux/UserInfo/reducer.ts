@@ -1,79 +1,49 @@
-import { 
-  SET_TOKEN, 
-  SET_USERNAME, 
-  SET_IS_ADMIN, 
-  SET_COMPANY_ID,
-  CLEAR_TOKEN, 
-  CLEAR_COMPANY_ID, 
-  CLEAR_IS_ADMIN, 
-  CLEAR_USERNAME 
-} from './actionTypes';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-interface UserState {
+export interface UserState {
   token: string | null;
   companyId: string;
   isAdmin: boolean;
   username: string;
 }
 
-const initialState: UserState = {
+export const initialState: UserState = {
   token: null,
   companyId: '',
   isAdmin: false,
   username: '',
 };
 
-interface Action {
-  type: string;
-  payload?: any;
-}
+export const userSlice = createSlice({
+  name: "user",
+  initialState,
+  reducers: {
+    setToken(state, action: PayloadAction<string | null>) {
+      state.token = action.payload;
+    },
+    setUsername(state, action: PayloadAction<string | null>) {
+      state.username = action.payload || "";
+    },
+    setIsAdmin(state, action: PayloadAction<boolean>) {
+      state.isAdmin = action.payload;
+    },
+    setCompanyId(state, action: PayloadAction<string | null>) {
+      state.companyId = action.payload || "";
+    },
+    clearToken(state) {
+      state.token = null;
+    },
+    clearIsAdmin(state) {
+      state.isAdmin = false;
+    },
+    clearCompanyId(state) {
+      state.companyId = "";
+    },
+    clearUsername(state) {
+      state.username = "";
+    },
+  },
+});
 
-const userReducer = (state = initialState, action: Action): UserState => {
-  switch (action.type) {
-    case SET_TOKEN:
-      return {
-        ...state,
-        token: action.payload,
-      };
-    case SET_USERNAME:
-      return {
-        ...state,
-        username: action.payload,
-      };
-    case SET_IS_ADMIN:
-      return {
-        ...state,
-        isAdmin: action.payload,
-      };
-    case SET_COMPANY_ID:
-      return {
-        ...state,
-        companyId: action.payload,
-      };
-    case CLEAR_TOKEN:
-      return {
-        ...state,
-        token: null,
-      };
-    case CLEAR_IS_ADMIN:
-      return {
-        ...state,
-        isAdmin: false,
-      };
-    case CLEAR_COMPANY_ID:
-      return {
-        ...state,
-        companyId: '',
-      };
-    case CLEAR_USERNAME:
-      return {
-        ...state,
-        username: '',
-      };
-    default:
-      return state;
-  }
-};
-
-export default userReducer;
+export default userSlice.reducer;
 

@@ -1,71 +1,21 @@
 // action.ts
-import {
-  SET_CUSTOMER_ID,
-  SET_PRODUCT_PRICE,
-  SET_PRODUCT_NAME,
-  SET_AREA_ID,
-  SET_PRODUCT_ID,
-  CLEAR_PRODUCT_ID,
-  CLEAR_CUSTOMER_ID,
-  CLEAR_AREA_ID,
-  CLEAR_CUSTOMER_NAME,
-  SET_CUSTOMER_NAME,
-  SET_CUSTOMER_PHONE_NB,
-  CLEAR_CUSTOMER_PHONE_NB,
-} from "./actionTypes";
+// Backwards-compatible re-exports of the Redux Toolkit slice actions.
 
-export const setCustomerId = (customer_Id: string) => ({
-  type: SET_CUSTOMER_ID,
-  payload: customer_Id,
-});
+import { orderSlice } from "./reducer";
 
-export const setAreaId = (area_id: string) => ({
-  type: SET_AREA_ID,
-  payload: area_id,
-});
-
-export const setProductId = (product_id: string) => ({
-  type: SET_PRODUCT_ID,
-  payload: product_id,
-});
-
-export const setProductName = (product_name: string) => ({
-  type: SET_PRODUCT_NAME,
-  payload: product_name,
-});
-
-export const setProductPrice = (product_price: number) => ({
-  type: SET_PRODUCT_PRICE,
-  payload: product_price,
-});
-
-export const setCustomerName = (name: string) => ({
-  type: SET_CUSTOMER_NAME,
-  payload: name,
-});
-
-export const setCustomerPhoneNb = (phone: string) => ({
-  type: SET_CUSTOMER_PHONE_NB,
-  payload: phone,
-});
-
-export const clearCustomerName = () => ({
-  type: CLEAR_CUSTOMER_NAME,
-});
-
-export const clearCustomerId = () => ({
-  type: CLEAR_CUSTOMER_ID,
-});
-
-export const clearAreaId = () => ({
-  type: CLEAR_AREA_ID,
-});
-
-export const clearProductId = () => ({
-  type: CLEAR_PRODUCT_ID,
-});
-
-export const clearCustomerPhoneNb = () => ({
-  type: CLEAR_CUSTOMER_PHONE_NB,
-});
+export const {
+  setCustomerId,
+  setAreaId,
+  setProductId,
+  setProductName,
+  setProductPrice,
+  setCustomerName,
+  setCustomerPhoneNb,
+  clearCustomerName,
+  clearCustomerId,
+  clearAreaId,
+  clearProductId,
+  clearCustomerPhoneNb,
+  clearProductPrice,
+} = orderSlice.actions;
 

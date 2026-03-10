@@ -33,9 +33,12 @@ This document tracks known architectural issues and planned improvements. It is 
    - **Notes:** Future auth flows (login/logout, token refresh) should build on the `src/features/auth/` helpers and `useAuth` hook rather than dispatching `UserInfo` actions or touching `localStorage` directly.
 
 2. **Redux is classic, not Toolkit**
-   - **Current state:** Manual action types and reducers across `UserInfo`, `Order`, `Shipment`, and `Defaults`.
-   - **Risk:** Boilerplate, harder to evolve, easier to introduce subtle bugs.
-   - **Direction:** Gradually migrate slices to Redux Toolkit (`createSlice`), starting with `UserInfo` and `Order`.
+   - **Completed on:** 2026-03-10
+   - **What changed:**
+     - All Redux slices (`UserInfo`, `Order`, `Shipment`, `Defaults`) are now implemented using Redux Toolkit `createSlice`, while preserving their existing public action APIs via re‑exports in the respective `action.ts` files.
+     - `Shipment` reducer logic was ported into a `shipmentSlice` that keeps all previous behaviors (round info, pending orders, previous shipment snapshot, payments, profits/expenses, date fields) but benefits from immutable updates via Immer and stronger typing.
+     - `Defaults` was migrated to a small `defaultsSlice` with typed state and reducers for `default_product` and `default_language`.
+   - **Notes:** The store is still wired via `createStore` for now; a future follow‑up can move `store.ts` to `configureStore` to simplify middleware/devtools configuration, but all slices themselves are now Toolkit‑based and easier to evolve.
 
 3. **Forms and validation are not standardized**
    - **Current state:** Some forms are config‑driven (`AddExpenses`, `AddProfits`, `AddProducts`), but validation is mostly ad‑hoc.

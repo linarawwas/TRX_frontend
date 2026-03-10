@@ -1,40 +1,7 @@
-import {
-  SET_DAY_ID,
-  SET_DATE_DAY,
-  SET_DATE_MONTH,
-  SET_DATE_YEAR,
-  CLEAR_DAY_ID,
-  CLEAR_DATE_DAY,
-  CLEAR_DATE_MONTH,
-  CLEAR_DATE_YEAR,
-  SET_ID,
-  CLEAR_ALL_SHIPMENT_INFO,
-  SET_TARGET,
-  SET_RETURNED,
-  SET_DELIVERED,
-  SET_TOTAL_PAYMENTS,
-  SET_USD_PAYMENTS,
-  SET_LIRA_PAYMENTS,
-  SET_SHIPMENT_FROM_PREV,
-  CLEAR_SHIPMENT_PROFITS_IN_LIRAS,
-  CLEAR_SHIPMENT_PROFITS_IN_USD,
-  CLEAR_SHIPMENT_EXPENSES_IN_USD,
-  CLEAR_SHIPMENT_EXPENSES_IN_LIRAS,
-  SET_SHIPMENT_EXPENSES_IN_USD,
-  SET_SHIPMENT_PROFITS_IN_USD,
-  SET_SHIPMENT_EXPENSES_IN_LIRAS,
-  SET_SHIPMENT_PROFITS_IN_LIRAS,
-  ADD_CUSTOMER_WITH_FILLED_ORDER,
-  ADD_CUSTOMER_WITH_EMPTY_ORDER,
-  ADD_PENDING_ORDER,
-  REMOVE_PENDING_ORDER,
-  SET_EXCHANGE_RATE_LBP,
-  SET_ROUND_INFO,
-  CLEAR_ROUND_INFO,
-} from "./actionTypes";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ShipmentState } from "./types";
 
-const initialState: ShipmentState = {
+export const initialState: ShipmentState = {
   _id: "",
   dayId: "",
   year: null,
@@ -85,264 +52,205 @@ const initialState: ShipmentState = {
   },
 };
 
-interface Action {
-  type: string;
-  payload?: any;
-}
+export const shipmentSlice = createSlice({
+  name: "shipment",
+  initialState,
+  reducers: {
+    setRoundInfo(
+      state,
+      action: PayloadAction<{
+        sequence: number;
+        targetAdded: number;
+        baseDelivered?: number;
+        baseReturned?: number;
+        baseUsd?: number;
+        baseLbp?: number;
+        baseExpUsd?: number;
+        baseExpLbp?: number;
+        baseProfUsd?: number;
+        baseProfLbp?: number;
+        startedAt?: string;
+      }>
+    ) {
+      state.round = { ...state.round, ...action.payload };
+    },
+    clearRoundInfo(state) {
+      state.round = {
+        sequence: null,
+        targetAdded: 0,
+        baseDelivered: state.delivered,
+        baseReturned: state.returned,
+        baseUsd: state.dollarPayments,
+        baseLbp: state.liraPayments,
+        baseExpUsd: state.expensesInUSD,
+        baseExpLbp: state.expensesInLiras,
+        baseProfUsd: state.profitsInUSD,
+        baseProfLbp: state.profitsInLiras,
+        startedAt: null,
+      };
+    },
+    setDayId(state, action: PayloadAction<string>) {
+      state.dayId = action.payload;
+    },
+    setTotalPayments(state, action: PayloadAction<number>) {
+      (state as any).payments = action.payload;
+    },
+    setExchangeRateLBP(state, action: PayloadAction<number>) {
+      state.exchangeRateLBP = Number(action.payload) || null;
+    },
+    addCustomerWithFilledOrder(state, action: PayloadAction<any>) {
+      state.CustomersWithFilledOrders.push(action.payload);
+    },
+    addCustomerWithEmptyOrder(state, action: PayloadAction<any>) {
+      state.CustomersWithEmptyOrders.push(action.payload);
+    },
+    addPendingOrder(state, action: PayloadAction<string | number>) {
+      const id = String(action.payload);
+      if (!state.CustomersWithPendingOrders.includes(id)) {
+        state.CustomersWithPendingOrders.push(id);
+      }
+    },
+    removePendingOrder(state, action: PayloadAction<string | number>) {
+      const id = String(action.payload);
+      state.CustomersWithPendingOrders =
+        state.CustomersWithPendingOrders.filter((x) => String(x) !== id);
+    },
+    setShipmentFromPrev(state) {
+      state._id = state.prev_id || state._id;
+      state.dayId = state.prev_dayId || state.dayId;
+      state.year = state.prev_year || state.year;
+      state.month = state.prev_month || state.month;
+      state.day = state.prev_day || state.day;
+      state.target = state.prev_target || state.target;
+      state.delivered = state.prev_delivered || state.delivered;
+      state.returned = state.prev_returned || state.returned;
+      state.dollarPayments = state.prev_dollarPayments || state.dollarPayments;
+      state.liraPayments = state.prev_liraPayments || state.liraPayments;
+      state.profitsInUSD = state.prev_profitsInUSD || state.profitsInUSD;
+      state.expensesInUSD = state.prev_expensesInUSD || state.expensesInUSD;
+      state.expensesInLiras =
+        state.prev_expensesInLiras || state.expensesInLiras;
+      state.profitsInLiras = state.prev_profitsInLiras || state.profitsInLiras;
+      state.CustomersWithFilledOrders =
+        (state.prev_CustomersWithFilledOrder as any) ||
+        state.CustomersWithFilledOrders;
+      state.CustomersWithEmptyOrders =
+        (state.prev_CustomersWithEmptyOrders as any) ||
+        state.CustomersWithEmptyOrders;
+    },
+    setUsdPayments(state, action: PayloadAction<number>) {
+      state.dollarPayments = action.payload;
+    },
+    setLiraPayments(state, action: PayloadAction<number>) {
+      state.liraPayments = action.payload;
+    },
+    setReturned(state, action: PayloadAction<number>) {
+      state.returned = action.payload;
+    },
+    setDelivered(state, action: PayloadAction<number>) {
+      state.delivered = action.payload;
+    },
+    setShipmentId(state, action: PayloadAction<string>) {
+      state._id = action.payload;
+    },
+    setTarget(state, action: PayloadAction<number>) {
+      state.target = action.payload;
+    },
+    setShipmentProfitsInLiras(state, action: PayloadAction<number>) {
+      state.profitsInLiras = action.payload;
+    },
+    setShipmentExpensesInLiras(state, action: PayloadAction<number>) {
+      state.expensesInLiras = action.payload;
+    },
+    setShipmentProfitsInUSD(state, action: PayloadAction<number>) {
+      state.profitsInUSD = action.payload;
+    },
+    setShipmentExpensesInUSD(state, action: PayloadAction<number>) {
+      state.expensesInUSD = action.payload;
+    },
+    setDateDay(state, action: PayloadAction<number>) {
+      state.day = action.payload;
+    },
+    setDateMonth(state, action: PayloadAction<number>) {
+      state.month = action.payload;
+    },
+    setDateYear(state, action: PayloadAction<number>) {
+      state.year = action.payload;
+    },
+    clearDayId(state) {
+      state.dayId = "";
+    },
+    clearDateMonth(state) {
+      state.month = null;
+    },
+    clearDateYear(state) {
+      state.year = null;
+    },
+    clearDateDay(state) {
+      state.day = null;
+    },
+    clearShipmentExpensesInLiras(state) {
+      state.expensesInLiras = 0;
+    },
+    clearShipmentProfitsInLiras(state) {
+      state.profitsInLiras = 0;
+    },
+    clearShipmentProfitsInUSD(state) {
+      state.profitsInUSD = 0;
+    },
+    clearShipmentExpensesInUSD(state) {
+      state.expensesInUSD = 0;
+    },
+    clearAllShipmentInfo(state) {
+      state.prev_id = state._id;
+      state.prev_dayId = state.dayId;
+      state.prev_year = state.year;
+      state.prev_month = state.month;
+      state.prev_day = state.day;
+      state.prev_target = state.target;
+      state.prev_delivered = state.delivered;
+      state.prev_returned = state.returned;
+      state.prev_dollarPayments = state.dollarPayments;
+      state.prev_liraPayments = state.liraPayments;
+      state.prev_expensesInLiras = state.expensesInLiras;
+      state.prev_profitsInLiras = state.profitsInLiras;
+      state.prev_profitsInUSD = state.profitsInUSD;
+      state.prev_expensesInUSD = state.expensesInUSD;
+      state._id = "";
+      state.dayId = "";
+      state.year = null;
+      state.month = null;
+      state.day = null;
+      state.target = 0;
+      (state as any).payments = 0;
+      state.delivered = 0;
+      state.returned = 0;
+      state.dollarPayments = 0;
+      state.liraPayments = 0;
+      state.expensesInLiras = 0;
+      state.profitsInLiras = 0;
+      state.expensesInUSD = 0;
+      state.profitsInUSD = 0;
+      state.CustomersWithFilledOrders = [];
+      state.CustomersWithEmptyOrders = [];
+      state.CustomersWithPendingOrders = [];
+      state.round = {
+        sequence: null,
+        targetAdded: 0,
+        baseDelivered: 0,
+        baseReturned: 0,
+        baseUsd: 0,
+        baseLbp: 0,
+        baseExpUsd: 0,
+        baseExpLbp: 0,
+        baseProfUsd: 0,
+        baseProfLbp: 0,
+        startedAt: null,
+      };
+    },
+  },
+});
 
-const shipmentReducer = (state = initialState, action: Action): ShipmentState => {
-  switch (action.type) {
-    case SET_ROUND_INFO:
-      return {
-        ...state,
-        round: { ...state.round, ...action.payload },
-      };
+export default shipmentSlice.reducer;
 
-    case CLEAR_ROUND_INFO:
-      return {
-        ...state,
-        round: {
-          sequence: null,
-          targetAdded: 0,
-          baseDelivered: state.delivered,
-          baseReturned: state.returned,
-          baseUsd: state.dollarPayments,
-          baseLbp: state.liraPayments,
-          baseExpUsd: state.expensesInUSD,
-          baseExpLbp: state.expensesInLiras,
-          baseProfUsd: state.profitsInUSD,
-          baseProfLbp: state.profitsInLiras,
-          startedAt: null,
-        },
-      };
-
-    case SET_DAY_ID:
-      return {
-        ...state,
-        dayId: action.payload,
-      };
-    case SET_TOTAL_PAYMENTS:
-      return {
-        ...state,
-        payments: action.payload,
-      };
-    case SET_EXCHANGE_RATE_LBP:
-      return { ...state, exchangeRateLBP: Number(action.payload) || null };
-    case ADD_CUSTOMER_WITH_FILLED_ORDER:
-      return {
-        ...state,
-        CustomersWithFilledOrders: [
-          ...state.CustomersWithFilledOrders,
-          action.payload,
-        ],
-      };
-    case ADD_CUSTOMER_WITH_EMPTY_ORDER:
-      return {
-        ...state,
-        CustomersWithEmptyOrders: [
-          ...state.CustomersWithEmptyOrders,
-          action.payload,
-        ],
-      };
-    case ADD_PENDING_ORDER:
-      return {
-        ...state,
-        CustomersWithPendingOrders: Array.from(
-          new Set([...state.CustomersWithPendingOrders, String(action.payload)])
-        ),
-      };
-
-    case REMOVE_PENDING_ORDER:
-      return {
-        ...state,
-        CustomersWithPendingOrders: state.CustomersWithPendingOrders.filter(
-          (id) => String(id) !== String(action.payload)
-        ),
-      };
-
-    case SET_SHIPMENT_FROM_PREV:
-      return {
-        ...state,
-        _id: state.prev_id || state._id,
-        dayId: state.prev_dayId || state.dayId,
-        year: state.prev_year || state.year,
-        month: state.prev_month || state.month,
-        day: state.prev_day || state.day,
-        target: state.prev_target || state.target,
-        delivered: state.prev_delivered || state.delivered,
-        returned: state.prev_returned || state.returned,
-        dollarPayments: state.prev_dollarPayments || state.dollarPayments,
-        liraPayments: state.prev_liraPayments || state.liraPayments,
-        profitsInUSD: state.prev_profitsInUSD || state.profitsInUSD,
-        expensesInUSD: state.prev_expensesInUSD || state.expensesInUSD,
-        expensesInLiras: state.prev_expensesInLiras || state.expensesInLiras,
-        profitsInLiras: state.prev_profitsInLiras || state.profitsInLiras,
-        CustomersWithFilledOrders:
-          state.prev_CustomersWithFilledOrder ||
-          state.CustomersWithFilledOrders,
-        CustomersWithEmptyOrders:
-          state.prev_CustomersWithEmptyOrders || state.CustomersWithEmptyOrders,
-      };
-
-    case SET_USD_PAYMENTS:
-      return {
-        ...state,
-        dollarPayments: action.payload,
-      };
-    case SET_LIRA_PAYMENTS:
-      return {
-        ...state,
-        liraPayments: action.payload,
-      };
-    case SET_RETURNED:
-      return {
-        ...state,
-        returned: action.payload,
-      };
-    case SET_DELIVERED:
-      return {
-        ...state,
-        delivered: action.payload,
-      };
-    case SET_ID:
-      return {
-        ...state,
-        _id: action.payload,
-      };
-    case SET_TARGET:
-      return {
-        ...state,
-        target: action.payload,
-      };
-    case SET_SHIPMENT_PROFITS_IN_LIRAS:
-      return {
-        ...state,
-        profitsInLiras: action.payload,
-      };
-    case SET_SHIPMENT_EXPENSES_IN_LIRAS:
-      return {
-        ...state,
-        expensesInLiras: action.payload,
-      };
-    case SET_SHIPMENT_PROFITS_IN_USD:
-      return {
-        ...state,
-        profitsInUSD: action.payload,
-      };
-    case SET_SHIPMENT_EXPENSES_IN_USD:
-      return {
-        ...state,
-        expensesInUSD: action.payload,
-      };
-    case SET_DATE_DAY:
-      return {
-        ...state,
-        day: action.payload,
-      };
-    case SET_DATE_MONTH:
-      return {
-        ...state,
-        month: action.payload,
-      };
-    case SET_DATE_YEAR:
-      return {
-        ...state,
-        year: action.payload,
-      };
-    case CLEAR_DAY_ID:
-      return {
-        ...state,
-        dayId: "",
-      };
-    case CLEAR_DATE_MONTH:
-      return {
-        ...state,
-        month: null,
-      };
-    case CLEAR_DATE_YEAR:
-      return {
-        ...state,
-        year: null,
-      };
-    case CLEAR_DATE_DAY:
-      return {
-        ...state,
-        day: null,
-      };
-    case CLEAR_SHIPMENT_EXPENSES_IN_LIRAS:
-      return {
-        ...state,
-        expensesInLiras: 0,
-      };
-
-    case CLEAR_SHIPMENT_PROFITS_IN_LIRAS:
-      return {
-        ...state,
-        profitsInLiras: 0,
-      };
-    case CLEAR_SHIPMENT_PROFITS_IN_USD:
-      return {
-        ...state,
-        profitsInUSD: 0,
-      };
-    case CLEAR_SHIPMENT_EXPENSES_IN_USD:
-      return {
-        ...state,
-        expensesInUSD: 0,
-      };
-    case CLEAR_ALL_SHIPMENT_INFO:
-      return {
-        ...state,
-        prev_id: state._id,
-        prev_dayId: state.dayId,
-        prev_year: state.year,
-        prev_month: state.month,
-        prev_day: state.day,
-        prev_target: state.target,
-        prev_delivered: state.delivered,
-        prev_returned: state.returned,
-        prev_dollarPayments: state.dollarPayments,
-        prev_liraPayments: state.liraPayments,
-        prev_expensesInLiras: state.expensesInLiras,
-        prev_profitsInLiras: state.profitsInLiras,
-        prev_profitsInUSD: state.profitsInUSD,
-        prev_expensesInUSD: state.expensesInUSD,
-        _id: "",
-        dayId: "",
-        year: null,
-        month: null,
-        day: null,
-        target: 0,
-        delivered: 0,
-        returned: 0,
-        payments: 0,
-        dollarPayments: 0,
-        liraPayments: 0,
-        expensesInLiras: 0,
-        profitsInLiras: 0,
-        expensesInUSD: 0,
-        profitsInUSD: 0,
-        CustomersWithFilledOrders: [],
-        CustomersWithEmptyOrders: [],
-        CustomersWithPendingOrders: [],
-        round: {
-          sequence: null,
-          targetAdded: 0,
-          baseDelivered: 0,
-          baseReturned: 0,
-          baseUsd: 0,
-          baseLbp: 0,
-          baseExpUsd: 0,
-          baseExpLbp: 0,
-          baseProfUsd: 0,
-          baseProfLbp: 0,
-          startedAt: null,
-        },
-      };
-    default:
-      return state;
-  }
-};
-
-export default shipmentReducer;
 

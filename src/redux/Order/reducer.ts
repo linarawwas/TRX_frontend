@@ -1,21 +1,16 @@
-import {
-  CLEAR_AREA_ID,
-  CLEAR_PRODUCT_ID,
-  CLEAR_PRODUCT_NAME,
-  SET_PRODUCT_ID,
-  CLEAR_CUSTOMER_ID,
-  SET_AREA_ID,
-  SET_CUSTOMER_ID,
-  SET_PRODUCT_NAME,
-  SET_PRODUCT_PRICE,
-  CLEAR_PRODUCT_PRICE,
-  SET_CUSTOMER_NAME,
-  CLEAR_CUSTOMER_NAME,
-  SET_CUSTOMER_PHONE_NB,
-  CLEAR_CUSTOMER_PHONE_NB,
-} from "./actionTypes";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-const initialState = {
+export interface OrderState {
+  area_Id: string | null;
+  customer_Id: string | null;
+  customer_name: string;
+  phone: string;
+  product_id: string | null;
+  product_name: string;
+  product_price: number;
+}
+
+export const initialState: OrderState = {
   area_Id: null,
   customer_Id: null,
   customer_name: "",
@@ -25,39 +20,54 @@ const initialState = {
   product_price: 0,
 };
 
-const orderReducer = (state = initialState, action: any) => {
-  switch (action.type) {
-    case SET_AREA_ID:
-      return { ...state, area_Id: action.payload };
-    case SET_PRODUCT_PRICE:
-      return { ...state, product_price: action.payload };
-    case SET_CUSTOMER_ID:
-      return { ...state, customer_Id: action.payload };
-    case SET_CUSTOMER_NAME:
-      return { ...state, customer_name: action.payload };
-    case SET_CUSTOMER_PHONE_NB:
-      return { ...state, phone: action.payload };
-    case SET_PRODUCT_ID:
-      return { ...state, product_id: action.payload };
-    case SET_PRODUCT_NAME:
-      return { ...state, product_name: action.payload };
-    case CLEAR_AREA_ID:
-      return { ...state, area_Id: null };
-    case CLEAR_CUSTOMER_ID:
-      return { ...state, customer_Id: null };
-    case CLEAR_CUSTOMER_NAME:
-      return { ...state, customer_name: "" };  
-    case CLEAR_CUSTOMER_PHONE_NB:
-      return { ...state, phone: "" };  
-    case CLEAR_PRODUCT_ID:
-      return { ...state, product_id: null }; 
-    case CLEAR_PRODUCT_NAME:
-      return { ...state, product_name: "" };
-    case CLEAR_PRODUCT_PRICE:
-      return { ...state, product_price: 0 };
-    default:
-      return state;
-  }
-};
+export const orderSlice = createSlice({
+  name: "order",
+  initialState,
+  reducers: {
+    setAreaId(state, action: PayloadAction<string>) {
+      state.area_Id = action.payload;
+    },
+    setProductPrice(state, action: PayloadAction<number>) {
+      state.product_price = action.payload;
+    },
+    setCustomerId(state, action: PayloadAction<string>) {
+      state.customer_Id = action.payload;
+    },
+    setCustomerName(state, action: PayloadAction<string>) {
+      state.customer_name = action.payload;
+    },
+    setCustomerPhoneNb(state, action: PayloadAction<string>) {
+      state.phone = action.payload;
+    },
+    setProductId(state, action: PayloadAction<string>) {
+      state.product_id = action.payload;
+    },
+    setProductName(state, action: PayloadAction<string>) {
+      state.product_name = action.payload;
+    },
+    clearAreaId(state) {
+      state.area_Id = null;
+    },
+    clearCustomerId(state) {
+      state.customer_Id = null;
+    },
+    clearCustomerName(state) {
+      state.customer_name = "";
+    },
+    clearCustomerPhoneNb(state) {
+      state.phone = "";
+    },
+    clearProductId(state) {
+      state.product_id = null;
+    },
+    clearProductName(state) {
+      state.product_name = "";
+    },
+    clearProductPrice(state) {
+      state.product_price = 0;
+    },
+  },
+});
 
-export default orderReducer;
+export default orderSlice.reducer;
+
