@@ -12,6 +12,7 @@ Single entry point for all project documentation. For a curated high-level map, 
 | [folder-structure.md](folder-structure.md) | Where things live in `src/` (layers, features, shared code). |
 | [state-management.md](state-management.md) | Redux, feature hooks, IndexedDB, auth/session, and how they interact. |
 | [technical-debt.md](technical-debt.md) | Known architectural risks, completed refactors, and planned improvements. |
+| [architecture-evaluation.md](architecture-evaluation.md) | Senior-level evaluation: separation of concerns, modularity, scalability, naming, readability, coupling, onboarding, testability, maintainability; strengths and risks. |
 
 ### `docs/pages/`
 

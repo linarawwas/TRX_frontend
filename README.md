@@ -177,7 +177,7 @@ REACT_APP_API_BASE_URL=https://api.example.com
 | **Pages** | [AdminHomePage](docs/pages/AdminHomePage.md), [EmployeeHomePage](docs/pages/EmployeeHomePage.md), [ProductsList](docs/pages/ProductsList.md), [SharedPages](docs/pages/SharedPages.md) |
 | **Components** | [RefactoredComponents](docs/components/RefactoredComponents.md) |
 | **CSS** | [RefactorGuide](docs/css/RefactorGuide.md) |
-| **Architecture** | [folder-structure](docs/folder-structure.md), [state-management](docs/state-management.md), [technical-debt](docs/technical-debt.md) |
+| **Architecture** | [folder-structure](docs/folder-structure.md), [state-management](docs/state-management.md), [technical-debt](docs/technical-debt.md), [architecture-evaluation](docs/architecture-evaluation.md) |
 
 Feature- and page-level docs under `src/` are linked from [docs/INDEX.md](docs/INDEX.md).
 
