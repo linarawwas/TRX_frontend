@@ -9,6 +9,7 @@ import {
 } from "../../../redux/Shipment/action";
 import { selectUserToken } from "../../../redux/selectors/user";
 import { selectShipment } from "../../../redux/selectors/shipment";
+import { profitSchema } from "../validation";
 
 export interface ProfitFormData {
   name: string;
@@ -38,25 +39,22 @@ export function useAddProfit(options?: UseAddProfitOptions) {
       }
 
       try {
-        // Normalize + validate
-        const valueNum = Number(formData.value);
+        // Schema-based normalize + validate
+        const parsed = profitSchema.safeParse(formData);
+        if (!parsed.success) {
+          const msg =
+            parsed.error.issues[0]?.message || "البيانات غير صالحة";
+          const error = new Error(msg);
+          toast.error(error.message);
+          options?.onError?.(error);
+          return;
+        }
+        const normalized = parsed.data;
+        const valueNum = normalized.value;
         const currency =
-          String(formData.paymentCurrency).toUpperCase() === "LBP"
+          String(normalized.paymentCurrency).toUpperCase() === "LBP"
             ? "LBP"
             : "USD";
-
-        if (!formData.name?.trim()) {
-          const error = new Error("يرجى إدخال اسم الربح");
-          toast.error(error.message);
-          options?.onError?.(error);
-          return;
-        }
-        if (!Number.isFinite(valueNum) || valueNum < 0) {
-          const error = new Error("قيمة غير صالحة");
-          toast.error(error.message);
-          options?.onError?.(error);
-          return;
-        }
         if (!shipmentId) {
           const error = new Error("لا توجد شحنة محددة");
           toast.error(error.message);
@@ -65,7 +63,7 @@ export function useAddProfit(options?: UseAddProfitOptions) {
         }
 
         const payload: CreateExtraProfitPayload = {
-          name: formData.name.trim(),
+          name: normalized.name,
           value: valueNum,
           paymentCurrency: currency,
           shipmentId,

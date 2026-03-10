@@ -1,6 +1,10 @@
 import React from "react";
 import AddToModel from "../../AddToModel/AddToModel";
-import { useAddExpense, ExpenseFormData } from "../../../features/finance/hooks/useAddExpense";
+import {
+  useAddExpense,
+  ExpenseFormData,
+} from "../../../features/finance/hooks/useAddExpense";
+import { validateExpense } from "../../../features/finance/validation";
 
 export interface AddExpensesConfig {
   modelName: string;
@@ -41,6 +45,7 @@ const AddExpenses: React.FC<AddExpensesProps> = ({
       buttonLabel={config.buttonLabel}
       modelFields={config.fields}
       onSubmit={handleSubmit}
+      validate={validateExpense}
     />
   );
 };

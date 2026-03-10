@@ -1,6 +1,10 @@
 import React from "react";
 import AddToModel from "../../AddToModel/AddToModel";
-import { useAddProfit, ProfitFormData } from "../../../features/finance/hooks/useAddProfit";
+import {
+  useAddProfit,
+  ProfitFormData,
+} from "../../../features/finance/hooks/useAddProfit";
+import { validateProfit } from "../../../features/finance/validation";
 
 export interface AddProfitsConfig {
   modelName: string;
@@ -41,6 +45,7 @@ const AddProfits: React.FC<AddProfitsProps> = ({
       buttonLabel={config.buttonLabel}
       modelFields={config.fields}
       onSubmit={handleSubmit}
+      validate={validateProfit}
     />
   );
 };

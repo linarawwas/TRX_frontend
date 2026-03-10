@@ -41,9 +41,9 @@ This document tracks known architectural issues and planned improvements. It is 
    - **Notes:** The store is still wired via `createStore` for now; a future follow‑up can move `store.ts` to `configureStore` to simplify middleware/devtools configuration, but all slices themselves are now Toolkit‑based and easier to evolve.
 
 3. **Forms and validation are not standardized**
-   - **Current state:** Some forms are config‑driven (`AddExpenses`, `AddProfits`, `AddProducts`), but validation is mostly ad‑hoc.
-   - **Risk:** Inconsistent UX and error handling across forms.
-   - **Direction:** Choose a standard (e.g. `react-hook-form` + `zod`) and apply it to new forms first, then migrate older ones opportunistically.
+   - **Completed on:** 2026-03-10 (first step)
+   - **What changed:** Introduced shared Zod schemas and validators in `src/features/finance/validation.ts` for finance forms, and wired them into both the config‑driven UI layer (`AddExpenses`, `AddProfits` via the `validate` prop on `AddToModel`) and the submit hooks (`useAddExpense`, `useAddProfit`). These schemas now provide a single source of truth for validating `name`, `value`, and `paymentCurrency` for expenses and extra profits.
+   - **Notes:** Future forms should either (a) reuse these schemas where appropriate, or (b) define their own Zod schemas in a feature‑local `validation.ts` file and pass them through the `validate` prop (or equivalent) to ensure consistent, centralized validation rules and error messages.
 
 ### Longer-term architecture improvements
 
