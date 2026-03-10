@@ -4,6 +4,97 @@ Senior-level evaluation of the codebase against industry standards. Intended for
 
 ---
 
+## Red flags for senior review
+
+If a senior frontend developer were to review this repository, these are the things that would most likely **alarm them** or stand out as **red flags** in a first pass:
+
+| Red flag | What they see | Why it matters |
+|----------|----------------|----------------|
+| **One test file in the whole app** | `find src -name "*.test.*"` returns a single file (`StartShipment.test.tsx`). No tests for hooks, selectors, API layer, or critical flows (order submission, offline sync, finance). | High risk of regressions; refactors are unsafe; “we don’t have time to test” is a classic tech-debt spiral. |
+| **~900 LOC component** | `UpdateCustomer.tsx` is ~898 lines; `RecordOrder.tsx` is ~755 lines. | Unmaintainable; violates single responsibility; hard to test or change; suggests logic was never extracted into hooks or smaller components. |
+| **Duplicate `RootState`** | `RecordOrder.tsx` defines its own `type RootState = { ... }` instead of importing from `redux/store`. | Type drift; store changes won’t be caught here; breaks “single source of truth” for global state shape. |
+| **`any` in core Redux** | `Shipment/reducer.ts` uses `(state as any).payments` and `PayloadAction<any>` for customer-order actions. | Bypasses type safety in the most critical state; defeats the purpose of TypeScript in the reducer. |
+| **`@ts-expect-error` in store** | `redux/store.ts` uses `@ts-expect-error` on the middleware configuration. | Suggests version or type mismatches (e.g. redux vs RTK); could hide real bugs if the comment becomes wrong later. |
+| **API logic in two places** | Both `utils/` (e.g. `apiHelpers.ts`, `apiFinances.ts`, `apiShipments.ts`) and `features/*/api*.ts` contain HTTP calls. | Unclear ownership; duplication; “where do I add a new endpoint?” has no single answer. |
+| **Console usage in production path** | Dozens of `console.log` / `console.error` / `console.warn` across components, hooks, and utils (e.g. `useSyncOfflineOrders.ts` has many). | Noisy or leaking info in production; no structured logging; suggests debugging leftovers. |
+| **500+ LOC IndexedDB module** | Single `utils/indexedDB.ts` file (~522 LOC) with many stores and helpers. | Single point of failure; hard to reason about; migrations and versioning are riskier. |
+| **Shipment slice as a hub** | One large slice (~256 LOC) with many fields; order flow, finance, and sync all depend on it. | Any change to shipment state has broad impact; refactoring is costly and risky. |
+| **No code-splitting** | No `React.lazy` or route-based splitting; one main bundle. | Bundle size will grow with every feature; slower first load; not aligned with common production practices. |
+
+**Summary:** The most alarming points are **almost no tests**, **very large components**, **type shortcuts in Redux (`any`, duplicate RootState)**, and **split/duplicated API layer**. Addressing these first would materially improve confidence for a senior reviewer and for ongoing maintenance.
+
+---
+
+## Order of operations for fixing issues
+
+Fixing things in the right order reduces rework and risk: later steps rely on the safety and clarity from earlier ones. Below is a recommended sequence.
+
+### Phase 1 — Safety net and type correctness (do first)
+
+**Goal:** Make refactors safe and remove type shortcuts so the rest of the work doesn’t introduce hidden bugs.
+
+| Step | Action | Why this order |
+|------|--------|----------------|
+| 1.1 | **Add a minimal test suite** — Unit tests for Redux selectors (pure, easy), then 1–2 critical feature hooks (e.g. `useTodayShipmentTotals`, `useAddExpense`). Add a short `docs/testing.md` (what to test, how to run, how to mock Redux/API). | Without tests, refactoring large components or Redux is dangerous. Selectors and hooks are the fastest way to get a safety net; they also protect the next steps. |
+| 1.2 | **Fix Redux types** — In `Shipment/reducer.ts`, replace `(state as any)` and `PayloadAction<any>` with proper types (e.g. extend `ShipmentState` for `payments`, type the customer-id payloads). In `RecordOrder.tsx`, delete the local `RootState` and import `RootState` from `redux/store`. | Type safety in the core store prevents drift and catches bugs when you touch shipment/order code. Doing this before big refactors avoids fixing types twice. |
+| 1.3 | **Resolve or document the store `@ts-expect-error`** — Either fix the middleware typings (e.g. upgrade/align redux and RTK types) or keep the suppression with a clear comment and a link to an issue. | Removes a visible “we silenced the compiler” red flag and clarifies whether it’s technical debt or acceptable. |
+
+**Outcome:** Tests exist for the most stable, high-value code; Redux and RecordOrder use a single, typed source of truth. You can refactor with less fear.
+
+---
+
+### Phase 2 — Clear boundaries (no big structural refactors yet)
+
+**Goal:** Decide where new code lives and clean up noise so future work follows a single pattern.
+
+| Step | Action | Why this order |
+|------|--------|----------------|
+| 2.1 | **Consolidate API ownership** — Document the rule: “New server state: RTK Query in `trxApi` or feature `api*.ts`; no new API in `utils/`.” Migrate 1–2 utils API modules (e.g. one from `utils/apiFinances.ts` or `utils/apiHelpers.ts`) into the corresponding feature or into `trxApi`. Leave the rest for incremental migration. | Gives a single answer to “where do I add an endpoint?” and starts reducing duplication without rewriting the whole app. |
+| 2.2 | **Tame console usage** — Replace or wrap `console.log`/`error`/`warn` in a small logger that no-ops (or strips) in production, or remove obvious debug logs. Prioritize `useSyncOfflineOrders`, then other hooks and components. | Reduces production noise and info leak; quick wins, no architectural change. |
+
+**Outcome:** New features have a clear API home; production logs are under control.
+
+---
+
+### Phase 3 — Reduce blast radius (make big components and slice manageable)
+
+**Goal:** Shrink the largest components and clarify the Shipment slice so changes are local and testable.
+
+| Step | Action | Why this order |
+|------|--------|----------------|
+| 3.1 | **Break down the largest components** — Start with **RecordOrder** or **UpdateCustomer**. Extract custom hooks (e.g. “order submission”, “customer form state”, “invoice fetch”) and move business logic into them; then extract presentational subcomponents. Add component or integration tests for the critical path (e.g. submit order, save customer). Repeat for the other. | Doing this after Phase 1 means you have selector/hook tests and correct types; you’re not refactoring and fixing types at once. Smaller components are easier to test and change. |
+| 3.2 | **Shipment slice** — Either split into sub-slices (e.g. shipment meta vs round vs customer lists) or, if that’s too big a step, document internal “regions” and add unit tests for the reducer so future splits are safe. | Depends on having some tests (Phase 1) and possibly on RecordOrder/UpdateCustomer consuming shipment in a clearer way (Phase 3.1). Improves maintainability without blocking other work. |
+
+**Outcome:** Critical flows live in smaller, testable units; Shipment changes are safer and more localized.
+
+---
+
+### Phase 4 — Scale and performance (when needed)
+
+**Goal:** Address bundle size and IndexedDB growth when they become real constraints.
+
+| Step | Action | Why this order |
+|------|--------|----------------|
+| 4.1 | **Code-splitting** — Introduce `React.lazy` for the heaviest routes (e.g. FinanceDashboard, RecordOrder, UpdateCustomer). Measure bundle size before/after. | Do this when the main bundle is actually a problem (e.g. slow first load). By then, Phase 3 should have made route boundaries clearer. |
+| 4.2 | **IndexedDB** — Document versioning and migration strategy in `src/utils/readme.md`. Split by domain (e.g. requests vs customers vs areas) only if the single file becomes a real maintenance or performance bottleneck. | Low priority until the app or offline usage grows; documentation is cheap and helps anyone touching the DB. |
+
+**Outcome:** Load time and offline layer are ready for growth without a single huge module bearing all the weight.
+
+---
+
+### Summary table
+
+| Phase | Focus | Typical duration |
+|-------|--------|-------------------|
+| **1** | Tests (selectors, 1–2 hooks), Redux types, store ts-error | 1–2 sprints |
+| **2** | API ownership rule + one migration, console cleanup | ~1 sprint |
+| **3** | Extract hooks/subcomponents from RecordOrder & UpdateCustomer; Shipment slice tests or split | 2–3 sprints |
+| **4** | Code-splitting, IndexedDB docs (and optional split) | As needed |
+
+**Rule of thumb:** Do Phase 1 before any large refactor. Do Phase 3.1 (large components) before investing in Shipment slice splits. Do Phase 4 when metrics or pain justify it, not as the first priority.
+
+---
+
 ## 1. Separation of concerns
 
 ### Strengths
