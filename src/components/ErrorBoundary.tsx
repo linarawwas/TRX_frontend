@@ -1,6 +1,60 @@
 // src/components/ErrorBoundary.tsx
 import React, { Component, ErrorInfo, ReactNode } from "react";
 
+/** User-friendly fallback for the authenticated app shell (Layout + routers). */
+export function AuthAppErrorFallback() {
+  return (
+    <div
+      className="error-boundary-fallback"
+      style={{
+        padding: "24px",
+        maxWidth: "420px",
+        margin: "40px auto",
+        textAlign: "center",
+        color: "var(--text, #1f2937)",
+        fontFamily: "system-ui, sans-serif",
+      }}
+      dir="rtl"
+      role="alert"
+    >
+      <h2 style={{ marginBottom: "8px", fontSize: "1.25rem" }}>
+        حدث خطأ
+      </h2>
+      <p style={{ marginBottom: "16px", color: "var(--muted, #6b7280)" }}>
+        عذراً، حدث خطأ غير متوقع. يمكنك تحديث الصفحة أو العودة لتسجيل الدخول.
+      </p>
+      <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          style={{
+            padding: "8px 16px",
+            cursor: "pointer",
+            border: "1px solid #d1d5db",
+            borderRadius: "6px",
+            background: "#fff",
+          }}
+        >
+          تحديث الصفحة
+        </button>
+        <a
+          href="/login"
+          style={{
+            padding: "8px 16px",
+            border: "1px solid #d1d5db",
+            borderRadius: "6px",
+            background: "#fff",
+            color: "inherit",
+            textDecoration: "none",
+          }}
+        >
+          تسجيل الدخول
+        </a>
+      </div>
+    </div>
+  );
+}
+
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;

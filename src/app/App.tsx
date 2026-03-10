@@ -1,11 +1,11 @@
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import Layout from "../Layout/Layout";
 import Login from "../pages/SharedPages/Login/Login";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import useSyncOfflineOrders from "../hooks/useSyncOfflineOrders";
 import { initializeDB } from "../utils/indexedDB";
 import { hydrateAuthFromStorage } from "../features/auth/authStorage";
-import type { RootState } from "../redux/store";
+import { ErrorBoundary, AuthAppErrorFallback } from "../components/ErrorBoundary";
 
 export default function App() {
   const dispatch = useDispatch();
@@ -25,7 +25,15 @@ export default function App() {
         />
         <Route
           path="/*"
-          element={isAuthenticated ? <Layout /> : <Navigate to="/login" />}
+          element={
+            isAuthenticated ? (
+              <ErrorBoundary fallback={<AuthAppErrorFallback />}>
+                <Layout />
+              </ErrorBoundary>
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
       </Routes>
     </Router>

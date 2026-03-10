@@ -48,14 +48,14 @@ This document tracks known architectural issues and planned improvements. It is 
 ### Longer-term architecture improvements
 
 1. **Data fetching and caching abstraction**
-   - **Current state:** Mix of custom hooks and direct `axios`/`fetch` calls.
-   - **Risk:** Harder to add caching, deduplication, and automatic retries consistently.
-   - **Direction:** Introduce RTK Query or a similar library for read‑heavy flows (shipments, customers, areas, finance summaries).
+   - **Completed on:** 2026-03-10 (initial RTK Query adoption)
+   - **What changed:** Introduced an `RTK Query` API slice in `src/features/api/trxApi.ts` and migrated the “today’s shipments totals” flow (`useTodayShipmentTotals` used by `AdminHomePage`) to use a typed `useListShipmentsRangeQuery` hook backed by a shared cache and automatic request deduplication. The API slice is wired into the Redux store (`trxApi.reducer` and `trxApi.middleware`) so other read‑heavy flows (customers, areas, finance summaries) can be added incrementally.
+   - **Notes:** As new data‑heavy features are built, they should prefer RTK Query endpoints/hooks instead of ad‑hoc `fetch`/`axios` calls, so that caching, retries, and status handling stay centralized and consistent.
 
 2. **Error boundaries and error surfaces**
-   - **Current state:** `ErrorBoundary` component exists but is not wired around major route trees.
-   - **Risk:** Uncaught render errors can still crash the entire app.
-   - **Direction:** Wrap top‑level routers (or even each feature section) in `ErrorBoundary` components with user‑friendly fallbacks.
+   - **Completed on:** 2026-03-10
+   - **What changed:** Wired the existing `ErrorBoundary` component around the authenticated app shell in `App.tsx`: the route that renders `Layout` (and thus `AdminRouter` / `EmployeeRouter` and all nested routes) is now wrapped in `<ErrorBoundary fallback={<AuthAppErrorFallback />}>`. Added `AuthAppErrorFallback` in `src/components/ErrorBoundary.tsx` — a user-friendly, RTL-aware fallback with “تحديث الصفحة” (refresh) and “تسجيل الدخول” (go to login) actions so that uncaught render errors in the main app no longer white-screen the whole UI.
+   - **Notes:** The login route is intentionally not wrapped so that auth remains usable if the error is in the authenticated shell. For finer isolation, consider wrapping individual feature sections (e.g. `FinanceDashboard`, shipment views) in their own `ErrorBoundary` components in a later pass.
 
 3. **Documentation consolidation**
    - **Current state:** Rich docs exist under `docs/` and `src/**/docs`, but there is no single index.

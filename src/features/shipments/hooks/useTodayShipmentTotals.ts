@@ -1,6 +1,6 @@
 // src/features/shipments/hooks/useTodayShipmentTotals.ts
-import { useState, useEffect } from "react";
-import { listShipmentsRange } from "../../../utils/apiShipments";
+import { useMemo } from "react";
+import { useListShipmentsRangeQuery } from "../../api/trxApi";
 
 export interface ShipmentTotals {
   carryingForDelivery: number;
@@ -15,84 +15,60 @@ export interface ShipmentTotals {
 }
 
 export function useTodayShipmentTotals(
-  token: string | null,
+  _token: string | null,
   companyId?: string,
   date?: Date
 ) {
-  const [totals, setTotals] = useState<ShipmentTotals>({
-    carryingForDelivery: 0,
-    calculatedDelivered: 0,
-    calculatedReturned: 0,
-    shipmentLiraPayments: 0,
-    shipmentUSDPayments: 0,
-    shipmentLiraExtraProfits: 0,
-    shipmentUSDExtraProfits: 0,
-    shipmentLiraExpenses: 0,
-    shipmentUSDExpenses: 0,
-  });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const targetDate = date || new Date();
+  const day = targetDate.getDate();
+  const month = targetDate.getMonth() + 1;
+  const year = targetDate.getFullYear();
 
-  const refetch = async () => {
-    if (!token) {
-      setLoading(false);
-      return;
+  const { data, isLoading, isError, refetch } = useListShipmentsRangeQuery(
+    {
+      companyId,
+      fromDate: { day, month, year },
+      toDate: { day, month, year },
+    },
+    {
+      // keep existing semantics: fetch on mount and when args change
+      refetchOnMountOrArgChange: true,
     }
-    const targetDate = date || new Date();
-    const day = targetDate.getDate();
-    const month = targetDate.getMonth() + 1;
-    const year = targetDate.getFullYear();
+  );
 
-    const dateObj = { day, month, year };
+  const totals: ShipmentTotals = useMemo(() => {
+    const aggregated: ShipmentTotals = {
+      carryingForDelivery: 0,
+      calculatedDelivered: 0,
+      calculatedReturned: 0,
+      shipmentLiraPayments: 0,
+      shipmentUSDPayments: 0,
+      shipmentLiraExtraProfits: 0,
+      shipmentUSDExtraProfits: 0,
+      shipmentLiraExpenses: 0,
+      shipmentUSDExpenses: 0,
+    };
 
-    setLoading(true);
-    setError(null);
-    try {
-      const result = await listShipmentsRange(token, {
-        companyId,
-        fromDate: dateObj,
-        toDate: dateObj,
-      });
-
-      // Aggregate totals from shipments
-      const aggregated: ShipmentTotals = {
-        carryingForDelivery: 0,
-        calculatedDelivered: 0,
-        calculatedReturned: 0,
-        shipmentLiraPayments: 0,
-        shipmentUSDPayments: 0,
-        shipmentLiraExtraProfits: 0,
-        shipmentUSDExtraProfits: 0,
-        shipmentLiraExpenses: 0,
-        shipmentUSDExpenses: 0,
-      };
-
-      for (const s of result.shipments || []) {
-        aggregated.carryingForDelivery += s.carryingForDelivery || 0;
-        aggregated.calculatedDelivered += s.calculatedDelivered || 0;
-        aggregated.calculatedReturned += s.calculatedReturned || 0;
-        aggregated.shipmentLiraPayments += s.shipmentLiraPayments || 0;
-        aggregated.shipmentUSDPayments += s.shipmentUSDPayments || 0;
-        aggregated.shipmentLiraExtraProfits += s.shipmentLiraExtraProfits || 0;
-        aggregated.shipmentUSDExtraProfits += s.shipmentUSDExtraProfits || 0;
-        aggregated.shipmentLiraExpenses += s.shipmentLiraExpenses || 0;
-        aggregated.shipmentUSDExpenses += s.shipmentUSDExpenses || 0;
-      }
-
-      setTotals(aggregated);
-    } catch (err) {
-      setError("Failed to fetch shipment totals");
-      console.error("Error fetching shipments:", err);
-    } finally {
-      setLoading(false);
+    for (const s of data?.shipments || []) {
+      aggregated.carryingForDelivery += s.carryingForDelivery || 0;
+      aggregated.calculatedDelivered += s.calculatedDelivered || 0;
+      aggregated.calculatedReturned += s.calculatedReturned || 0;
+      aggregated.shipmentLiraPayments += s.shipmentLiraPayments || 0;
+      aggregated.shipmentUSDPayments += s.shipmentUSDPayments || 0;
+      aggregated.shipmentLiraExtraProfits += s.shipmentLiraExtraProfits || 0;
+      aggregated.shipmentUSDExtraProfits += s.shipmentUSDExtraProfits || 0;
+      aggregated.shipmentLiraExpenses += s.shipmentLiraExpenses || 0;
+      aggregated.shipmentUSDExpenses += s.shipmentUSDExpenses || 0;
     }
+
+    return aggregated;
+  }, [data]);
+
+  return {
+    totals,
+    loading: isLoading,
+    error: isError ? "Failed to fetch shipment totals" : null,
+    refetch,
   };
-
-  useEffect(() => {
-    refetch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, companyId, date?.getTime()]);
-
-  return { totals, loading, error, refetch };
 }
 

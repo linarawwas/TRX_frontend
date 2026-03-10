@@ -1,6 +1,7 @@
-import { createStore } from 'redux';
+import { applyMiddleware, compose, createStore } from 'redux';
 import rootReducer from './rootReducer';
 import { ShipmentState } from './Shipment/types';
+import { trxApi } from '../features/api/trxApi';
 
 declare global {
   interface Window {
@@ -21,10 +22,15 @@ const savedState = localStorage.getItem('reduxState');
 const initialState = savedState ? JSON.parse(savedState) : {};
 
 // Reducers usually take the initial state as the second argument
+const composeEnhancers =
+  window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+
 export const store = createStore(
   rootReducer,
   initialState,
-  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+  composeEnhancers(
+    applyMiddleware(trxApi.middleware),
+  )
 );
 
 // Save the Redux state to localStorage whenever it changes
