@@ -1,6 +1,6 @@
 # TRX Frontend
 
-Offline-first, mobile-first frontend for TRX: a SaaS application that digitizes delivery and collection workflow for bottled-water and gas-cylinder distribution companies.
+Offline-first, mobile-first frontend for TRX: a SaaS application that digitizes delivery and collection workflow for bottled-water companies.
 
 ---
 
