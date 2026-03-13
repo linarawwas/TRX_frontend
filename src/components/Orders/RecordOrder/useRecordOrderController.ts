@@ -266,7 +266,11 @@ export function useRecordOrderController(props: RecordOrderProps) {
     });
 
   const actuallySubmit = useCallback(
-    async (payload: OrderPayload, waWindow?: Window | null, waMessage?: string | null) => {
+    async (
+      payload: OrderPayload,
+      waWindow?: Window | null,
+      waMessage?: string | null
+    ): Promise<boolean> => {
       const request = {
         url: `${API_BASE}/api/orders`,
         options: {
@@ -307,14 +311,14 @@ export function useRecordOrderController(props: RecordOrderProps) {
 
         toast.info("📡 سيتم حفظ الطلب عند عودة الاتصال");
         navigate(-1);
-        return;
+        return true;
       }
 
       const res = await fetch(request.url, request.options);
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         toast.error(`❌ ${data.error || data.message || "فشل إنشاء الطلب"}`);
-        return;
+        return false;
       }
 
       if (payload.delivered) {
@@ -353,6 +357,8 @@ export function useRecordOrderController(props: RecordOrderProps) {
           window.location.assign(url);
         }
       }
+
+      return true;
     },
     [
       customerId,
@@ -382,7 +388,7 @@ export function useRecordOrderController(props: RecordOrderProps) {
   );
 
   const submitOrder = useCallback(
-    async (payload: OrderPayload, waWindow?: Window | null) => {
+    async (payload: OrderPayload, waWindow?: Window | null): Promise<boolean> => {
       const before = await getAdjustedInvoiceSums(customerId, companyId);
       const effectiveRateLBP = before.lastRateLBP ?? reduxRateLBP;
       const { bottlesLeftAfter, totalUsdAfter } = projectAfterOrder(
@@ -407,7 +413,7 @@ export function useRecordOrderController(props: RecordOrderProps) {
           })
         : null;
 
-      await actuallySubmit(payload, waWindow, waMessage);
+      return actuallySubmit(payload, waWindow, waMessage);
     },
     [
       actuallySubmit,
@@ -438,8 +444,10 @@ export function useRecordOrderController(props: RecordOrderProps) {
     const waWindow = customerPhoneRaw ? window.open("", "_blank") : null;
 
     try {
-      await submitOrder(buildOrderPayload(), waWindow);
-      setTimeout(() => navigate(-1), 150);
+      const didSubmit = await submitOrder(buildOrderPayload(), waWindow);
+      if (didSubmit) {
+        setTimeout(() => navigate(-1), 150);
+      }
     } catch {
       toast.error("❌ فشل الاتصال بالشبكة");
     } finally {

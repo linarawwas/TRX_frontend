@@ -63,6 +63,8 @@ This document tracks known architectural issues and planned improvements. It is 
        - `src/features/finance/hooks/useAddProfit.test.ts`
        - `src/redux/Shipment/reducer.test.ts`
        - `src/hooks/useSyncOfflineOrders.test.tsx`
+       - `src/features/auth/authApi.test.ts`
+       - `src/features/auth/authStorage.test.ts`
        - `src/features/auth/useAuth.test.ts`
        - `src/components/Orders/RecordOrder/useRecordOrderController.test.ts`
        - `src/components/Customers/UpdateCustomer/useUpdateCustomerController.test.ts`
@@ -70,7 +72,7 @@ This document tracks known architectural issues and planned improvements. It is 
      - Removed Redux typing shortcuts in `src/redux/Shipment/reducer.ts` by replacing `(state as any)` and `PayloadAction<any>` with typed state and payload handling.
      - Kept `RootState` centralized in `src/redux/store.ts` and removed the need for local redefinitions in touched code.
      - Resolved the store middleware suppression by aligning `redux` with the Toolkit stack (`redux@^5.0.1`) and deleting the `@ts-expect-error` from `store.ts`.
-   - **Notes:** This is now a solid high-value regression net, not full coverage. The next best targets are `src/features/auth/authApi.ts`, `src/features/auth/authStorage.ts`, offline sync retry/error paths, and deeper controller-hook error/edge cases.
+   - **Notes:** This is now a solid high-value regression net for the main business flows, not full coverage. The next best targets are a few remaining edge branches (`RecordOrder` over-target/LBP-pad interactions, `UpdateCustomer` non-happy-path mutation branches, offline sync dedupe under repeated online events) plus a small number of end-to-end integration paths across auth -> shipment -> order recording.
 
 ### Longer-term architecture improvements
 

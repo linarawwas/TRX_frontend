@@ -60,6 +60,7 @@ const mockSaveRequest = saveRequest as jest.MockedFunction<typeof saveRequest>;
 describe("useRecordOrderController", () => {
   const originalOnLine = navigator.onLine;
   const originalFetch = global.fetch;
+  const originalWindowOpen = window.open;
 
   beforeEach(() => {
     jest.useFakeTimers();
@@ -140,6 +141,7 @@ describe("useRecordOrderController", () => {
     jest.runOnlyPendingTimers();
     jest.useRealTimers();
     global.fetch = originalFetch;
+    window.open = originalWindowOpen;
     Object.defineProperty(navigator, "onLine", {
       configurable: true,
       value: originalOnLine,
@@ -239,5 +241,144 @@ describe("useRecordOrderController", () => {
     expect(mockDispatch).toHaveBeenCalled();
     expect(toast.info).toHaveBeenCalledWith("📡 سيتم حفظ الطلب عند عودة الاتصال");
     expect(mockNavigate).toHaveBeenCalledWith(-1);
+  });
+
+  test("does not navigate away when the server rejects order creation", async () => {
+    global.fetch = jest.fn(async () => ({
+      ok: false,
+      json: async () => ({ error: "server rejected" }),
+    })) as any;
+
+    const { result } = renderHook(() =>
+      useRecordOrderController({ customerData: null })
+    );
+
+    await waitFor(() => expect(result.current.maxReturnable).toBe(4));
+
+    act(() => {
+      result.current.handleChange({
+        target: { name: "delivered", value: "2" },
+      } as React.ChangeEvent<HTMLInputElement>);
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit({
+        preventDefault: jest.fn(),
+      } as unknown as React.FormEvent);
+    });
+
+    await act(async () => {
+      jest.advanceTimersByTime(150);
+    });
+
+    expect(toast.error).toHaveBeenCalledWith("❌ server rejected");
+    expect(mockNavigate).not.toHaveBeenCalledWith(-1);
+  });
+
+  test("shows a network error when invoice preview loading fails before submit", async () => {
+    mockGetAdjustedInvoiceSums
+      .mockResolvedValueOnce({
+        bottlesLeft: 4,
+        totalSumUSD: 20,
+        lastRateLBP: 89000,
+      } as any)
+      .mockRejectedValueOnce(new Error("preview failed"));
+
+    const { result } = renderHook(() =>
+      useRecordOrderController({ customerData: null })
+    );
+
+    await waitFor(() => expect(result.current.maxReturnable).toBe(4));
+
+    act(() => {
+      result.current.handleChange({
+        target: { name: "delivered", value: "2" },
+      } as React.ChangeEvent<HTMLInputElement>);
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit({
+        preventDefault: jest.fn(),
+      } as unknown as React.FormEvent);
+    });
+
+    expect(toast.error).toHaveBeenCalledWith("❌ فشل الاتصال بالشبكة");
+    expect(global.fetch).not.toHaveBeenCalledWith(
+      expect.stringContaining("/api/orders"),
+      expect.anything()
+    );
+  });
+
+  test("redirects to WhatsApp after a successful submit when the customer has a phone number", async () => {
+    const waWindow = {
+      closed: false,
+      location: { href: "" },
+    } as unknown as Window;
+    window.open = jest.fn(() => waWindow);
+    mockState.order.phone = "70123456";
+
+    const { result } = renderHook(() =>
+      useRecordOrderController({ customerData: null })
+    );
+
+    await waitFor(() => expect(result.current.maxReturnable).toBe(4));
+
+    act(() => {
+      result.current.handleChange({
+        target: { name: "delivered", value: "2" },
+      } as React.ChangeEvent<HTMLInputElement>);
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit({
+        preventDefault: jest.fn(),
+      } as unknown as React.FormEvent);
+    });
+
+    await act(async () => {
+      jest.advanceTimersByTime(150);
+    });
+
+    expect(window.open).toHaveBeenCalledWith("", "_blank");
+    expect(waWindow.location.href).toContain("https://wa.me/96170123456?text=");
+  });
+
+  test("submitRemainingNow sends the full remaining quantity and omits the type override", async () => {
+    const { result } = renderHook(() =>
+      useRecordOrderController({ customerData: null, isExternal: true })
+    );
+
+    await waitFor(() => expect(result.current.remaining).toBe(6));
+
+    act(() => {
+      result.current.handleChange({
+        target: { name: "delivered", value: "2" },
+      } as React.ChangeEvent<HTMLInputElement>);
+      result.current.adjustDeliveredToRemaining();
+    });
+
+    await act(async () => {
+      await result.current.submitRemainingNow();
+    });
+
+    const [, request] = (global.fetch as jest.Mock).mock.calls[0];
+    const body = JSON.parse(String(request.body));
+
+    expect(body.delivered).toBe(6);
+    expect(body.type).toBeUndefined();
+  });
+
+  test("goToNewShipment navigates to the shipment creation page", async () => {
+    const { result } = renderHook(() =>
+      useRecordOrderController({ customerData: null })
+    );
+
+    await waitFor(() => expect(result.current.maxReturnable).toBe(4));
+
+    act(() => {
+      result.current.goToNewShipment();
+    });
+
+    expect(mockNavigate).toHaveBeenCalledWith("/startShipment");
   });
 });

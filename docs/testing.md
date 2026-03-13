@@ -18,13 +18,17 @@ This project currently focuses on **high-value, low-friction tests** first:
 - `src/redux/Shipment/reducer.test.ts`
   - Covers the highest-value shipment reducer transitions and snapshot/reset behavior.
 - `src/hooks/useSyncOfflineOrders.test.tsx`
-  - Covers offline replay success and the offline guard.
+  - Covers offline replay success, invalid URLs, the offline guard, and retry-after-network-error behavior.
+- `src/features/auth/authApi.test.ts`
+  - Covers `/me` sync success and failure behavior.
+- `src/features/auth/authStorage.test.ts`
+  - Covers auth persistence, hydration, and clearing behavior.
 - `src/features/auth/useAuth.test.ts`
   - Covers auth state exposure, bootstrap, and logout callbacks.
 - `src/components/Orders/RecordOrder/useRecordOrderController.test.ts`
-  - Covers input clamping, successful submission, and offline queueing.
+  - Covers input clamping, successful submission, offline queueing, failure-safe submit behavior, WhatsApp redirect, and remaining-quantity submission.
 - `src/components/Customers/UpdateCustomer/useUpdateCustomerController.test.ts`
-  - Covers change confirmation and external-order handoff.
+  - Covers change confirmation, successful update flow, restore conflicts and success paths, deactivate flow, delete guards, successful hard delete, and external-order handoff.
 - `src/components/EmployeeComponents/StartShipment/StartShipment.test.tsx`
   - Existing component-level regression test for shipment start behavior.
 
@@ -61,8 +65,7 @@ npm test -- --watch=false src/redux/selectors/selectors.test.ts
 
 ## Recommended next tests
 
-- `src/features/auth/authApi.ts` (`fetchMeAndSync`)
-- `src/features/auth/authStorage.ts`
-- `src/hooks/useSyncOfflineOrders.ts` error/retry paths
-- `src/components/Orders/RecordOrder/useRecordOrderController.ts` WhatsApp and server-error paths
-- `src/components/Customers/UpdateCustomer/useUpdateCustomerController.ts` restore/deactivate/delete flows
+- `src/components/Orders/RecordOrder/useRecordOrderController.ts` over-target modal branches and LBP keypad interactions
+- `src/components/Customers/UpdateCustomer/useUpdateCustomerController.ts` canceled deactivation and non-409 restore failures
+- `src/hooks/useSyncOfflineOrders.ts` deduping behavior when `online` fires repeatedly during an in-progress sync
+- Integration coverage for login/bootstrap -> shipment start -> order record -> offline replay
