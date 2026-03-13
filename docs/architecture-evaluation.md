@@ -10,7 +10,7 @@ If a senior frontend developer were to review this repository, these are the thi
 
 | Red flag | What they see | Why it matters |
 |----------|----------------|----------------|
-| **Thin but improving automated coverage** | The repo now has a small safety net (`StartShipment.test.tsx`, selector tests, `useTodayShipmentTotals.test.ts`, `useAddExpense.test.ts`) plus `docs/testing.md`, but coverage is still focused on low-friction units rather than the highest-risk flows. | This is no longer “no tests,” but it is still not enough for the most business-critical paths (offline sync, auth bootstrap, shipment reducer, order submission controllers). |
+| **Improving but still selective automated coverage** | The repo now has passing tests for selectors, shipment reducer, offline sync, `useAuth`, finance mutation hooks, the `RecordOrder` / `UpdateCustomer` controller hooks, and `StartShipment`, plus `docs/testing.md`. | This is a strong Phase 1 safety net, but it is still selective. Remaining gaps include auth API/storage internals, deeper controller error paths, and more integration-level coverage. |
 | **Oversized smart components** | This was visible in `UpdateCustomer.tsx` (~898 LOC) and `RecordOrder.tsx` (~755 LOC). A first extraction pass moved business/state logic into `useUpdateCustomerController.ts` and `useRecordOrderController.ts`, reducing the component files to ~545 LOC and ~278 LOC respectively, but the remaining JSX is still large. | Large render files are still harder to read and test than focused subcomponents; controller extraction is a good first step, not the end state. |
 | **Phase 1 type shortcuts were real debt** | `RecordOrder.tsx` previously duplicated `RootState`; `Shipment/reducer.ts` used `any`; `redux/store.ts` relied on `@ts-expect-error` for middleware typing. These were removed in the Phase 1 pass. | Important signal: the repo had core typing shortcuts in central state code. They are now fixed, but this was valid architectural debt and similar shortcuts should be watched for going forward. |
 | **API logic in two places** | Both `utils/` (e.g. `apiHelpers.ts`, `apiFinances.ts`, `apiShipments.ts`) and `features/*/api*.ts` contain HTTP calls. | Unclear ownership; duplication; “where do I add a new endpoint?” has no single answer. |
@@ -19,7 +19,7 @@ If a senior frontend developer were to review this repository, these are the thi
 | **Shipment slice as a hub** | One large slice (~256 LOC) with many fields; order flow, finance, and sync all depend on it. | Any change to shipment state has broad impact; refactoring is costly and risky. |
 | **No code-splitting** | No `React.lazy` or route-based splitting; one main bundle. | Bundle size will grow with every feature; slower first load; not aligned with common production practices. |
 
-**Summary:** The most alarming points are **still-limited test coverage**, **remaining oversized components/render trees**, and **split/duplicated API layer**. The first phase of Redux typing cleanup is now complete, which materially improves safety for future refactors.
+**Summary:** The most alarming points are now **selective rather than absent test coverage**, **remaining oversized components/render trees**, and **split/duplicated API layer**. The first phase of Redux typing cleanup and high-value regression coverage is now complete, which materially improves safety for future refactors.
 
 ---
 

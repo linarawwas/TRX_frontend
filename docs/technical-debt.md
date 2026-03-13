@@ -60,11 +60,17 @@ This document tracks known architectural issues and planned improvements. It is 
        - `src/redux/selectors/selectors.test.ts`
        - `src/features/shipments/hooks/useTodayShipmentTotals.test.ts`
        - `src/features/finance/hooks/useAddExpense.test.ts`
+       - `src/features/finance/hooks/useAddProfit.test.ts`
+       - `src/redux/Shipment/reducer.test.ts`
+       - `src/hooks/useSyncOfflineOrders.test.tsx`
+       - `src/features/auth/useAuth.test.ts`
+       - `src/components/Orders/RecordOrder/useRecordOrderController.test.ts`
+       - `src/components/Customers/UpdateCustomer/useUpdateCustomerController.test.ts`
        - `docs/testing.md`
      - Removed Redux typing shortcuts in `src/redux/Shipment/reducer.ts` by replacing `(state as any)` and `PayloadAction<any>` with typed state and payload handling.
      - Kept `RootState` centralized in `src/redux/store.ts` and removed the need for local redefinitions in touched code.
      - Resolved the store middleware suppression by aligning `redux` with the Toolkit stack (`redux@^5.0.1`) and deleting the `@ts-expect-error` from `store.ts`.
-   - **Notes:** This is the minimum viable regression net, not full coverage. The next high-value tests are the shipment reducer, offline sync, `useAuth`, `useAddProfit`, and the extracted controller hooks for `RecordOrder` and `UpdateCustomer`.
+   - **Notes:** This is now a solid high-value regression net, not full coverage. The next best targets are `src/features/auth/authApi.ts`, `src/features/auth/authStorage.ts`, offline sync retry/error paths, and deeper controller-hook error/edge cases.
 
 ### Longer-term architecture improvements
 

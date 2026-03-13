@@ -13,6 +13,18 @@ This project currently focuses on **high-value, low-friction tests** first:
   - Covers aggregation and error handling for the RTK Query-backed shipment totals hook.
 - `src/features/finance/hooks/useAddExpense.test.ts`
   - Covers validation and successful submission behavior for a finance mutation hook.
+- `src/features/finance/hooks/useAddProfit.test.ts`
+  - Covers validation and successful submission behavior for profit mutations.
+- `src/redux/Shipment/reducer.test.ts`
+  - Covers the highest-value shipment reducer transitions and snapshot/reset behavior.
+- `src/hooks/useSyncOfflineOrders.test.tsx`
+  - Covers offline replay success and the offline guard.
+- `src/features/auth/useAuth.test.ts`
+  - Covers auth state exposure, bootstrap, and logout callbacks.
+- `src/components/Orders/RecordOrder/useRecordOrderController.test.ts`
+  - Covers input clamping, successful submission, and offline queueing.
+- `src/components/Customers/UpdateCustomer/useUpdateCustomerController.test.ts`
+  - Covers change confirmation and external-order handoff.
 - `src/components/EmployeeComponents/StartShipment/StartShipment.test.tsx`
   - Existing component-level regression test for shipment start behavior.
 
@@ -49,8 +61,8 @@ npm test -- --watch=false src/redux/selectors/selectors.test.ts
 
 ## Recommended next tests
 
-- Shipment reducer behavior (`src/redux/Shipment/reducer.ts`)
-- Offline sync (`src/hooks/useSyncOfflineOrders.ts`)
-- `useAddProfit`
-- `useAuth`
-- Extracted controller hooks for `RecordOrder` and `UpdateCustomer`
+- `src/features/auth/authApi.ts` (`fetchMeAndSync`)
+- `src/features/auth/authStorage.ts`
+- `src/hooks/useSyncOfflineOrders.ts` error/retry paths
+- `src/components/Orders/RecordOrder/useRecordOrderController.ts` WhatsApp and server-error paths
+- `src/components/Customers/UpdateCustomer/useUpdateCustomerController.ts` restore/deactivate/delete flows
