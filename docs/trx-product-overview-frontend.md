@@ -6,6 +6,27 @@ TRX is an offline-first, mobile-first SaaS application that digitizes the comple
 
 ---
 
+## Product classification (what TRX is — and isn’t)
+
+In the world of business software, TRX is best described as:
+
+| Term | How TRX fits |
+|------|-------------------------------|
+| **Route accounting system (RAS)** | **Closest fit.** TRX is built around the “route”: a driver’s daily run with a defined set of customers (areas), recording what was delivered, returned, and collected at each stop. Route accounting is the standard category for beverage, food, and distribution companies that run delivery routes and need per-stop and per-day settlement. |
+| **Delivery management / field service** | **Strong fit.** TRX manages delivery operations (shipments, rounds, areas, sequences), offline-capable mobile capture for field workers, and back-office visibility. It fits under delivery management or lightweight field service management (FSM) for last-mile distribution. |
+| **Vertical / industry-specific** | **Yes.** TRX targets a narrow vertical (bottled-water and gas-cylinder distribution, including deposit/return and dual-currency). It is not a generic ERP or CRM. |
+
+**What TRX is not:**
+
+- **Not a full ERP** — It does not cover enterprise resource planning end-to-end (e.g. no manufacturing, HR, full general ledger, procurement). It handles delivery operations, route-level finance, and related reporting, not the whole business.
+- **Not a classic CRM** — It holds customer and area data for delivery and billing, but it does not provide sales pipeline, marketing automation, or a generic “customer 360” for sales teams.
+- **Not a warehouse IMS** — It tracks “delivered vs returned” and carrying quantities per shipment/round for distribution, not central warehouse inventory, stock levels, or warehouse operations.
+
+**One-line classification:**  
+TRX is a **route accounting and delivery management** application for **beverage and cylinder distribution**, with offline-first mobile order capture and back-office dashboards for operations and finance.
+
+---
+
 ## Section 2: Target Users
 
 TRX serves multiple user roles within distribution companies:

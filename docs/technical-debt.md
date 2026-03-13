@@ -45,6 +45,14 @@ This document tracks known architectural issues and planned improvements. It is 
    - **What changed:** Introduced shared Zod schemas and validators in `src/features/finance/validation.ts` for finance forms, and wired them into both the config‑driven UI layer (`AddExpenses`, `AddProfits` via the `validate` prop on `AddToModel`) and the submit hooks (`useAddExpense`, `useAddProfit`). These schemas now provide a single source of truth for validating `name`, `value`, and `paymentCurrency` for expenses and extra profits.
    - **Notes:** Future forms should either (a) reuse these schemas where appropriate, or (b) define their own Zod schemas in a feature‑local `validation.ts` file and pass them through the `validate` prop (or equivalent) to ensure consistent, centralized validation rules and error messages.
 
+4. **Oversized smart components**
+   - **Completed on:** 2026-03-13 (first step)
+   - **What changed:** Extracted controller hooks from two of the largest UI containers:
+     - `src/components/Orders/RecordOrder/useRecordOrderController.ts` now owns the Redux access, invoice preview logic, submission flow, offline queueing, and WhatsApp message generation that previously lived inline in `RecordOrder.tsx`.
+     - `src/components/Customers/UpdateCustomer/useUpdateCustomerController.ts` now owns customer fetching, area/placement loading, update/deactivate/restore/delete mutations, and modal state that previously lived inline in `UpdateCustomer.tsx`.
+     - This reduced the main component files from roughly `755 -> 278` lines (`RecordOrder.tsx`) and `898 -> 545` lines (`UpdateCustomer.tsx`), while preserving the existing UI.
+   - **Notes:** This is an intentionally incremental first pass. The next step is to extract large render sections (e.g. steppers, dialogs, edit forms, tab panels) into focused presentational subcomponents so the remaining JSX becomes easier to read and test.
+
 ### Longer-term architecture improvements
 
 1. **Data fetching and caching abstraction**

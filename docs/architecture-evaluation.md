@@ -11,7 +11,7 @@ If a senior frontend developer were to review this repository, these are the thi
 | Red flag | What they see | Why it matters |
 |----------|----------------|----------------|
 | **One test file in the whole app** | `find src -name "*.test.*"` returns a single file (`StartShipment.test.tsx`). No tests for hooks, selectors, API layer, or critical flows (order submission, offline sync, finance). | High risk of regressions; refactors are unsafe; “we don’t have time to test” is a classic tech-debt spiral. |
-| **~900 LOC component** | `UpdateCustomer.tsx` is ~898 lines; `RecordOrder.tsx` is ~755 lines. | Unmaintainable; violates single responsibility; hard to test or change; suggests logic was never extracted into hooks or smaller components. |
+| **Oversized smart components** | This was visible in `UpdateCustomer.tsx` (~898 LOC) and `RecordOrder.tsx` (~755 LOC). A first extraction pass moved business/state logic into `useUpdateCustomerController.ts` and `useRecordOrderController.ts`, reducing the component files to ~545 LOC and ~278 LOC respectively, but the remaining JSX is still large. | Large render files are still harder to read and test than focused subcomponents; controller extraction is a good first step, not the end state. |
 | **Duplicate `RootState`** | `RecordOrder.tsx` defines its own `type RootState = { ... }` instead of importing from `redux/store`. | Type drift; store changes won’t be caught here; breaks “single source of truth” for global state shape. |
 | **`any` in core Redux** | `Shipment/reducer.ts` uses `(state as any).payments` and `PayloadAction<any>` for customer-order actions. | Bypasses type safety in the most critical state; defeats the purpose of TypeScript in the reducer. |
 | **`@ts-expect-error` in store** | `redux/store.ts` uses `@ts-expect-error` on the middleware configuration. | Suggests version or type mismatches (e.g. redux vs RTK); could hide real bugs if the comment becomes wrong later. |
@@ -21,7 +21,7 @@ If a senior frontend developer were to review this repository, these are the thi
 | **Shipment slice as a hub** | One large slice (~256 LOC) with many fields; order flow, finance, and sync all depend on it. | Any change to shipment state has broad impact; refactoring is costly and risky. |
 | **No code-splitting** | No `React.lazy` or route-based splitting; one main bundle. | Bundle size will grow with every feature; slower first load; not aligned with common production practices. |
 
-**Summary:** The most alarming points are **almost no tests**, **very large components**, **type shortcuts in Redux (`any`, duplicate RootState)**, and **split/duplicated API layer**. Addressing these first would materially improve confidence for a senior reviewer and for ongoing maintenance.
+**Summary:** The most alarming points are **almost no tests**, **remaining oversized components/render trees**, **type shortcuts in Redux (`any`, duplicate RootState)**, and **split/duplicated API layer**. Addressing these first would materially improve confidence for a senior reviewer and for ongoing maintenance.
 
 ---
 
