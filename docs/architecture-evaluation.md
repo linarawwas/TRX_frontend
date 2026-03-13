@@ -10,18 +10,16 @@ If a senior frontend developer were to review this repository, these are the thi
 
 | Red flag | What they see | Why it matters |
 |----------|----------------|----------------|
-| **One test file in the whole app** | `find src -name "*.test.*"` returns a single file (`StartShipment.test.tsx`). No tests for hooks, selectors, API layer, or critical flows (order submission, offline sync, finance). | High risk of regressions; refactors are unsafe; “we don’t have time to test” is a classic tech-debt spiral. |
+| **Thin but improving automated coverage** | The repo now has a small safety net (`StartShipment.test.tsx`, selector tests, `useTodayShipmentTotals.test.ts`, `useAddExpense.test.ts`) plus `docs/testing.md`, but coverage is still focused on low-friction units rather than the highest-risk flows. | This is no longer “no tests,” but it is still not enough for the most business-critical paths (offline sync, auth bootstrap, shipment reducer, order submission controllers). |
 | **Oversized smart components** | This was visible in `UpdateCustomer.tsx` (~898 LOC) and `RecordOrder.tsx` (~755 LOC). A first extraction pass moved business/state logic into `useUpdateCustomerController.ts` and `useRecordOrderController.ts`, reducing the component files to ~545 LOC and ~278 LOC respectively, but the remaining JSX is still large. | Large render files are still harder to read and test than focused subcomponents; controller extraction is a good first step, not the end state. |
-| **Duplicate `RootState`** | `RecordOrder.tsx` defines its own `type RootState = { ... }` instead of importing from `redux/store`. | Type drift; store changes won’t be caught here; breaks “single source of truth” for global state shape. |
-| **`any` in core Redux** | `Shipment/reducer.ts` uses `(state as any).payments` and `PayloadAction<any>` for customer-order actions. | Bypasses type safety in the most critical state; defeats the purpose of TypeScript in the reducer. |
-| **`@ts-expect-error` in store** | `redux/store.ts` uses `@ts-expect-error` on the middleware configuration. | Suggests version or type mismatches (e.g. redux vs RTK); could hide real bugs if the comment becomes wrong later. |
+| **Phase 1 type shortcuts were real debt** | `RecordOrder.tsx` previously duplicated `RootState`; `Shipment/reducer.ts` used `any`; `redux/store.ts` relied on `@ts-expect-error` for middleware typing. These were removed in the Phase 1 pass. | Important signal: the repo had core typing shortcuts in central state code. They are now fixed, but this was valid architectural debt and similar shortcuts should be watched for going forward. |
 | **API logic in two places** | Both `utils/` (e.g. `apiHelpers.ts`, `apiFinances.ts`, `apiShipments.ts`) and `features/*/api*.ts` contain HTTP calls. | Unclear ownership; duplication; “where do I add a new endpoint?” has no single answer. |
 | **Console usage in production path** | Dozens of `console.log` / `console.error` / `console.warn` across components, hooks, and utils (e.g. `useSyncOfflineOrders.ts` has many). | Noisy or leaking info in production; no structured logging; suggests debugging leftovers. |
 | **500+ LOC IndexedDB module** | Single `utils/indexedDB.ts` file (~522 LOC) with many stores and helpers. | Single point of failure; hard to reason about; migrations and versioning are riskier. |
 | **Shipment slice as a hub** | One large slice (~256 LOC) with many fields; order flow, finance, and sync all depend on it. | Any change to shipment state has broad impact; refactoring is costly and risky. |
 | **No code-splitting** | No `React.lazy` or route-based splitting; one main bundle. | Bundle size will grow with every feature; slower first load; not aligned with common production practices. |
 
-**Summary:** The most alarming points are **almost no tests**, **remaining oversized components/render trees**, **type shortcuts in Redux (`any`, duplicate RootState)**, and **split/duplicated API layer**. Addressing these first would materially improve confidence for a senior reviewer and for ongoing maintenance.
+**Summary:** The most alarming points are **still-limited test coverage**, **remaining oversized components/render trees**, and **split/duplicated API layer**. The first phase of Redux typing cleanup is now complete, which materially improves safety for future refactors.
 
 ---
 
@@ -29,15 +27,17 @@ If a senior frontend developer were to review this repository, these are the thi
 
 Fixing things in the right order reduces rework and risk: later steps rely on the safety and clarity from earlier ones. Below is a recommended sequence.
 
-### Phase 1 — Safety net and type correctness (do first)
+### Phase 1 — Safety net and type correctness
+
+**Status:** Completed on 2026-03-13.
 
 **Goal:** Make refactors safe and remove type shortcuts so the rest of the work doesn’t introduce hidden bugs.
 
 | Step | Action | Why this order |
 |------|--------|----------------|
-| 1.1 | **Add a minimal test suite** — Unit tests for Redux selectors (pure, easy), then 1–2 critical feature hooks (e.g. `useTodayShipmentTotals`, `useAddExpense`). Add a short `docs/testing.md` (what to test, how to run, how to mock Redux/API). | Without tests, refactoring large components or Redux is dangerous. Selectors and hooks are the fastest way to get a safety net; they also protect the next steps. |
-| 1.2 | **Fix Redux types** — In `Shipment/reducer.ts`, replace `(state as any)` and `PayloadAction<any>` with proper types (e.g. extend `ShipmentState` for `payments`, type the customer-id payloads). In `RecordOrder.tsx`, delete the local `RootState` and import `RootState` from `redux/store`. | Type safety in the core store prevents drift and catches bugs when you touch shipment/order code. Doing this before big refactors avoids fixing types twice. |
-| 1.3 | **Resolve or document the store `@ts-expect-error`** — Either fix the middleware typings (e.g. upgrade/align redux and RTK types) or keep the suppression with a clear comment and a link to an issue. | Removes a visible “we silenced the compiler” red flag and clarifies whether it’s technical debt or acceptable. |
+| 1.1 | **Add a minimal test suite** — Completed with selector tests (`src/redux/selectors/selectors.test.ts`), hook tests for `useTodayShipmentTotals` and `useAddExpense`, and a new [testing guide](testing.md). | Without tests, refactoring large components or Redux is dangerous. Selectors and hooks were the fastest way to get a safety net and they now protect later work. |
+| 1.2 | **Fix Redux types** — Completed by removing `any` from `Shipment/reducer.ts`, typing customer-order payloads as ids, and keeping `RootState` centralized in `redux/store`. | Type safety in the core store now catches drift when shipment/order code changes. |
+| 1.3 | **Resolve the store `@ts-expect-error`** — Completed by aligning `redux` with the Toolkit stack (`redux@^5.0.1`) so `configureStore` middleware typing compiles cleanly without suppression. | Removes a visible “we silenced the compiler” red flag and leaves the store configuration explicit and type-safe. |
 
 **Outcome:** Tests exist for the most stable, high-value code; Redux and RecordOrder use a single, typed source of truth. You can refactor with less fear.
 

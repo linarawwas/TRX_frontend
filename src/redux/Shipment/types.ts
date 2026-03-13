@@ -29,12 +29,12 @@ export interface ShipmentState {
   prev_profitsInLiras: number;
   prev_profitsInUSD: number;
   prev_expensesInUSD: number;
-  CustomersWithFilledOrders: any[];
-  CustomersWithEmptyOrders: any[];
+  CustomersWithFilledOrders: string[];
+  CustomersWithEmptyOrders: string[];
   CustomersWithPendingOrders: string[];
-  prev_CustomersWithFilledOrder: any[];
-  prev_CustomersWithEmptyOrders: any[];
-  prev_CustomersWithPendingOrders: any[];
+  prev_CustomersWithFilledOrder: string[];
+  prev_CustomersWithEmptyOrders: string[];
+  prev_CustomersWithPendingOrders: string[];
   payments?: number;
   round: {
     sequence: number | null;

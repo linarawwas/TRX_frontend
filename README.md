@@ -177,7 +177,7 @@ REACT_APP_API_BASE_URL=https://api.example.com
 | **Pages** | [AdminHomePage](docs/pages/AdminHomePage.md), [EmployeeHomePage](docs/pages/EmployeeHomePage.md), [ProductsList](docs/pages/ProductsList.md), [SharedPages](docs/pages/SharedPages.md) |
 | **Components** | [RefactoredComponents](docs/components/RefactoredComponents.md) |
 | **CSS** | [RefactorGuide](docs/css/RefactorGuide.md) |
-| **Architecture** | [folder-structure](docs/folder-structure.md), [state-management](docs/state-management.md), [technical-debt](docs/technical-debt.md), [architecture-evaluation](docs/architecture-evaluation.md) |
+| **Architecture** | [folder-structure](docs/folder-structure.md), [state-management](docs/state-management.md), [technical-debt](docs/technical-debt.md), [architecture-evaluation](docs/architecture-evaluation.md), [testing](docs/testing.md) |
 
 Feature- and page-level docs under `src/` are linked from [docs/INDEX.md](docs/INDEX.md).
 
@@ -186,6 +186,7 @@ Feature- and page-level docs under `src/` are linked from [docs/INDEX.md](docs/I
 The codebase is feature-oriented and hook-driven. The items tracked in [**docs/technical-debt.md**](docs/technical-debt.md) are largely complete (API base, router consolidation, auth feature, Redux Toolkit store and slices, RTK Query, error boundaries, IndexedDB docs, forms validation, documentation index). In addition:
 
 - **Conventions (done)** — [Architecture conventions](docs/technical-debt.md#architecture-conventions-ongoing) are documented: (1) use RTK Query for new data-heavy features, (2) memoize selectors that return objects/arrays with `createSelector`, (3) add new docs to [docs/INDEX.md](docs/INDEX.md) (see [How to add documentation](docs/INDEX.md#how-to-add-documentation)). All Redux selectors that return non-primitives are now memoized.
+- **Phase 1 completed** — The first test baseline is in place ([testing guide](docs/testing.md), selector tests, and initial feature-hook tests), Shipment reducer typing shortcuts were removed, and the store no longer relies on a middleware `@ts-expect-error`.
 
 **Optional, longer-term:** Error boundaries per feature area; further form/validation standardization; grow test coverage for selectors, hooks, and critical flows.
 

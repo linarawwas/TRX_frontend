@@ -93,16 +93,16 @@ export const shipmentSlice = createSlice({
       state.dayId = action.payload;
     },
     setTotalPayments(state, action: PayloadAction<number>) {
-      (state as any).payments = action.payload;
+      state.payments = action.payload;
     },
     setExchangeRateLBP(state, action: PayloadAction<number>) {
       state.exchangeRateLBP = Number(action.payload) || null;
     },
-    addCustomerWithFilledOrder(state, action: PayloadAction<any>) {
-      state.CustomersWithFilledOrders.push(action.payload);
+    addCustomerWithFilledOrder(state, action: PayloadAction<string | number>) {
+      state.CustomersWithFilledOrders.push(String(action.payload));
     },
-    addCustomerWithEmptyOrder(state, action: PayloadAction<any>) {
-      state.CustomersWithEmptyOrders.push(action.payload);
+    addCustomerWithEmptyOrder(state, action: PayloadAction<string | number>) {
+      state.CustomersWithEmptyOrders.push(String(action.payload));
     },
     addPendingOrder(state, action: PayloadAction<string | number>) {
       const id = String(action.payload);
@@ -132,11 +132,9 @@ export const shipmentSlice = createSlice({
         state.prev_expensesInLiras || state.expensesInLiras;
       state.profitsInLiras = state.prev_profitsInLiras || state.profitsInLiras;
       state.CustomersWithFilledOrders =
-        (state.prev_CustomersWithFilledOrder as any) ||
-        state.CustomersWithFilledOrders;
+        state.prev_CustomersWithFilledOrder || state.CustomersWithFilledOrders;
       state.CustomersWithEmptyOrders =
-        (state.prev_CustomersWithEmptyOrders as any) ||
-        state.CustomersWithEmptyOrders;
+        state.prev_CustomersWithEmptyOrders || state.CustomersWithEmptyOrders;
     },
     setUsdPayments(state, action: PayloadAction<number>) {
       state.dollarPayments = action.payload;
@@ -222,7 +220,7 @@ export const shipmentSlice = createSlice({
       state.month = null;
       state.day = null;
       state.target = 0;
-      (state as any).payments = 0;
+      state.payments = 0;
       state.delivered = 0;
       state.returned = 0;
       state.dollarPayments = 0;

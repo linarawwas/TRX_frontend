@@ -4,16 +4,13 @@ import { RootState } from "../store";
 import type { ShipmentState } from "../Shipment/types";
 
 const EMPTY_SHIPMENT = {} as ShipmentState;
+const EMPTY_ROUND = {} as NonNullable<ShipmentState["round"]>;
 const EMPTY_STRING_ARRAY: string[] = [];
 
-export const selectShipment = createSelector(
-  [(s: RootState) => s.shipment],
-  (shipment): ShipmentState => shipment ?? EMPTY_SHIPMENT
-);
-export const selectRound = createSelector(
-  [(s: RootState) => s.shipment?.round],
-  (round) => round ?? ({} as NonNullable<ShipmentState["round"]>)
-);
+export const selectShipment = (s: RootState): ShipmentState =>
+  s.shipment ?? EMPTY_SHIPMENT;
+export const selectRound = (s: RootState): NonNullable<ShipmentState["round"]> =>
+  s.shipment?.round ?? EMPTY_ROUND;
 
 export const selectShipmentMeta = createSelector(
   [(s: RootState) => s.shipment?._id ?? "", (s: RootState) => s.shipment?.dayId ?? ""],

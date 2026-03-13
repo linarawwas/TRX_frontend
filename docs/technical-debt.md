@@ -53,6 +53,19 @@ This document tracks known architectural issues and planned improvements. It is 
      - This reduced the main component files from roughly `755 -> 278` lines (`RecordOrder.tsx`) and `898 -> 545` lines (`UpdateCustomer.tsx`), while preserving the existing UI.
    - **Notes:** This is an intentionally incremental first pass. The next step is to extract large render sections (e.g. steppers, dialogs, edit forms, tab panels) into focused presentational subcomponents so the remaining JSX becomes easier to read and test.
 
+5. **Phase 1 safety net and store typing**
+   - **Completed on:** 2026-03-13
+   - **What changed:**
+     - Added the first focused automated safety net:
+       - `src/redux/selectors/selectors.test.ts`
+       - `src/features/shipments/hooks/useTodayShipmentTotals.test.ts`
+       - `src/features/finance/hooks/useAddExpense.test.ts`
+       - `docs/testing.md`
+     - Removed Redux typing shortcuts in `src/redux/Shipment/reducer.ts` by replacing `(state as any)` and `PayloadAction<any>` with typed state and payload handling.
+     - Kept `RootState` centralized in `src/redux/store.ts` and removed the need for local redefinitions in touched code.
+     - Resolved the store middleware suppression by aligning `redux` with the Toolkit stack (`redux@^5.0.1`) and deleting the `@ts-expect-error` from `store.ts`.
+   - **Notes:** This is the minimum viable regression net, not full coverage. The next high-value tests are the shipment reducer, offline sync, `useAuth`, `useAddProfit`, and the extracted controller hooks for `RecordOrder` and `UpdateCustomer`.
+
 ### Longer-term architecture improvements
 
 1. **Data fetching and caching abstraction**

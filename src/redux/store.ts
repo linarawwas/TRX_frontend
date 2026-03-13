@@ -18,7 +18,6 @@ const preloadedState = savedState ? JSON.parse(savedState) : undefined;
 export const store = configureStore({
   reducer: rootReducer,
   preloadedState,
-  // @ts-expect-error - getDefaultMiddleware().concat(trxApi.middleware) is correct at runtime; TS complains due to redux vs @reduxjs/toolkit Middleware typings
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(trxApi.middleware),
 });
