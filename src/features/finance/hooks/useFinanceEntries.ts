@@ -1,6 +1,6 @@
 // src/features/finance/hooks/useFinanceEntries.ts
 import { useEffect, useState } from "react";
-import { listFinances } from "../../../utils/apiFinances";
+import { listFinances } from "../apiFinance";
 import { FinanceEntry } from "../types";
 
 export function useFinanceEntries(

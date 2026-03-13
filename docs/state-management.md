@@ -46,7 +46,7 @@ Examples:
 - Expose `{ data, loading, error, refetch }` or similar objects.
 - Hide transport details from page components.
 
-New data‑heavy views should prefer a feature hook over calling `fetch` or `axios` directly in the component.
+New domain API calls should live in feature `api*.ts` files, and new read-heavy/shared server-state flows should prefer RTK Query endpoints in `src/features/api/trxApi.ts` instead of new API modules under `src/utils/`.
 
 ### IndexedDB
 
@@ -118,8 +118,8 @@ This hook is the main bridge between **persistent offline data** and **in‑memo
 
 ### RTK Query
 
-- `src/features/api/trxApi.ts` defines the RTK Query API slice (`listShipmentsRange` and related).
-- Hooks such as `useTodayShipmentTotals` use `useListShipmentsRangeQuery`. New read-heavy flows should add endpoints to `trxApi` and use the generated hooks.
+- `src/features/api/trxApi.ts` defines the RTK Query API slice (`listShipmentsRange`, `shipmentsOrdersByDate`, and related).
+- Hooks and pages such as `useTodayShipmentTotals` and `OrdersOfToday` use generated RTK Query hooks. New read-heavy flows should add endpoints to `trxApi` and use those hooks instead of introducing new `utils/api*.ts` modules.
 
 ### Future improvements
 

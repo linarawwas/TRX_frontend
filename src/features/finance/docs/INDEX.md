@@ -96,12 +96,12 @@ src/features/finance/
 
 ### Internal (within feature)
 - All hooks depend on [types.ts](types.ts)
-- All hooks depend on [apiFinances](../../../utils/apiFinances.ts) service functions
+- All hooks depend on the feature-local [apiFinance.ts](../apiFinance.ts) service functions
 - Selectors depend on [financeUtils.ts](utils/financeUtils.ts) for `getEntrySums`
 - Selectors depend on [types.ts](types.ts)
 
 ### External
-- **API Service:** [apiFinances.ts](../../../utils/apiFinances.ts) - `listCategories`, `dailySummary`, `monthlySummary`, `listFinances`, `createFinance`
+- **API Service:** [apiFinance.ts](../apiFinance.ts) - `listCategories`, `dailySummary`, `monthlySummary`, `listFinances`, `createFinance`
 - **Shared Hooks:** [useMediaQuery](../../../hooks/useMediaQuery.ts) (used by FinanceDashboard, not directly by feature)
 
 ## Usage Pattern

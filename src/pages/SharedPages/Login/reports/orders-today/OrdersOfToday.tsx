@@ -4,29 +4,11 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../../../../../redux/store";
 import "./OrdersOfToday.css";
 import { Link } from "react-router-dom";
-import { fetchShipmentsOrders } from "../../../../../utils/apiToday";
-
-type Payment = { amount: number; currency: "USD" | "LBP"; date?: string };
-type Order = {
-  _id: string;
-  customerid: string;
-  customerObjId?: string;
-  customerName?: string;
-  productId: number;
-  delivered: number;
-  returned: number;
-  payments?: Payment[];
-  sumUSD?: number;
-  sumLBP?: number;
-  createdAt?: string;
-  orderTime?: string;
-  type?: number; // 2 = normal, 3 = external
-};
-
-type ShipmentWithOrders = {
-  _id: string;
-  orders: Order[];
-};
+import {
+  ShipmentOrder as Order,
+  ShipmentWithOrders,
+  useLazyShipmentsOrdersByDateQuery,
+} from "../../../../../features/api/trxApi";
 
 function yyyyMmDdInBeirut(dateLike?: string | number | Date) {
   const d = dateLike ? new Date(dateLike) : new Date();
@@ -47,6 +29,7 @@ function yyyyMmDdInBeirut(dateLike?: string | number | Date) {
 
 export default function OrdersOfToday(): JSX.Element {
   const token = useSelector((s: RootState) => s.user.token);
+  const [triggerOrdersByDate] = useLazyShipmentsOrdersByDateQuery();
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [dateStr, setDateStr] = useState<string>("");
@@ -61,11 +44,10 @@ export default function OrdersOfToday(): JSX.Element {
     setLoading(true);
     setErr(null);
     try {
-      // includeExternal=true to ensure shipments containing type 3 orders are returned
-      const data = await fetchShipmentsOrders(token, {
+      const data = await triggerOrdersByDate({
         date,
         includeExternal: true,
-      });
+      }).unwrap();
       setRows(Array.isArray(data.shipments) ? data.shipments : []);
       const y = data?.date?.year,
         m = data?.date?.month,

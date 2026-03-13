@@ -1,6 +1,6 @@
 // src/features/finance/hooks/useMonthlySummary.ts
 import { useEffect, useState } from "react";
-import { monthlySummary } from "../../../utils/apiFinances";
+import { monthlySummary } from "../apiFinance";
 import { MonthlyRow } from "../types";
 
 export function useMonthlySummary(token: string | null, y: number, m: number) {

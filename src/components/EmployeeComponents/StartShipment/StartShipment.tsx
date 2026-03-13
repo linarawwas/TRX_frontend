@@ -42,7 +42,10 @@ import AddToModel from "../../AddToModel/AddToModel";
 import { preloadShipmentData } from "../../../utils/preloadShipmentData";
 import { createRoundOrShipment } from "../../../utils/createRoundOrShipment";
 import { API_BASE } from "../../../config/api";
+import { createLogger } from "../../../utils/logger";
 import "./StartShipment.css";
+
+const logger = createLogger("start-shipment");
 
 /**
  * Top-level UI component that starts a shipment or a round.
@@ -177,7 +180,7 @@ const StartShipment: React.FC = () => {
         }
       },
     }).catch((err) => {
-      console.error("❌ Preloading failed:", err);
+      logger.error("Preloading failed.", err);
       setPreloadError(true);
       setShowLoadingModal(false);
       toast.error("⚠️ فشل في تحميل البيانات");
@@ -234,7 +237,7 @@ const StartShipment: React.FC = () => {
         if (!data?.length) throw new Error("Day not found in DB");
         setShipmentData({ dayId: data[0]._id, day, month, year });
       } catch (err) {
-        console.error("❌ Day initialization failed:", err);
+        logger.error("Day initialization failed.", err);
         toast.error("تعذر تحديد يوم العمل");
       }
     };
@@ -325,7 +328,7 @@ const StartShipment: React.FC = () => {
         // Always store shipment id/target we got back (id used when recording orders)
         dispatch(setShipmentId(shipment._id));
         dispatch(setShipmentTarget(shipment.carryingForDelivery));
-        console.log("🎉 Created new shipment:", shipment);
+        logger.info("Created new shipment.", shipment);
         // Set today's date/day info for the new shipment
         dispatch(setDayId(shipment.dayId));
         dispatch(setDateDay(shipment.date.day));
@@ -371,7 +374,7 @@ const StartShipment: React.FC = () => {
         // No preload for rounds (we keep customers/progress intact)
       }
     } catch (error: any) {
-      console.error(error);
+      logger.error("Failed to register shipment.", error);
       toast.error("⚠️ فشل في تسجيل الشحنة: " + (error?.message || ""));
     } finally {
       setIsSubmitting(false);

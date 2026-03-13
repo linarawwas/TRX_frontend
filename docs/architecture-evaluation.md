@@ -13,8 +13,8 @@ If a senior frontend developer were to review this repository, these are the thi
 | **Improving but still selective automated coverage** | The repo now has passing tests for selectors, shipment reducer, offline sync, auth storage/API/hook flows, finance mutation hooks, the `RecordOrder` / `UpdateCustomer` controller hooks, and `StartShipment`, plus `docs/testing.md`. | This is a strong Phase 1 safety net, but it is still selective. Remaining gaps are mainly integration-level coverage and a few deeper controller branches rather than complete absence of tests. |
 | **Oversized smart components** | This was visible in `UpdateCustomer.tsx` (~898 LOC) and `RecordOrder.tsx` (~755 LOC). A first extraction pass moved business/state logic into `useUpdateCustomerController.ts` and `useRecordOrderController.ts`, reducing the component files to ~545 LOC and ~278 LOC respectively, but the remaining JSX is still large. | Large render files are still harder to read and test than focused subcomponents; controller extraction is a good first step, not the end state. |
 | **Phase 1 type shortcuts were real debt** | `RecordOrder.tsx` previously duplicated `RootState`; `Shipment/reducer.ts` used `any`; `redux/store.ts` relied on `@ts-expect-error` for middleware typing. These were removed in the Phase 1 pass. | Important signal: the repo had core typing shortcuts in central state code. They are now fixed, but this was valid architectural debt and similar shortcuts should be watched for going forward. |
-| **API logic in two places** | Both `utils/` (e.g. `apiHelpers.ts`, `apiFinances.ts`, `apiShipments.ts`) and `features/*/api*.ts` contain HTTP calls. | Unclear ownership; duplication; “where do I add a new endpoint?” has no single answer. |
-| **Console usage in production path** | Dozens of `console.log` / `console.error` / `console.warn` across components, hooks, and utils (e.g. `useSyncOfflineOrders.ts` has many). | Noisy or leaking info in production; no structured logging; suggests debugging leftovers. |
+| **API ownership is improved but not fully finished** | Finance API ownership now lives under `features/finance`, and the `orders-today` read flow was moved into `trxApi`, but other API-oriented utilities still exist in `utils/` (`apiHelpers.ts`, `apiShipments.ts`, `distributorApi.ts`, etc.). | The rule is clearer now, but incremental migration still remains for the rest of the overlapping utility APIs. |
+| **Console usage is reduced but not eliminated** | A shared `src/utils/logger.ts` now handles startup/offline/shipment-start status logging and keeps `debug`/`info` quiet in production by default, but some raw console usage remains elsewhere. | This is no longer an uncontrolled pattern in the highest-noise paths, but the cleanup is still partial across the wider codebase. |
 | **500+ LOC IndexedDB module** | Single `utils/indexedDB.ts` file (~522 LOC) with many stores and helpers. | Single point of failure; hard to reason about; migrations and versioning are riskier. |
 | **Shipment slice as a hub** | One large slice (~256 LOC) with many fields; order flow, finance, and sync all depend on it. | Any change to shipment state has broad impact; refactoring is costly and risky. |
 | **No code-splitting** | No `React.lazy` or route-based splitting; one main bundle. | Bundle size will grow with every feature; slower first load; not aligned with common production practices. |
@@ -45,12 +45,14 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 
 ### Phase 2 — Clear boundaries (no big structural refactors yet)
 
+**Status:** Completed on 2026-03-13.
+
 **Goal:** Decide where new code lives and clean up noise so future work follows a single pattern.
 
 | Step | Action | Why this order |
 |------|--------|----------------|
-| 2.1 | **Consolidate API ownership** — Document the rule: “New server state: RTK Query in `trxApi` or feature `api*.ts`; no new API in `utils/`.” Migrate 1–2 utils API modules (e.g. one from `utils/apiFinances.ts` or `utils/apiHelpers.ts`) into the corresponding feature or into `trxApi`. Leave the rest for incremental migration. | Gives a single answer to “where do I add an endpoint?” and starts reducing duplication without rewriting the whole app. |
-| 2.2 | **Tame console usage** — Replace or wrap `console.log`/`error`/`warn` in a small logger that no-ops (or strips) in production, or remove obvious debug logs. Prioritize `useSyncOfflineOrders`, then other hooks and components. | Reduces production noise and info leak; quick wins, no architectural change. |
+| 2.1 | **Consolidate API ownership** — Completed by moving finance server-state calls from `src/utils/apiFinances.ts` into `src/features/finance/apiFinance.ts`, deleting the old util module, and migrating the `orders-today` read flow from `src/utils/apiToday.ts` into `src/features/api/trxApi.ts`. | There is now a concrete code pattern for both destinations: feature-local API modules for domain logic and RTK Query for shared read-heavy flows. |
+| 2.2 | **Tame console usage** — Completed for the highest-noise paths by introducing `src/utils/logger.ts` and applying it to `useSyncOfflineOrders.ts`, `StartShipment.tsx`, `main.tsx`, and IndexedDB logging helpers. | Production-path status logging is now controlled in the startup/offline flows that were previously the noisiest, without requiring a large refactor. |
 
 **Outcome:** New features have a clear API home; production logs are under control.
 
@@ -106,7 +108,7 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 
 ### Gaps
 
-- **Utils vs features** — `src/utils/` still contains API-oriented modules (`apiHelpers.ts`, `apiToday.ts`, `apiFinances.ts`, `apiShipments.ts`, `distributorApi.ts`) that overlap with feature `api*.ts` and with RTK Query. Domain-specific fetching is split between utils and features, which blurs “where does this call live?”
+- **Utils vs features** — The split is smaller than before: `apiToday.ts` and `apiFinances.ts` have been removed in favor of `trxApi` and `features/finance/apiFinance.ts`, but `src/utils/` still contains API-oriented modules such as `apiHelpers.ts`, `apiShipments.ts`, and `distributorApi.ts`. Ownership is clearer, but the migration is not finished.
 - **Large components** — Some components own too much: `RecordOrder.tsx` (~755 LOC) and `UpdateCustomer.tsx` (~898 LOC) mix layout, form state, Redux dispatch, IndexedDB, API helpers, and inline types. Business logic is not fully extracted into hooks or feature modules.
 - **Inline state types** — `RecordOrder.tsx` defines a local `RootState` type instead of importing from `redux/store`, duplicating and drifting from the real store shape.
 
@@ -164,7 +166,7 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 
 - **RootState** — The canonical type lives in `redux/store.ts`, but `RecordOrder.tsx` defines its own `RootState` with a subset of the store. Naming is the same but the type is duplicated and can drift; should import from store.
 - **Mixed casing in paths** — `viewCustomers` (camelCase) vs `ViewExpenses` (PascalCase) in SharedPages; `EmployeeComponents` vs `UI reusables` (space). Minor but inconsistent for newcomers.
-- **API helpers** — `apiHelpers.ts`, `apiToday.ts`, `apiFinances.ts` suggest “API” but sit in utils next to non-API helpers (money, i18n, indexedDB). Feature-level `apiFinance.ts`, `apiProducts.ts` use similar names; the split (utils vs features) is not obvious from naming alone.
+- **API helpers** — `apiToday.ts` and `apiFinances.ts` were good examples of the old split and have now been migrated away, but `apiHelpers.ts` and other API-oriented utilities still sit in `utils/` next to non-API helpers. The naming and ownership story is improved, not fully finished.
 
 **Verdict:** Generally consistent (components, hooks, Redux); a few duplicated types and path/casing inconsistencies. **Score: 7/10**
 
@@ -200,7 +202,7 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 
 - **Components tightly coupled to Redux and utils** — Many components import Redux actions, multiple selectors, utils (indexedDB, apiHelpers, money, invoicePreview), and config. Changing store shape or moving an API may require edits in several components.
 - **Shipment slice as a hub** — Order flow, finance hooks, and sync logic all depend on the Shipment slice. The slice is a single point of change; any refactor of shipment state has wide impact.
-- **Utils used as a shared dependency** — `utils/apiHelpers`, `utils/apiFinances`, etc. are used from both components and features. There is no strict “features depend on utils, components depend on features” layering, so dependency direction is mixed.
+- **Utils used as a shared dependency** — `utils/apiHelpers`, `utils/apiShipments`, and other utility modules are still imported from both components and features. There is no strict “features depend on utils, components depend on features” layering, so dependency direction is mixed.
 
 **Verdict:** Good cohesion inside features and auth; coupling is high around a few components and the Shipment slice, and utils/features boundaries are mixed. **Score: 6/10**
 
@@ -284,7 +286,7 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 | Risk | Impact | Recommendation |
 |------|--------|----------------|
 | **Very large components** | RecordOrder (~755 LOC), UpdateCustomer (~898 LOC) mix UI, state, Redux, IndexedDB, and API. Hard to read, test, and change. | Extract subcomponents and custom hooks (e.g. order submission, customer form sections); use shared RootState from store. |
-| **Utils vs features API split** | Domain API logic lives in both `utils/` (apiHelpers, apiFinances, apiShipments, etc.) and `features/*/api*.ts`. Unclear ownership and overlap. | Migrate utils API modules into corresponding features or into RTK Query; keep utils for pure helpers (money, i18n, date). |
+| **Utils vs features API split** | Domain API logic still lives in both `utils/` (apiHelpers, apiShipments, distributorApi, etc.) and `features/*/api*.ts`, even though finance and `orders-today` were migrated in Phase 2. | Continue migrating the remaining utils API modules into corresponding features or into RTK Query; keep utils for pure helpers (money, i18n, date). |
 | **Minimal test coverage** | One component test; no tests for hooks, selectors, or critical flows. Regressions likely. | Add unit tests for selectors and feature hooks first; add integration or component tests for order submission and offline sync; document testing patterns. |
 | **Shipment slice size and centrality** | One large slice (250+ LOC) and many dependents; any change has broad impact. | Consider splitting into sub-slices or domains (e.g. shipment meta vs round vs customer lists); or at least document intended boundaries inside the slice. |
 | **IndexedDB as a single module** | 500+ LOC, many stores; all offline/cache usage goes through it. | Document migration and versioning; consider splitting by domain (e.g. requests, customers, areas) if it keeps growing. |

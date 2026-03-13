@@ -29,6 +29,47 @@ export interface ListShipmentsRangeResponse {
   shipments: ShipmentSummary[];
 }
 
+export interface ShipmentsOrdersByDateRequest {
+  date?: string;
+  includeExternal?: boolean;
+}
+
+type OrderPayment = {
+  amount: number;
+  currency: "USD" | "LBP";
+  date?: string;
+};
+
+export interface ShipmentOrder {
+  _id: string;
+  customerid: string;
+  customerObjId?: string;
+  customerName?: string;
+  productId: number;
+  delivered: number;
+  returned: number;
+  payments?: OrderPayment[];
+  sumUSD?: number;
+  sumLBP?: number;
+  createdAt?: string;
+  orderTime?: string;
+  type?: number;
+}
+
+export interface ShipmentWithOrders {
+  _id: string;
+  orders: ShipmentOrder[];
+}
+
+export interface ShipmentsOrdersByDateResponse {
+  shipments?: ShipmentWithOrders[];
+  date?: {
+    year?: number;
+    month?: number;
+    day?: number;
+  };
+}
+
 export const trxApi = createApi({
   reducerPath: "trxApi",
   baseQuery: fetchBaseQuery({
@@ -53,8 +94,24 @@ export const trxApi = createApi({
         body,
       }),
     }),
+    shipmentsOrdersByDate: builder.query<
+      ShipmentsOrdersByDateResponse,
+      ShipmentsOrdersByDateRequest
+    >({
+      query: ({ date, includeExternal }) => {
+        const params = new URLSearchParams();
+        params.set("includeExternal", includeExternal ? "true" : "false");
+        if (date) {
+          params.set("date", date);
+        }
+        return `/api/shipments/orders/by-date?${params.toString()}`;
+      },
+    }),
   }),
 });
 
-export const { useListShipmentsRangeQuery } = trxApi;
+export const {
+  useListShipmentsRangeQuery,
+  useLazyShipmentsOrdersByDateQuery,
+} = trxApi;
 

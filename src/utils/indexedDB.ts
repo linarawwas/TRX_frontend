@@ -2,6 +2,7 @@
 // indexedDB.ts
 import { openDB } from "idb";
 import type { IDBPObjectStore } from "idb";
+import { createLogger } from "./logger";
 
 // ============================
 // Logging helpers (toggleable)
@@ -12,16 +13,18 @@ const IDB_DEBUG =
   /idbdebug=1|true/i.test(String(window?.location?.search)) ||
   localStorage.getItem("IDB_DEBUG") === "1";
 
+const logger = createLogger("IDB", { enabled: () => IDB_DEBUG });
+
 const nowStr = () => new Date().toLocaleTimeString("en-GB", { hour12: false });
 
 const ok = (msg: string, ...args: any[]) =>
-  IDB_DEBUG && console.log(`✅ [IDB ${nowStr()}] ${msg}`, ...args);
+  IDB_DEBUG && logger.debug(`✅ [${nowStr()}] ${msg}`, ...args);
 const info = (msg: string, ...args: any[]) =>
-  IDB_DEBUG && console.log(`ℹ️  [IDB ${nowStr()}] ${msg}`, ...args);
+  IDB_DEBUG && logger.info(`ℹ️ [${nowStr()}] ${msg}`, ...args);
 const warn = (msg: string, ...args: any[]) =>
-  console.warn(`⚠️  [IDB ${nowStr()}] ${msg}`, ...args);
+  logger.warn(`⚠️ [${nowStr()}] ${msg}`, ...args);
 const err = (msg: string, ...args: any[]) =>
-  console.error(`❌ [IDB ${nowStr()}] ${msg}`, ...args);
+  logger.error(`❌ [${nowStr()}] ${msg}`, ...args);
 
 async function time<T>(label: string, fn: () => Promise<T>): Promise<T> {
   const t0 = performance.now();

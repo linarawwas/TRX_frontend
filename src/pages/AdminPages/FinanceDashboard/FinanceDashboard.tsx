@@ -1,7 +1,11 @@
 // src/pages/Admin/FinanceDashboard.tsx
 import React, { useMemo, useState, useRef } from "react";
 import { useSelector } from "react-redux";
-import { createFinance, updateFinance, deleteFinance } from "../../../utils/apiFinances";
+import {
+  createFinance,
+  updateFinance,
+  deleteFinance,
+} from "../../../features/finance/apiFinance";
 import { fmtUSD, fmtLBP, fmtSignedUSD, fmtSignedLBP, getEntrySums, catAr } from "../../../features/finance/utils/financeUtils";
 import { FinanceEntry } from "../../../features/finance/types";
 import { useFinanceCategories } from "../../../features/finance/hooks/useFinanceCategories";

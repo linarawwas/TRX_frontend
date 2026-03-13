@@ -1,6 +1,6 @@
 // src/features/finance/hooks/useDailySummary.ts
 import { useEffect, useState } from "react";
-import { dailySummary } from "../../../utils/apiFinances";
+import { dailySummary } from "../apiFinance";
 import { DailySummary } from "../types";
 
 export function useDailySummary(token: string | null, date: string) {

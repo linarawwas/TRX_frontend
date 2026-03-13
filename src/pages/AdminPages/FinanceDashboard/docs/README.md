@@ -60,7 +60,7 @@
 - [computeEntriesTotals](../../../features/finance/selectors.ts) - Entries totals selector
 - [fmtUSD, fmtLBP, fmtSignedUSD, fmtSignedLBP, getEntrySums, catAr](../../../features/finance/utils/financeUtils.ts) - Formatting and helper utilities
 - [useMediaQuery](../../../hooks/useMediaQuery.ts) - Responsive breakpoint hook
-- [createFinance](../../../utils/apiFinances.ts) - API service for creating finance entries
+- [createFinance](../../../features/finance/apiFinance.ts) - API service for creating finance entries
 
 ### Exposes to:
 - Used by routing (likely in AdminRouter) to render `/finance` or similar route
@@ -130,7 +130,7 @@
 
 ### What to Mock
 - **Redux Store** - Mock `useSelector` to return `{token: "test-token", isAdmin: true}`
-- **API Services** - Mock `createFinance` from `apiFinances`
+- **API Services** - Mock `createFinance` from `apiFinance`
 - **Custom Hooks** - Mock data hooks to return controlled data:
   - `useFinanceCategories` → mock categories array
   - `useDailySummary` → mock daily summary object
@@ -153,7 +153,7 @@
 ## Gotchas & Future Work
 
 ### Known Limitations
-- **Hardcoded API URL** - API base URL is hardcoded in `apiFinances.ts` (should use env/config)
+- **Error surfacing** - Submission failures still rely on toasts rather than dedicated inline error UI
 - **No Error UI** - Errors are only logged, no visible error states in UI
 - **No Pagination** - Entries list loads all entries for the month (could be slow with many entries)
 - **Inline Styles** - Some minor inline styles remain (width, minWidth for inputs)

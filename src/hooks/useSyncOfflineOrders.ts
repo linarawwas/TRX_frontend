@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { getPendingRequests, removeRequestFromDb } from "../utils/indexedDB";
+import { createLogger } from "../utils/logger";
 import {
   removePendingOrder,
   addCustomerWithEmptyOrder,
@@ -14,6 +15,8 @@ interface PendingRequest {
   options: RequestInit & { body?: string };
 }
 
+const logger = createLogger("offline-sync");
+
 const useSyncOfflineOrders = () => {
   const dispatch = useDispatch();
   const syncInProgress = useRef(false);
@@ -23,56 +26,54 @@ const useSyncOfflineOrders = () => {
   useEffect(() => {
     const syncOfflineOrders = async () => {
       if (syncInProgress.current) {
-        console.log("Sync already in progress, skipping...");
+        logger.debug("Sync already in progress, skipping.");
         return;
       }
 
       if (!navigator.onLine) {
-        console.log("Device is offline. Sync will start once online.");
+        logger.debug("Device is offline. Sync will start once online.");
         return;
       }
 
       syncInProgress.current = true;
 
-      console.log("Waiting 10 seconds before syncing...");
+      logger.debug("Waiting 10 seconds before syncing.");
       await new Promise((resolve) => setTimeout(resolve, 10000));
 
-      console.log("Fetching pending requests from IndexedDB...");
+      logger.debug("Fetching pending requests from IndexedDB.");
 
       let pendingRequests: PendingRequest[];
       try {
         pendingRequests = await getPendingRequests();
-        console.log("Pending requests found:", pendingRequests);
+        logger.debug("Pending requests found.", pendingRequests);
       } catch (error) {
-        console.error("Error fetching pending requests:", error);
+        logger.error("Error fetching pending requests.", error);
         syncInProgress.current = false;
         return;
       }
 
       if (pendingRequests.length === 0) {
-        console.log("No pending requests to sync.");
+        logger.debug("No pending requests to sync.");
         syncInProgress.current = false;
         return;
       }
 
       for (const request of pendingRequests) {
         try {
-          console.log("Processing request:", request);
+          logger.debug("Processing request.", request);
           const body = JSON.parse(request.options.body || "{}");
 
           if (!request.url || !request.url.startsWith("http")) {
-            console.error("Invalid request URL:", request.url);
+            logger.error("Invalid request URL.", request.url);
             toast.error("Invalid request URL. Sync failed.");
             continue;
           }
 
-          console.log("Sending request to server...");
+          logger.debug("Sending request to server.");
           const response = await fetch(request.url, request.options);
 
           if (response.ok) {
-            console.log(
-              "Order synced successfully. Removing from IndexedDB..."
-            );
+            logger.info("Order synced successfully. Removing from IndexedDB.");
             await removeRequestFromDb(request.id);
 
             if (
@@ -88,11 +89,11 @@ const useSyncOfflineOrders = () => {
             dispatch(removePendingOrder(body.customerid));
             toast.success("تم إرسال الطلبات المسجلة بدون انترنت بنجاح!");
           } else {
-            console.error("Failed to sync order:", response.statusText);
+            logger.error("Failed to sync order.", response.statusText);
             toast.error(`Failed to sync order: ${response.statusText}`);
           }
         } catch (error) {
-          console.error("Error syncing offline order:", error);
+          logger.error("Error syncing offline order.", error);
           toast.error("Network error, retrying in 10 seconds...");
           setTimeout(syncOfflineOrders, 10000);
         }
@@ -114,12 +115,12 @@ const useSyncOfflineOrders = () => {
     }
 
     if (isOnline) {
-      console.log("Device is online. Waiting 10 seconds before sync...");
+      logger.debug("Device is online. Waiting 10 seconds before sync.");
       setTimeout(syncOfflineOrders, 10000);
     }
 
     return () => {
-      console.log("Cleaning up event listener for online status...");
+      logger.debug("Cleaning up event listener for online status.");
       window.removeEventListener("online", handleOnline);
       hasEventListener.current = false;
     };

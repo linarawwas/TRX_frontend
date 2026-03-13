@@ -74,6 +74,15 @@ This document tracks known architectural issues and planned improvements. It is 
      - Resolved the store middleware suppression by aligning `redux` with the Toolkit stack (`redux@^5.0.1`) and deleting the `@ts-expect-error` from `store.ts`.
    - **Notes:** This is now a solid high-value regression net for the main business flows, not full coverage. The next best targets are a few remaining edge branches (`RecordOrder` over-target/LBP-pad interactions, `UpdateCustomer` non-happy-path mutation branches, offline sync dedupe under repeated online events) plus a small number of end-to-end integration paths across auth -> shipment -> order recording.
 
+6. **Phase 2 clear boundaries**
+   - **Completed on:** 2026-03-13
+   - **What changed:**
+     - Moved finance server-state ownership out of `src/utils/apiFinances.ts` and into `src/features/finance/apiFinance.ts`, then updated finance hooks and `FinanceDashboard` to import only from the feature API module.
+     - Migrated the `orders-today` read flow from `src/utils/apiToday.ts` into the shared RTK Query slice in `src/features/api/trxApi.ts`, and updated `OrdersOfToday.tsx` to use the generated lazy query hook.
+     - Added `src/utils/logger.ts` and replaced the highest-noise raw console usage in `src/hooks/useSyncOfflineOrders.ts`, `src/components/EmployeeComponents/StartShipment/StartShipment.tsx`, `src/app/main.tsx`, and the IndexedDB logging helpers in `src/utils/indexedDB.ts`.
+     - Deleted the now-obsolete `src/utils/apiFinances.ts` and `src/utils/apiToday.ts` modules.
+   - **Notes:** The rule is now explicit in code: new domain API calls belong in feature `api*.ts` files or in `src/features/api/trxApi.ts`; `src/utils/` should be reserved for pure helpers and infrastructure. Remaining cleanup can migrate other `utils` API modules incrementally.
+
 ### Longer-term architecture improvements
 
 1. **Data fetching and caching abstraction**
@@ -103,8 +112,14 @@ Formalized 2026-03. These are standing rules for all new and touched code. All R
    - New read-heavy or list/detail API flows must use the shared API slice in `src/features/api/trxApi.ts`: add endpoints and use the generated hooks (e.g. `useXQuery`). Do not add ad-hoc `fetch`/`axios` calls in features for server state.
    - Existing flows that still use `axios` in feature `api*.ts` files can stay as-is until they are refactored; when touching them, prefer migrating to RTK Query.
 
-2. **Memoized selectors**
+2. **API ownership**
+   - New domain API code belongs in the owning feature (`src/features/**/api*.ts`) or in `src/features/api/trxApi.ts` for shared read-heavy/server-state endpoints. Do not add new API modules under `src/utils/`.
+
+3. **Memoized selectors**
    - Any Redux selector that returns an object or array must be implemented with `createSelector` from `@reduxjs/toolkit` so that the same reference is returned when inputs are unchanged. This avoids unnecessary rerenders and satisfies Redux's expectations. Primitive-returning selectors do not need memoization.
 
-3. **Documentation index**
+4. **Logging**
+   - Use `src/utils/logger.ts` instead of raw `console.log`/`console.info` for runtime status messages. `debug`/`info` are silent in production by default; keep `warn`/`error` for actionable failures only.
+
+5. **Documentation index**
    - When adding new documentation (under `docs/` or under `src/**/docs/`), add an entry to [docs/INDEX.md](INDEX.md). For top-level or user-facing docs, also add a link in the README [Documentation map](../README.md#documentation-map) if appropriate.

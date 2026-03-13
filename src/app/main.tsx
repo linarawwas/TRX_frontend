@@ -5,6 +5,9 @@ import { store } from "../redux/store";
 import App from "./App";
 import "../index.css";
 import "react-toastify/dist/ReactToastify.css";
+import { createLogger } from "../utils/logger";
+
+const logger = createLogger("service-worker");
 
 const container = document.getElementById("root");
 if (!container) {
@@ -30,8 +33,7 @@ if ("serviceWorker" in navigator && isProd) {
       const reg = await navigator.serviceWorker.register("/sw.js", {
         scope: "/",
       });
-      // eslint-disable-next-line no-console
-      console.log("[SW] scope:", reg.scope);
+      logger.info("Registered service worker.", reg.scope);
 
       navigator.serviceWorker.addEventListener("controllerchange", () => {
         if (refreshed) return;
@@ -51,8 +53,7 @@ if ("serviceWorker" in navigator && isProd) {
         });
       });
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error("[SW] register failed", e);
+      logger.error("Service worker registration failed.", e);
     }
   });
 }

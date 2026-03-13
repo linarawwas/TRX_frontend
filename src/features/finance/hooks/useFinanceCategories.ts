@@ -1,6 +1,6 @@
 // src/features/finance/hooks/useFinanceCategories.ts
 import { useEffect, useState } from "react";
-import { listCategories } from "../../../utils/apiFinances";
+import { listCategories } from "../apiFinance";
 import { Category } from "../types";
 
 export function useFinanceCategories(token: string | null) {

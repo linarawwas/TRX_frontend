@@ -69,7 +69,7 @@ See [**docs/folder-structure.md**](docs/folder-structure.md) for a detailed brea
 
 - **Store** (`src/redux/store.ts`) — `configureStore` with `rootReducer`, `localStorage` preload and subscribe, and middleware: `getDefaultMiddleware().concat(trxApi.middleware)` so thunks and RTK Query work.
 - **Slices** — UserInfo, Order, Shipment, Defaults are implemented with `createSlice`. Selectors that return objects/arrays (e.g. `selectTodayProgress`, `selectRoundProgress`) use `createSelector` to avoid unnecessary rerenders.
-- **RTK Query** — `src/features/api/trxApi.ts` defines the API slice; `useListShipmentsRangeQuery` and hooks like `useTodayShipmentTotals` use it. New read-heavy flows should add endpoints here.
+- **RTK Query** — `src/features/api/trxApi.ts` defines the API slice; `useListShipmentsRangeQuery`, `useLazyShipmentsOrdersByDateQuery`, and hooks like `useTodayShipmentTotals` use it. New read-heavy flows should add endpoints here.
 
 ### Auth and session
 
@@ -78,7 +78,7 @@ See [**docs/folder-structure.md**](docs/folder-structure.md) for a detailed brea
 
 ### Offline and service worker
 
-- **Service worker** — Registered in production in `src/app/main.tsx`; caches assets and supports update flow (reload on controller change).
+- **Service worker** — Registered in production in `src/app/main.tsx`; caches assets and supports update flow (reload on controller change). Runtime status logging now goes through `src/utils/logger.ts`.
 - **IndexedDB** (`src/utils/indexedDB.ts`) — Stores pending requests, customers, areas, products, discounts, invoices, days, exchange rates. See `src/utils/readme.md`.
 - **Sync** — `src/hooks/useSyncOfflineOrders.ts` (mounted from `App.tsx`) replays pending order requests when back online and updates Redux.
 
@@ -132,7 +132,7 @@ More narrative flows: [**docs/trx-product-overview-frontend.md**](docs/trx-produ
 
 - Node.js (LTS)
 - npm or yarn
-- Backend API compatible with the endpoints used in `src/features/**` and `src/utils/api*.ts`
+- Backend API compatible with the endpoints used in `src/features/**` and shared infrastructure helpers under `src/utils/`
 
 ### Setup
 
@@ -164,7 +164,7 @@ REACT_APP_API_BASE_URL=https://api.example.com
 
 ## Environment and debugging
 
-- **Service worker** — Production only; registration and update events logged to console.
+- **Service worker** — Production only; registration and update events are logged through `src/utils/logger.ts`.
 - **IndexedDB** — Add `?idbdebug=1` or set `localStorage.IDB_DEBUG = "1"` for verbose logs.
 
 ## Documentation map
@@ -187,6 +187,7 @@ The codebase is feature-oriented and hook-driven. The items tracked in [**docs/t
 
 - **Conventions (done)** — [Architecture conventions](docs/technical-debt.md#architecture-conventions-ongoing) are documented: (1) use RTK Query for new data-heavy features, (2) memoize selectors that return objects/arrays with `createSelector`, (3) add new docs to [docs/INDEX.md](docs/INDEX.md) (see [How to add documentation](docs/INDEX.md#how-to-add-documentation)). All Redux selectors that return non-primitives are now memoized.
 - **Phase 1 completed** — The first test baseline is in place ([testing guide](docs/testing.md), selector tests, and initial feature-hook tests), Shipment reducer typing shortcuts were removed, and the store no longer relies on a middleware `@ts-expect-error`.
+- **Phase 2 completed** — Finance API ownership now lives under `src/features/finance/apiFinance.ts`, the `orders-today` read flow now uses `trxApi`, and the noisiest startup/offline runtime logs are routed through `src/utils/logger.ts`.
 
 **Optional, longer-term:** Error boundaries per feature area; further form/validation standardization; grow test coverage for selectors, hooks, and critical flows.
 
