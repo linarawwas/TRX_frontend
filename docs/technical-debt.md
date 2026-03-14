@@ -46,12 +46,16 @@ This document tracks known architectural issues and planned improvements. It is 
    - **Notes:** Future forms should either (a) reuse these schemas where appropriate, or (b) define their own Zod schemas in a feature‑local `validation.ts` file and pass them through the `validate` prop (or equivalent) to ensure consistent, centralized validation rules and error messages.
 
 4. **Oversized smart components**
-   - **Completed on:** 2026-03-13 (first step)
-   - **What changed:** Extracted controller hooks from two of the largest UI containers:
+   - **Completed on:** 2026-03-14
+   - **What changed:** Extracted controller hooks from two of the largest UI containers, then completed the next render-decomposition pass:
      - `src/components/Orders/RecordOrder/useRecordOrderController.ts` now owns the Redux access, invoice preview logic, submission flow, offline queueing, and WhatsApp message generation that previously lived inline in `RecordOrder.tsx`.
      - `src/components/Customers/UpdateCustomer/useUpdateCustomerController.ts` now owns customer fetching, area/placement loading, update/deactivate/restore/delete mutations, and modal state that previously lived inline in `UpdateCustomer.tsx`.
-     - This reduced the main component files from roughly `755 -> 278` lines (`RecordOrder.tsx`) and `898 -> 545` lines (`UpdateCustomer.tsx`), while preserving the existing UI.
-   - **Notes:** This is an intentionally incremental first pass. The next step is to extract large render sections (e.g. steppers, dialogs, edit forms, tab panels) into focused presentational subcomponents so the remaining JSX becomes easier to read and test.
+     - `RecordOrder.tsx` now acts as a page composer and delegates repeated render blocks to `RecordOrderStepField.tsx`, `RecordOrderLbpSection.tsx`, and `RecordOrderOverTargetModal.tsx`.
+     - `UpdateCustomer.tsx` now acts as a page composer and delegates the hero/actions, edit form, invoices tab, and modal trees to `UpdateCustomerHeader.tsx`, `UpdateCustomerForm.tsx`, `UpdateCustomerInvoicesPanel.tsx`, and `UpdateCustomerModals.tsx`.
+     - Added page-level wiring tests for both composition files:
+       - `src/components/Orders/RecordOrder/RecordOrder.test.tsx`
+       - `src/components/Customers/UpdateCustomer/UpdateCustomer.test.tsx`
+   - **Notes:** The highest-risk UI containers now have clear controller-vs-view boundaries. The next best follow-up is shipment-slice decomposition/testing and selective integration coverage across multi-screen flows.
 
 5. **Phase 1 safety net and store typing**
    - **Completed on:** 2026-03-13

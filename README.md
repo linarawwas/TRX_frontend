@@ -58,7 +58,7 @@ This frontend:
 | **App bootstrap** | `src/index.tsx` → `src/app/main.tsx` | React root, Redux Provider, service worker registration |
 | **Layout & routing** | `src/Layout/`, `src/Router/` | Authenticated layout, role-based AdminRouter / EmployeeRouter, shared CommonRoutes |
 | **Pages** | `src/pages/AdminPages/`, `EmployeePages/`, `SharedPages/` | Role-specific and shared page containers |
-| **Components** | `src/components/` | Reusable and domain UI (KPI, snapshots, forms, ErrorBoundary, etc.) |
+| **Components** | `src/components/` | Reusable and domain UI; large screens like `RecordOrder` and `UpdateCustomer` now compose smaller presentational sections over controller hooks |
 | **Features** | `src/features/` | Domain modules: auth, finance, shipments, products, orders, customers, areas, API (RTK Query) |
 | **Global state** | `src/redux/` | Store (Toolkit), slices (UserInfo, Order, Shipment, Defaults), memoized selectors |
 | **Infrastructure** | `src/utils/`, `src/hooks/`, `src/config/` | IndexedDB, API config, i18n, offline sync, shared hooks |
@@ -111,7 +111,7 @@ Details: [**docs/folder-structure.md**](docs/folder-structure.md).
 
 - **Redux Toolkit for global state** — Slices with `createSlice`; store with `configureStore` and thunk + RTK Query middleware. State is hydrated from `localStorage` and persisted on change.
 - **RTK Query for server state** — Shared caching, deduplication, and lifecycle for API data; extend via new endpoints in `trxApi.ts`.
-- **Feature modules for domain logic** — Features own types, API, hooks, selectors, utils; pages stay thin and use hooks.
+- **Feature modules and controller hooks for domain logic** — Features own types, API, hooks, selectors, utils; the heaviest UI flows now keep business logic in controller hooks and keep page files mostly compositional.
 - **IndexedDB as offline layer** — Centralized in `src/utils/indexedDB.ts`; used for queuing and caching; see `src/utils/readme.md`.
 - **Typed i18n** — `TranslationKey` union and `t(key, params?)` in `src/utils/i18n.ts`.
 - **Single API base** — All calls use `API_BASE` (or `apiUrl()`) from `src/config/api.ts`; no direct env or hardcoded hosts in features.
@@ -188,7 +188,8 @@ The codebase is feature-oriented and hook-driven. The items tracked in [**docs/t
 - **Conventions (done)** — [Architecture conventions](docs/technical-debt.md#architecture-conventions-ongoing) are documented: (1) use RTK Query for new data-heavy features, (2) memoize selectors that return objects/arrays with `createSelector`, (3) add new docs to [docs/INDEX.md](docs/INDEX.md) (see [How to add documentation](docs/INDEX.md#how-to-add-documentation)). All Redux selectors that return non-primitives are now memoized.
 - **Phase 1 completed** — The first test baseline is in place ([testing guide](docs/testing.md), selector tests, and initial feature-hook tests), Shipment reducer typing shortcuts were removed, and the store no longer relies on a middleware `@ts-expect-error`.
 - **Phase 2 completed** — Finance API ownership now lives under `src/features/finance/apiFinance.ts`, the `orders-today` read flow now uses `trxApi`, and the noisiest startup/offline runtime logs are routed through `src/utils/logger.ts`.
+- **Phase 3.1 completed** — `RecordOrder.tsx` and `UpdateCustomer.tsx` are now composition files over controller hooks and presentational subcomponents, with page-level tests covering stepper/modal/form wiring and key UI branches.
 
-**Optional, longer-term:** Error boundaries per feature area; further form/validation standardization; grow test coverage for selectors, hooks, and critical flows.
+**Optional, longer-term:** Shipment slice decomposition or boundary documentation; a few multi-screen integration tests; error boundaries per feature area; further form/validation standardization.
 
 When refactors land, update `docs/technical-debt.md` so the roadmap stays accurate.

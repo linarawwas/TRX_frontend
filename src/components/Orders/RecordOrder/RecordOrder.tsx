@@ -4,6 +4,9 @@ import { ToastContainer } from "react-toastify";
 import LbpKeypad from "./LbpKeypad";
 import { Link } from "react-router-dom";
 import CustomerInvoices from "../../Customers/CustomerInvoices/CustomerInvoices";
+import RecordOrderLbpSection from "./RecordOrderLbpSection";
+import RecordOrderOverTargetModal from "./RecordOrderOverTargetModal";
+import RecordOrderStepField from "./RecordOrderStepField";
 import {
   RecordOrderProps,
   useRecordOrderController,
@@ -53,152 +56,72 @@ const RecordOrder: React.FC<RecordOrderProps> = (props) => {
       </Link>
 
       <form className="roc-grid" onSubmit={handleSubmit}>
-        {/* Steppers row */}
         <div className="roc-steppers">
-          {/* Delivered */}
-          <div className="roc-stepper">
-            <div className="roc-stepper-label">المسلّمة</div>
-            <div className="roc-stepper-ctrl">
-              <button
-                type="button"
-                onClick={() => dec("delivered")}
-                aria-label="طرح"
-              >
-                −
-              </button>
-              <input
-                type="number"
-                name="delivered"
-                value={form.delivered}
-                onChange={handleChange}
-                inputMode="numeric"
-                pattern="[0-9]*"
-              />
-              <button
-                type="button"
-                onClick={() => inc("delivered")}
-                aria-label="إضافة"
-              >
-                +
-              </button>
-            </div>
-            <div className={`roc-hint ${remaining === 0 ? "locked" : ""}`}>
-              المتبقي في هذه الجولة: <strong>{remaining}</strong>{" "}
-              {remaining === 0 && (
-                <>
-                  • <span className="lock">مغلق</span>
-                </>
-              )}
-            </div>
-          </div>
+          <RecordOrderStepField
+            field="delivered"
+            label="المسلّمة"
+            value={form.delivered}
+            onChange={handleChange}
+            onIncrement={inc}
+            onDecrement={dec}
+            hint={
+              <div className={`roc-hint ${remaining === 0 ? "locked" : ""}`}>
+                المتبقي في هذه الجولة: <strong>{remaining}</strong>{" "}
+                {remaining === 0 && (
+                  <>
+                    • <span className="lock">مغلق</span>
+                  </>
+                )}
+              </div>
+            }
+            data-testid="record-order-delivered"
+          />
 
-          {/* Returned */}
-          <div className="roc-stepper">
-            <div className="roc-stepper-label">المرجعة</div>
-            <div className="roc-stepper-ctrl">
-              <button
-                type="button"
-                onClick={() => dec("returned")}
-                aria-label="طرح"
-              >
-                −
-              </button>
-              <input
-                type="number"
-                name="returned"
-                value={form.returned}
-                onChange={handleChange}
-                inputMode="numeric"
-                pattern="[0-9]*"
-              />
-              <button
-                type="button"
-                onClick={() => inc("returned")}
-                aria-label="إضافة"
-              >
-                +
-              </button>
-            </div>
-            <div className={`roc-hint ${maxReturnable === 0 ? "locked" : ""}`}>
-              الحد الأقصى للإرجاع: <strong>{maxReturnable}</strong>{" "}
-              {maxReturnable === 0 && (
-                <>
-                  • <span className="lock">لا يمكنك إرجاع أكثر من القناني المتبقية</span>
-                </>
-              )}
-            </div>
-          </div>
+          <RecordOrderStepField
+            field="returned"
+            label="المرجعة"
+            value={form.returned}
+            onChange={handleChange}
+            onIncrement={inc}
+            onDecrement={dec}
+            hint={
+              <div className={`roc-hint ${maxReturnable === 0 ? "locked" : ""}`}>
+                الحد الأقصى للإرجاع: <strong>{maxReturnable}</strong>{" "}
+                {maxReturnable === 0 && (
+                  <>
+                    •{" "}
+                    <span className="lock">
+                      لا يمكنك إرجاع أكثر من القناني المتبقية
+                    </span>
+                  </>
+                )}
+              </div>
+            }
+            data-testid="record-order-returned"
+          />
 
-          {/* USD */}
-          <div className="roc-stepper">
-            <div className="roc-stepper-label">الدولار</div>
-            <div className="roc-stepper-ctrl">
-              <button
-                type="button"
-                onClick={() => dec("paidUSD")}
-                aria-label="طرح"
-              >
-                −
-              </button>
-              <input
-                type="number"
-                name="paidUSD"
-                value={form.paidUSD}
-                onChange={handleChange}
-                inputMode="numeric"
-                pattern="[0-9]*"
-              />
-              <button
-                type="button"
-                onClick={() => inc("paidUSD")}
-                aria-label="إضافة"
-              >
-                +
-              </button>
-            </div>
-          </div>
+          <RecordOrderStepField
+            field="paidUSD"
+            label="الدولار"
+            value={form.paidUSD}
+            onChange={handleChange}
+            onIncrement={inc}
+            onDecrement={dec}
+            data-testid="record-order-paid-usd"
+          />
         </div>
 
-        {/* Checkout line */}
         <div className="roc-checkout">
           <span>المطلوب:</span>
           <strong>{checkout.toFixed(2)} $</strong>
         </div>
 
-        {/* LBP quick input */}
-        <div className="roc-lbp">
-          <div className="roc-lbp-label">المدفوع بالليرة</div>
-          <button
-            type="button"
-            className="roc-lbp-field"
-            onClick={() => setShowLbpPad(true)}
-            aria-label="إدخال المبلغ بالليرة"
-          >
-            {form.paidLBP ? Number(form.paidLBP).toLocaleString() : "—"} ل.ل
-          </button>
+        <RecordOrderLbpSection
+          value={Number(form.paidLBP) || 0}
+          onOpen={() => setShowLbpPad(true)}
+          onChange={handleLbpChange}
+        />
 
-          <div className="roc-chip-row">
-            {[1000, 10000, 50000, 100000].map((v) => (
-              <button
-                type="button"
-                key={v}
-                className="roc-chip"
-                onClick={() => handleLbpChange((Number(form.paidLBP) || 0) + v)}
-              >
-                +{v.toLocaleString()}
-              </button>
-            ))}
-            <button
-              type="button"
-              className="roc-chip roc-chip-clear"
-              onClick={() => handleLbpChange(0)}
-            >
-              مسح
-            </button>
-          </div>
-        </div>
-
-        {/* sticky submit */}
         <div className="roc-submit">
           <button
             className="record-order-button"
@@ -229,47 +152,17 @@ const RecordOrder: React.FC<RecordOrderProps> = (props) => {
         }}
       />
 
-      {/* Over-target modal */}
       {overModal && (
-        <div className="confirm-overlay" role="dialog" aria-modal="true">
-          <div className="confirm-card" dir="rtl">
-            <h3 className="confirm-title">تجاوز الهدف غير مسموح</h3>
-            <div className="confirm-body">
-              <p>
-                الهدف لهذه الشحنة: <strong>{targetRound}</strong>
-              </p>
-              <p>
-                المسلّم حتى الآن: <strong>{shipmentDelivered}</strong>
-              </p>
-              <p>
-                المتبقي: <strong>{remaining}</strong>
-              </p>
-              <p>
-                طلبت تسليم: <strong>{overModal.want}</strong>
-              </p>
-              <p className="confirm-warning">
-                لا يمكنك تسليم أكثر من المتبقي ضمن هذه الشحنة.
-              </p>
-            </div>
-            <div className="confirm-actions">
-              <button
-                className="btn secondary"
-                onClick={adjustDeliveredToRemaining}
-              >
-                اضبطها إلى المتبقي
-              </button>
-              <button className="btn primary" onClick={() => void submitRemainingNow()}>
-                اضبط وأرسل الآن
-              </button>
-              <button className="btn danger" onClick={goToNewShipment}>
-                ابدأ شحنة جديدة
-              </button>
-              <button className="btn ghost" onClick={closeOverModal}>
-                تعديل
-              </button>
-            </div>
-          </div>
-        </div>
+        <RecordOrderOverTargetModal
+          targetRound={targetRound}
+          shipmentDelivered={shipmentDelivered}
+          remaining={remaining}
+          requested={overModal.want}
+          onAdjustToRemaining={adjustDeliveredToRemaining}
+          onSubmitRemainingNow={() => void submitRemainingNow()}
+          onStartNewShipment={goToNewShipment}
+          onClose={closeOverModal}
+        />
       )}
     </div>
   );

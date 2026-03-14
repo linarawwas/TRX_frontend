@@ -27,8 +27,12 @@ This project currently focuses on **high-value, low-friction tests** first:
   - Covers auth state exposure, bootstrap, and logout callbacks.
 - `src/components/Orders/RecordOrder/useRecordOrderController.test.ts`
   - Covers input clamping, successful submission, offline queueing, failure-safe submit behavior, WhatsApp redirect, and remaining-quantity submission.
+- `src/components/Orders/RecordOrder/RecordOrder.test.tsx`
+  - Covers page-level wiring for steppers, submit delegation, LBP interactions, and over-target modal actions.
 - `src/components/Customers/UpdateCustomer/useUpdateCustomerController.test.ts`
   - Covers change confirmation, successful update flow, restore conflicts and success paths, deactivate flow, delete guards, successful hard delete, and external-order handoff.
+- `src/components/Customers/UpdateCustomer/UpdateCustomer.test.tsx`
+  - Covers page-level wiring for edit confirmation flow, area/placement form branch, inactive restore UI, and admin-only destructive controls.
 - `src/components/EmployeeComponents/StartShipment/StartShipment.test.tsx`
   - Existing component-level regression test for shipment start behavior.
 
@@ -65,7 +69,6 @@ npm test -- --watch=false src/redux/selectors/selectors.test.ts
 
 ## Recommended next tests
 
-- `src/components/Orders/RecordOrder/useRecordOrderController.ts` over-target modal branches and LBP keypad interactions
-- `src/components/Customers/UpdateCustomer/useUpdateCustomerController.ts` canceled deactivation and non-409 restore failures
 - `src/hooks/useSyncOfflineOrders.ts` deduping behavior when `online` fires repeatedly during an in-progress sync
 - Integration coverage for login/bootstrap -> shipment start -> order record -> offline replay
+- Shipment slice boundary tests if/when reducer decomposition starts

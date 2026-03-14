@@ -10,8 +10,8 @@ If a senior frontend developer were to review this repository, these are the thi
 
 | Red flag | What they see | Why it matters |
 |----------|----------------|----------------|
-| **Improving but still selective automated coverage** | The repo now has passing tests for selectors, shipment reducer, offline sync, auth storage/API/hook flows, finance mutation hooks, the `RecordOrder` / `UpdateCustomer` controller hooks, and `StartShipment`, plus `docs/testing.md`. | This is a strong Phase 1 safety net, but it is still selective. Remaining gaps are mainly integration-level coverage and a few deeper controller branches rather than complete absence of tests. |
-| **Oversized smart components** | This was visible in `UpdateCustomer.tsx` (~898 LOC) and `RecordOrder.tsx` (~755 LOC). A first extraction pass moved business/state logic into `useUpdateCustomerController.ts` and `useRecordOrderController.ts`, reducing the component files to ~545 LOC and ~278 LOC respectively, but the remaining JSX is still large. | Large render files are still harder to read and test than focused subcomponents; controller extraction is a good first step, not the end state. |
+| **Improving but still selective automated coverage** | The repo now has passing tests for selectors, shipment reducer, offline sync, auth storage/API/hook flows, finance mutation hooks, the `RecordOrder` / `UpdateCustomer` controller hooks, new page-level wiring tests for both decomposed containers, and `StartShipment`, plus `docs/testing.md`. | This is now a credible regression net around the highest-risk flows, but it is still selective. Remaining gaps are mainly multi-screen integration coverage and a few deeper edge branches rather than complete absence of tests. |
+| **Oversized smart components** | This was visible in `UpdateCustomer.tsx` (~898 LOC) and `RecordOrder.tsx` (~755 LOC). Controller extraction is done, and the large render sections are now split into presentational files, but there are still other heavy files in the app and these flows still deserve careful review because they remain business-critical. | This red flag is materially smaller than before: page composition is clearer and testing is easier. The remaining concern is not “monolithic JSX everywhere” but “critical flows still concentrated in a few important files and hooks.” |
 | **Phase 1 type shortcuts were real debt** | `RecordOrder.tsx` previously duplicated `RootState`; `Shipment/reducer.ts` used `any`; `redux/store.ts` relied on `@ts-expect-error` for middleware typing. These were removed in the Phase 1 pass. | Important signal: the repo had core typing shortcuts in central state code. They are now fixed, but this was valid architectural debt and similar shortcuts should be watched for going forward. |
 | **API ownership is improved but not fully finished** | Finance API ownership now lives under `features/finance`, and the `orders-today` read flow was moved into `trxApi`, but other API-oriented utilities still exist in `utils/` (`apiHelpers.ts`, `apiShipments.ts`, `distributorApi.ts`, etc.). | The rule is clearer now, but incremental migration still remains for the rest of the overlapping utility APIs. |
 | **Console usage is reduced but not eliminated** | A shared `src/utils/logger.ts` now handles startup/offline/shipment-start status logging and keeps `debug`/`info` quiet in production by default, but some raw console usage remains elsewhere. | This is no longer an uncontrolled pattern in the highest-noise paths, but the cleanup is still partial across the wider codebase. |
@@ -60,11 +60,13 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 
 ### Phase 3 — Reduce blast radius (make big components and slice manageable)
 
+**Status:** Phase 3.1 completed on 2026-03-14. Phase 3.2 remains open.
+
 **Goal:** Shrink the largest components and clarify the Shipment slice so changes are local and testable.
 
 | Step | Action | Why this order |
 |------|--------|----------------|
-| 3.1 | **Break down the largest components** — Start with **RecordOrder** or **UpdateCustomer**. Extract custom hooks (e.g. “order submission”, “customer form state”, “invoice fetch”) and move business logic into them; then extract presentational subcomponents. Add component or integration tests for the critical path (e.g. submit order, save customer). Repeat for the other. | Doing this after Phase 1 means you have selector/hook tests and correct types; you’re not refactoring and fixing types at once. Smaller components are easier to test and change. |
+| 3.1 | **Break down the largest components** — Completed for **RecordOrder** and **UpdateCustomer**. Their controller hooks now own behavior, the page files are mostly composition, and focused presentational subcomponents handle steppers, LBP input, modal trees, hero/actions, edit forms, and invoice panels. New page-level tests cover the main UI wiring. | This reduced the render blast radius without moving business logic back into the UI. Future changes can target smaller files and keep behavior coverage in hook tests plus view wiring tests. |
 | 3.2 | **Shipment slice** — Either split into sub-slices (e.g. shipment meta vs round vs customer lists) or, if that’s too big a step, document internal “regions” and add unit tests for the reducer so future splits are safe. | Depends on having some tests (Phase 1) and possibly on RecordOrder/UpdateCustomer consuming shipment in a clearer way (Phase 3.1). Improves maintainability without blocking other work. |
 
 **Outcome:** Critical flows live in smaller, testable units; Shipment changes are safer and more localized.
@@ -109,8 +111,8 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 ### Gaps
 
 - **Utils vs features** — The split is smaller than before: `apiToday.ts` and `apiFinances.ts` have been removed in favor of `trxApi` and `features/finance/apiFinance.ts`, but `src/utils/` still contains API-oriented modules such as `apiHelpers.ts`, `apiShipments.ts`, and `distributorApi.ts`. Ownership is clearer, but the migration is not finished.
-- **Large components** — Some components own too much: `RecordOrder.tsx` (~755 LOC) and `UpdateCustomer.tsx` (~898 LOC) mix layout, form state, Redux dispatch, IndexedDB, API helpers, and inline types. Business logic is not fully extracted into hooks or feature modules.
-- **Inline state types** — `RecordOrder.tsx` defines a local `RootState` type instead of importing from `redux/store`, duplicating and drifting from the real store shape.
+- **Large components still exist elsewhere** — `RecordOrder.tsx` and `UpdateCustomer.tsx` have been reduced into composer-style files, but the broader app still contains some large, cross-layer components and utility hubs that deserve the same treatment over time.
+- **Mixed UI orchestration in critical flows** — The heaviest logic has moved into hooks, but the remaining critical flows still depend on several collaborators (Redux, IndexedDB, API helpers, toasts, navigation), so changes should continue to be made with tests in place.
 
 **Verdict:** Good at the folder/layer level; weaker inside a few heavy components and in the utils/features boundary. **Score: 7/10**
 
@@ -164,7 +166,6 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 
 ### Gaps
 
-- **RootState** — The canonical type lives in `redux/store.ts`, but `RecordOrder.tsx` defines its own `RootState` with a subset of the store. Naming is the same but the type is duplicated and can drift; should import from store.
 - **Mixed casing in paths** — `viewCustomers` (camelCase) vs `ViewExpenses` (PascalCase) in SharedPages; `EmployeeComponents` vs `UI reusables` (space). Minor but inconsistent for newcomers.
 - **API helpers** — `apiToday.ts` and `apiFinances.ts` were good examples of the old split and have now been migrated away, but `apiHelpers.ts` and other API-oriented utilities still sit in `utils/` next to non-API helpers. The naming and ownership story is improved, not fully finished.
 
@@ -182,8 +183,7 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 
 ### Gaps
 
-- **Very long files** — `UpdateCustomer.tsx` (~898 LOC) and `RecordOrder.tsx` (~755 LOC) are hard to read in one pass. Logic is not broken into smaller components or hooks with single responsibilities.
-- **Inline types in components** — Large inline type blocks (e.g. in RecordOrder) and local `RootState` definitions reduce readability and reuse; shared types in a feature or types/ would help.
+- **Some high-risk flows still span multiple files** — `RecordOrder` and `UpdateCustomer` are much easier to read now, but contributors still need to understand both the page composer and its controller hook for meaningful changes.
 - **Sparse comments** — Many files have little or no JSDoc or inline explanation for non-obvious logic (e.g. offline replay, round progress math). New contributors may need to infer intent.
 
 **Verdict:** Good typing and docs; readability is hurt by a few very large components and duplicated/inline types. **Score: 6/10**
@@ -221,7 +221,7 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 
 - **No CONTRIBUTING or “first PR” guide** — Step-by-step (clone, install, env, run, where to make a small change) is not in one place. README has setup but not a “first change” flow.
 - **Glossary** — Terms like “round,” “shipment,” “dayId,” “carrying” are domain-specific; a short glossary or link to product overview would help.
-- **Single test example** — Only `StartShipment.test.tsx` exists as a reference. New contributors have little guidance on testing patterns (e.g. mocking Redux, hooks, or API).
+- **Testing examples are still concentrated** — The repo now has several good examples (`StartShipment`, `RecordOrder`, `UpdateCustomer`, selector and hook tests), but higher-level integration patterns are still limited.
 
 **Verdict:** Strong README and doc index; onboarding would benefit from a short contributing path and a bit more domain/test guidance. **Score: 7/10**
 
@@ -237,8 +237,8 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 
 ### Gaps
 
-- **Very low test coverage** — Only one component test file (`StartShipment.test.tsx`) was found. No tests for feature hooks, selectors, or critical flows (e.g. RecordOrder, offline sync, finance).
-- **Large components** — RecordOrder and UpdateCustomer are hard to test in isolation; they mix many concerns and would need heavy mocking. Extracting hooks and smaller components would improve testability.
+- **Still selective coverage** — The repo now has strong unit coverage around selectors, reducer logic, auth, offline sync, finance hooks, and the `RecordOrder` / `UpdateCustomer` controller + page wiring flows, but it still lacks broader end-to-end or cross-feature integration coverage.
+- **Critical flows still require mocks** — The Phase 3 decomposition makes `RecordOrder` and `UpdateCustomer` much easier to test, but the remaining integration path across auth, shipment start, order record, and offline replay still needs a higher-level test strategy.
 - **No testing conventions doc** — How to mock Redux, RTK Query, or IndexedDB is not documented; new tests would have to reverse-engineer from the single example.
 
 **Verdict:** Structure is testable (hooks, selectors, clear modules), but tests are almost absent and testing patterns are undocumented. **Score: 4/10**
@@ -256,8 +256,8 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 
 ### Gaps
 
-- **Risk concentrated in a few files** — RecordOrder, UpdateCustomer, Shipment reducer, and IndexedDB are critical and large. Changes there are riskier and need extra care.
-- **Duplicated types and logic** — Local `RootState` in RecordOrder; possible overlap between utils API and feature API. Duplication increases maintenance cost and drift.
+- **Risk concentrated in a few modules** — The risk in `RecordOrder` and `UpdateCustomer` has gone down after decomposition, but `Shipment` state and IndexedDB remain central pieces where changes still have broad impact.
+- **Duplicated ownership patterns** — Possible overlap between utils API and feature API still exists. Duplication increases maintenance cost and drift.
 - **Limited automated safety** — With almost no tests, regressions are caught manually. Adding tests for critical paths (order submission, sync, auth) would improve maintainability.
 
 **Verdict:** Conventions and structure support maintainability; a few high-impact files and lack of tests increase risk. **Score: 6/10**
@@ -285,12 +285,11 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 
 | Risk | Impact | Recommendation |
 |------|--------|----------------|
-| **Very large components** | RecordOrder (~755 LOC), UpdateCustomer (~898 LOC) mix UI, state, Redux, IndexedDB, and API. Hard to read, test, and change. | Extract subcomponents and custom hooks (e.g. order submission, customer form sections); use shared RootState from store. |
+| **Critical flow complexity** | `RecordOrder` and `UpdateCustomer` are now decomposed, but their controller hooks and collaborating infrastructure still make them important, high-impact flows. | Keep adding targeted integration coverage and apply the same decomposition pattern to other heavy UI containers when touched. |
 | **Utils vs features API split** | Domain API logic still lives in both `utils/` (apiHelpers, apiShipments, distributorApi, etc.) and `features/*/api*.ts`, even though finance and `orders-today` were migrated in Phase 2. | Continue migrating the remaining utils API modules into corresponding features or into RTK Query; keep utils for pure helpers (money, i18n, date). |
-| **Minimal test coverage** | One component test; no tests for hooks, selectors, or critical flows. Regressions likely. | Add unit tests for selectors and feature hooks first; add integration or component tests for order submission and offline sync; document testing patterns. |
+| **Selective test coverage** | High-value unit and component wiring tests now exist, but full user journeys are still lightly covered. | Keep the current fast unit-test baseline and add a small number of multi-step integration paths for auth, shipment start, order record, and offline replay. |
 | **Shipment slice size and centrality** | One large slice (250+ LOC) and many dependents; any change has broad impact. | Consider splitting into sub-slices or domains (e.g. shipment meta vs round vs customer lists); or at least document intended boundaries inside the slice. |
 | **IndexedDB as a single module** | 500+ LOC, many stores; all offline/cache usage goes through it. | Document migration and versioning; consider splitting by domain (e.g. requests, customers, areas) if it keeps growing. |
-| **Duplicate RootState** | RecordOrder defines its own RootState instead of importing from store. | Import `RootState` from `redux/store` everywhere; remove local redefinitions. |
 | **No code-splitting** | Single bundle; no route or feature lazy loading. | Introduce `React.lazy` for heavy routes (e.g. FinanceDashboard, RecordOrder) to limit initial bundle size as the app grows. |
 | **Full Redux persistence** | Entire state serialized to localStorage on every change. | Consider selective persistence, debouncing, or a persistence layer (e.g. redux-persist with allowlist) if state or update frequency grows. |
 
