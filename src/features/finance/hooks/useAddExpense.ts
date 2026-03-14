@@ -8,7 +8,10 @@ import {
   setShipmentExpensesInUSD,
 } from "../../../redux/Shipment/action";
 import { selectUserToken } from "../../../redux/selectors/user";
-import { selectShipment } from "../../../redux/selectors/shipment";
+import {
+  selectShipmentLiveTotals,
+  selectShipmentMeta,
+} from "../../../redux/selectors/shipment";
 import { expenseSchema } from "../validation";
 
 export interface ExpenseFormData {
@@ -25,10 +28,9 @@ export interface UseAddExpenseOptions {
 export function useAddExpense(options?: UseAddExpenseOptions) {
   const token = useSelector(selectUserToken);
   const dispatch = useDispatch();
-  const shipment = useSelector(selectShipment);
-  const shipmentId = shipment._id || "";
-  const expensesLbp = shipment.expensesInLiras ?? 0;
-  const expensesUsd = shipment.expensesInUSD ?? 0;
+  const { id: shipmentId } = useSelector(selectShipmentMeta);
+  const { expensesInLiras: expensesLbp, expensesInUSD: expensesUsd } =
+    useSelector(selectShipmentLiveTotals);
 
   const submit = useCallback(
     async (formData: ExpenseFormData) => {

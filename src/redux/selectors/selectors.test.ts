@@ -1,5 +1,8 @@
 import {
   selectCustomersWithFilledOrders,
+  selectShipmentLiveTotals,
+  selectShipmentMeta,
+  selectShipmentPreviousSnapshot,
   selectRoundProgress,
   selectTodayProgress,
 } from "./shipment";
@@ -147,6 +150,21 @@ describe("memoized redux selectors", () => {
     expect(second).toBe(first);
   });
 
+  test("shipment meta and live totals selectors return stable boundary objects", () => {
+    const state = makeState();
+
+    const metaFirst = selectShipmentMeta(state);
+    const metaSecond = selectShipmentMeta(state);
+    const totalsFirst = selectShipmentLiveTotals(state);
+    const totalsSecond = selectShipmentLiveTotals(state);
+
+    expect(metaFirst).toEqual({ id: "shipment-1", dayId: "day-1" });
+    expect(metaSecond).toBe(metaFirst);
+    expect(totalsFirst.delivered).toBe(12);
+    expect(totalsFirst.liraPayments).toBe(1500000);
+    expect(totalsSecond).toBe(totalsFirst);
+  });
+
   test("selectRoundProgress computes round-only deltas", () => {
     const state = makeState();
 
@@ -177,6 +195,27 @@ describe("memoized redux selectors", () => {
     const second = selectCustomersWithFilledOrders(state);
 
     expect(first).toEqual([]);
+    expect(second).toBe(first);
+  });
+
+  test("previous snapshot selector exposes a stable restore boundary", () => {
+    const state = makeState({
+      shipment: {
+        ...makeState().shipment,
+        prev_id: "prev-shipment",
+        prev_dayId: "prev-day",
+        prev_delivered: 3,
+        prev_CustomersWithPendingOrders: ["customer-9"],
+      },
+    });
+
+    const first = selectShipmentPreviousSnapshot(state);
+    const second = selectShipmentPreviousSnapshot(state);
+
+    expect(first.id).toBe("prev-shipment");
+    expect(first.dayId).toBe("prev-day");
+    expect(first.delivered).toBe(3);
+    expect(first.pendingOrders).toEqual(["customer-9"]);
     expect(second).toBe(first);
   });
 });

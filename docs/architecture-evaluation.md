@@ -16,7 +16,7 @@ If a senior frontend developer were to review this repository, these are the thi
 | **API ownership is improved but not fully finished** | Finance API ownership now lives under `features/finance`, and the `orders-today` read flow was moved into `trxApi`, but other API-oriented utilities still exist in `utils/` (`apiHelpers.ts`, `apiShipments.ts`, `distributorApi.ts`, etc.). | The rule is clearer now, but incremental migration still remains for the rest of the overlapping utility APIs. |
 | **Console usage is reduced but not eliminated** | A shared `src/utils/logger.ts` now handles startup/offline/shipment-start status logging and keeps `debug`/`info` quiet in production by default, but some raw console usage remains elsewhere. | This is no longer an uncontrolled pattern in the highest-noise paths, but the cleanup is still partial across the wider codebase. |
 | **500+ LOC IndexedDB module** | Single `utils/indexedDB.ts` file (~522 LOC) with many stores and helpers. | Single point of failure; hard to reason about; migrations and versioning are riskier. |
-| **Shipment slice as a hub** | One large slice (~256 LOC) with many fields; order flow, finance, and sync all depend on it. | Any change to shipment state has broad impact; refactoring is costly and risky. |
+| **Shipment slice as a hub** | `Shipment` still centralizes meta, totals, previous snapshot data, customer buckets, and round baselines, but Phase 3.2 now documents those regions explicitly, adds boundary selectors, and strengthens reducer coverage around them. | The risk is lower than before because the slice is easier to reason about without changing store shape, but it is still a central dependency and a future split would require care. |
 | **No code-splitting** | No `React.lazy` or route-based splitting; one main bundle. | Bundle size will grow with every feature; slower first load; not aligned with common production practices. |
 
 **Summary:** The most alarming points are now **selective rather than absent test coverage**, **remaining oversized components/render trees**, and **split/duplicated API layer**. The first phase of Redux typing cleanup and high-value regression coverage is now complete, which materially improves safety for future refactors.
@@ -60,14 +60,14 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 
 ### Phase 3 — Reduce blast radius (make big components and slice manageable)
 
-**Status:** Phase 3.1 completed on 2026-03-14. Phase 3.2 remains open.
+**Status:** Phase 3.1 completed on 2026-03-14. Phase 3.2 boundary-hardening pass completed on 2026-03-14.
 
 **Goal:** Shrink the largest components and clarify the Shipment slice so changes are local and testable.
 
 | Step | Action | Why this order |
 |------|--------|----------------|
 | 3.1 | **Break down the largest components** — Completed for **RecordOrder** and **UpdateCustomer**. Their controller hooks now own behavior, the page files are mostly composition, and focused presentational subcomponents handle steppers, LBP input, modal trees, hero/actions, edit forms, and invoice panels. New page-level tests cover the main UI wiring. | This reduced the render blast radius without moving business logic back into the UI. Future changes can target smaller files and keep behavior coverage in hook tests plus view wiring tests. |
-| 3.2 | **Shipment slice** — Either split into sub-slices (e.g. shipment meta vs round vs customer lists) or, if that’s too big a step, document internal “regions” and add unit tests for the reducer so future splits are safe. | Depends on having some tests (Phase 1) and possibly on RecordOrder/UpdateCustomer consuming shipment in a clearer way (Phase 3.1). Improves maintainability without blocking other work. |
+| 3.2 | **Shipment slice** — Completed as a safe first pass without changing store shape. The reducer/types now describe internal regions explicitly, boundary selectors cover meta/totals/customer buckets/previous snapshot access, and reducer tests are organized around those regions and falsy-value restore behavior. | This reduces the blast radius now while keeping a later sub-slice split optional. The safer next step is to continue migrating remaining raw readers behind selectors before deciding whether a true store split is worth the churn. |
 
 **Outcome:** Critical flows live in smaller, testable units; Shipment changes are safer and more localized.
 
@@ -131,7 +131,7 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 
 - **Cross-imports** — Pages and components often import from multiple layers (redux actions, selectors, utils, config, feature hooks) in one file. There is no strict “pages only import from features + components” rule, so modules are not fully isolated.
 - **IndexedDB as a global util** — `utils/indexedDB.ts` is a large single module (500+ LOC) used by many features. It is well-documented but not split by domain (e.g. requests vs customers vs areas), so changes can have broad impact.
-- **Shipment slice size** — The Shipment Redux slice (250+ LOC) holds many concerns (IDs, dates, metrics, round state, customer buckets, prev snapshot). It could be split into sub-slices or domains for easier evolution.
+- **Shipment slice size** — The Shipment Redux slice still holds many concerns, but its internal boundaries are now explicit and there is a selector facade over the main regions. A future split is possible, but no longer the only way to make the code safer.
 
 **Verdict:** Modular at the feature and router level; some modules (IndexedDB, Shipment, a few components) are large and could be split. **Score: 7/10**
 
@@ -201,7 +201,7 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 ### Gaps
 
 - **Components tightly coupled to Redux and utils** — Many components import Redux actions, multiple selectors, utils (indexedDB, apiHelpers, money, invoicePreview), and config. Changing store shape or moving an API may require edits in several components.
-- **Shipment slice as a hub** — Order flow, finance hooks, and sync logic all depend on the Shipment slice. The slice is a single point of change; any refactor of shipment state has wide impact.
+- **Shipment slice as a hub** — Order flow, finance hooks, and sync logic still depend on the Shipment slice, but the main state regions are now documented and exposed through selectors. Refactors are safer than before, though broad-impact changes still need care.
 - **Utils used as a shared dependency** — `utils/apiHelpers`, `utils/apiShipments`, and other utility modules are still imported from both components and features. There is no strict “features depend on utils, components depend on features” layering, so dependency direction is mixed.
 
 **Verdict:** Good cohesion inside features and auth; coupling is high around a few components and the Shipment slice, and utils/features boundaries are mixed. **Score: 6/10**
@@ -288,7 +288,7 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 | **Critical flow complexity** | `RecordOrder` and `UpdateCustomer` are now decomposed, but their controller hooks and collaborating infrastructure still make them important, high-impact flows. | Keep adding targeted integration coverage and apply the same decomposition pattern to other heavy UI containers when touched. |
 | **Utils vs features API split** | Domain API logic still lives in both `utils/` (apiHelpers, apiShipments, distributorApi, etc.) and `features/*/api*.ts`, even though finance and `orders-today` were migrated in Phase 2. | Continue migrating the remaining utils API modules into corresponding features or into RTK Query; keep utils for pure helpers (money, i18n, date). |
 | **Selective test coverage** | High-value unit and component wiring tests now exist, but full user journeys are still lightly covered. | Keep the current fast unit-test baseline and add a small number of multi-step integration paths for auth, shipment start, order record, and offline replay. |
-| **Shipment slice size and centrality** | One large slice (250+ LOC) and many dependents; any change has broad impact. | Consider splitting into sub-slices or domains (e.g. shipment meta vs round vs customer lists); or at least document intended boundaries inside the slice. |
+| **Shipment slice size and centrality** | One large slice and many dependents; any change still has broad impact, even after Phase 3.2 boundary hardening. | Keep moving remaining raw readers behind selectors. Split into sub-slices only if ongoing changes show that the documented regions are still too coupled. |
 | **IndexedDB as a single module** | 500+ LOC, many stores; all offline/cache usage goes through it. | Document migration and versioning; consider splitting by domain (e.g. requests, customers, areas) if it keeps growing. |
 | **No code-splitting** | Single bundle; no route or feature lazy loading. | Introduce `React.lazy` for heavy routes (e.g. FinanceDashboard, RecordOrder) to limit initial bundle size as the app grows. |
 | **Full Redux persistence** | Entire state serialized to localStorage on every change. | Consider selective persistence, debouncing, or a persistence layer (e.g. redux-persist with allowlist) if state or update frequency grows. |

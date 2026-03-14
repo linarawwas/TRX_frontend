@@ -55,7 +55,7 @@ This document tracks known architectural issues and planned improvements. It is 
      - Added page-level wiring tests for both composition files:
        - `src/components/Orders/RecordOrder/RecordOrder.test.tsx`
        - `src/components/Customers/UpdateCustomer/UpdateCustomer.test.tsx`
-   - **Notes:** The highest-risk UI containers now have clear controller-vs-view boundaries. The next best follow-up is shipment-slice decomposition/testing and selective integration coverage across multi-screen flows.
+  - **Notes:** The highest-risk UI containers now have clear controller-vs-view boundaries. The next best follow-up is shipment-slice boundary hardening/testing and selective integration coverage across multi-screen flows.
 
 5. **Phase 1 safety net and store typing**
    - **Completed on:** 2026-03-13
@@ -86,6 +86,19 @@ This document tracks known architectural issues and planned improvements. It is 
      - Added `src/utils/logger.ts` and replaced the highest-noise raw console usage in `src/hooks/useSyncOfflineOrders.ts`, `src/components/EmployeeComponents/StartShipment/StartShipment.tsx`, `src/app/main.tsx`, and the IndexedDB logging helpers in `src/utils/indexedDB.ts`.
      - Deleted the now-obsolete `src/utils/apiFinances.ts` and `src/utils/apiToday.ts` modules.
    - **Notes:** The rule is now explicit in code: new domain API calls belong in feature `api*.ts` files or in `src/features/api/trxApi.ts`; `src/utils/` should be reserved for pure helpers and infrastructure. Remaining cleanup can migrate other `utils` API modules incrementally.
+
+7. **Phase 3.2 shipment boundaries**
+   - **Completed on:** 2026-03-14
+   - **What changed:**
+     - Clarified the internal regions of `src/redux/Shipment/reducer.ts` and `src/redux/Shipment/types.ts` without changing the external persisted store shape: live shipment meta, live totals, previous snapshot fields, customer buckets, a legacy compatibility payment field, and round baseline state.
+     - Expanded `src/redux/selectors/shipment.ts` with boundary-level selectors for shipment date, exchange rate, live totals, customer buckets, and previous snapshot data.
+     - Migrated the highest-impact consumers away from raw `state.shipment.*` reads toward those selectors:
+       - `src/components/EmployeeComponents/StartShipment/StartShipment.tsx`
+       - `src/components/Orders/RecordOrder/useRecordOrderController.ts`
+       - `src/features/finance/hooks/useAddExpense.ts`
+       - `src/features/finance/hooks/useAddProfit.ts`
+     - Strengthened `src/redux/Shipment/reducer.test.ts` and `src/redux/selectors/selectors.test.ts` around shipment boundary regions, snapshot restore behavior, and falsy-value edge cases.
+   - **Notes:** This is the safe precursor to any later sub-slice split. The next step, if still needed, is to reduce remaining cross-module coupling and only then consider splitting the `Shipment` store shape itself.
 
 ### Longer-term architecture improvements
 

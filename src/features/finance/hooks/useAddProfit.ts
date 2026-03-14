@@ -8,7 +8,10 @@ import {
   setShipmentProfitsInUSD,
 } from "../../../redux/Shipment/action";
 import { selectUserToken } from "../../../redux/selectors/user";
-import { selectShipment } from "../../../redux/selectors/shipment";
+import {
+  selectShipmentLiveTotals,
+  selectShipmentMeta,
+} from "../../../redux/selectors/shipment";
 import { profitSchema } from "../validation";
 
 export interface ProfitFormData {
@@ -25,10 +28,9 @@ export interface UseAddProfitOptions {
 export function useAddProfit(options?: UseAddProfitOptions) {
   const token = useSelector(selectUserToken);
   const dispatch = useDispatch();
-  const shipment = useSelector(selectShipment);
-  const shipmentId = shipment._id || "";
-  const profitsLBP = shipment.profitsInLiras ?? 0;
-  const profitsUSD = shipment.profitsInUSD ?? 0;
+  const { id: shipmentId } = useSelector(selectShipmentMeta);
+  const { profitsInLiras: profitsLBP, profitsInUSD: profitsUSD } =
+    useSelector(selectShipmentLiveTotals);
 
   const submit = useCallback(
     async (formData: ProfitFormData) => {

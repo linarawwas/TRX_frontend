@@ -25,7 +25,12 @@ import {
 import { getProductTypeFromDB, saveRequest } from "../../../utils/indexedDB";
 import { fetchAndCacheCustomerInvoice } from "../../../utils/apiHelpers";
 import { API_BASE } from "../../../config/api";
-import { selectRoundProgress } from "../../../redux/selectors/shipment";
+import {
+  selectRoundProgress,
+  selectShipmentExchangeRateLBP,
+  selectShipmentLiveTotals,
+  selectShipmentMeta,
+} from "../../../redux/selectors/shipment";
 import { RootState } from "../../../redux/store";
 
 export type RecordOrderCustomerData = {
@@ -147,20 +152,17 @@ export function useRecordOrderController(props: RecordOrderProps) {
   const customerId = useSelector((s: RootState) => s.order.customer_Id) || "";
   const customerName = useSelector((s: RootState) => s.order.customer_name);
   const customerPhoneRaw = useSelector((s: RootState) => s.order.phone);
-  const shipmentId = useSelector((s: RootState) => s.shipment._id) || "";
   const productName = useSelector((s: RootState) => s.order.product_name);
   const productId = useSelector((s: RootState) => s.order.product_id) || "";
   const productPrice = useSelector((s: RootState) => s.order.product_price);
-  const reduxRateLBP =
-    useSelector((s: RootState) => s.shipment.exchangeRateLBP) || undefined;
-  const shipmentDelivered =
-    useSelector((s: RootState) => s.shipment.delivered) ?? 0;
-  const shipmentReturned =
-    useSelector((s: RootState) => s.shipment.returned) ?? 0;
-  const shipmentUsd =
-    useSelector((s: RootState) => s.shipment.dollarPayments) ?? 0;
-  const shipmentLbp =
-    useSelector((s: RootState) => s.shipment.liraPayments) ?? 0;
+  const { id: shipmentId } = useSelector(selectShipmentMeta);
+  const reduxRateLBP = useSelector(selectShipmentExchangeRateLBP) || undefined;
+  const {
+    delivered: shipmentDelivered,
+    returned: shipmentReturned,
+    dollarPayments: shipmentUsd,
+    liraPayments: shipmentLbp,
+  } = useSelector(selectShipmentLiveTotals);
   const { targetRound, remainingRound } = useSelector(selectRoundProgress);
 
   const remaining = remainingRound;

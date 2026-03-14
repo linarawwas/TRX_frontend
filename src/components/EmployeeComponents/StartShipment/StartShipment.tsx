@@ -19,6 +19,10 @@ import { useNavigate } from "react-router-dom";
 
 import { RootState } from "../../../redux/store";
 import {
+  selectShipmentLiveTotals,
+  selectShipmentMeta,
+} from "../../../redux/selectors/shipment";
+import {
   // Shipment id/target & date/day setters
   setShipmentId,
   setShipmentTarget,
@@ -59,8 +63,7 @@ const StartShipment: React.FC = () => {
   const token = useSelector((s: RootState) => s.user.token);
 
   // ── Previously loaded shipment identity in Redux
-  const prevShipmentId = useSelector((s: RootState) => s.shipment._id);
-  const prevDayId = useSelector((s: RootState) => s.shipment.dayId);
+  const { id: prevShipmentId, dayId: prevDayId } = useSelector(selectShipmentMeta);
 
   // ── Local state: today's day mapping + date triple used by backend uniqueness
   const [shipmentData, setShipmentData] = useState<{
@@ -249,16 +252,7 @@ const StartShipment: React.FC = () => {
    * We snapshot these the moment a ROUND starts, so the RoundSnapshot can
    * display deltas (this-round-only) correctly.
    */
-  const totalsNow = useSelector((s: any) => ({
-    delivered: s.shipment.delivered || 0,
-    returned: s.shipment.returned || 0,
-    dollarPayments: s.shipment.dollarPayments || 0,
-    liraPayments: s.shipment.liraPayments || 0,
-    expensesInUSD: s.shipment.expensesInUSD || 0,
-    expensesInLiras: s.shipment.expensesInLiras || 0,
-    profitsInUSD: s.shipment.profitsInUSD || 0,
-    profitsInLiras: s.shipment.profitsInLiras || 0,
-  }));
+  const totalsNow = useSelector(selectShipmentLiveTotals);
 
   /**
    * Submit handler invoked by <AddToModel/>

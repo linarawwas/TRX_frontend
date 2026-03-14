@@ -16,7 +16,9 @@ This project currently focuses on **high-value, low-friction tests** first:
 - `src/features/finance/hooks/useAddProfit.test.ts`
   - Covers validation and successful submission behavior for profit mutations.
 - `src/redux/Shipment/reducer.test.ts`
-  - Covers the highest-value shipment reducer transitions and snapshot/reset behavior.
+  - Covers shipment boundary regions: metadata/date updates, round setup/clearing, customer bucket mutations, snapshot/reset behavior, exact restore behavior, and falsy-value edge cases.
+- `src/redux/selectors/selectors.test.ts`
+  - Covers memoization and derived behavior for user, order, and shipment selectors, including shipment meta, live totals, previous snapshot, and round progress selectors.
 - `src/hooks/useSyncOfflineOrders.test.tsx`
   - Covers offline replay success, invalid URLs, the offline guard, and retry-after-network-error behavior.
 - `src/features/auth/authApi.test.ts`
@@ -71,4 +73,4 @@ npm test -- --watch=false src/redux/selectors/selectors.test.ts
 
 - `src/hooks/useSyncOfflineOrders.ts` deduping behavior when `online` fires repeatedly during an in-progress sync
 - Integration coverage for login/bootstrap -> shipment start -> order record -> offline replay
-- Shipment slice boundary tests if/when reducer decomposition starts
+- Shipment consumer integration around selector boundaries if the slice is later split into sub-slices

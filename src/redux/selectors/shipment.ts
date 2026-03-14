@@ -6,6 +6,25 @@ import type { ShipmentState } from "../Shipment/types";
 const EMPTY_SHIPMENT = {} as ShipmentState;
 const EMPTY_ROUND = {} as NonNullable<ShipmentState["round"]>;
 const EMPTY_STRING_ARRAY: string[] = [];
+const EMPTY_PREVIOUS_SNAPSHOT = {
+  id: "",
+  dayId: "",
+  year: null,
+  month: null,
+  day: null,
+  target: 0,
+  delivered: 0,
+  returned: 0,
+  dollarPayments: 0,
+  liraPayments: 0,
+  expensesInUSD: 0,
+  expensesInLiras: 0,
+  profitsInUSD: 0,
+  profitsInLiras: 0,
+  filledOrders: EMPTY_STRING_ARRAY,
+  emptyOrders: EMPTY_STRING_ARRAY,
+  pendingOrders: EMPTY_STRING_ARRAY,
+} as const;
 
 export const selectShipment = (s: RootState): ShipmentState =>
   s.shipment ?? EMPTY_SHIPMENT;
@@ -17,7 +36,19 @@ export const selectShipmentMeta = createSelector(
   (id, dayId) => ({ id, dayId })
 );
 
-export const selectTodayProgress = createSelector(
+export const selectShipmentDate = createSelector(
+  [
+    (s: RootState) => s.shipment?.year ?? null,
+    (s: RootState) => s.shipment?.month ?? null,
+    (s: RootState) => s.shipment?.day ?? null,
+  ],
+  (year, month, day) => ({ year, month, day })
+);
+
+export const selectShipmentExchangeRateLBP = (s: RootState): number | null =>
+  s.shipment?.exchangeRateLBP ?? null;
+
+export const selectShipmentLiveTotals = createSelector(
   [
     (s: RootState) => s.shipment?.target ?? 0,
     (s: RootState) => s.shipment?.delivered ?? 0,
@@ -29,16 +60,124 @@ export const selectTodayProgress = createSelector(
     (s: RootState) => s.shipment?.profitsInUSD ?? 0,
     (s: RootState) => s.shipment?.profitsInLiras ?? 0,
   ],
-  (target, delivered, returned, paidUSD, paidLBP, expUSD, expLBP, profUSD, profLBP) => ({
+  (
     target,
     delivered,
     returned,
-    paidUSD,
-    paidLBP,
-    expUSD,
-    expLBP,
-    profUSD,
-    profLBP,
+    dollarPayments,
+    liraPayments,
+    expensesInUSD,
+    expensesInLiras,
+    profitsInUSD,
+    profitsInLiras
+  ) => ({
+    target,
+    delivered,
+    returned,
+    dollarPayments,
+    liraPayments,
+    expensesInUSD,
+    expensesInLiras,
+    profitsInUSD,
+    profitsInLiras,
+  })
+);
+
+export const selectTodayProgress = createSelector(
+  [selectShipmentLiveTotals],
+  ({
+    target,
+    delivered,
+    returned,
+    dollarPayments,
+    liraPayments,
+    expensesInUSD,
+    expensesInLiras,
+    profitsInUSD,
+    profitsInLiras,
+  }) => ({
+    target,
+    delivered,
+    returned,
+    paidUSD: dollarPayments,
+    paidLBP: liraPayments,
+    expUSD: expensesInUSD,
+    expLBP: expensesInLiras,
+    profUSD: profitsInUSD,
+    profLBP: profitsInLiras,
+  })
+);
+
+export const selectShipmentCustomerBuckets = createSelector(
+  [
+    (s: RootState) => s.shipment?.CustomersWithFilledOrders,
+    (s: RootState) => s.shipment?.CustomersWithEmptyOrders,
+    (s: RootState) => s.shipment?.CustomersWithPendingOrders,
+  ],
+  (filledOrders, emptyOrders, pendingOrders) => ({
+    filledOrders: Array.isArray(filledOrders) ? filledOrders : EMPTY_STRING_ARRAY,
+    emptyOrders: Array.isArray(emptyOrders) ? emptyOrders : EMPTY_STRING_ARRAY,
+    pendingOrders: Array.isArray(pendingOrders) ? pendingOrders : EMPTY_STRING_ARRAY,
+  })
+);
+
+export const selectShipmentPreviousSnapshot = createSelector(
+  [
+    (s: RootState) => s.shipment?.prev_id ?? "",
+    (s: RootState) => s.shipment?.prev_dayId ?? "",
+    (s: RootState) => s.shipment?.prev_year ?? null,
+    (s: RootState) => s.shipment?.prev_month ?? null,
+    (s: RootState) => s.shipment?.prev_day ?? null,
+    (s: RootState) => s.shipment?.prev_target ?? 0,
+    (s: RootState) => s.shipment?.prev_delivered ?? 0,
+    (s: RootState) => s.shipment?.prev_returned ?? 0,
+    (s: RootState) => s.shipment?.prev_dollarPayments ?? 0,
+    (s: RootState) => s.shipment?.prev_liraPayments ?? 0,
+    (s: RootState) => s.shipment?.prev_expensesInUSD ?? 0,
+    (s: RootState) => s.shipment?.prev_expensesInLiras ?? 0,
+    (s: RootState) => s.shipment?.prev_profitsInUSD ?? 0,
+    (s: RootState) => s.shipment?.prev_profitsInLiras ?? 0,
+    (s: RootState) => s.shipment?.prev_CustomersWithFilledOrder,
+    (s: RootState) => s.shipment?.prev_CustomersWithEmptyOrders,
+    (s: RootState) => s.shipment?.prev_CustomersWithPendingOrders,
+  ],
+  (
+    id,
+    dayId,
+    year,
+    month,
+    day,
+    target,
+    delivered,
+    returned,
+    dollarPayments,
+    liraPayments,
+    expensesInUSD,
+    expensesInLiras,
+    profitsInUSD,
+    profitsInLiras,
+    filledOrders,
+    emptyOrders,
+    pendingOrders
+  ) => ({
+    ...(EMPTY_PREVIOUS_SNAPSHOT as object),
+    id,
+    dayId,
+    year,
+    month,
+    day,
+    target,
+    delivered,
+    returned,
+    dollarPayments,
+    liraPayments,
+    expensesInUSD,
+    expensesInLiras,
+    profitsInUSD,
+    profitsInLiras,
+    filledOrders: Array.isArray(filledOrders) ? filledOrders : EMPTY_STRING_ARRAY,
+    emptyOrders: Array.isArray(emptyOrders) ? emptyOrders : EMPTY_STRING_ARRAY,
+    pendingOrders: Array.isArray(pendingOrders) ? pendingOrders : EMPTY_STRING_ARRAY,
   })
 );
 
