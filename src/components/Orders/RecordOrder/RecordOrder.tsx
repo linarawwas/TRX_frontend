@@ -9,8 +9,8 @@ import RecordOrderOverTargetModal from "./RecordOrderOverTargetModal";
 import RecordOrderStepField from "./RecordOrderStepField";
 import {
   useRecordOrderController,
-} from "./useRecordOrderController";
-import type { RecordOrderProps } from "./useRecordOrderController";
+} from "../../../features/orders/hooks/useRecordOrderController";
+import type { RecordOrderProps } from "../../../features/orders/hooks/useRecordOrderController";
 
 const RecordOrder: React.FC<RecordOrderProps> = (props) => {
   const {

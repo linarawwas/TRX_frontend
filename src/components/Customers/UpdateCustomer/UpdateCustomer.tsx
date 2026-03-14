@@ -11,7 +11,7 @@ import UpdateCustomerForm from "./UpdateCustomerForm";
 import UpdateCustomerHeader from "./UpdateCustomerHeader";
 import UpdateCustomerInvoicesPanel from "./UpdateCustomerInvoicesPanel";
 import UpdateCustomerModals from "./UpdateCustomerModals";
-import { useUpdateCustomerController } from "./useUpdateCustomerController";
+import { useUpdateCustomerController } from "../../../features/customers/hooks/useUpdateCustomerController";
 
 export default function UpdateCustomer() {
   const navigate = useNavigate();

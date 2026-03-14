@@ -11,7 +11,7 @@ import {
 } from "../../features/distributors/apiDistributors";
 import MonthPicker from "./MonthPicker";
 import { deriveInitialMonthKeyFromRange, useMonthRange } from "./hooks/useMonthRange";
-import { useCompanyDistributorData } from "./hooks/useCompanyDistributorData";
+import { useCompanyDistributorData } from "../../features/distributors/hooks/useCompanyDistributorData";
 import { buildDistributorAnalytics } from "./utils/metrics";
 import { setDefaultProduct } from "../../redux/Defaults/action";
 import MonthPickerSkeleton from "./skeletons/MonthPickerSkeleton";

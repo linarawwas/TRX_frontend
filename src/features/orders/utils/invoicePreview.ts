@@ -1,18 +1,48 @@
-import { getCustomerInvoicesFromDB, getPendingRequests, getExchangeRateFromDB } from "./indexedDB";
+import {
+  getCustomerInvoicesFromDB,
+  getExchangeRateFromDB,
+  getPendingRequests,
+} from "../../../utils/indexedDB";
+
+type CachedInvoice = {
+  deliveredSum?: number;
+  returnedSum?: number;
+  totalSum?: number;
+  totalSumUSD?: number;
+  lastRateLBP?: number;
+};
+
+type PendingOrderRequest = {
+  url?: string;
+  options?: {
+    method?: string;
+    body?: string;
+  };
+};
+
+type PendingOrderPayload = {
+  customerid?: string;
+  delivered?: number;
+  returned?: number;
+};
 
 /** Load cached invoice + pending local “create order” adjustments (offline-safe). */
 export async function getAdjustedInvoiceSums(customerId: string, companyId?: string) {
-  const cached: any = await getCustomerInvoicesFromDB(customerId);
-  const pending = await getPendingRequests();
+  const cached = (await getCustomerInvoicesFromDB(customerId)) as
+    | CachedInvoice
+    | undefined;
+  const pending = ((await getPendingRequests()) as PendingOrderRequest[]) || [];
 
-  const pendingOrders = (pending || [])
+  const pendingOrders = pending
     .filter(
-      (r: any) =>
-        r?.url?.includes("/api/orders") &&
-        r?.options?.method === "POST" &&
-        JSON.parse(r?.options?.body || "{}")?.customerid === customerId
+      (request) =>
+        typeof request?.options?.body === "string" &&
+        request?.url?.includes("/api/orders") &&
+        request?.options?.method === "POST" &&
+        (JSON.parse(request.options.body) as PendingOrderPayload)?.customerid ===
+          customerId
     )
-    .map((r: any) => JSON.parse(r.options.body));
+    .map((request) => JSON.parse(request.options?.body || "{}") as PendingOrderPayload);
 
   let delivered = cached?.deliveredSum || 0;
   let returned  = cached?.returnedSum  || 0;

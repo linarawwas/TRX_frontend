@@ -1,5 +1,5 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
-import { useUpdateCustomerController } from "./useUpdateCustomerController";
+import { useUpdateCustomerController } from "../../../features/customers/hooks/useUpdateCustomerController";
 import { fetchAndCacheCustomerInvoice } from "../../../features/customers/apiCustomers";
 import { fetchAreasByCompany } from "../../../features/areas/apiAreas";
 import { toast } from "react-toastify";

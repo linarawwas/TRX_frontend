@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { fetchCustomersByCompany } from "../../../features/customers/apiCustomers";
-import type { CustomersResponse } from "../../../features/customers/apiCustomers";
-import { fetchOrdersByCompany } from "../../../features/orders/apiOrders";
-import type { Order } from "../../../features/orders/apiOrders";
-import { listCompanyProducts } from "../../../features/products/apiProducts";
-import type { ProductResponse } from "../../../features/products/apiProducts";
-import { listDistributors } from "../../../features/distributors/apiDistributors";
+import { fetchCustomersByCompany } from "../../customers/apiCustomers";
+import type { CustomersResponse } from "../../customers/apiCustomers";
+import { fetchOrdersByCompany } from "../../orders/apiOrders";
+import type { Order } from "../../orders/apiOrders";
+import { listCompanyProducts } from "../../products/apiProducts";
+import type { ProductResponse } from "../../products/apiProducts";
+import { listDistributors } from "../apiDistributors";
 import { normalizeListResponse } from "../utils/normalize";
 
 export interface DistributorRow {
@@ -31,7 +31,14 @@ export interface CompanyDistributorData {
   refreshProducts: () => Promise<void>;
 }
 
-export function useCompanyDistributorData(token: string, companyId?: string | null): CompanyDistributorData {
+function getErrorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
+}
+
+export function useCompanyDistributorData(
+  token: string,
+  companyId?: string | null
+): CompanyDistributorData {
   const [distributors, setDistributors] = useState<DistributorRow[]>([]);
   const [distributorsLoading, setDistributorsLoading] = useState(false);
 
@@ -48,7 +55,7 @@ export function useCompanyDistributorData(token: string, companyId?: string | nu
     setDistributorsLoading(true);
     try {
       const json = await listDistributors(token);
-      setDistributors(normalizeListResponse(json));
+      setDistributors(normalizeListResponse<DistributorRow>(json));
     } catch (error) {
       console.error("Failed to load distributors:", error);
       setDistributors([]);
@@ -65,10 +72,10 @@ export function useCompanyDistributorData(token: string, companyId?: string | nu
       const active = Array.isArray(payload?.active) ? payload.active : [];
       const inactive = Array.isArray(payload?.inactive) ? payload.inactive : [];
       setCustomers([...active, ...inactive]);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Failed to load customers:", error);
       setCustomers([]);
-      toast.error(error?.message || "فشل تحميل بيانات العملاء");
+      toast.error(getErrorMessage(error, "فشل تحميل بيانات العملاء"));
     } finally {
       setCustomersLoading(false);
     }
@@ -83,10 +90,10 @@ export function useCompanyDistributorData(token: string, companyId?: string | nu
     try {
       const payload = await fetchOrdersByCompany(token, companyId);
       setOrders(Array.isArray(payload) ? payload : []);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Failed to load orders:", error);
       setOrders([]);
-      toast.error(error?.message || "فشل تحميل الطلبيات");
+      toast.error(getErrorMessage(error, "فشل تحميل الطلبيات"));
     } finally {
       setOrdersLoading(false);
     }
@@ -101,10 +108,10 @@ export function useCompanyDistributorData(token: string, companyId?: string | nu
     try {
       const payload = await listCompanyProducts(token, companyId);
       setProducts(Array.isArray(payload) ? payload : []);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Failed to load products:", error);
       setProducts([]);
-      toast.error(error?.message || "فشل تحميل المنتجات");
+      toast.error(getErrorMessage(error, "فشل تحميل المنتجات"));
     } finally {
       setProductsLoading(false);
     }

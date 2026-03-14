@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 
 import EmployeeHomePage from "../pages/EmployeePages/EmployeeHomePage/EmployeeHomePage";
-import StartShipment from "../components/EmployeeComponents/StartShipment/StartShipment";
+import StartShipment from "../pages/EmployeePages/StartShipment/StartShipmentPage";
 import { CommonRoutes } from "./CommonRoutes";
 
 function EmployeeRouter() {

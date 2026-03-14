@@ -23,8 +23,8 @@ import {
   type ActiveAreaCustomer,
   type CustomerDetail,
   updateCustomerById,
-} from "../../../features/customers/apiCustomers";
-import { fetchAreasByCompany } from "../../../features/areas/apiAreas";
+} from "../apiCustomers";
+import { fetchAreasByCompany } from "../../areas/apiAreas";
 import type { RootState } from "../../../redux/store";
 
 type Area = { _id: string; name: string };

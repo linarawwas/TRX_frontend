@@ -48,8 +48,8 @@ This document tracks known architectural issues and planned improvements. It is 
 4. **Oversized smart components**
    - **Completed on:** 2026-03-14
    - **What changed:** Extracted controller hooks from two of the largest UI containers, then completed the next render-decomposition pass:
-     - `src/components/Orders/RecordOrder/useRecordOrderController.ts` now owns the Redux access, invoice preview logic, submission flow, offline queueing, and WhatsApp message generation that previously lived inline in `RecordOrder.tsx`.
-     - `src/components/Customers/UpdateCustomer/useUpdateCustomerController.ts` now owns customer fetching, area/placement loading, update/deactivate/restore/delete mutations, and modal state that previously lived inline in `UpdateCustomer.tsx`.
+     - `src/features/orders/hooks/useRecordOrderController.ts` now owns the Redux access, invoice preview logic, submission flow, offline queueing, and WhatsApp message generation that previously lived inline in `RecordOrder.tsx`.
+     - `src/features/customers/hooks/useUpdateCustomerController.ts` now owns customer fetching, area/placement loading, update/deactivate/restore/delete mutations, and modal state that previously lived inline in `UpdateCustomer.tsx`.
      - `RecordOrder.tsx` now acts as a page composer and delegates repeated render blocks to `RecordOrderStepField.tsx`, `RecordOrderLbpSection.tsx`, and `RecordOrderOverTargetModal.tsx`.
      - `UpdateCustomer.tsx` now acts as a page composer and delegates the hero/actions, edit form, invoices tab, and modal trees to `UpdateCustomerHeader.tsx`, `UpdateCustomerForm.tsx`, `UpdateCustomerInvoicesPanel.tsx`, and `UpdateCustomerModals.tsx`.
      - Added page-level wiring tests for both composition files:
@@ -94,7 +94,7 @@ This document tracks known architectural issues and planned improvements. It is 
      - Expanded `src/redux/selectors/shipment.ts` with boundary-level selectors for shipment date, exchange rate, live totals, customer buckets, and previous snapshot data.
      - Migrated the highest-impact consumers away from raw `state.shipment.*` reads toward those selectors:
        - `src/components/EmployeeComponents/StartShipment/StartShipment.tsx`
-       - `src/components/Orders/RecordOrder/useRecordOrderController.ts`
+       - `src/features/orders/hooks/useRecordOrderController.ts`
        - `src/features/finance/hooks/useAddExpense.ts`
        - `src/features/finance/hooks/useAddProfit.ts`
      - Strengthened `src/redux/Shipment/reducer.test.ts` and `src/redux/selectors/selectors.test.ts` around shipment boundary regions, snapshot restore behavior, and falsy-value edge cases.
@@ -127,6 +127,24 @@ This document tracks known architectural issues and planned improvements. It is 
      - Refactored the highest-risk direct HTTP seams out of UI/controller files, including shipment bootstrap, update-customer flows, update-order/payment flows, customer statement loading, and distributor data loading.
      - Standardized the rule in docs: RTK Query for shared read-heavy state, feature API modules for imperative or transitional requests, and no new business-domain HTTP inside page/component/controller files.
    - **Notes:** This is a boundary-hardening pass, not a claim that every request in the repo has already been migrated. Remaining lower-priority direct request sites should be removed incrementally when touched.
+
+10. **Folder responsibility boundary**
+   - **Completed on:** 2026-03-14
+   - **What changed:**
+     - Added thin route-entry pages for high-signal routed screens so routers import `src/pages/**` entry files instead of deep feature components directly:
+       - `src/pages/AdminPages/Distributors/DistributorsPage.tsx`
+       - `src/pages/AdminPages/Distributors/DistributorDetailsPage.tsx`
+       - `src/pages/EmployeePages/StartShipment/StartShipmentPage.tsx`
+       - `src/pages/SharedPages/UpdateCustomer/UpdateCustomerPage.tsx`
+       - `src/pages/SharedPages/UpdateOrder/UpdateOrderPage.tsx`
+     - Moved feature-owned controller hooks out of `src/components/` and into the owning feature:
+       - `src/features/customers/hooks/useUpdateCustomerController.ts`
+       - `src/features/orders/hooks/useRecordOrderController.ts`
+       - `src/features/distributors/hooks/useCompanyDistributorData.ts`
+       - `src/features/shipments/hooks/useStartShipmentController.ts`
+     - Moved the invoice preview projection helper to `src/features/orders/utils/invoicePreview.ts` so `src/utils/` stays generic.
+     - Updated routers, screens, and tests to follow the new page-entry + feature-controller pattern.
+   - **Notes:** This is intentionally a focused pass, not a repo-wide move of every screen. Remaining routed screens under `src/components/` can adopt the same pattern incrementally when touched.
 
 ### Longer-term architecture improvements
 
@@ -175,3 +193,8 @@ Formalized 2026-03. These are standing rules for all new and touched code. All R
 
 7. **Documentation index**
    - When adding new documentation (under `docs/` or under `src/**/docs/`), add an entry to [docs/INDEX.md](INDEX.md). For top-level or user-facing docs, also add a link in the README [Documentation map](../README.md#documentation-map) if appropriate.
+
+8. **Folder responsibilities**
+   - New routed screens should prefer a thin `src/pages/**` entry file.
+   - Cross-file workflow controllers, feature-owned helpers, and orchestration hooks belong in `src/features/**`, not `src/components/` or `src/utils/`.
+   - `src/components/` should stay focused on shared/reusable UI and clearly scoped feature UI building blocks.

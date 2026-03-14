@@ -1,7 +1,7 @@
-import { MonthRange } from "../hooks/useMonthRange";
-import { DistributorRow } from "../hooks/useCompanyDistributorData";
-import { CustomersResponse } from "../../../features/customers/apiCustomers";
-import { Order } from "../../../features/orders/apiOrders";
+import type { MonthRange } from "../hooks/useMonthRange";
+import type { DistributorRow } from "../../../features/distributors/hooks/useCompanyDistributorData";
+import type { CustomersResponse } from "../../../features/customers/apiCustomers";
+import type { Order } from "../../../features/orders/apiOrders";
 
 type CustomerRecord = CustomersResponse["active"][number];
 

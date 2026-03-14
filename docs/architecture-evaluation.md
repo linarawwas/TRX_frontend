@@ -13,13 +13,13 @@ If a senior frontend developer were to review this repository, these are the thi
 | **Improving but still selective automated coverage** | The repo now has passing tests for selectors, shipment reducer, offline sync, auth storage/API/hook flows, finance mutation hooks, the `RecordOrder` / `UpdateCustomer` controller hooks, new page-level wiring tests for both decomposed containers, `StartShipment`, and a first Playwright E2E layer for the highest-risk journeys, plus `docs/testing.md`. | This is now a credible regression net around the highest-risk flows, but it is still selective. Remaining gaps are mainly multi-screen integration coverage and a few deeper edge branches rather than complete absence of tests. |
 | **Oversized smart components** | This was visible in `UpdateCustomer.tsx` (~898 LOC) and `RecordOrder.tsx` (~755 LOC). Controller extraction is done, and the large render sections are now split into presentational files, but there are still other heavy files in the app and these flows still deserve careful review because they remain business-critical. | This red flag is materially smaller than before: page composition is clearer and testing is easier. The remaining concern is not “monolithic JSX everywhere” but “critical flows still concentrated in a few important files and hooks.” |
 | **Phase 1 type shortcuts were real debt** | `RecordOrder.tsx` previously duplicated `RootState`; `Shipment/reducer.ts` used `any`; `redux/store.ts` relied on `@ts-expect-error` for middleware typing. These were removed in the Phase 1 pass. | Important signal: the repo had core typing shortcuts in central state code. They are now fixed, but this was valid architectural debt and similar shortcuts should be watched for going forward. |
-| **API ownership is improved but not fully finished** | Finance API ownership now lives under `features/finance`, and the `orders-today` read flow was moved into `trxApi`, but other API-oriented utilities still exist in `utils/` (`apiHelpers.ts`, `apiShipments.ts`, `distributorApi.ts`, etc.). | The rule is clearer now, but incremental migration still remains for the rest of the overlapping utility APIs. |
+| **Folder responsibilities are clearer but not universal yet** | High-signal routes now enter through `src/pages/**` wrappers and several workflow controllers moved into `src/features/**/hooks`, but some routed screens and large UI trees still live directly under `src/components/`. | The architectural story is materially better, but maintainers still need to keep applying the same page-entry + feature-controller pattern when touching older screens. |
 | **Console usage is reduced but not eliminated** | A shared `src/utils/logger.ts` now handles startup/offline/shipment-start status logging and keeps `debug`/`info` quiet in production by default, but some raw console usage remains elsewhere. | This is no longer an uncontrolled pattern in the highest-noise paths, but the cleanup is still partial across the wider codebase. |
 | **First-pass code-splitting only** | The heaviest non-core admin/shared routes now lazy-load, but the shell and many routes remain eager by design. | This is a good first pass, not the end state. Bundle discipline still depends on measuring growth and expanding lazy loading only where it pays off. |
 | **Shipment slice as a hub** | `Shipment` still centralizes meta, totals, previous snapshot data, customer buckets, and round baselines, but Phase 3.2 now documents those regions explicitly, adds boundary selectors, and strengthens reducer coverage around them. | The risk is lower than before because the slice is easier to reason about without changing store shape, but it is still a central dependency and a future split would require care. |
 | **Large IndexedDB surface area** | `utils/indexedDB.ts` is still a single 500+ LOC module, even though schema/versioning guidance is now documented and maintainers have a clearer migration policy. | The risk is lower than before, but offline storage still has a broad blast radius and deserves extra care when schema changes land. |
 
-**Summary:** The most alarming points are now **selective rather than absent test coverage**, **remaining oversized components/render trees**, **split/duplicated API layer**, and **centralized offline/storage infrastructure**. The earlier Redux typing issues, lack of browser E2E coverage, and lack of route-level lazy loading are no longer top red flags.
+**Summary:** The most alarming points are now **selective rather than absent test coverage**, **remaining oversized components/render trees**, **partially adopted folder-boundary conventions**, and **centralized offline/storage infrastructure**. The earlier Redux typing issues, lack of browser E2E coverage, and utility-owned API layer are no longer top red flags.
 
 ---
 
@@ -104,17 +104,17 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 ### Strengths
 
 - **Clear layer boundaries** — App bootstrap (`app/`), layout/routing (`Layout/`, `Router/`), pages, components, features, redux, and infrastructure are separated. Documentation (folder-structure, state-management) states where new code belongs.
-- **Feature modules** — Domain logic lives in `src/features/` (auth, finance, shipments, products, orders, customers, areas, api). Features own types, API clients, hooks, and sometimes selectors/validation, so UI is not mixed with data-fetching details.
+- **Feature modules** — Domain logic lives in `src/features/` (auth, finance, shipments, products, orders, customers, areas, distributors, api). Features own types, API clients, controller hooks, and selectors/validation where needed, so UI is not mixed with transport details.
 - **Redux for cross-cutting state only** — User, Order, Shipment, and Defaults are global; feature hooks own server state and derived data (e.g. `useTodayShipmentTotals`, `useAddExpense`).
 - **Single API base** — All HTTP calls go through `src/config/api.ts`; no scattered env reads or hardcoded hosts.
 
 ### Gaps
 
-- **Data-access migration is improved but still partial** — The highest-risk utility API modules have been moved behind feature ownership and `src/features/api/http.ts` now centralizes non-RTK base/auth handling, but some lower-priority screens still need migration to fully eliminate direct UI-owned business HTTP.
+- **Folder-boundary migration is improved but still partial** — Thin route-entry pages and feature-owned controllers now exist for several high-signal flows, but the pattern is not universal yet across every routed screen or large UI container.
 - **Large components still exist elsewhere** — `RecordOrder.tsx` and `UpdateCustomer.tsx` have been reduced into composer-style files, but the broader app still contains some large, cross-layer components and utility hubs that deserve the same treatment over time.
 - **Mixed UI orchestration in critical flows** — The heaviest logic has moved into hooks, but the remaining critical flows still depend on several collaborators (Redux, IndexedDB, API helpers, toasts, navigation), so changes should continue to be made with tests in place.
 
-**Verdict:** Good at the folder/layer level; weaker inside a few heavy components and in the utils/features boundary. **Score: 7/10**
+**Verdict:** Good at the folder/layer level; weaker inside a few heavy components and in the still-partial adoption of the page/component/feature split. **Score: 7/10**
 
 ---
 
@@ -129,7 +129,7 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 
 ### Gaps
 
-- **Cross-imports** — Pages and components often import from multiple layers (redux actions, selectors, utils, config, feature hooks) in one file. There is no strict “pages only import from features + components” rule, so modules are not fully isolated.
+- **Cross-imports** — Pages and components often import from multiple layers (redux actions, selectors, utils, config, feature hooks) in one file. The new page-entry pattern helps, but modules are not yet fully isolated.
 - **IndexedDB as a global util** — `utils/indexedDB.ts` is a large single module (500+ LOC) used by many features. It is well-documented but not split by domain (e.g. requests vs customers vs areas), so changes can have broad impact.
 - **Shipment slice size** — The Shipment Redux slice still holds many concerns, but its internal boundaries are now explicit and there is a selector facade over the main regions. A future split is possible, but no longer the only way to make the code safer.
 
@@ -200,7 +200,7 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 
 ### Gaps
 
-- **Components still coordinate several dependencies** — Many components import Redux actions, selectors, and infrastructure helpers like IndexedDB, money, and invoice-preview utilities. The transport layer is cleaner now, but some flows still require touching multiple collaborators.
+- **Components still coordinate several dependencies** — Many components import Redux actions, selectors, and infrastructure helpers like IndexedDB, money, and navigation helpers. The transport layer is cleaner and some controllers moved into features, but several flows still require touching multiple collaborators.
 - **Shipment slice as a hub** — Order flow, finance hooks, and sync logic still depend on the Shipment slice, but the main state regions are now documented and exposed through selectors. Refactors are safer than before, though broad-impact changes still need care.
 - **Infrastructure still crosses many features** — Shared dependencies like IndexedDB and shipment state remain widely used. The main improvement is that business-domain HTTP is now feature-owned rather than split across UI files and `src/utils/`.
 
@@ -257,7 +257,7 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 ### Gaps
 
 - **Risk concentrated in a few modules** — The risk in `RecordOrder` and `UpdateCustomer` has gone down after decomposition, but `Shipment` state and IndexedDB remain central pieces where changes still have broad impact.
-- **Duplicated ownership patterns** — Possible overlap between utils API and feature API still exists. Duplication increases maintenance cost and drift.
+- **Boundary cleanup is still selective** — The page-entry + feature-controller pattern now exists, but not every routed screen or helper follows it yet. Partial adoption can still confuse new contributors.
 - **Automated safety is still selective** — Critical-path coverage is now materially better, including mocked browser E2E, but maintainability still depends on continuing to add tests when new high-impact flows are introduced.
 
 **Verdict:** Conventions and structure support maintainability much better than before; the main remaining risk is concentration in a few high-impact flows and central offline/state modules, not missing project hygiene. **Score: 7/10**
@@ -286,7 +286,7 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 | Risk | Impact | Recommendation |
 |------|--------|----------------|
 | **Critical flow complexity** | `RecordOrder` and `UpdateCustomer` are now decomposed, but their controller hooks and collaborating infrastructure still make them important, high-impact flows. | Keep adding targeted integration coverage and apply the same decomposition pattern to other heavy UI containers when touched. |
-| **Partial data-access migration** | The architecture boundary is clearer now: shared non-RTK helpers live in `src/features/api/http.ts`, feature APIs own the refactored domain requests, and the old utility API modules for the highest-risk flows are gone. Some lower-priority direct request sites may still remain. | Continue removing the remaining direct UI-owned request sites incrementally and migrate more shared reads to RTK Query when the caching value is real. |
+| **Partial boundary migration** | Data access is now feature-first and several high-signal routed screens/controllers follow the page-entry + feature-controller pattern, but the repo has not finished applying that structure everywhere. | Keep migrating remaining routed screens and domain helpers incrementally when touched; prefer thin `pages/` entries and feature-owned hooks/helpers. |
 | **Selective test coverage** | High-value unit, component/page wiring, and first-pass Playwright journey tests now exist, but they still focus on the most business-critical flows rather than broad app-wide coverage. | Keep the current fast baseline, extend browser coverage to the next highest-risk journeys, and add deeper environment-backed integration only where mocks stop being sufficient. |
 | **Shipment slice size and centrality** | One large slice and many dependents; any change still has broad impact, even after Phase 3.2 boundary hardening. | Keep moving remaining raw readers behind selectors. Split into sub-slices only if ongoing changes show that the documented regions are still too coupled. |
 | **IndexedDB as a single module** | 500+ LOC, many stores; all offline/cache usage goes through it. | Document migration and versioning; consider splitting by domain (e.g. requests, customers, areas) if it keeps growing. |
@@ -299,7 +299,7 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 
 | Criterion | Score | Notes |
 |-----------|-------|--------|
-| Separation of concerns | 7/10 | Good layers; weak in a few large components and utils/features boundary. |
+| Separation of concerns | 7/10 | Good layers; weak in a few large components and partial adoption of the new boundary model. |
 | Modularity | 7/10 | Feature and router modularity good; some large modules (IndexedDB, Shipment). |
 | Scalability | 7/10 | Structure supports growth; initial lazy loading is in place, but persistence and IndexedDB still need strategy. |
 | Naming consistency | 7/10 | Solid for components/hooks/Redux; duplicate types and path casing. |
@@ -309,4 +309,4 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 | Testability | 7/10 | Structure is testable and now backed by unit, component, and critical mocked E2E coverage. |
 | Maintainability | 7/10 | Conventions and coverage help more now; risk remains in a few critical flows and central offline/state modules. |
 
-**Overall:** The codebase has a **solid and improving foundation** (layers, features, Redux Toolkit, RTK Query, documentation, conventions, critical-path browser E2E, and first-pass route lazy loading) and is **production-capable**. The main gaps are now **coverage breadth rather than total absence**, **size and responsibility of a few components and central offline modules**, **split between utils and features for API code**, and **centrality of the Shipment slice**. Addressing those would move the project materially closer to strong industry standards without a rewrite.
+**Overall:** The codebase has a **solid and improving foundation** (layers, features, Redux Toolkit, RTK Query, documentation, conventions, critical-path browser E2E, first-pass route lazy loading, and clearer page/component/feature boundaries) and is **production-capable**. The main gaps are now **coverage breadth rather than total absence**, **size and responsibility of a few components and central offline modules**, **partial adoption of the new folder-boundary model**, and **centrality of the Shipment slice**. Addressing those would move the project materially closer to strong industry standards without a rewrite.

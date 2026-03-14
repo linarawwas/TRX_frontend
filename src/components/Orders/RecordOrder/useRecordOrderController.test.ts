@@ -1,9 +1,9 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
-import { useRecordOrderController } from "./useRecordOrderController";
+import { useRecordOrderController } from "../../../features/orders/hooks/useRecordOrderController";
 import {
   getAdjustedInvoiceSums,
   projectAfterOrder,
-} from "../../../utils/invoicePreview";
+} from "../../../features/orders/utils/invoicePreview";
 import { getProductTypeFromDB, saveRequest } from "../../../utils/indexedDB";
 import { fetchAndCacheCustomerInvoice } from "../../../features/customers/apiCustomers";
 import { toast } from "react-toastify";
@@ -23,7 +23,7 @@ jest.mock("react-router-dom", () => ({
   useNavigate: () => mockNavigate,
 }));
 
-jest.mock("../../../utils/invoicePreview", () => ({
+jest.mock("../../../features/orders/utils/invoicePreview", () => ({
   __esModule: true,
   getAdjustedInvoiceSums: jest.fn(),
   projectAfterOrder: jest.fn(),

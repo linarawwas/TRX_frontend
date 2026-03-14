@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 import AddToModel from "../AddToModel/AddToModel";
 import { createDistributor } from "../../features/distributors/apiDistributors";
 import { setDefaultProduct } from "../../redux/Defaults/action";
-import { useCompanyDistributorData } from "./hooks/useCompanyDistributorData";
+import { useCompanyDistributorData } from "../../features/distributors/hooks/useCompanyDistributorData";
 import MonthPicker from "./MonthPicker";
 import { useMonthRange } from "./hooks/useMonthRange";
 import { buildDistributorAnalytics } from "./utils/metrics";

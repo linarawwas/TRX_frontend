@@ -1,11 +1,11 @@
 import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import UpdateCustomer from "./UpdateCustomer";
-import { useUpdateCustomerController } from "./useUpdateCustomerController";
+import { useUpdateCustomerController } from "../../../features/customers/hooks/useUpdateCustomerController";
 
 const mockNavigate = jest.fn();
 
-jest.mock("./useUpdateCustomerController", () => ({
+jest.mock("../../../features/customers/hooks/useUpdateCustomerController", () => ({
   __esModule: true,
   useUpdateCustomerController: jest.fn(),
 }));

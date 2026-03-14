@@ -9,8 +9,8 @@ import Addresses from "../pages/SharedPages/Addresses/Addresses";
 import AreasForDay from "../pages/SharedPages/AreasForDay/AreasForDay";
 import CustomersForArea from "../pages/SharedPages/CustomersForArea/CustomersForArea";
 import AddArea from "../components/Areas/AddArea/AddArea";
-import UpdateOrder from "../components/Orders/UpdateOrder/UpdateOrder";
-import UpdateCustomer from "../components/Customers/UpdateCustomer/UpdateCustomer";
+import UpdateOrderPage from "../pages/SharedPages/UpdateOrder/UpdateOrderPage";
+import UpdateCustomerPage from "../pages/SharedPages/UpdateCustomer/UpdateCustomerPage";
 import AddExpenses from "../components/Expenses/AddExpenses/AddExpenses";
 import AddProfits from "../components/Profits/AddProfits/AddProfits";
 import ExtraProfits from "../pages/SharedPages/ViewProfits/ViewProfits";
@@ -67,11 +67,11 @@ export function CommonRoutes() {
     <Route key="areasForDay" path="/areas/:dayId" element={<AreasForDay />} />,
     <Route key="customersForArea" path="/customers/:areaId" element={<CustomersForArea />} />,
     <Route key="areasAdd" path="/areas/add" element={<AddArea />} />,
-    <Route key="updateOrder" path="/updateOrder/:orderId" element={<UpdateOrder />} />,
+    <Route key="updateOrder" path="/updateOrder/:orderId" element={<UpdateOrderPage />} />,
     <Route
       key="updateCustomer"
       path="/updateCustomer/:customerId"
-      element={<UpdateCustomer />}
+      element={<UpdateCustomerPage />}
     />,
     <Route
       key="addExpenses"

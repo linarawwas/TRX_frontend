@@ -57,11 +57,11 @@ This frontend:
 |-------|----------|---------|
 | **App bootstrap** | `src/index.tsx` → `src/app/main.tsx` | React root, Redux Provider, service worker registration |
 | **Layout & routing** | `src/Layout/`, `src/Router/` | Authenticated layout, role-based AdminRouter / EmployeeRouter, shared CommonRoutes |
-| **Pages** | `src/pages/AdminPages/`, `EmployeePages/`, `SharedPages/` | Role-specific and shared page containers |
-| **Components** | `src/components/` | Reusable and domain UI; large screens like `RecordOrder` and `UpdateCustomer` now compose smaller presentational sections over controller hooks |
-| **Features** | `src/features/` | Domain modules: auth, finance, shipments, products, orders, customers, areas, distributors, and shared API helpers |
+| **Pages** | `src/pages/AdminPages/`, `EmployeePages/`, `SharedPages/` | Route-level entry points and composition; routers should prefer importing these page wrappers instead of deep feature components directly |
+| **Components** | `src/components/` | Shared UI and clearly scoped feature UI building blocks; not the primary home for cross-file workflow controllers |
+| **Features** | `src/features/` | Domain modules: auth, finance, shipments, products, orders, customers, areas, distributors, shared API helpers, and feature-owned controller hooks/utils |
 | **Global state** | `src/redux/` | Store (Toolkit), slices (UserInfo, Order, Shipment, Defaults), memoized selectors |
-| **Infrastructure** | `src/utils/`, `src/hooks/`, `src/config/` | IndexedDB, API config, i18n, offline sync, shared hooks |
+| **Infrastructure** | `src/utils/`, `src/hooks/`, `src/config/` | IndexedDB, API config, i18n, logging, generic helpers, offline sync, shared hooks |
 
 See [**docs/folder-structure.md**](docs/folder-structure.md) for a detailed breakdown.
 
@@ -78,6 +78,14 @@ See [**docs/folder-structure.md**](docs/folder-structure.md) for a detailed brea
 - **No business HTTP in UI files** — Pages, components, and controller hooks should call feature hooks or feature API functions rather than building requests inline.
 - **Shared non-RTK HTTP boundary** — Non-RTK requests should use `src/features/api/http.ts` so auth headers, JSON parsing, and API URL resolution stay consistent.
 - **`src/utils/` is not for domain API ownership** — Keep it for infrastructure and pure helpers such as IndexedDB, i18n, money/date utilities, and logging.
+
+### Folder responsibility policy
+
+- **`pages/`** — Route-entry files and top-level composition. Thin wrappers are preferred for routed experiences like distributors, shipment start, and update screens.
+- **`components/`** — Shared/reusable UI plus tightly scoped feature UI building blocks. Presentational sections stay here; cross-file workflow controllers do not.
+- **`features/`** — Domain APIs, hooks/controllers, selectors, validation, workflow helpers, and feature-owned utilities.
+- **`utils/`** — Generic non-domain infrastructure only.
+- **`redux/`** — Global cross-feature state and selector boundaries, not per-screen workflow state.
 
 ### Auth and session
 
@@ -102,11 +110,11 @@ src/
   app/                # main.tsx (React root, Provider, SW), App.tsx (routing, auth gate)
   Layout/              # Layout.tsx (menu, toasts, AdminRouter | EmployeeRouter)
   Router/              # AdminRouter, EmployeeRouter, CommonRoutes
-  pages/               # AdminPages, EmployeePages, SharedPages
-  components/          # UI reusables, dashboard, visuals, domain components, ErrorBoundary
+  pages/               # Route-entry pages and composition wrappers
+  components/          # Shared UI and feature-scoped presentational building blocks
   features/            # auth, api (trxApi + shared http), finance, shipments, products, orders, customers, areas, distributors
   redux/               # store, rootReducer, slices, selectors
-  utils/               # indexedDB, i18n, money, date, logger, etc.
+  utils/               # IndexedDB, i18n, money/date, logger, and other generic helpers
   hooks/               # useMediaQuery, useSyncOfflineOrders
   config/              # api.ts (API_BASE)
   shared/styles/       # Global styles
@@ -222,6 +230,7 @@ The codebase is feature-oriented and hook-driven. The items tracked in [**docs/t
 - **Critical E2E journeys completed** — Playwright now covers the highest-risk cross-layer workflows with mocked APIs and seeded browser state: auth shell, shipment start, offline replay, finance create flow, orders-today report, and update-customer save flow.
 - **Phase 4 completed** — High-value non-core admin/shared routes now use route-level lazy loading with a shared suspense fallback, and `src/utils/readme.md` now documents IndexedDB versioning, migration rules, and schema-change maintenance steps.
 - **Data access architecture clarified** — Shared non-RTK HTTP helpers now centralize API URL/auth behavior, domain API ownership is feature-first, and the highest-risk direct HTTP flows have been moved out of UI/controllers into feature APIs.
+- **Folder responsibility boundaries clarified** — Routers now enter several routed screens through thin page files, high-signal workflow controllers live under `src/features/**/hooks`, and feature-owned helpers like invoice preview no longer live in `src/utils/`.
 
 **Optional, longer-term:** Broader lazy-loading only if bundle metrics justify it; expand RTK Query to more shared read flows; continue removing lower-priority direct UI request sites; Shipment slice decomposition beyond the current selector boundaries if coupling remains painful; a few additional multi-screen integration tests beyond the current critical set; error boundaries per feature area; further form/validation standardization.
 

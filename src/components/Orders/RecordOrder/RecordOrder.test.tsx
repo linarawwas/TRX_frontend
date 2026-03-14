@@ -1,9 +1,9 @@
 import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import RecordOrder from "./RecordOrder";
-import { useRecordOrderController } from "./useRecordOrderController";
+import { useRecordOrderController } from "../../../features/orders/hooks/useRecordOrderController";
 
-jest.mock("./useRecordOrderController", () => ({
+jest.mock("../../../features/orders/hooks/useRecordOrderController", () => ({
   __esModule: true,
   useRecordOrderController: jest.fn(),
 }));

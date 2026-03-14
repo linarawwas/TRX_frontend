@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import {
   getAdjustedInvoiceSums,
   projectAfterOrder,
-} from "../../../utils/invoicePreview";
+} from "../utils/invoicePreview";
 import { fmtLBP } from "../../../utils/money";
 import {
   addCustomerWithEmptyOrder,
@@ -23,7 +23,7 @@ import {
   setProductPrice,
 } from "../../../redux/Order/action";
 import { getProductTypeFromDB, saveRequest } from "../../../utils/indexedDB";
-import { fetchAndCacheCustomerInvoice } from "../../../features/customers/apiCustomers";
+import { fetchAndCacheCustomerInvoice } from "../../customers/apiCustomers";
 import { API_BASE } from "../../../config/api";
 import {
   selectRoundProgress,

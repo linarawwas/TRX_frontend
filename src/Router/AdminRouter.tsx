@@ -7,10 +7,10 @@ import { CommonRoutes } from "./CommonRoutes";
 import { t } from "../utils/i18n";
 
 const DistributorsPage = lazy(
-  () => import("../components/Distributors/DistributorsPage")
+  () => import("../pages/AdminPages/Distributors/DistributorsPage")
 );
 const DistributorDetails = lazy(
-  () => import("../components/Distributors/DistributorDetails")
+  () => import("../pages/AdminPages/Distributors/DistributorDetailsPage")
 );
 const AddCustomers = lazy(
   () => import("../components/Customers/AddCustomers/AddCustomers")
