@@ -211,7 +211,8 @@ The codebase is feature-oriented and hook-driven. The items tracked in [**docs/t
 - **Phase 2 completed** — Finance API ownership now lives under `src/features/finance/apiFinance.ts`, the `orders-today` read flow now uses `trxApi`, and the noisiest startup/offline runtime logs are routed through `src/utils/logger.ts`.
 - **Phase 3.1 completed** — `RecordOrder.tsx` and `UpdateCustomer.tsx` are now composition files over controller hooks and presentational subcomponents, with page-level tests covering stepper/modal/form wiring and key UI branches.
 - **Critical E2E journeys completed** — Playwright now covers the highest-risk cross-layer workflows with mocked APIs and seeded browser state: auth shell, shipment start, offline replay, finance create flow, orders-today report, and update-customer save flow.
+- **Phase 4 completed** — High-value non-core admin/shared routes now use route-level lazy loading with a shared suspense fallback, and `src/utils/readme.md` now documents IndexedDB versioning, migration rules, and schema-change maintenance steps.
 
-**Optional, longer-term:** Shipment slice decomposition or boundary documentation; a few additional multi-screen integration tests beyond the current critical set; error boundaries per feature area; further form/validation standardization.
+**Optional, longer-term:** Broader lazy-loading only if bundle metrics justify it; Shipment slice decomposition beyond the current selector boundaries if coupling remains painful; a few additional multi-screen integration tests beyond the current critical set; error boundaries per feature area; further form/validation standardization.
 
 When refactors land, update `docs/technical-debt.md` so the roadmap stays accurate.

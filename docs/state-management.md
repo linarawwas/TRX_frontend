@@ -57,6 +57,8 @@ New domain API calls should live in feature `api*.ts` files, and new read-heavy/
 
 Located at `src/utils/indexedDB.ts`.
 
+Schema, versioning, and migration rules are documented in `src/utils/readme.md`. If you change `DB_VERSION`, stores, indexes, or persisted row shape, update that file first and keep the E2E IndexedDB helper in `tests/e2e/support/idb.ts` in sync.
+
 **Stores include (non‑exhaustive):**
 
 - `requests` — queued API requests recorded while offline.

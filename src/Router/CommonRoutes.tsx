@@ -1,8 +1,8 @@
+import { lazy, Suspense } from "react";
 import { Route } from "react-router-dom";
 
 import Login from "../pages/SharedPages/Login/Login";
 import Register from "../components/Auth/Register";
-import OrdersTable from "../pages/SharedPages/OrdersTable/OrdersTable";
 import Areas from "../pages/SharedPages/Areas/Areas";
 import Customers from "../pages/SharedPages/viewCustomers/Customers";
 import Addresses from "../pages/SharedPages/Addresses/Addresses";
@@ -13,13 +13,29 @@ import UpdateOrder from "../components/Orders/UpdateOrder/UpdateOrder";
 import UpdateCustomer from "../components/Customers/UpdateCustomer/UpdateCustomer";
 import AddExpenses from "../components/Expenses/AddExpenses/AddExpenses";
 import AddProfits from "../components/Profits/AddProfits/AddProfits";
-import ShipmentsList from "../pages/SharedPages/Shipment/ShipmentsList";
 import ExtraProfits from "../pages/SharedPages/ViewProfits/ViewProfits";
 import Expenses from "../pages/SharedPages/ViewExpenses/ViewExpenses";
 import RecordOrderForCustomer from "../pages/SharedPages/RecordOrderForCustomer/RecordOrderForCustomer";
 import OrdersOfToday from "../pages/SharedPages/Login/reports/orders-today/OrdersOfToday";
 import CustomerStatement from "../components/Customers/CustomerStatement/CustomerStatement";
 import { t } from "../utils/i18n";
+
+const OrdersTable = lazy(
+  () => import("../pages/SharedPages/OrdersTable/OrdersTable")
+);
+const ShipmentsList = lazy(
+  () => import("../pages/SharedPages/Shipment/ShipmentsList")
+);
+
+const ROUTE_FALLBACK = (
+  <div className="finx-tile" role="status" aria-live="polite">
+    {t("common.loading")}
+  </div>
+);
+
+function withRouteSuspense(element: JSX.Element) {
+  return <Suspense fallback={ROUTE_FALLBACK}>{element}</Suspense>;
+}
 
 /**
  * Routes shared between admin and employee experiences.
@@ -29,7 +45,11 @@ export function CommonRoutes() {
   return [
     <Route key="login" path="/login" element={<Login />} />,
     <Route key="register" path="/register" element={<Register />} />,
-    <Route key="viewOrders" path="/viewOrders" element={<OrdersTable />} />,
+    <Route
+      key="viewOrders"
+      path="/viewOrders"
+      element={withRouteSuspense(<OrdersTable />)}
+    />,
     <Route key="orders-today" path="/reports/orders-today" element={<OrdersOfToday />} />,
     <Route
       key="recordOrderforCustomer"
@@ -109,7 +129,11 @@ export function CommonRoutes() {
         />
       }
     />,
-    <Route key="currentShipment" path="/currentShipment" element={<ShipmentsList />} />,
+    <Route
+      key="currentShipment"
+      path="/currentShipment"
+      element={withRouteSuspense(<ShipmentsList />)}
+    />,
     <Route key="Profits" path="/Profits" element={<ExtraProfits />} />,
     <Route key="Expenses" path="/Expenses" element={<Expenses />} />,
   ];

@@ -1,12 +1,31 @@
+import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 
-import DistributorsPage from "../components/Distributors/DistributorsPage";
-import DistributorDetails from "../components/Distributors/DistributorDetails";
-import AddCustomers from "../components/Customers/AddCustomers/AddCustomers";
 import CustomerInfo from "../components/Customers/CustomerInfo/CustomerInfo";
-import Products from "../pages/AdminPages/ProductsList/Products";
 import AdminHomePage from "../pages/AdminPages/AdminHomePage/AdminHomePage";
 import { CommonRoutes } from "./CommonRoutes";
+import { t } from "../utils/i18n";
+
+const DistributorsPage = lazy(
+  () => import("../components/Distributors/DistributorsPage")
+);
+const DistributorDetails = lazy(
+  () => import("../components/Distributors/DistributorDetails")
+);
+const AddCustomers = lazy(
+  () => import("../components/Customers/AddCustomers/AddCustomers")
+);
+const Products = lazy(() => import("../pages/AdminPages/ProductsList/Products"));
+
+const ROUTE_FALLBACK = (
+  <div className="finx-tile" role="status" aria-live="polite">
+    {t("common.loading")}
+  </div>
+);
+
+function withRouteSuspense(element: JSX.Element) {
+  return <Suspense fallback={ROUTE_FALLBACK}>{element}</Suspense>;
+}
 
 function AdminRouter() {
   return (
@@ -14,12 +33,24 @@ function AdminRouter() {
       <div className="userRouter">
         <Routes>
           <Route index element={<AdminHomePage />} />
-          <Route path="/distributors" element={<DistributorsPage />} />
-          <Route path="/distributors/:id" element={<DistributorDetails />} />
+          <Route
+            path="/distributors"
+            element={withRouteSuspense(<DistributorsPage />)}
+          />
+          <Route
+            path="/distributors/:id"
+            element={withRouteSuspense(<DistributorDetails />)}
+          />
 
-          <Route path="/addCustomers" element={<AddCustomers />} />
+          <Route
+            path="/addCustomers"
+            element={withRouteSuspense(<AddCustomers />)}
+          />
           <Route path="/customerInfo" element={<CustomerInfo />} />
-          <Route path="/Products" element={<Products />} />
+          <Route
+            path="/Products"
+            element={withRouteSuspense(<Products />)}
+          />
           {CommonRoutes()}
         </Routes>
       </div>

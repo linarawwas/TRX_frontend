@@ -91,6 +91,68 @@ to enable detailed console logging and timing for all operations.
 
 ---
 
+## Versioning and migrations
+
+`src/utils/indexedDB.ts` is the single source of truth for schema shape and upgrade behavior.
+
+### When to bump `DB_VERSION`
+
+Increase `DB_VERSION` whenever a change affects IndexedDB structure or stored row compatibility, including:
+
+- adding a new object store
+- adding or changing an index
+- changing a key path
+- changing persisted row shape in a way older records cannot satisfy safely
+- removing or renaming stores/fields that existing readers still expect
+
+### Preferred migration style
+
+For non-trivial upgrades, prefer stepwise guards inside `upgrade(db, oldVersion)`:
+
+```ts
+if (oldVersion < 16) {
+  // create store, add index, or transform data for version 16
+}
+```
+
+This is safer than relying only on `if (!db.objectStoreNames.contains(...))` once schema history becomes more complex.
+
+### Migration policy
+
+- **Additive change**: create the missing store/index and keep old rows readable where possible.
+- **Shape extension**: prefer tolerant readers and default values so older cached rows still work.
+- **Breaking shape/key change**: either transform existing rows during upgrade or explicitly clear/rebuild the affected store.
+- **Store removal/rename**: treat as breaking; document the reset strategy and update all callers in the same change.
+
+### Clearing vs transforming data
+
+- **Transform existing rows** when the data is still valuable offline and conversion is straightforward.
+- **Clear and rebuild a store** when cached data is derivable from the backend and transformation would be fragile.
+- **Use `clearAllIndexedDb()` only for development or emergency troubleshooting**, not as the default migration strategy.
+
+### Version history summary
+
+| Version | Summary |
+|---------|---------|
+| `15` | Current schema with queued requests, customers, discounts, products, transactions, days, invoices, areas-by-day, company areas, and exchange-rate caching. |
+
+If future schema versions are introduced, extend this table instead of creating a second source of truth elsewhere.
+
+### Maintainer checklist
+
+When changing IndexedDB schema or row shape:
+
+1. Update `DB_VERSION` and `upgrade()` in `src/utils/indexedDB.ts`.
+2. Update this document to describe the new schema/migration behavior.
+3. Keep `tests/e2e/support/idb.ts` aligned with the current stores and `DB_VERSION`.
+4. Re-run the offline-related test coverage:
+   - `npm run test:e2e`
+   - `npm test -- --watch=false`
+   - `npx tsc --noEmit`
+5. If the change is user-visible or architectural, cross-reference it from `docs/state-management.md` and roadmap docs.
+
+---
+
 ## Core APIs
 
 ### 1. Request queue (offline HTTP)
@@ -254,130 +316,4 @@ const customers = await getCustomersFromDB("a1");
   - Callers should handle failures and provide user feedback when used in UI flows.
 - Logging and timing are centralized via the internal `time()` helper and `IDB_DEBUG` flag.
 - This module is the **single source of truth** for IndexedDB schema and access in the app.
-
-# IndexedDB Utility Module
-
-## Overview
-This module provides utility functions for managing an IndexedDB database named `MyDatabase`. It is designed to store and retrieve data related to areas, customers, customer invoices, discounts, and product types for an inventory management and shipment tracking application.
-
-## Database Details
-- **Database Name:** `MyDatabase`
-- **Version:** 6
-- **Stores:**
-  - `areas`: Stores area data with `dayId` as the key.
-  - `customers`: Stores customer data with `areaId` as the key.
-  - `customerDiscounts`: Stores discount details with `customerId` as the key.
-  - `customerInvoices`: Stores invoice details with `customerId` as the key.
-  - `products`: Stores product types with `companyId` as the key.
-
-## Initialization
-The database is initialized with the function `initializeDB()`, which ensures the necessary object stores are created if they do not already exist.
-
-```typescript
-async function initializeDB() {
-  await openDB(DB_NAME, DB_VERSION, {
-    upgrade(db) {
-      if (!db.objectStoreNames.contains(AREAS_STORE_NAME)) {
-        db.createObjectStore(AREAS_STORE_NAME, { keyPath: "dayId" });
-      }
-      if (!db.objectStoreNames.contains(CUSTOMERS_STORE_NAME)) {
-        db.createObjectStore(CUSTOMERS_STORE_NAME, { keyPath: "areaId" });
-      }
-      if (!db.objectStoreNames.contains(DISCOUNT_STORE_NAME)) {
-        db.createObjectStore(DISCOUNT_STORE_NAME, { keyPath: "customerId" });
-      }
-      if (!db.objectStoreNames.contains(INVOICE_STORE_NAME)) {
-        db.createObjectStore(INVOICE_STORE_NAME, { keyPath: "customerId" });
-      }
-      if (!db.objectStoreNames.contains(PRODUCTS_STORE_NAME)) {
-        db.createObjectStore(PRODUCTS_STORE_NAME, { keyPath: "companyId" });
-      }
-    },
-  });
-}
-```
-
-This function should be called at the start of the application.
-
-## Functions
-
-### 1. Customer Invoices
-#### Save Customer Invoice
-```typescript
-async function saveCustomerInvoiceToCache(customerId: string, data: any)
-```
-- Stores invoice data for a given customer.
-
-#### Get Customer Invoice
-```typescript
-async function getCustomerInvoiceFromCache(customerId: string)
-```
-- Retrieves the invoice for a given customer.
-
-### 2. Areas
-#### Save Areas
-```typescript
-async function saveAreasToDB(dayId: string, data: any)
-```
-- Saves area data under a given `dayId`.
-
-#### Get Areas
-```typescript
-async function getAreasFromDB(dayId: string)
-```
-- Retrieves area data for a specific `dayId`.
-
-### 3. Customers
-#### Save Customers
-```typescript
-async function saveCustomersToDB(areaId: string, data: any)
-```
-- Stores customers under a given `areaId`.
-
-#### Get Customers
-```typescript
-async function getCustomersFromDB(areaId: string)
-```
-- Retrieves customers for a specific `areaId`.
-
-### 4. Customer Discounts
-#### Save Customer Discount
-```typescript
-async function saveCustomerDiscountToDB(customerId: string, data: any)
-```
-- Saves discount data for a given customer.
-
-#### Get Customer Discount
-```typescript
-async function getCustomerDiscountFromDB(customerId: string)
-```
-- Retrieves the discount status of a customer.
-
-### 5. Products
-#### Save Product Type
-```typescript
-async function saveProductTypeToDB(companyId: string, productType: any)
-```
-- Saves product type data for a given `companyId`.
-
-#### Get Product Type
-```typescript
-async function getProductTypeFromDB(companyId: string)
-```
-- Retrieves product type data for a given `companyId`.
-
-## Usage Example
-```typescript
-await saveCustomerInvoiceToCache("123", { total: 100, items: ["item1", "item2"] });
-const invoice = await getCustomerInvoiceFromCache("123");
-console.log(invoice);
-```
-
-## Notes
-- The database is initialized once at the start of the app.
-- IndexedDB operations are asynchronous.
-- Ensure error handling is implemented when using these functions in production.
-
-## Dependencies
-- [`idb`](https://www.npmjs.com/package/idb) (IndexedDB wrapper for modern browsers)
 

@@ -100,6 +100,21 @@ This document tracks known architectural issues and planned improvements. It is 
      - Strengthened `src/redux/Shipment/reducer.test.ts` and `src/redux/selectors/selectors.test.ts` around shipment boundary regions, snapshot restore behavior, and falsy-value edge cases.
    - **Notes:** This is the safe precursor to any later sub-slice split. The next step, if still needed, is to reduce remaining cross-module coupling and only then consider splitting the `Shipment` store shape itself.
 
+8. **Phase 4 scale and performance**
+   - **Completed on:** 2026-03-14
+   - **What changed:**
+     - Added a balanced first pass of route-level code-splitting using `React.lazy` + `Suspense` for high-value non-core screens:
+       - `src/components/Distributors/DistributorsPage.tsx`
+       - `src/components/Distributors/DistributorDetails.tsx`
+       - `src/components/Customers/AddCustomers/AddCustomers.tsx`
+       - `src/pages/AdminPages/ProductsList/Products.tsx`
+       - `src/pages/SharedPages/OrdersTable/OrdersTable.tsx`
+       - `src/pages/SharedPages/Shipment/ShipmentsList.tsx`
+     - Kept the auth/bootstrap shell eager and preserved the existing nested lazy-load inside `AdminHomePage` for `FinanceDashboard`.
+     - Cleaned `src/utils/readme.md` so it no longer contains stale legacy schema notes, and added IndexedDB versioning/migration guidance: when to bump `DB_VERSION`, preferred `oldVersion < N` upgrade steps, additive vs breaking changes, and a schema-change maintainer checklist.
+     - Updated `docs/state-management.md` to point maintainers to the canonical IndexedDB versioning rules and to keep `tests/e2e/support/idb.ts` aligned with schema changes.
+   - **Notes:** This is intentionally a balanced first pass, not a full app-wide lazy-loading sweep. If bundle pressure grows further, the next step is to profile the remaining heavy routes and consider broader route or modal-level splitting.
+
 ### Longer-term architecture improvements
 
 1. **Data fetching and caching abstraction**

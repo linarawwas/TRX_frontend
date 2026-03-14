@@ -79,8 +79,8 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 
 | Step | Action | Why this order |
 |------|--------|----------------|
-| 4.1 | **Code-splitting** — Introduce `React.lazy` for the heaviest routes (e.g. FinanceDashboard, RecordOrder, UpdateCustomer). Measure bundle size before/after. | Do this when the main bundle is actually a problem (e.g. slow first load). By then, Phase 3 should have made route boundaries clearer. |
-| 4.2 | **IndexedDB** — Document versioning and migration strategy in `src/utils/readme.md`. Split by domain (e.g. requests vs customers vs areas) only if the single file becomes a real maintenance or performance bottleneck. | Low priority until the app or offline usage grows; documentation is cheap and helps anyone touching the DB. |
+| 4.1 | **Code-splitting** — Completed as a balanced first pass. `AdminRouter` and `CommonRoutes` now lazy-load the heaviest non-core admin/shared screens behind a shared suspense fallback, while login/bootstrap and the employee start path remain eager. | This captured real startup wins without destabilizing the app shell or modal-driven shipment flow. |
+| 4.2 | **IndexedDB** — Completed as documentation-first hardening. `src/utils/readme.md` now defines version bump rules, upgrade style, additive vs breaking schema policy, and a maintainer checklist tied to `tests/e2e/support/idb.ts`. | This lowers the risk of future offline-schema regressions before any larger IndexedDB refactor or split is attempted. |
 
 **Outcome:** Load time and offline layer are ready for growth without a single huge module bearing all the weight.
 
@@ -93,7 +93,7 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 | **1** | Tests (selectors, 1–2 hooks), Redux types, store ts-error | 1–2 sprints |
 | **2** | API ownership rule + one migration, console cleanup | ~1 sprint |
 | **3** | Extract hooks/subcomponents from RecordOrder & UpdateCustomer; Shipment slice tests or split | 2–3 sprints |
-| **4** | Code-splitting, IndexedDB docs (and optional split) | As needed |
+| **4** | Balanced route lazy-loading and IndexedDB migration guidance | Completed |
 
 **Rule of thumb:** Do Phase 1 before any large refactor. Do Phase 3.1 (large components) before investing in Shipment slice splits. Do Phase 4 when metrics or pain justify it, not as the first priority.
 
