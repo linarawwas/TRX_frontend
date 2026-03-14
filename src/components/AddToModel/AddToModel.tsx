@@ -1,13 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // AddToModel.tsx
-import React, {
-  useState,
-  useCallback,
-  ChangeEvent,
-  FormEvent,
-  useMemo,
-  useRef,
-} from "react";
+import React, { useState, useCallback, useRef } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import "./AddToModel.css";
 import VerticalNumberPicker from "./VerticalNumberPicker";
 import TripleDigitPicker from "./TripleDigitPicker";
@@ -66,11 +60,6 @@ const AddToModel: React.FC<Props> = ({
   const [showConfirm, setShowConfirm] = useState(false);
   const inFlight = useRef(false);
 
-  const firstFieldName = useMemo(
-    () => Object.keys(modelFields)[0] ?? "",
-    [modelFields]
-  );
-
   const setField = useCallback((name: string, value: any) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   }, []);
@@ -78,7 +67,7 @@ const AddToModel: React.FC<Props> = ({
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const { name, value, type } = e.target;
+    const { name, value } = e.target;
     const cfg = modelFields[name];
     if (!cfg) return;
 
@@ -205,7 +194,7 @@ const AddToModel: React.FC<Props> = ({
           </div>
         )}
 
-        {Object.entries(modelFields).map(([fieldName, fieldConfig], idx) => {
+        {Object.entries(modelFields).map(([fieldName, fieldConfig]) => {
           const required = fieldConfig.required !== false;
           const commonProps = {
             name: fieldName,
@@ -221,7 +210,11 @@ const AddToModel: React.FC<Props> = ({
             fieldConfig["input-type"] === "number"
           ) {
             return (
-              <label key={fieldName} className="field">
+              <label
+                key={fieldName}
+                className="field"
+                data-testid={`model-field-${fieldName}`}
+              >
                 <span className="field-label">
                   {fieldConfig.label}{" "}
                   {required && <span className="req">*</span>}
@@ -244,7 +237,11 @@ const AddToModel: React.FC<Props> = ({
 
           if (fieldConfig["input-type"] === "slider") {
             return (
-              <label key={fieldName} className="field">
+              <label
+                key={fieldName}
+                className="field"
+                data-testid={`model-field-${fieldName}`}
+              >
                 <span className="field-label">
                   {fieldConfig.label}{" "}
                   {required && <span className="req">*</span>}
@@ -265,7 +262,11 @@ const AddToModel: React.FC<Props> = ({
 
           if (fieldConfig["input-type"] === "selectOption") {
             return (
-              <label key={fieldName} className="field">
+              <label
+                key={fieldName}
+                className="field"
+                data-testid={`model-field-${fieldName}`}
+              >
                 <span className="field-label">
                   {fieldConfig.label}{" "}
                   {required && <span className="req">*</span>}
@@ -284,7 +285,11 @@ const AddToModel: React.FC<Props> = ({
 
           if (fieldConfig["input-type"] === "numberPicker") {
             return (
-              <div key={fieldName} className="field">
+              <div
+                key={fieldName}
+                className="field"
+                data-testid={`model-field-${fieldName}`}
+              >
                 <span className="field-label">
                   {fieldConfig.label}{" "}
                   {required && <span className="req">*</span>}
@@ -299,7 +304,11 @@ const AddToModel: React.FC<Props> = ({
           }
 
           return (
-            <div key={fieldName} className="field">
+            <div
+              key={fieldName}
+              className="field"
+              data-testid={`model-field-${fieldName}`}
+            >
               <span className="field-label">
                 {fieldConfig.label} {required && <span className="req">*</span>}
               </span>
@@ -356,6 +365,7 @@ const AddToModel: React.FC<Props> = ({
                 className="btn primary"
                 onClick={actuallySend}
                 disabled={isSubmitting}
+                data-testid="model-confirm-submit"
               >
                 تأكيد الإرسال
               </button>

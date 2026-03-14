@@ -8,9 +8,9 @@ import RecordOrderLbpSection from "./RecordOrderLbpSection";
 import RecordOrderOverTargetModal from "./RecordOrderOverTargetModal";
 import RecordOrderStepField from "./RecordOrderStepField";
 import {
-  RecordOrderProps,
   useRecordOrderController,
 } from "./useRecordOrderController";
+import type { RecordOrderProps } from "./useRecordOrderController";
 
 const RecordOrder: React.FC<RecordOrderProps> = (props) => {
   const {
@@ -127,6 +127,7 @@ const RecordOrder: React.FC<RecordOrderProps> = (props) => {
             className="record-order-button"
             type="submit"
             disabled={isSubmitting}
+            data-testid="record-order-submit"
           >
             {isSubmitting ? (
               <span className="loading-dots">

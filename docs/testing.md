@@ -4,6 +4,7 @@ This project currently focuses on **high-value, low-friction tests** first:
 
 - **Redux selectors** — Pure logic, memoization behavior, and derived values.
 - **Feature hooks** — Business behavior that is easy to regress but cheap to test with mocks.
+- **Mocked browser E2E** — High-risk cross-layer journeys using Playwright with intercepted APIs and seeded browser storage.
 
 ## What exists now
 
@@ -37,11 +38,37 @@ This project currently focuses on **high-value, low-friction tests** first:
   - Covers page-level wiring for edit confirmation flow, area/placement form branch, inactive restore UI, and admin-only destructive controls.
 - `src/components/EmployeeComponents/StartShipment/StartShipment.test.tsx`
   - Existing component-level regression test for shipment start behavior.
+- `tests/e2e/auth-shell.spec.ts`
+  - Covers employee/admin auth bootstrap, seeded session state, `/api/users/me`, and correct router shell loading.
+- `tests/e2e/start-shipment.spec.ts`
+  - Covers new-day shipment start, shipment creation, preload-state completion, and `/areas/:dayId` landing.
+- `tests/e2e/offline-order-replay.spec.ts`
+  - Covers offline order queueing in IndexedDB and replay after returning online.
+- `tests/e2e/finance-flow.spec.ts`
+  - Covers admin finance entry creation and daily summary refresh.
+- `tests/e2e/orders-today.spec.ts`
+  - Covers the RTK Query-backed orders-today report with mocked shipments/orders data.
+- `tests/e2e/update-customer.spec.ts`
+  - Covers the critical update-customer edit, confirm-save, and success-refresh path.
 
 ## How to run tests
 
 ```bash
 npm test -- --watch=false
+```
+
+Run the browser E2E suite:
+
+```bash
+npx playwright install chromium
+npm run test:e2e
+```
+
+Useful variants:
+
+```bash
+npm run test:e2e:headed
+npm run test:e2e:debug
 ```
 
 To run a specific test file:
@@ -69,8 +96,26 @@ npm test -- --watch=false src/redux/selectors/selectors.test.ts
 5. **Add tests when touching critical flows**
    - If you modify order submission, offline sync, shipment totals, or auth bootstrap, add or update tests in the same change.
 
+6. **Keep E2E deterministic**
+   - Seed `localStorage` / Redux state instead of logging in through a real backend.
+   - Intercept API calls in Playwright and return fixed payloads for the journey under test.
+   - Use IndexedDB helpers for offline queue and cached invoice/product setup.
+
+## E2E architecture notes
+
+- `playwright.config.ts`
+  - Runs the suite against `http://localhost:3000` and reuses an already-running CRA server when available.
+- `tests/e2e/support/app.ts`
+  - Seeds auth and Redux-backed `localStorage`, and provides shared page bootstrap helpers.
+- `tests/e2e/support/idb.ts`
+  - Seeds and reads IndexedDB stores used by offline sync and invoice/product caching.
+- `tests/e2e/support/network.ts`
+  - Centralizes API route interception and JSON request/response helpers.
+
+The current E2E layer is intentionally **mocked**, not backend-integrated. Its job is to catch regressions in routing, auth bootstrap, Redux persistence, IndexedDB usage, and critical user workflows without depending on a live API.
+
 ## Recommended next tests
 
 - `src/hooks/useSyncOfflineOrders.ts` deduping behavior when `online` fires repeatedly during an in-progress sync
-- Integration coverage for login/bootstrap -> shipment start -> order record -> offline replay
+- Login form submission coverage against the mocked auth endpoint if that flow becomes more complex
 - Shipment consumer integration around selector boundaries if the slice is later split into sub-slices

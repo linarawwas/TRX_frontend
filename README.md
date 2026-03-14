@@ -159,6 +159,9 @@ REACT_APP_API_BASE_URL=https://api.example.com
 | `npm start` | Development server |
 | `npm run build` | Production build |
 | `npm test` | Run tests (CRA) |
+| `npm run test:e2e` | Run mocked Playwright browser journeys |
+| `npm run test:e2e:headed` | Run Playwright in headed mode |
+| `npm run test:e2e:debug` | Run Playwright with the inspector |
 | `npm run lint` / `npm run lint:fix` | ESLint |
 | `npm run format` / `npm run format:check` | Prettier on `src/**/*` |
 
@@ -166,6 +169,24 @@ REACT_APP_API_BASE_URL=https://api.example.com
 
 - **Service worker** — Production only; registration and update events are logged through `src/utils/logger.ts`.
 - **IndexedDB** — Add `?idbdebug=1` or set `localStorage.IDB_DEBUG = "1"` for verbose logs.
+
+## Browser E2E
+
+The repo now includes a first Playwright layer for the most critical journeys, all using **mocked/intercepted APIs** rather than a live backend. This keeps the suite deterministic while still covering auth bootstrap, route branching, shipment start, offline order replay, finance entry creation, orders-today reporting, and update-customer save flow.
+
+Typical setup:
+
+```bash
+npx playwright install chromium
+npm run test:e2e
+```
+
+Notes:
+
+- The suite targets `http://localhost:3000`.
+- `playwright.config.ts` can reuse an already-running CRA dev server.
+- Browser state is seeded through `tests/e2e/support/app.ts` and IndexedDB helpers in `tests/e2e/support/idb.ts`.
+- Network behavior is mocked in-spec through helpers in `tests/e2e/support/network.ts`.
 
 ## Documentation map
 
@@ -189,7 +210,8 @@ The codebase is feature-oriented and hook-driven. The items tracked in [**docs/t
 - **Phase 1 completed** — The first test baseline is in place ([testing guide](docs/testing.md), selector tests, and initial feature-hook tests), Shipment reducer typing shortcuts were removed, and the store no longer relies on a middleware `@ts-expect-error`.
 - **Phase 2 completed** — Finance API ownership now lives under `src/features/finance/apiFinance.ts`, the `orders-today` read flow now uses `trxApi`, and the noisiest startup/offline runtime logs are routed through `src/utils/logger.ts`.
 - **Phase 3.1 completed** — `RecordOrder.tsx` and `UpdateCustomer.tsx` are now composition files over controller hooks and presentational subcomponents, with page-level tests covering stepper/modal/form wiring and key UI branches.
+- **Critical E2E journeys completed** — Playwright now covers the highest-risk cross-layer workflows with mocked APIs and seeded browser state: auth shell, shipment start, offline replay, finance create flow, orders-today report, and update-customer save flow.
 
-**Optional, longer-term:** Shipment slice decomposition or boundary documentation; a few multi-screen integration tests; error boundaries per feature area; further form/validation standardization.
+**Optional, longer-term:** Shipment slice decomposition or boundary documentation; a few additional multi-screen integration tests beyond the current critical set; error boundaries per feature area; further form/validation standardization.
 
 When refactors land, update `docs/technical-debt.md` so the roadmap stays accurate.

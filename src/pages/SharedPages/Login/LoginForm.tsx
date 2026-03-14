@@ -45,7 +45,7 @@ export default function LoginForm(): JSX.Element {
   };
 
   return (
-    <form className="login-form" onSubmit={handleSubmit}>
+    <form className="login-form" onSubmit={handleSubmit} data-testid="login-form">
       <input
         type="email"
         name="email"
@@ -53,6 +53,7 @@ export default function LoginForm(): JSX.Element {
         value={email}
         onChange={handleChange}
         required
+        data-testid="login-email"
       />
       <div className="password-wrapper">
         <input
@@ -62,6 +63,7 @@ export default function LoginForm(): JSX.Element {
           value={password}
           onChange={handleChange}
           required
+          data-testid="login-password"
         />
         <button
           type="button"
@@ -71,7 +73,7 @@ export default function LoginForm(): JSX.Element {
           {showPassword ? "إخفاء" : "إظهار"}
         </button>
       </div>
-      <button type="submit" className="login-button">
+      <button type="submit" className="login-button" data-testid="login-submit">
         🔒 تسجيل الدخول
       </button>
     </form>
