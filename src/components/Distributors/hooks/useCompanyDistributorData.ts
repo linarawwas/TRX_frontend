@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { CustomersResponse, fetchCustomersByCompany } from "../../../features/customers/apiCustomers";
-import { fetchOrdersByCompany, Order } from "../../../features/orders/apiOrders";
-import { listCompanyProducts, ProductResponse } from "../../../features/products/apiProducts";
+import { fetchCustomersByCompany } from "../../../features/customers/apiCustomers";
+import type { CustomersResponse } from "../../../features/customers/apiCustomers";
+import { fetchOrdersByCompany } from "../../../features/orders/apiOrders";
+import type { Order } from "../../../features/orders/apiOrders";
+import { listCompanyProducts } from "../../../features/products/apiProducts";
+import type { ProductResponse } from "../../../features/products/apiProducts";
+import { listDistributors } from "../../../features/distributors/apiDistributors";
 import { normalizeListResponse } from "../utils/normalize";
-import { API_BASE } from "../../../config/api";
 
 export interface DistributorRow {
   _id: string;
@@ -43,11 +46,8 @@ export function useCompanyDistributorData(token: string, companyId?: string | nu
 
   const refreshDistributors = useCallback(async () => {
     setDistributorsLoading(true);
-      try {
-        const res = await fetch(`${API_BASE}/api/distributors`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-      const json = await res.json().catch(() => null);
+    try {
+      const json = await listDistributors(token);
       setDistributors(normalizeListResponse(json));
     } catch (error) {
       console.error("Failed to load distributors:", error);

@@ -2,7 +2,7 @@
 import * as React from "react";
 import { toast } from "react-toastify";
 import "./OpeningEditor.css";
-import { API_BASE } from "../../../config/api";
+import { updateCustomerOpening } from "../../../features/customers/apiCustomers";
 export function OpeningEditor({
   customerId,
   token,
@@ -44,27 +44,11 @@ export function OpeningEditor({
       if (bottles !== "") body.bottlesLeft = Number(bottles);
       if (balance !== "") body.balanceUSD = Number(balance);
       body.allowCheckoutBump = !!allowBump;
-
-      const res = await fetch(
-        `${API_BASE}/api/customers/${customerId}/opening`,
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(body),
-        }
-      );
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        toast.error(data?.error || "فشل تعديل الافتتاحي");
-        return;
-      }
+      await updateCustomerOpening(token, customerId, body);
       toast.success("تم تعديل الرصيد/القناني الافتتاحية");
       onDone();
     } catch (err: any) {
-      toast.error("فشل العملية");
+      toast.error(err?.message || "فشل العملية");
     } finally {
       setBusy(false);
     }

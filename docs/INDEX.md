@@ -9,6 +9,7 @@ Single entry point for all project documentation. For a curated high-level map, 
 | Document | Description |
 |----------|-------------|
 | [trx-product-overview-frontend.md](trx-product-overview-frontend.md) | Product overview, user roles, flows, and frontend capabilities. |
+| [frontend-architecture.md](frontend-architecture.md) | Canonical frontend architecture rules, especially data access ownership and RTK Query vs feature API policy. |
 | [folder-structure.md](folder-structure.md) | Where things live in `src/` (layers, features, shared code). |
 | [state-management.md](state-management.md) | Redux, feature hooks, IndexedDB, auth/session, and how they interact. |
 | [technical-debt.md](technical-debt.md) | Known architectural risks, completed refactors, and planned improvements. |

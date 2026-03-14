@@ -2,7 +2,10 @@ import React, { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "./AddPaymentForm.css";
-import { API_BASE } from "../../../../config/api";
+import {
+  addPaymentToOrder,
+  fetchOrderById,
+} from "../../../../features/orders/apiOrders";
 
 const AddPaymentForm = ({ orderId, orderData, setOrderData, onSuccess }) => {
   const token = useSelector((s: any) => s.user.token);
@@ -56,41 +59,17 @@ const AddPaymentForm = ({ orderId, orderData, setOrderData, onSuccess }) => {
         paymentAmount: Number(paymentAmount),
         paymentCurrency,
       };
-
-      const res = await fetch(
-        `${API_BASE}/api/orders/addPayment/${orderId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
-        }
-      );
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        toast.error(err?.error || "فشل في إضافة الدفعة");
-        return;
-      }
+      await addPaymentToOrder(token, orderId, payload);
 
       toast.success("تمت إضافة الدفعة بنجاح");
 
       // refresh order so receipt updates
-      const updated = await fetch(`${API_BASE}/api/orders/${orderId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (updated.ok) {
-        const data = await updated.json();
-        setOrderData(data);
-        resetForm();
-        onSuccess?.(); // close the sheet
-      } else {
-        toast.error("حدث خطأ عند تحميل الطلب بعد التحديث");
-      }
-    } catch {
-      toast.error("فشل في إضافة الدفعة");
+      const data = await fetchOrderById(token, orderId);
+      setOrderData(data);
+      resetForm();
+      onSuccess?.(); // close the sheet
+    } catch (error: any) {
+      toast.error(error?.message || "فشل في إضافة الدفعة");
     } finally {
       setIsSubmitting(false);
     }

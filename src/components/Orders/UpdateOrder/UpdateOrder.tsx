@@ -5,7 +5,11 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
 import "./UpdateOrder.css";
-import { API_BASE } from "../../../config/api";
+import {
+  deleteOrderById,
+  fetchOrderById,
+  updateOrderById,
+} from "../../../features/orders/apiOrders";
 import AddPaymentForm from "./AddPaymentForm/AddPaymentForm";
 import OrderReceipt from "./OrderReceipt/OrderReceipt";
 
@@ -92,14 +96,8 @@ function UpdateOrder(): JSX.Element {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/orders/${orderId}`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data?.error || "failed");
+        if (!orderId || !token) return;
+        const data = await fetchOrderById(token, orderId);
         setOrderData(data);
       } catch (err) {
         console.error("Error:", err);
@@ -161,16 +159,8 @@ function UpdateOrder(): JSX.Element {
     if (l !== undefined) body.lbpTotal = l;
 
     try {
-      const res = await fetch(`${API_BASE}/api/orders/${orderId}`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data?.error || "فشل التعديل");
+      if (!token) throw new Error("Missing auth token");
+      const data = await updateOrderById(token, orderId, body);
       setOrderData(data);
       toast.success("تم حفظ التعديل");
       setShowEdit(false);
@@ -188,12 +178,8 @@ function UpdateOrder(): JSX.Element {
   const performDelete = async () => {
     if (!orderId) return;
     try {
-      const res = await fetch(`${API_BASE}/api/orders/${orderId}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data?.error || "فشل الحذف");
+      if (!token) throw new Error("Missing auth token");
+      await deleteOrderById(token, orderId);
       toast.success("تم حذف الطلب");
       setShowDelete(false);
       setTimeout(() => navigate(-1), 300);

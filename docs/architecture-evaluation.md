@@ -110,7 +110,7 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 
 ### Gaps
 
-- **Utils vs features** — The split is smaller than before: `apiToday.ts` and `apiFinances.ts` have been removed in favor of `trxApi` and `features/finance/apiFinance.ts`, but `src/utils/` still contains API-oriented modules such as `apiHelpers.ts`, `apiShipments.ts`, and `distributorApi.ts`. Ownership is clearer, but the migration is not finished.
+- **Data-access migration is improved but still partial** — The highest-risk utility API modules have been moved behind feature ownership and `src/features/api/http.ts` now centralizes non-RTK base/auth handling, but some lower-priority screens still need migration to fully eliminate direct UI-owned business HTTP.
 - **Large components still exist elsewhere** — `RecordOrder.tsx` and `UpdateCustomer.tsx` have been reduced into composer-style files, but the broader app still contains some large, cross-layer components and utility hubs that deserve the same treatment over time.
 - **Mixed UI orchestration in critical flows** — The heaviest logic has moved into hooks, but the remaining critical flows still depend on several collaborators (Redux, IndexedDB, API helpers, toasts, navigation), so changes should continue to be made with tests in place.
 
@@ -167,7 +167,7 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 ### Gaps
 
 - **Mixed casing in paths** — `viewCustomers` (camelCase) vs `ViewExpenses` (PascalCase) in SharedPages; `EmployeeComponents` vs `UI reusables` (space). Minor but inconsistent for newcomers.
-- **API helpers** — `apiToday.ts` and `apiFinances.ts` were good examples of the old split and have now been migrated away, but `apiHelpers.ts` and other API-oriented utilities still sit in `utils/` next to non-API helpers. The naming and ownership story is improved, not fully finished.
+- **Some historical naming remains** — The feature/data-access story is clearer now, but a few path/casing inconsistencies and older folder names still make the repo look less polished than the architecture rules themselves.
 
 **Verdict:** Generally consistent (components, hooks, Redux); a few duplicated types and path/casing inconsistencies. **Score: 7/10**
 
@@ -200,9 +200,9 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 
 ### Gaps
 
-- **Components tightly coupled to Redux and utils** — Many components import Redux actions, multiple selectors, utils (indexedDB, apiHelpers, money, invoicePreview), and config. Changing store shape or moving an API may require edits in several components.
+- **Components still coordinate several dependencies** — Many components import Redux actions, selectors, and infrastructure helpers like IndexedDB, money, and invoice-preview utilities. The transport layer is cleaner now, but some flows still require touching multiple collaborators.
 - **Shipment slice as a hub** — Order flow, finance hooks, and sync logic still depend on the Shipment slice, but the main state regions are now documented and exposed through selectors. Refactors are safer than before, though broad-impact changes still need care.
-- **Utils used as a shared dependency** — `utils/apiHelpers`, `utils/apiShipments`, and other utility modules are still imported from both components and features. There is no strict “features depend on utils, components depend on features” layering, so dependency direction is mixed.
+- **Infrastructure still crosses many features** — Shared dependencies like IndexedDB and shipment state remain widely used. The main improvement is that business-domain HTTP is now feature-owned rather than split across UI files and `src/utils/`.
 
 **Verdict:** Good cohesion inside features and auth; coupling is high around a few components and the Shipment slice, and utils/features boundaries are mixed. **Score: 6/10**
 
@@ -286,7 +286,7 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 | Risk | Impact | Recommendation |
 |------|--------|----------------|
 | **Critical flow complexity** | `RecordOrder` and `UpdateCustomer` are now decomposed, but their controller hooks and collaborating infrastructure still make them important, high-impact flows. | Keep adding targeted integration coverage and apply the same decomposition pattern to other heavy UI containers when touched. |
-| **Utils vs features API split** | Domain API logic still lives in both `utils/` (apiHelpers, apiShipments, distributorApi, etc.) and `features/*/api*.ts`, even though finance and `orders-today` were migrated in Phase 2. | Continue migrating the remaining utils API modules into corresponding features or into RTK Query; keep utils for pure helpers (money, i18n, date). |
+| **Partial data-access migration** | The architecture boundary is clearer now: shared non-RTK helpers live in `src/features/api/http.ts`, feature APIs own the refactored domain requests, and the old utility API modules for the highest-risk flows are gone. Some lower-priority direct request sites may still remain. | Continue removing the remaining direct UI-owned request sites incrementally and migrate more shared reads to RTK Query when the caching value is real. |
 | **Selective test coverage** | High-value unit, component/page wiring, and first-pass Playwright journey tests now exist, but they still focus on the most business-critical flows rather than broad app-wide coverage. | Keep the current fast baseline, extend browser coverage to the next highest-risk journeys, and add deeper environment-backed integration only where mocks stop being sufficient. |
 | **Shipment slice size and centrality** | One large slice and many dependents; any change still has broad impact, even after Phase 3.2 boundary hardening. | Keep moving remaining raw readers behind selectors. Split into sub-slices only if ongoing changes show that the documented regions are still too coupled. |
 | **IndexedDB as a single module** | 500+ LOC, many stores; all offline/cache usage goes through it. | Document migration and versioning; consider splitting by domain (e.g. requests, customers, areas) if it keeps growing. |

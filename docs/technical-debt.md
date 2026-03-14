@@ -115,6 +115,19 @@ This document tracks known architectural issues and planned improvements. It is 
      - Updated `docs/state-management.md` to point maintainers to the canonical IndexedDB versioning rules and to keep `tests/e2e/support/idb.ts` aligned with schema changes.
    - **Notes:** This is intentionally a balanced first pass, not a full app-wide lazy-loading sweep. If bundle pressure grows further, the next step is to profile the remaining heavy routes and consider broader route or modal-level splitting.
 
+9. **Data-access architecture boundary**
+   - **Completed on:** 2026-03-14
+   - **What changed:**
+     - Added `src/features/api/http.ts` as the shared non-RTK transport boundary for API URL resolution, auth headers, JSON parsing, normalized request errors, and axios config reuse.
+     - Moved domain API ownership out of `src/utils/` for the refactored paths:
+       - distributor APIs now live in `src/features/distributors/apiDistributors.ts`
+       - shipment bootstrap/preload APIs now live in `src/features/shipments/apiShipments.ts`
+       - customer invoice cache refresh now lives in `src/features/customers/apiCustomers.ts`
+     - Removed the corresponding legacy utility API modules from `src/utils/`.
+     - Refactored the highest-risk direct HTTP seams out of UI/controller files, including shipment bootstrap, update-customer flows, update-order/payment flows, customer statement loading, and distributor data loading.
+     - Standardized the rule in docs: RTK Query for shared read-heavy state, feature API modules for imperative or transitional requests, and no new business-domain HTTP inside page/component/controller files.
+   - **Notes:** This is a boundary-hardening pass, not a claim that every request in the repo has already been migrated. Remaining lower-priority direct request sites should be removed incrementally when touched.
+
 ### Longer-term architecture improvements
 
 1. **Data fetching and caching abstraction**
@@ -147,11 +160,18 @@ Formalized 2026-03. These are standing rules for all new and touched code. All R
 2. **API ownership**
    - New domain API code belongs in the owning feature (`src/features/**/api*.ts`) or in `src/features/api/trxApi.ts` for shared read-heavy/server-state endpoints. Do not add new API modules under `src/utils/`.
 
-3. **Memoized selectors**
+3. **Shared non-RTK HTTP**
+   - Non-RTK server communication must go through `src/features/api/http.ts` (or helpers built on it) so `API_BASE`, auth headers, JSON parsing, and axios config reuse stay consistent.
+   - Do not hand-roll `Authorization` headers, API URLs, or ad-hoc JSON parsing in each feature.
+
+4. **No business HTTP in UI files**
+   - Pages, components, and controller hooks may orchestrate server work, but business-domain requests must live in feature APIs or RTK Query endpoints, not inline `fetch`/`axios` calls in UI files.
+
+5. **Memoized selectors**
    - Any Redux selector that returns an object or array must be implemented with `createSelector` from `@reduxjs/toolkit` so that the same reference is returned when inputs are unchanged. This avoids unnecessary rerenders and satisfies Redux's expectations. Primitive-returning selectors do not need memoization.
 
-4. **Logging**
+6. **Logging**
    - Use `src/utils/logger.ts` instead of raw `console.log`/`console.info` for runtime status messages. `debug`/`info` are silent in production by default; keep `warn`/`error` for actionable failures only.
 
-5. **Documentation index**
+7. **Documentation index**
    - When adding new documentation (under `docs/` or under `src/**/docs/`), add an entry to [docs/INDEX.md](INDEX.md). For top-level or user-facing docs, also add a link in the README [Documentation map](../README.md#documentation-map) if appropriate.

@@ -1,11 +1,10 @@
-// src/features/orders/apiOrders.ts
 import axios from "axios";
-import { API_BASE } from "../../config/api";
+import { authAxiosConfig, requestJson } from "../api/http";
 
 export interface Payment {
   date: string;
   amount: number;
-  currency: string;
+  currency: "USD" | "LBP";
   exchangeRate: string;
   _id: string;
 }
@@ -55,9 +54,104 @@ export interface Order {
 }
 
 export async function fetchOrdersByCompany(token: string, companyId: string): Promise<Order[]> {
-  const { data } = await axios.get(`${API_BASE}/api/orders/company/${companyId}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const { data } = await axios.get(
+    `/api/orders/company/${companyId}`,
+    authAxiosConfig(token)
+  );
   return Array.isArray(data) ? data : [];
+}
+
+export interface UpdateOrderPayload {
+  delivered?: number;
+  returned?: number;
+  usdTotal?: number;
+  lbpTotal?: number;
+}
+
+export interface AddPaymentPayload {
+  paymentAmount: number;
+  paymentCurrency: "USD" | "LBP";
+}
+
+export interface OrdersWithInitialResponse {
+  orders?: Order[];
+  initial?: {
+    bottlesLeft: number;
+    balanceUSD: number;
+    at: string | null;
+    orderId: string | null;
+  };
+}
+
+export async function fetchOrderById(token: string, orderId: string): Promise<Order> {
+  return requestJson<Order>(`/api/orders/${orderId}`, {
+    token,
+    fallbackMessage: "Failed to fetch order",
+  });
+}
+
+export async function updateOrderById(
+  token: string,
+  orderId: string,
+  payload: UpdateOrderPayload
+): Promise<Order> {
+  return requestJson<Order>(`/api/orders/${orderId}`, {
+    token,
+    method: "PATCH",
+    jsonBody: payload,
+    fallbackMessage: "Failed to update order",
+  });
+}
+
+export async function deleteOrderById(
+  token: string,
+  orderId: string
+): Promise<void> {
+  await requestJson(`/api/orders/${orderId}`, {
+    token,
+    method: "DELETE",
+    fallbackMessage: "Failed to delete order",
+  });
+}
+
+export async function addPaymentToOrder(
+  token: string,
+  orderId: string,
+  payload: AddPaymentPayload
+): Promise<unknown> {
+  return requestJson(`/api/orders/addPayment/${orderId}`, {
+    token,
+    method: "PUT",
+    jsonBody: payload,
+    fallbackMessage: "Failed to add payment",
+  });
+}
+
+export async function fetchOrdersByCustomer(
+  token: string,
+  customerId: string
+): Promise<Order[]> {
+  const data = await requestJson<unknown>(`/api/orders/customer/${customerId}`, {
+    token,
+    fallbackMessage: "Failed to fetch customer orders",
+  });
+  return Array.isArray(data) ? (data as Order[]) : [];
+}
+
+export async function fetchOrdersByCustomerWithInitial(
+  token: string,
+  customerId: string
+): Promise<OrdersWithInitialResponse> {
+  const data = await requestJson<OrdersWithInitialResponse>(
+    `/api/orders/customer/${customerId}/with-initial`,
+    {
+      token,
+      fallbackMessage: "Failed to fetch customer statement orders",
+    }
+  );
+  return {
+    orders: Array.isArray(data?.orders) ? data.orders : [],
+    initial: data?.initial,
+  };
 }
 

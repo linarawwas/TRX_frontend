@@ -50,12 +50,14 @@ This document explains how the frontend codebase is organized and where new code
 
 ### Features
 
+- `src/features/api/` — Shared API infrastructure: RTK Query slice (`trxApi.ts`) and non-RTK transport helpers (`http.ts`).
 - `src/features/finance/` — Types, hooks, selectors, and utilities for finance.
 - `src/features/shipments/` — Hooks and utilities for shipment totals.
 - `src/features/orders/` — Orders API client.
 - `src/features/products/` — Products API and hooks.
 - `src/features/customers/` — Customers API.
 - `src/features/areas/` — Areas API and utilities.
+- `src/features/distributors/` — Distributor API ownership.
 
 New domain logic with a clear boundary should be added as a new folder under `src/features/`.
 
@@ -71,7 +73,6 @@ New domain logic with a clear boundary should be added as a new folder under `sr
 
 - `src/utils/`
   - `indexedDB.ts` — IndexedDB abstraction (requests, customers, areas, invoices, products, exchange rates, etc.).
-  - `api*.ts` — Legacy API helpers.
   - `i18n.ts` — Translation keys and `t()` helper.
   - Other helpers: WhatsApp links, money formatting, invoice preview, date utilities.
 
@@ -81,6 +82,15 @@ New domain logic with a clear boundary should be added as a new folder under `sr
 
 - `src/config/api.ts`
   - Provides `API_BASE` for API calls.
+
+### Data access placement
+
+When adding or changing server communication:
+
+- Put **shared read-heavy, cacheable queries** in `src/features/api/trxApi.ts`.
+- Put **feature-owned mutations or imperative requests** in the owning `src/features/**/api*.ts` file.
+- Use `src/features/api/http.ts` for non-RTK auth/base-URL/request helpers.
+- Do not add domain API ownership back under `src/utils/`.
 
 When in doubt, prefer:
 

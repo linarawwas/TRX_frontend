@@ -1,12 +1,10 @@
-import React, {
-  FormEvent,
-} from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./UpdateCustomer.css";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import CustomerInfo from "../CustomerInfo/CustomerInfo";
-import { fetchAndCacheCustomerInvoice } from "../../../utils/apiHelpers";
+import { fetchAndCacheCustomerInvoice } from "../../../features/customers/apiCustomers";
 import AreaSequencePicker from "../../AreaSequencePicker/AreaSequencePicker";
 import AssignDistributorInline from "../../Distributors/AssignDistributorInline";
 import UpdateCustomerForm from "./UpdateCustomerForm";
@@ -143,7 +141,9 @@ export default function UpdateCustomer() {
               onDoneOpeningEdit={async () => {
                 try {
                   await fetchAndCacheCustomerInvoice(customerId || "", token || "");
-                } catch {}
+                } catch {
+                  return undefined;
+                }
                 toast.success("تم الحفظ وتحديث الأرقام");
                 setOpenEdit(false);
               }}

@@ -1,6 +1,5 @@
-// src/features/products/apiProducts.ts
 import axios from "axios";
-import { API_BASE } from "../../config/api";
+import { authAxiosConfig, jsonAxiosConfig } from "../api/http";
 
 export interface ProductResponse {
   _id: string;
@@ -15,16 +14,14 @@ export async function listCompanyProducts(
   companyId: string
 ): Promise<ProductResponse[]> {
   const { data } = await axios.get(
-    `${API_BASE}/api/products/company/${companyId}`,
-    { headers: { Authorization: `Bearer ${token}` } }
+    `/api/products/company/${companyId}`,
+    authAxiosConfig(token)
   );
   return data as ProductResponse[];
 }
 
 export async function deleteProductById(token: string, productId: string) {
-  await axios.delete(`${API_BASE}/api/products/${productId}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  await axios.delete(`/api/products/${productId}`, authAxiosConfig(token));
 }
 
 export interface CreateProductPayload {
@@ -38,12 +35,11 @@ export async function createProduct(
   token: string,
   payload: CreateProductPayload
 ): Promise<ProductResponse> {
-  const { data } = await axios.post(`${API_BASE}/api/products`, payload, {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const { data } = await axios.post(
+    "/api/products",
+    payload,
+    jsonAxiosConfig(token)
+  );
   return data as ProductResponse;
 }
 
@@ -58,12 +54,11 @@ export async function updateProduct(
   productId: string,
   payload: UpdateProductPayload
 ): Promise<ProductResponse> {
-  const { data } = await axios.put(`${API_BASE}/api/products/${productId}`, payload, {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const { data } = await axios.put(
+    `/api/products/${productId}`,
+    payload,
+    jsonAxiosConfig(token)
+  );
   return data as ProductResponse;
 }
 

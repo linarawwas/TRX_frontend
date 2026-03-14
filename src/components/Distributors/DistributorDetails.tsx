@@ -2,10 +2,13 @@ import React, { useEffect, useMemo, useState } from "react";
 import "./DistributorDetails.css";
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
+import type { RootState } from "../../redux/store";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { unassignCustomerFromDistributor, updateDistributor } from "../../utils/distributorApi";
+import {
+  unassignCustomerFromDistributor,
+  updateDistributor,
+} from "../../features/distributors/apiDistributors";
 import MonthPicker from "./MonthPicker";
 import { deriveInitialMonthKeyFromRange, useMonthRange } from "./hooks/useMonthRange";
 import { useCompanyDistributorData } from "./hooks/useCompanyDistributorData";

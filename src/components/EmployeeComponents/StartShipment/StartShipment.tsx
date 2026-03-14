@@ -17,7 +17,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-import { RootState } from "../../../redux/store";
+import type { RootState } from "../../../redux/store";
 import {
   selectShipmentLiveTotals,
   selectShipmentMeta,
@@ -43,10 +43,12 @@ import {
 } from "../../../redux/Shipment/action";
 
 import AddToModel from "../../AddToModel/AddToModel";
-import { preloadShipmentData } from "../../../utils/preloadShipmentData";
-import { createRoundOrShipment } from "../../../utils/createRoundOrShipment";
-import { API_BASE } from "../../../config/api";
 import { createLogger } from "../../../utils/logger";
+import {
+  createRoundOrShipment,
+  fetchDayByWeekday,
+  preloadShipmentData,
+} from "../../../features/shipments/apiShipments";
 import "./StartShipment.css";
 
 const logger = createLogger("start-shipment");
@@ -231,12 +233,7 @@ const StartShipment: React.FC = () => {
     const initializeDate = async () => {
       try {
         const { year, month, day, weekday } = getBeirutParts();
-        const response = await fetch(
-          `${API_BASE}/api/days/name/${weekday}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        if (!response.ok) throw new Error("Day info fetch failed");
-        const data = await response.json();
+        const data = await fetchDayByWeekday(token, weekday);
         if (!data?.length) throw new Error("Day not found in DB");
         setShipmentData({ dayId: data[0]._id, day, month, year });
       } catch (err) {

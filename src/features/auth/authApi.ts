@@ -1,5 +1,5 @@
 import type { Dispatch } from "redux";
-import { API_BASE } from "../../config/api";
+import { ApiRequestError, requestJson } from "../api/http";
 import { setCompanyId, setIsAdmin, setUsername } from "../../redux/UserInfo/action";
 import { persistAuthToStorage } from "./authStorage";
 
@@ -13,18 +13,18 @@ export async function fetchMeAndSync(
   token: string,
   dispatch: Dispatch
 ): Promise<MeResponse> {
-  const response = await fetch(`${API_BASE}/api/users/me`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch /api/users/me (${response.status})`);
+  let userData: MeResponse;
+  try {
+    userData = await requestJson<MeResponse>("/api/users/me", {
+      token,
+      fallbackMessage: "Failed to fetch /api/users/me",
+    });
+  } catch (error) {
+    if (error instanceof ApiRequestError) {
+      throw new Error(`Failed to fetch /api/users/me (${error.status})`);
+    }
+    throw error;
   }
-
-  const userData: MeResponse = await response.json();
 
   // Persist to storage
   persistAuthToStorage({

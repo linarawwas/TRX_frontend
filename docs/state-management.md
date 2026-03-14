@@ -30,6 +30,19 @@ Located in `src/redux/`.
 
 New global concerns that need to be shared across multiple features should usually be added as a new slice plus selectors.
 
+### Data access policy
+
+Server communication is now split across two explicit boundaries:
+
+- **RTK Query** in `src/features/api/trxApi.ts` for shared, read-heavy, cacheable server state.
+- **Feature API modules** in `src/features/**/api*.ts` for imperative mutations and feature-owned requests that are not yet in RTK Query.
+
+Rules:
+
+- Components, pages, and controller hooks should not perform business-domain HTTP directly.
+- Non-RTK requests should go through `src/features/api/http.ts` so `API_BASE`, auth headers, JSON parsing, and axios config reuse stay consistent.
+- `src/utils/` is for infrastructure and pure helpers, not domain API ownership.
+
 ### Feature hooks
 
 Located under `src/features/**/hooks/`.
@@ -51,7 +64,7 @@ Examples:
 - Expose `{ data, loading, error, refetch }` or similar objects.
 - Hide transport details from page components.
 
-New domain API calls should live in feature `api*.ts` files, and new read-heavy/shared server-state flows should prefer RTK Query endpoints in `src/features/api/trxApi.ts` instead of new API modules under `src/utils/`.
+New domain API calls should live in feature `api*.ts` files, and new read-heavy/shared server-state flows should prefer RTK Query endpoints in `src/features/api/trxApi.ts` instead of new API modules under `src/utils/`. For the full policy, see `docs/frontend-architecture.md`.
 
 ### IndexedDB
 
@@ -147,7 +160,13 @@ Preferred access pattern:
 ### RTK Query
 
 - `src/features/api/trxApi.ts` defines the RTK Query API slice (`listShipmentsRange`, `shipmentsOrdersByDate`, and related).
-- Hooks and pages such as `useTodayShipmentTotals` and `OrdersOfToday` use generated RTK Query hooks. New read-heavy flows should add endpoints to `trxApi` and use those hooks instead of introducing new `utils/api*.ts` modules.
+- Hooks and pages such as `useTodayShipmentTotals` and `OrdersOfToday` use generated RTK Query hooks. New read-heavy flows should add endpoints to `trxApi` and use those hooks instead of introducing direct UI `fetch`/`axios` calls or new `utils/api*.ts` modules.
+
+### Shared non-RTK transport
+
+- `src/features/api/http.ts` is the shared helper layer for non-RTK requests.
+- It centralizes API URL resolution (`src/config/api.ts`), auth header injection, JSON parsing, normalized request errors, and axios config reuse.
+- Existing feature API modules may still use either `fetch` helpers or `axios`, but they should use this shared boundary rather than duplicating auth/base handling inline.
 
 ### Future improvements
 

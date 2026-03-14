@@ -5,35 +5,13 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./CustomerStatement.css";
 import AddPaymentForm from "../../Orders/UpdateOrder/AddPaymentForm/AddPaymentForm";
-import { API_BASE } from "../../../config/api";
-type InitialSummary = {
-  bottlesLeft: number;
-  balanceUSD: number;
-  at: string | null;
-  orderId: string | null;
-};
-type Payment = {
-  date: string;
-  amount: number;
-  currency: "USD" | "LBP";
-  exchangeRate?: string;
-  rateAtPaymentLBP?: number;
-  _id?: string;
-};
-
-type Order = {
-  _id: string;
-  delivered: number;
-  returned: number;
-  payments: Payment[];
-  checkout: number; // USD
-  paid: number; // USD (fallback)
-  timestamp: string;
-  unitPriceUSD?: number;
-  companyExchangeRateLBPAtSale?: number;
-};
-
-type Customer = { _id: string; name: string; phone?: string; address?: string };
+import {
+  fetchCustomerStatement,
+  type CustomerDetail as Customer,
+  type CustomerStatementInitialSummary as InitialSummary,
+  type CustomerStatementOrder as Order,
+} from "../../../features/customers/apiCustomers";
+import { fetchOrdersByCustomer } from "../../../features/orders/apiOrders";
 
 const PaymentSheet: React.FC<{
   title?: string;
@@ -113,50 +91,11 @@ const CustomerStatement: React.FC = () => {
     (async () => {
       try {
         setLoading(true);
-        const [cRes, oRes] = await Promise.all([
-          fetch(`${API_BASE}/api/customers/${customerId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          // ✅ new endpoint
-          fetch(
-            `${API_BASE}/api/orders/customer/${customerId}/with-initial`,
-            { headers: { Authorization: `Bearer ${token}` } }
-          ),
-        ]);
-        const cJson = await cRes.json();
-        const oJson = await oRes.json();
-        if (!cRes.ok) throw new Error(cJson?.error || "failed customer fetch");
-        if (!oRes.ok) throw new Error(oJson?.error || "failed orders fetch");
-        setCustomer(cJson);
-        setOrders(Array.isArray(oJson?.orders) ? oJson.orders : []);
-        if (oJson?.initial) setOpening(oJson.initial);
-      } catch (e) {
-        console.error(e);
-        toast.error("تعذر تحميل كشف الحساب");
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [customerId, token]);
-  // fetch customer and all orders
-  useEffect(() => {
-    (async () => {
-      try {
-        setLoading(true);
-        const [cRes, oRes] = await Promise.all([
-          fetch(`${API_BASE}/api/customers/${customerId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          fetch(`${API_BASE}/api/orders/customer/${customerId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
-        const cJson = await cRes.json();
-        const oJson = await oRes.json();
-        if (!cRes.ok) throw new Error(cJson?.error || "failed customer fetch");
-        if (!oRes.ok) throw new Error(oJson?.error || "failed orders fetch");
-        setCustomer(cJson);
-        setOrders(Array.isArray(oJson) ? oJson : []);
+        if (!customerId || !token) return;
+        const statement = await fetchCustomerStatement(token, customerId);
+        setCustomer(statement.customer);
+        setOrders(statement.orders);
+        setOpening(statement.initial);
       } catch (e) {
         console.error(e);
         toast.error("تعذر تحميل كشف الحساب");
@@ -501,17 +440,12 @@ const CustomerStatement: React.FC = () => {
                 setShowSheet(false);
                 // refresh statement after payment
                 try {
-                  const res = await fetch(
-                    `${API_BASE}/api/orders/customer/${customerId}`,
-                    {
-                      headers: { Authorization: `Bearer ${token}` },
-                    }
-                  );
-                  const oJson = await res.json();
-                  setOrders(Array.isArray(oJson) ? oJson : []);
+                  if (!customerId || !token) return;
+                  const refreshed = await fetchOrdersByCustomer(token, customerId);
+                  setOrders(refreshed);
                   toast.success("تمت إضافة الدفعة");
-                } catch {
-                  toast.error("تعذر تحديث كشف الحساب");
+                } catch (error: any) {
+                  toast.error(error?.message || "تعذر تحديث كشف الحساب");
                 }
               }}
             />

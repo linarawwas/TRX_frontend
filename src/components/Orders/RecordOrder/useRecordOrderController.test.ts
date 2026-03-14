@@ -5,7 +5,7 @@ import {
   projectAfterOrder,
 } from "../../../utils/invoicePreview";
 import { getProductTypeFromDB, saveRequest } from "../../../utils/indexedDB";
-import { fetchAndCacheCustomerInvoice } from "../../../utils/apiHelpers";
+import { fetchAndCacheCustomerInvoice } from "../../../features/customers/apiCustomers";
 import { toast } from "react-toastify";
 
 const mockDispatch = jest.fn();
@@ -35,10 +35,14 @@ jest.mock("../../../utils/indexedDB", () => ({
   saveRequest: jest.fn(),
 }));
 
-jest.mock("../../../utils/apiHelpers", () => ({
-  __esModule: true,
-  fetchAndCacheCustomerInvoice: jest.fn(),
-}));
+jest.mock("../../../features/customers/apiCustomers", () => {
+  const actual = jest.requireActual("../../../features/customers/apiCustomers");
+  return {
+    __esModule: true,
+    ...actual,
+    fetchAndCacheCustomerInvoice: jest.fn(),
+  };
+});
 
 jest.mock("react-toastify", () => ({
   __esModule: true,

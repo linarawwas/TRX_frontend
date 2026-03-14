@@ -23,7 +23,7 @@ import {
   setProductPrice,
 } from "../../../redux/Order/action";
 import { getProductTypeFromDB, saveRequest } from "../../../utils/indexedDB";
-import { fetchAndCacheCustomerInvoice } from "../../../utils/apiHelpers";
+import { fetchAndCacheCustomerInvoice } from "../../../features/customers/apiCustomers";
 import { API_BASE } from "../../../config/api";
 import {
   selectRoundProgress,
@@ -31,7 +31,7 @@ import {
   selectShipmentLiveTotals,
   selectShipmentMeta,
 } from "../../../redux/selectors/shipment";
-import { RootState } from "../../../redux/store";
+import type { RootState } from "../../../redux/store";
 
 export type RecordOrderCustomerData = {
   hasDiscount?: boolean;

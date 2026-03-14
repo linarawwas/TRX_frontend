@@ -1,12 +1,12 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import "./Distributors.css";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
+import type { RootState } from "../../redux/store";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Link } from "react-router-dom";
 import AddToModel from "../AddToModel/AddToModel";
-import { createDistributor } from "../../utils/distributorApi";
+import { createDistributor } from "../../features/distributors/apiDistributors";
 import { setDefaultProduct } from "../../redux/Defaults/action";
 import { useCompanyDistributorData } from "./hooks/useCompanyDistributorData";
 import MonthPicker from "./MonthPicker";

@@ -32,16 +32,17 @@ jest.mock("react-toastify", () => {
 import { toast } from "react-toastify";
 
 // ✅ Utils: inline jest.fn() in factory, then import them to control behavior
-jest.mock("../../../utils/createRoundOrShipment", () => ({
+jest.mock("../../../features/shipments/apiShipments", () => ({
   __esModule: true,
   createRoundOrShipment: jest.fn(),
-}));
-jest.mock("../../../utils/preloadShipmentData", () => ({
-  __esModule: true,
   preloadShipmentData: jest.fn(),
+  fetchDayByWeekday: jest.fn(),
 }));
-import { createRoundOrShipment } from "../../../utils/createRoundOrShipment";
-import { preloadShipmentData } from "../../../utils/preloadShipmentData";
+import {
+  createRoundOrShipment,
+  fetchDayByWeekday,
+  preloadShipmentData,
+} from "../../../features/shipments/apiShipments";
 
 // AddToModel: keep a minimal stub to trigger submit path
 jest.mock("../../AddToModel/AddToModel", () => (props: any) => (
@@ -61,8 +62,6 @@ jest.mock("./StartShipment.css", () => ({}));
 
 // --- Test wiring ---
 
-const originalFetch = global.fetch as any;
-
 beforeEach(() => {
   mockDispatch.mockReset();
   mockNavigate.mockReset();
@@ -70,17 +69,11 @@ beforeEach(() => {
   (toast.error as jest.Mock).mockReset();
   (createRoundOrShipment as jest.Mock).mockReset();
   (preloadShipmentData as jest.Mock).mockReset();
+  (fetchDayByWeekday as jest.Mock).mockReset();
 
   mockState = { user: { token: "TEST_TOKEN" }, shipment: {} };
 
-  global.fetch = jest.fn(async () => ({
-    ok: true,
-    json: async () => [{ _id: "DAY1" }],
-  })) as any;
-});
-
-afterAll(() => {
-  global.fetch = originalFetch;
+  (fetchDayByWeekday as jest.Mock).mockResolvedValue([{ _id: "DAY1" }]);
 });
 
 async function setup() {

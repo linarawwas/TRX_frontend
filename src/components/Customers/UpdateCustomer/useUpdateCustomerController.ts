@@ -1,11 +1,10 @@
 import {
-  ChangeEvent,
-  FormEvent,
   useCallback,
   useEffect,
   useMemo,
   useState,
 } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -14,12 +13,22 @@ import {
   setCustomerName,
   setCustomerPhoneNb,
 } from "../../../redux/Order/action";
-import { fetchAndCacheCustomerInvoice } from "../../../utils/apiHelpers";
-import { API_BASE } from "../../../config/api";
-import { RootState } from "../../../redux/store";
+import {
+  deactivateCustomer,
+  fetchActiveCustomersByArea,
+  fetchAndCacheCustomerInvoice,
+  fetchCustomerById,
+  hardDeleteCustomer,
+  restoreCustomer,
+  type ActiveAreaCustomer,
+  type CustomerDetail,
+  updateCustomerById,
+} from "../../../features/customers/apiCustomers";
+import { fetchAreasByCompany } from "../../../features/areas/apiAreas";
+import type { RootState } from "../../../redux/store";
 
 type Area = { _id: string; name: string };
-type CustomerLite = { _id: string; name: string; sequence?: number | null };
+type CustomerLite = ActiveAreaCustomer;
 
 const trimValue = (value: unknown) =>
   typeof value === "string" ? value.trim() : "";
@@ -77,23 +86,18 @@ export function useUpdateCustomerController() {
   );
 
   const fetchAreas = useCallback(() => {
-    fetch(`${API_BASE}/api/areas/company`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => r.json())
-      .then(setAreas)
+    if (!token) return;
+    fetchAreasByCompany(token)
+      .then((data) => setAreas(data as Area[]))
       .catch((e) => console.error("Areas load failed:", e));
   }, [token]);
 
   const fetchCustomer = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/customers/${customerId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("Failed to fetch customer");
-      const data = await res.json();
-      setCustomerData(data);
+      if (!token) throw new Error("Missing auth token");
+      const data = await fetchCustomerById(token, customerId);
+      setCustomerData(data as CustomerDetail);
       await fetchAndCacheCustomerInvoice(customerId || "", token || "");
       setInvoiceReady(true);
     } catch (e) {
@@ -127,14 +131,8 @@ export function useUpdateCustomerController() {
     (async () => {
       try {
         setPlacementLoading(true);
-        const res = await fetch(
-          `${API_BASE}/api/customers/area/${targetAreaId}/active`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        if (!res.ok) throw new Error("Failed to fetch customers");
-        const list: CustomerLite[] = await res.json();
+        if (!token) throw new Error("Missing auth token");
+        const list = await fetchActiveCustomersByArea(token, targetAreaId);
         if (cancelled) return;
         const filtered = Array.isArray(list)
           ? list.filter((c) => String(c._id) !== String(customerId))
@@ -229,18 +227,8 @@ export function useUpdateCustomerController() {
     if (!pendingChanges) return;
     setIsMutating(true);
     try {
-      const res = await fetch(`${API_BASE}/api/customers/${customerId}`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(pendingChanges),
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err?.error || "فشل التحديث");
-      }
+      if (!token) throw new Error("Missing auth token");
+      await updateCustomerById(token, customerId, pendingChanges);
       toast.success("تم التحديث بنجاح");
       setEditOpen(false);
       setUpdatedInfo((prev) => ({
@@ -275,12 +263,8 @@ export function useUpdateCustomerController() {
     if (!window.confirm("هل تريد إيقاف هذا الزبون؟")) return;
     setIsMutating(true);
     try {
-      const res = await fetch(`${API_BASE}/api/customers/${customerId}/deactivate`, {
-        method: "PATCH",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data?.error || "تعذر إيقاف الزبون");
+      if (!token) throw new Error("Missing auth token");
+      await deactivateCustomer(token, customerId);
       toast.success("تم إيقاف الزبون");
       setShowRestoreOptions(false);
       setRestoreSequence("");
@@ -293,16 +277,8 @@ export function useUpdateCustomerController() {
   };
 
   const restoreRequest = async (body: any) => {
-    const res = await fetch(`${API_BASE}/api/customers/${customerId}/restore`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body || {}),
-    });
-    const data = await res.json().catch(() => ({}));
-    return { res, data };
+    if (!token) throw new Error("Missing auth token");
+    return restoreCustomer(token, customerId, body || {});
   };
 
   const handleRestoreAuto = async () => {
@@ -310,21 +286,17 @@ export function useUpdateCustomerController() {
     setIsMutating(true);
     try {
       const areaId = customerData?.areaId?._id;
-      const { res, data } = await restoreRequest({ areaId });
-      if (res.ok) {
-        toast.success("تم تنشيط الزبون");
-        setShowRestoreOptions(false);
-        setRestoreSequence("");
-        fetchCustomer();
-        return;
-      }
-      if (res.status === 409) {
+      await restoreRequest({ areaId });
+      toast.success("تم تنشيط الزبون");
+      setShowRestoreOptions(false);
+      setRestoreSequence("");
+      fetchCustomer();
+    } catch (e: any) {
+      if (e?.status === 409) {
         toast.warn("رقم الترتيب مستخدم. اختر رقمًا آخر.");
         setShowRestoreOptions(true);
         return;
       }
-      throw new Error(data?.error || "تعذر تنشيط الزبون");
-    } catch (e: any) {
       toast.error(e?.message || "فشل العملية");
     } finally {
       setIsMutating(false);
@@ -340,21 +312,18 @@ export function useUpdateCustomerController() {
     setIsMutating(true);
     try {
       const areaId = customerData?.areaId?._id;
-      const { res, data } = await restoreRequest({
+      await restoreRequest({
         areaId,
         sequence: Number(restoreSequence),
       });
-      if (!res.ok) {
-        if (res.status === 409) {
-          return toast.warn("هذا الرقم ما زال مستخدمًا. جرّب رقمًا مختلفًا.");
-        }
-        throw new Error(data?.error || "تعذر تنشيط الزبون");
-      }
       toast.success("تم تنشيط الزبون وتعيين الترتيب");
       setShowRestoreOptions(false);
       setRestoreSequence("");
       fetchCustomer();
     } catch (e: any) {
+      if (e?.status === 409) {
+        return toast.warn("هذا الرقم ما زال مستخدمًا. جرّب رقمًا مختلفًا.");
+      }
       toast.error(e?.message || "فشل العملية");
     } finally {
       setIsMutating(false);
@@ -372,23 +341,16 @@ export function useUpdateCustomerController() {
   const performHardDelete = async () => {
     setIsMutating(true);
     try {
-      const res = await fetch(`${API_BASE}/api/customers/${customerId}/hard`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        if (res.status === 409) {
-          toast.error(data?.error || "لا يمكن الحذف: لدى الزبون طلبات مرتبطة.");
-        } else {
-          toast.error(data?.error || "فشل حذف الزبون");
-        }
-        return;
-      }
+      if (!token) throw new Error("Missing auth token");
+      await hardDeleteCustomer(token, customerId);
       toast.success("تم حذف الزبون نهائيًا");
       setShowDeleteModal(false);
       setTimeout(() => navigate(-1), 300);
     } catch (e: any) {
+      if (e?.status === 409) {
+        toast.error(e?.message || "لا يمكن الحذف: لدى الزبون طلبات مرتبطة.");
+        return;
+      }
       toast.error(e?.message || "فشل العملية");
     } finally {
       setIsMutating(false);

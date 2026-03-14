@@ -46,7 +46,7 @@ This frontend:
 | State | Redux Toolkit (`configureStore`, `createSlice`), RTK Query for API caching |
 | Routing | React Router v6 |
 | Offline | IndexedDB via `idb`; service worker in production |
-| HTTP | Axios / fetch; API base from `src/config/api.ts` |
+| HTTP | RTK Query + feature API modules over shared helpers in `src/features/api/`; API base from `src/config/api.ts` |
 | UI feedback | react-toastify |
 | i18n | Custom typed Arabic translation keys (`src/utils/i18n.ts`) |
 | Tooling | Create React App (react-scripts) |
@@ -59,7 +59,7 @@ This frontend:
 | **Layout & routing** | `src/Layout/`, `src/Router/` | Authenticated layout, role-based AdminRouter / EmployeeRouter, shared CommonRoutes |
 | **Pages** | `src/pages/AdminPages/`, `EmployeePages/`, `SharedPages/` | Role-specific and shared page containers |
 | **Components** | `src/components/` | Reusable and domain UI; large screens like `RecordOrder` and `UpdateCustomer` now compose smaller presentational sections over controller hooks |
-| **Features** | `src/features/` | Domain modules: auth, finance, shipments, products, orders, customers, areas, API (RTK Query) |
+| **Features** | `src/features/` | Domain modules: auth, finance, shipments, products, orders, customers, areas, distributors, and shared API helpers |
 | **Global state** | `src/redux/` | Store (Toolkit), slices (UserInfo, Order, Shipment, Defaults), memoized selectors |
 | **Infrastructure** | `src/utils/`, `src/hooks/`, `src/config/` | IndexedDB, API config, i18n, offline sync, shared hooks |
 
@@ -70,6 +70,14 @@ See [**docs/folder-structure.md**](docs/folder-structure.md) for a detailed brea
 - **Store** (`src/redux/store.ts`) — `configureStore` with `rootReducer`, `localStorage` preload and subscribe, and middleware: `getDefaultMiddleware().concat(trxApi.middleware)` so thunks and RTK Query work.
 - **Slices** — UserInfo, Order, Shipment, Defaults are implemented with `createSlice`. Selectors that return objects/arrays (e.g. `selectTodayProgress`, `selectRoundProgress`) use `createSelector` to avoid unnecessary rerenders.
 - **RTK Query** — `src/features/api/trxApi.ts` defines the API slice; `useListShipmentsRangeQuery`, `useLazyShipmentsOrdersByDateQuery`, and hooks like `useTodayShipmentTotals` use it. New read-heavy flows should add endpoints here.
+
+### Data access policy
+
+- **RTK Query first for shared read state** — Read-heavy, cacheable, cross-screen list/detail flows belong in `src/features/api/trxApi.ts`.
+- **Feature API modules for imperative flows** — Mutations and feature-owned requests live in `src/features/**/api*.ts`.
+- **No business HTTP in UI files** — Pages, components, and controller hooks should call feature hooks or feature API functions rather than building requests inline.
+- **Shared non-RTK HTTP boundary** — Non-RTK requests should use `src/features/api/http.ts` so auth headers, JSON parsing, and API URL resolution stay consistent.
+- **`src/utils/` is not for domain API ownership** — Keep it for infrastructure and pure helpers such as IndexedDB, i18n, money/date utilities, and logging.
 
 ### Auth and session
 
@@ -96,9 +104,9 @@ src/
   Router/              # AdminRouter, EmployeeRouter, CommonRoutes
   pages/               # AdminPages, EmployeePages, SharedPages
   components/          # UI reusables, dashboard, visuals, domain components, ErrorBoundary
-  features/            # auth, api (trxApi), finance, shipments, products, orders, customers, areas
+  features/            # auth, api (trxApi + shared http), finance, shipments, products, orders, customers, areas, distributors
   redux/               # store, rootReducer, slices, selectors
-  utils/               # indexedDB, API helpers, i18n, money, date, etc.
+  utils/               # indexedDB, i18n, money, date, logger, etc.
   hooks/               # useMediaQuery, useSyncOfflineOrders
   config/              # api.ts (API_BASE)
   shared/styles/       # Global styles
@@ -111,10 +119,11 @@ Details: [**docs/folder-structure.md**](docs/folder-structure.md).
 
 - **Redux Toolkit for global state** — Slices with `createSlice`; store with `configureStore` and thunk + RTK Query middleware. State is hydrated from `localStorage` and persisted on change.
 - **RTK Query for server state** — Shared caching, deduplication, and lifecycle for API data; extend via new endpoints in `trxApi.ts`.
+- **Feature-owned data access for non-RTK flows** — Domain requests belong in feature API modules, and shared fetch/axios behavior goes through `src/features/api/http.ts`.
 - **Feature modules and controller hooks for domain logic** — Features own types, API, hooks, selectors, utils; the heaviest UI flows now keep business logic in controller hooks and keep page files mostly compositional.
 - **IndexedDB as offline layer** — Centralized in `src/utils/indexedDB.ts`; used for queuing and caching; see `src/utils/readme.md`.
 - **Typed i18n** — `TranslationKey` union and `t(key, params?)` in `src/utils/i18n.ts`.
-- **Single API base** — All calls use `API_BASE` (or `apiUrl()`) from `src/config/api.ts`; no direct env or hardcoded hosts in features.
+- **Single API base and auth strategy** — All calls use `API_BASE` / `apiUrl()` from `src/config/api.ts`; RTK Query injects auth in `trxApi`, while non-RTK feature APIs use the shared helpers in `src/features/api/http.ts`.
 
 ## Data flow (high level)
 
@@ -198,7 +207,7 @@ Notes:
 | **Pages** | [AdminHomePage](docs/pages/AdminHomePage.md), [EmployeeHomePage](docs/pages/EmployeeHomePage.md), [ProductsList](docs/pages/ProductsList.md), [SharedPages](docs/pages/SharedPages.md) |
 | **Components** | [RefactoredComponents](docs/components/RefactoredComponents.md) |
 | **CSS** | [RefactorGuide](docs/css/RefactorGuide.md) |
-| **Architecture** | [folder-structure](docs/folder-structure.md), [state-management](docs/state-management.md), [technical-debt](docs/technical-debt.md), [architecture-evaluation](docs/architecture-evaluation.md), [testing](docs/testing.md) |
+| **Architecture** | [frontend-architecture](docs/frontend-architecture.md), [folder-structure](docs/folder-structure.md), [state-management](docs/state-management.md), [technical-debt](docs/technical-debt.md), [architecture-evaluation](docs/architecture-evaluation.md), [testing](docs/testing.md) |
 
 Feature- and page-level docs under `src/` are linked from [docs/INDEX.md](docs/INDEX.md).
 
@@ -212,7 +221,8 @@ The codebase is feature-oriented and hook-driven. The items tracked in [**docs/t
 - **Phase 3.1 completed** — `RecordOrder.tsx` and `UpdateCustomer.tsx` are now composition files over controller hooks and presentational subcomponents, with page-level tests covering stepper/modal/form wiring and key UI branches.
 - **Critical E2E journeys completed** — Playwright now covers the highest-risk cross-layer workflows with mocked APIs and seeded browser state: auth shell, shipment start, offline replay, finance create flow, orders-today report, and update-customer save flow.
 - **Phase 4 completed** — High-value non-core admin/shared routes now use route-level lazy loading with a shared suspense fallback, and `src/utils/readme.md` now documents IndexedDB versioning, migration rules, and schema-change maintenance steps.
+- **Data access architecture clarified** — Shared non-RTK HTTP helpers now centralize API URL/auth behavior, domain API ownership is feature-first, and the highest-risk direct HTTP flows have been moved out of UI/controllers into feature APIs.
 
-**Optional, longer-term:** Broader lazy-loading only if bundle metrics justify it; Shipment slice decomposition beyond the current selector boundaries if coupling remains painful; a few additional multi-screen integration tests beyond the current critical set; error boundaries per feature area; further form/validation standardization.
+**Optional, longer-term:** Broader lazy-loading only if bundle metrics justify it; expand RTK Query to more shared read flows; continue removing lower-priority direct UI request sites; Shipment slice decomposition beyond the current selector boundaries if coupling remains painful; a few additional multi-screen integration tests beyond the current critical set; error boundaries per feature area; further form/validation standardization.
 
 When refactors land, update `docs/technical-debt.md` so the roadmap stays accurate.

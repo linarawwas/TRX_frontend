@@ -1,6 +1,7 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { useUpdateCustomerController } from "./useUpdateCustomerController";
-import { fetchAndCacheCustomerInvoice } from "../../../utils/apiHelpers";
+import { fetchAndCacheCustomerInvoice } from "../../../features/customers/apiCustomers";
+import { fetchAreasByCompany } from "../../../features/areas/apiAreas";
 import { toast } from "react-toastify";
 
 const mockDispatch = jest.fn();
@@ -18,9 +19,18 @@ jest.mock("react-router-dom", () => ({
   useParams: () => ({ customerId: "customer-1" }),
 }));
 
-jest.mock("../../../utils/apiHelpers", () => ({
+jest.mock("../../../features/customers/apiCustomers", () => {
+  const actual = jest.requireActual("../../../features/customers/apiCustomers");
+  return {
+    __esModule: true,
+    ...actual,
+    fetchAndCacheCustomerInvoice: jest.fn(),
+  };
+});
+
+jest.mock("../../../features/areas/apiAreas", () => ({
   __esModule: true,
-  fetchAndCacheCustomerInvoice: jest.fn(),
+  fetchAreasByCompany: jest.fn(),
 }));
 
 jest.mock("react-toastify", () => ({
@@ -44,6 +54,7 @@ describe("useUpdateCustomerController", () => {
     mockDispatch.mockReset();
     mockNavigate.mockReset();
     (fetchAndCacheCustomerInvoice as jest.Mock).mockReset();
+    (fetchAreasByCompany as jest.Mock).mockReset();
     (toast.success as jest.Mock).mockReset();
     (toast.error as jest.Mock).mockReset();
     (toast.info as jest.Mock).mockReset();
@@ -61,16 +72,13 @@ describe("useUpdateCustomerController", () => {
     };
 
     (fetchAndCacheCustomerInvoice as jest.Mock).mockResolvedValue(undefined);
+    (fetchAreasByCompany as jest.Mock).mockResolvedValue([
+      { _id: "area-1", name: "Area 1" },
+    ]);
 
     global.fetch = jest.fn(async (url: RequestInfo | URL, options?: RequestInit) => {
       const asString = String(url);
       const method = options?.method || "GET";
-      if (asString.includes("/api/areas/company")) {
-        return {
-          ok: true,
-          json: async () => [{ _id: "area-1", name: "Area 1" }],
-        } as Response;
-      }
       if (asString.includes("/api/customers/area/area-1/active")) {
         return {
           ok: true,
@@ -211,9 +219,6 @@ describe("useUpdateCustomerController", () => {
     global.fetch = jest.fn(async (url: RequestInfo | URL, options?: RequestInit) => {
       const asString = String(url);
       const method = options?.method || "GET";
-      if (asString.includes("/api/areas/company")) {
-        return { ok: true, json: async () => [{ _id: "area-1", name: "Area 1" }] } as Response;
-      }
       if (asString.includes("/api/customers/area/area-1/active")) {
         return { ok: true, json: async () => [] } as Response;
       }

@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from "react";
 import "./AssignDistributorInline.css";
 import { useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
+import type { RootState } from "../../redux/store";
 import { toast } from "react-toastify";
 import {
+  type DistributorRecord,
   listDistributors,
   assignCustomerToDistributor,
   unassignCustomerFromDistributor,
-} from "../../utils/distributorApi";
+} from "../../features/distributors/apiDistributors";
 
 const AssignDistributorInline: React.FC<{
   customerId: string;
   currentDistributorId?: string | null;
 }> = ({ customerId, currentDistributorId }) => {
   const token = useSelector((s: RootState) => s.user.token) as string;
-  const [list, setList] = useState<any[]>([]);
+  const [list, setList] = useState<DistributorRecord[]>([]);
   const [sel, setSel] = useState<string>(
     currentDistributorId ? String(currentDistributorId) : ""
   );
