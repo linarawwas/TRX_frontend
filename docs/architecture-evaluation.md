@@ -10,16 +10,16 @@ If a senior frontend developer were to review this repository, these are the thi
 
 | Red flag | What they see | Why it matters |
 |----------|----------------|----------------|
-| **Improving but still selective automated coverage** | The repo now has passing tests for selectors, shipment reducer, offline sync, auth storage/API/hook flows, finance mutation hooks, the `RecordOrder` / `UpdateCustomer` controller hooks, new page-level wiring tests for both decomposed containers, and `StartShipment`, plus `docs/testing.md`. | This is now a credible regression net around the highest-risk flows, but it is still selective. Remaining gaps are mainly multi-screen integration coverage and a few deeper edge branches rather than complete absence of tests. |
+| **Improving but still selective automated coverage** | The repo now has passing tests for selectors, shipment reducer, offline sync, auth storage/API/hook flows, finance mutation hooks, the `RecordOrder` / `UpdateCustomer` controller hooks, new page-level wiring tests for both decomposed containers, `StartShipment`, and a first Playwright E2E layer for the highest-risk journeys, plus `docs/testing.md`. | This is now a credible regression net around the highest-risk flows, but it is still selective. Remaining gaps are mainly multi-screen integration coverage and a few deeper edge branches rather than complete absence of tests. |
 | **Oversized smart components** | This was visible in `UpdateCustomer.tsx` (~898 LOC) and `RecordOrder.tsx` (~755 LOC). Controller extraction is done, and the large render sections are now split into presentational files, but there are still other heavy files in the app and these flows still deserve careful review because they remain business-critical. | This red flag is materially smaller than before: page composition is clearer and testing is easier. The remaining concern is not “monolithic JSX everywhere” but “critical flows still concentrated in a few important files and hooks.” |
 | **Phase 1 type shortcuts were real debt** | `RecordOrder.tsx` previously duplicated `RootState`; `Shipment/reducer.ts` used `any`; `redux/store.ts` relied on `@ts-expect-error` for middleware typing. These were removed in the Phase 1 pass. | Important signal: the repo had core typing shortcuts in central state code. They are now fixed, but this was valid architectural debt and similar shortcuts should be watched for going forward. |
 | **API ownership is improved but not fully finished** | Finance API ownership now lives under `features/finance`, and the `orders-today` read flow was moved into `trxApi`, but other API-oriented utilities still exist in `utils/` (`apiHelpers.ts`, `apiShipments.ts`, `distributorApi.ts`, etc.). | The rule is clearer now, but incremental migration still remains for the rest of the overlapping utility APIs. |
 | **Console usage is reduced but not eliminated** | A shared `src/utils/logger.ts` now handles startup/offline/shipment-start status logging and keeps `debug`/`info` quiet in production by default, but some raw console usage remains elsewhere. | This is no longer an uncontrolled pattern in the highest-noise paths, but the cleanup is still partial across the wider codebase. |
-| **500+ LOC IndexedDB module** | Single `utils/indexedDB.ts` file (~522 LOC) with many stores and helpers. | Single point of failure; hard to reason about; migrations and versioning are riskier. |
+| **First-pass code-splitting only** | The heaviest non-core admin/shared routes now lazy-load, but the shell and many routes remain eager by design. | This is a good first pass, not the end state. Bundle discipline still depends on measuring growth and expanding lazy loading only where it pays off. |
 | **Shipment slice as a hub** | `Shipment` still centralizes meta, totals, previous snapshot data, customer buckets, and round baselines, but Phase 3.2 now documents those regions explicitly, adds boundary selectors, and strengthens reducer coverage around them. | The risk is lower than before because the slice is easier to reason about without changing store shape, but it is still a central dependency and a future split would require care. |
-| **No code-splitting** | No `React.lazy` or route-based splitting; one main bundle. | Bundle size will grow with every feature; slower first load; not aligned with common production practices. |
+| **Large IndexedDB surface area** | `utils/indexedDB.ts` is still a single 500+ LOC module, even though schema/versioning guidance is now documented and maintainers have a clearer migration policy. | The risk is lower than before, but offline storage still has a broad blast radius and deserves extra care when schema changes land. |
 
-**Summary:** The most alarming points are now **selective rather than absent test coverage**, **remaining oversized components/render trees**, and **split/duplicated API layer**. The first phase of Redux typing cleanup and high-value regression coverage is now complete, which materially improves safety for future refactors.
+**Summary:** The most alarming points are now **selective rather than absent test coverage**, **remaining oversized components/render trees**, **split/duplicated API layer**, and **centralized offline/storage infrastructure**. The earlier Redux typing issues, lack of browser E2E coverage, and lack of route-level lazy loading are no longer top red flags.
 
 ---
 
@@ -147,11 +147,11 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 
 ### Gaps
 
-- **No code-splitting** — No visible route-based or feature-based lazy loading. As the app grows, the main bundle could become large; CRA supports `React.lazy` and this is not yet used.
+- **Selective code-splitting only** — The highest-value non-core admin/shared routes now lazy-load through `AdminRouter` and `CommonRoutes`, and `FinanceDashboard` is already lazy-loaded inside `AdminHomePage`. The app shell, login/bootstrap, and other routes remain eager by design. As the app grows, more route or modal-level splitting may still be needed, but the project no longer has zero bundle-splitting strategy.
 - **LocalStorage persistence** — Full Redux state is serialized to localStorage on every change. For large state or frequent updates this can become a performance and storage concern; no strategy for selective or debounced persistence is documented.
 - **Single IndexedDB abstraction** — All offline/cache usage goes through one module and DB version. Scaling to many stores or versions would require care to avoid bottlenecks and migration complexity.
 
-**Verdict:** Structure and conventions support scaling; bundle size, persistence strategy, and IndexedDB growth need attention as the app grows. **Score: 6/10**
+**Verdict:** Structure and conventions support scaling; initial bundle pressure is now improved, but persistence strategy and IndexedDB growth still need attention as the app grows. **Score: 7/10**
 
 ---
 
@@ -233,15 +233,15 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 
 - **Hooks and selectors** — Feature hooks and Redux selectors are pure or dependency-injectable; they can be unit-tested without mounting the full app. Memoized selectors are easy to test with a mock state.
 - **Centralized API and auth** — API base and auth helpers are in a few places; mocking `API_BASE` or auth in tests is feasible.
-- **Tooling** — Jest and React Testing Library are present; CRA test script is available.
+- **Tooling** — Jest, React Testing Library, and Playwright are present; the repo now has unit, component/page wiring, and mocked browser E2E coverage for the most critical journeys.
 
 ### Gaps
 
-- **Still selective coverage** — The repo now has strong unit coverage around selectors, reducer logic, auth, offline sync, finance hooks, and the `RecordOrder` / `UpdateCustomer` controller + page wiring flows, but it still lacks broader end-to-end or cross-feature integration coverage.
-- **Critical flows still require mocks** — The Phase 3 decomposition makes `RecordOrder` and `UpdateCustomer` much easier to test, but the remaining integration path across auth, shipment start, order record, and offline replay still needs a higher-level test strategy.
-- **No testing conventions doc** — How to mock Redux, RTK Query, or IndexedDB is not documented; new tests would have to reverse-engineer from the single example.
+- **Still selective coverage** — The repo now has strong unit coverage around selectors, reducer logic, auth, offline sync, finance hooks, the `RecordOrder` / `UpdateCustomer` controller + page wiring flows, and a first mocked Playwright layer for auth bootstrap, shipment start, offline replay, finance create flow, orders-today, and update-customer. The remaining gap is broader journey coverage, not complete absence of higher-level tests.
+- **Critical flows still require mocks** — The current E2E strategy is intentionally deterministic and backend-independent. That is the right first layer, but some future confidence work may still require a small number of deeper environment-backed integration paths if the app grows more complex.
+- **Testing conventions are better but still not exhaustive** — `docs/testing.md` now explains the unit/component baseline and the mocked browser E2E layer, including how browser state and network interception are handled. More examples for RTK Query- and IndexedDB-heavy cases would still help future contributors.
 
-**Verdict:** Structure is testable (hooks, selectors, clear modules), but tests are almost absent and testing patterns are undocumented. **Score: 4/10**
+**Verdict:** Structure is testable and now has a credible regression net across unit, component, and first-pass browser E2E coverage. The main gap is breadth, not missing test infrastructure. **Score: 7/10**
 
 ---
 
@@ -258,9 +258,9 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 
 - **Risk concentrated in a few modules** — The risk in `RecordOrder` and `UpdateCustomer` has gone down after decomposition, but `Shipment` state and IndexedDB remain central pieces where changes still have broad impact.
 - **Duplicated ownership patterns** — Possible overlap between utils API and feature API still exists. Duplication increases maintenance cost and drift.
-- **Limited automated safety** — With almost no tests, regressions are caught manually. Adding tests for critical paths (order submission, sync, auth) would improve maintainability.
+- **Automated safety is still selective** — Critical-path coverage is now materially better, including mocked browser E2E, but maintainability still depends on continuing to add tests when new high-impact flows are introduced.
 
-**Verdict:** Conventions and structure support maintainability; a few high-impact files and lack of tests increase risk. **Score: 6/10**
+**Verdict:** Conventions and structure support maintainability much better than before; the main remaining risk is concentration in a few high-impact flows and central offline/state modules, not missing project hygiene. **Score: 7/10**
 
 ---
 
@@ -287,10 +287,10 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 |------|--------|----------------|
 | **Critical flow complexity** | `RecordOrder` and `UpdateCustomer` are now decomposed, but their controller hooks and collaborating infrastructure still make them important, high-impact flows. | Keep adding targeted integration coverage and apply the same decomposition pattern to other heavy UI containers when touched. |
 | **Utils vs features API split** | Domain API logic still lives in both `utils/` (apiHelpers, apiShipments, distributorApi, etc.) and `features/*/api*.ts`, even though finance and `orders-today` were migrated in Phase 2. | Continue migrating the remaining utils API modules into corresponding features or into RTK Query; keep utils for pure helpers (money, i18n, date). |
-| **Selective test coverage** | High-value unit and component wiring tests now exist, but full user journeys are still lightly covered. | Keep the current fast unit-test baseline and add a small number of multi-step integration paths for auth, shipment start, order record, and offline replay. |
+| **Selective test coverage** | High-value unit, component/page wiring, and first-pass Playwright journey tests now exist, but they still focus on the most business-critical flows rather than broad app-wide coverage. | Keep the current fast baseline, extend browser coverage to the next highest-risk journeys, and add deeper environment-backed integration only where mocks stop being sufficient. |
 | **Shipment slice size and centrality** | One large slice and many dependents; any change still has broad impact, even after Phase 3.2 boundary hardening. | Keep moving remaining raw readers behind selectors. Split into sub-slices only if ongoing changes show that the documented regions are still too coupled. |
 | **IndexedDB as a single module** | 500+ LOC, many stores; all offline/cache usage goes through it. | Document migration and versioning; consider splitting by domain (e.g. requests, customers, areas) if it keeps growing. |
-| **No code-splitting** | Single bundle; no route or feature lazy loading. | Introduce `React.lazy` for heavy routes (e.g. FinanceDashboard, RecordOrder) to limit initial bundle size as the app grows. |
+| **Partial code-splitting only** | The first balanced route-level lazy-loading pass is done, but not every heavy screen is deferred and the main shell remains eager. | Measure bundle output periodically and expand lazy loading only where startup or navigation metrics justify the extra complexity. |
 | **Full Redux persistence** | Entire state serialized to localStorage on every change. | Consider selective persistence, debouncing, or a persistence layer (e.g. redux-persist with allowlist) if state or update frequency grows. |
 
 ---
@@ -301,12 +301,12 @@ Fixing things in the right order reduces rework and risk: later steps rely on th
 |-----------|-------|--------|
 | Separation of concerns | 7/10 | Good layers; weak in a few large components and utils/features boundary. |
 | Modularity | 7/10 | Feature and router modularity good; some large modules (IndexedDB, Shipment). |
-| Scalability | 6/10 | Structure supports growth; bundle, persistence, and IndexedDB need strategy. |
+| Scalability | 7/10 | Structure supports growth; initial lazy loading is in place, but persistence and IndexedDB still need strategy. |
 | Naming consistency | 7/10 | Solid for components/hooks/Redux; duplicate types and path casing. |
 | Readability | 6/10 | Good types and docs; hurt by very long files and inline types. |
 | Coupling/cohesion | 6/10 | Good in features and auth; high coupling in key components and Shipment. |
 | Onboarding friendliness | 7/10 | Strong README and doc index; missing contributing path and glossary. |
-| Testability | 4/10 | Structure is testable; tests and testing docs almost absent. |
-| Maintainability | 6/10 | Conventions help; risk in a few critical files and lack of tests. |
+| Testability | 7/10 | Structure is testable and now backed by unit, component, and critical mocked E2E coverage. |
+| Maintainability | 7/10 | Conventions and coverage help more now; risk remains in a few critical flows and central offline/state modules. |
 
-**Overall:** The codebase has a **solid foundation** (layers, features, Redux Toolkit, RTK Query, documentation, conventions) and is **production-capable**. The main gaps are **test coverage**, **size and responsibility of a few components**, **split between utils and features for API code**, and **centrality of the Shipment slice**. Addressing these would bring the project closer to strong industry standards without a full rewrite.
+**Overall:** The codebase has a **solid and improving foundation** (layers, features, Redux Toolkit, RTK Query, documentation, conventions, critical-path browser E2E, and first-pass route lazy loading) and is **production-capable**. The main gaps are now **coverage breadth rather than total absence**, **size and responsibility of a few components and central offline modules**, **split between utils and features for API code**, and **centrality of the Shipment slice**. Addressing those would move the project materially closer to strong industry standards without a rewrite.
