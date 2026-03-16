@@ -11,9 +11,7 @@ export const expenseSchema = z.object({
       .number()
       .nonnegative("قيمة غير صالحة")
   ),
-  paymentCurrency: z.enum(["USD", "LBP"], {
-    message: "عملة غير صالحة",
-  }),
+  paymentCurrency: z.string(),
 });
 
 export const profitSchema = z.object({
@@ -27,9 +25,7 @@ export const profitSchema = z.object({
       .number()
       .nonnegative("قيمة غير صالحة")
   ),
-  paymentCurrency: z.enum(["USD", "LBP"], {
-    message: "عملة غير صالحة",
-  }),
+  paymentCurrency: z.string(),
 });
 
 export type ExpenseFormInput = z.infer<typeof expenseSchema>;
@@ -38,7 +34,12 @@ export type ProfitFormInput = z.infer<typeof profitSchema>;
 /** Return a localized error message string or null when valid. */
 export function validateExpense(data: Record<string, any>): string | null {
   const result = expenseSchema.safeParse(data);
-  if (result.success) return null;
+  if (result.success) {
+    if (result.data.paymentCurrency !== "USD" && result.data.paymentCurrency !== "LBP") {
+      return "عملة غير صالحة";
+    }
+    return null;
+  }
   const issue = result.error.issues[0];
   return issue?.message ?? "البيانات غير صالحة";
 }
@@ -46,7 +47,12 @@ export function validateExpense(data: Record<string, any>): string | null {
 /** Return a localized error message string or null when valid. */
 export function validateProfit(data: Record<string, any>): string | null {
   const result = profitSchema.safeParse(data);
-  if (result.success) return null;
+  if (result.success) {
+    if (result.data.paymentCurrency !== "USD" && result.data.paymentCurrency !== "LBP") {
+      return "عملة غير صالحة";
+    }
+    return null;
+  }
   const issue = result.error.issues[0];
   return issue?.message ?? "البيانات غير صالحة";
 }

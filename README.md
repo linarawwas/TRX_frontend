@@ -162,11 +162,18 @@ npm install
 - **API base** — All requests use `API_BASE` from `src/config/api.ts`.
   - When the app runs on **localhost** (any port), the frontend **always** uses `http://localhost:5000` so dev never hits a remote API.
   - Otherwise it uses `REACT_APP_API_BASE_URL` or `REACT_APP_API_BASE` from `.env` (no trailing slash).
+  - For production behind nginx reverse proxy, use `REACT_APP_API_BASE_URL=/api`.
 
 Example `.env` for non-localhost:
 
 ```bash
 REACT_APP_API_BASE_URL=https://api.example.com
+```
+
+Example `.env.production` for nginx reverse proxy:
+
+```bash
+REACT_APP_API_BASE_URL=/api
 ```
 
 ### Scripts
@@ -186,6 +193,20 @@ REACT_APP_API_BASE_URL=https://api.example.com
 
 - **Service worker** — Production only; registration and update events are logged through `src/utils/logger.ts`.
 - **IndexedDB** — Add `?idbdebug=1` or set `localStorage.IDB_DEBUG = "1"` for verbose logs.
+
+## Docker deployment shape
+
+- Frontend is built to static assets during image build.
+- nginx serves the static assets on port `80`.
+- nginx proxies `/api/*` to the backend container.
+- Backend connects to MongoDB Atlas via `MONGO_URI`.
+
+Run from repository root:
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
 
 ## Browser E2E
 
