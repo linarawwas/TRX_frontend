@@ -10,7 +10,8 @@ import "./FeatureSection.css";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { RootState } from "../../redux/store";
-import { selectShipmentMeta } from "../../redux/selectors/shipment";
+import { selectRoundProgress, selectShipmentMeta } from "../../redux/selectors/shipment";
+import { computeProgress } from "../../features/shipments/utils/progress";
 import { t } from "../../utils/i18n";
 
 const FeatureSection: React.FC = () => {
@@ -18,6 +19,8 @@ const FeatureSection: React.FC = () => {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const { dayId } = useSelector(selectShipmentMeta);
+  const { targetRound, deliveredThisRound } = useSelector(selectRoundProgress);
+  const { reached } = computeProgress(deliveredThisRound, targetRound);
 
   const handleShipmentToggle = useCallback(() => {
     setActiveForm((prev) => (prev === "shipment" ? null : "shipment"));
@@ -71,7 +74,16 @@ const FeatureSection: React.FC = () => {
             <button
               type="button"
               onClick={handleShipmentToggle}
-              style={{ background: "none", border: "none", padding: 0, cursor: "pointer", color: "inherit" }}
+              disabled={!reached}
+              title={!reached ? t("emp.round.targetLock") : undefined}
+              style={{
+                background: "none",
+                border: "none",
+                padding: 0,
+                cursor: reached ? "pointer" : "not-allowed",
+                color: "inherit",
+                opacity: reached ? 1 : 0.5,
+              }}
               aria-label={activeForm === "shipment" ? t("emp.actions.close") : t("emp.actions.startShipment")}
             >
               {activeForm === "shipment" ? (

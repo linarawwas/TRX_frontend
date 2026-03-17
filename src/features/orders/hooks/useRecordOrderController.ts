@@ -333,7 +333,7 @@ export function useRecordOrderController(props: RecordOrderProps) {
       if (sumLBP) dispatch(setShipmentPaymentsInLiras(shipmentLbp + sumLBP));
 
       dispatch(removePendingOrder(customerId));
-      fetchAndCacheCustomerInvoice(customerId || "", token || "").catch(() => {});
+      fetchAndCacheCustomerInvoice(customerId || "", token || "").catch(() => undefined);
 
       if (!payload.delivered && !payload.returned && !sumUSD && !sumLBP) {
         dispatch(addCustomerWithEmptyOrder(customerId));

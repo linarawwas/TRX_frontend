@@ -435,7 +435,7 @@ const CustomerStatement: React.FC = () => {
             <AddPaymentForm
               orderData={orders.find((o) => o._id === targetOrderId)}
               orderId={targetOrderId}
-              setOrderData={() => {}}
+              setOrderData={() => undefined}
               onSuccess={async () => {
                 setShowSheet(false);
                 // refresh statement after payment

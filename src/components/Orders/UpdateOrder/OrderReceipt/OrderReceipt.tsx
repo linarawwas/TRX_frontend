@@ -7,9 +7,9 @@ interface OrderReceiptProps {
   loading: boolean;
 }
 
-const fmtUSD = (n: number = 0) =>
+const fmtUSD = (n = 0) =>
   `$ ${Number(n).toFixed(2)}`;
-const fmtLBP = (n: number = 0) =>
+const fmtLBP = (n = 0) =>
   `${Math.round(n).toLocaleString("ar-LB")} ل.ل`;
 
 const beirutDateTime = (ts?: string | Date) => {

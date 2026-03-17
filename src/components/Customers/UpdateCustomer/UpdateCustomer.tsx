@@ -161,7 +161,7 @@ export default function UpdateCustomer() {
                   currentCustomerId={customerId || ""}
                   mode="apply"
                   title="تغيير الترتيب داخل المنطقة"
-                  onChange={() => {}} // No-op for apply mode
+                  onChange={() => undefined} // No-op for apply mode
                   onApplied={fetchCustomer}
                 />
               </div>

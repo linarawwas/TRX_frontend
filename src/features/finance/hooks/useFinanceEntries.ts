@@ -9,7 +9,7 @@ export function useFinanceEntries(
   month: number,
   kind?: "income" | "expense" | "",
   categoryId?: string,
-  enabled: boolean = true
+  enabled = true
 ) {
   const [data, setData] = useState<FinanceEntry[]>([]);
   const [loading, setLoading] = useState(false);
