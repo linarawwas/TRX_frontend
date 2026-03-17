@@ -7,10 +7,15 @@ function getApiBase(): string {
   }
   const configuredBase =
     process.env.REACT_APP_API_BASE_URL || process.env.REACT_APP_API_BASE;
-  if (configuredBase) return configuredBase;
+  if (configuredBase) {
+    const trimmed = configuredBase.replace(/\/+$/, "");
+    if (trimmed === "/api") return "";
+    if (trimmed.endsWith("/api")) return trimmed.slice(0, -4);
+    return trimmed;
+  }
 
   if (process.env.NODE_ENV === "production") {
-    return "/api";
+    return "";
   }
 
   return "http://localhost:5000";

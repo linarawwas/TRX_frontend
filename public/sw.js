@@ -1,6 +1,6 @@
 // public/sw.js
 
-const VERSION = 'trx-v1';
+const VERSION = 'trx-v2';
 const APP_SHELL = ['/', '/index.html', '/manifest.json'];
 
 // Install: warm app shell
@@ -50,9 +50,15 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 4) APIs (your IndexedDB is the source of truth, but caching can soften outages)
+  // 4) APIs:
+  // - GET: network-first with cache fallback
+  // - non-GET: pass through (never cache mutations)
   if (url.pathname.startsWith('/api/')) {
-    event.respondWith(networkFirst(req, VERSION));
+    if (req.method === 'GET') {
+      event.respondWith(networkFirst(req, VERSION));
+    } else {
+      event.respondWith(fetch(req));
+    }
     return;
   }
 });
@@ -74,7 +80,7 @@ async function networkFirst(req, cacheName) {
   const cache = await caches.open(cacheName);
   try {
     const res = await fetch(req);
-    if (res && res.ok) cache.put(req, res.clone());
+    if (req.method === 'GET' && res && res.ok) cache.put(req, res.clone());
     return res;
   } catch {
     const hit = await cache.match(req);
