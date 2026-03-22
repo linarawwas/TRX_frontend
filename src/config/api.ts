@@ -3,7 +3,7 @@
 // bundles never send requests to the remote API.
 function getApiBase(): string {
   if (typeof window !== "undefined" && window.location.hostname === "localhost") {
-    return "https://trx-api.theagilelabs.com";
+    return "http://localhost:5000";
   }
   const configuredBase =
     process.env.REACT_APP_API_BASE_URL || process.env.REACT_APP_API_BASE;
@@ -18,7 +18,7 @@ function getApiBase(): string {
     return "";
   }
 
-  return "https://trx-api.theagilelabs.com";
+  return "http://localhost:5000";
 }
 
 const rawBase = getApiBase();

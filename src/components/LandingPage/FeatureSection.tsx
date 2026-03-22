@@ -74,15 +74,13 @@ const FeatureSection: React.FC = () => {
             <button
               type="button"
               onClick={handleShipmentToggle}
-              // disabled={!reached}
-              // title={!reached ? t("emp.round.targetLock") : undefined}
               style={{
                 background: "none",
                 border: "none",
                 padding: 0,
                 // cursor: reached ? "pointer" : "not-allowed",
                 color: "inherit",
-                opacity: reached ? 1 : 0.5,
+                opacity: 1,
               }}
               aria-label={activeForm === "shipment" ? t("emp.actions.close") : t("emp.actions.startShipment")}
             >
