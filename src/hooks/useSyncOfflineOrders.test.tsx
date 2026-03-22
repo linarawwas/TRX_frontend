@@ -75,7 +75,7 @@ describe("useSyncOfflineOrders", () => {
     mockGetPendingRequests.mockResolvedValue([
       {
         id: 1,
-        url: "http://localhost:5000/api/orders",
+        url: "https://trx-api.theagilelabs.com/api/orders",
         options: {
           method: "POST",
           body: JSON.stringify({
@@ -97,7 +97,7 @@ describe("useSyncOfflineOrders", () => {
     await waitFor(() => {
       expect(mockGetPendingRequests).toHaveBeenCalled();
       expect(global.fetch).toHaveBeenCalledWith(
-        "http://localhost:5000/api/orders",
+        "https://trx-api.theagilelabs.com/api/orders",
         expect.objectContaining({ method: "POST" })
       );
       expect(mockRemoveRequestFromDb).toHaveBeenCalledWith(1);
@@ -155,7 +155,7 @@ describe("useSyncOfflineOrders", () => {
     mockGetPendingRequests.mockResolvedValue([
       {
         id: 1,
-        url: "http://localhost:5000/api/orders",
+        url: "https://trx-api.theagilelabs.com/api/orders",
         options: {
           method: "POST",
           body: JSON.stringify({
@@ -205,7 +205,7 @@ describe("useSyncOfflineOrders", () => {
     mockGetPendingRequests.mockResolvedValue([
       {
         id: 1,
-        url: "http://localhost:5000/api/orders",
+        url: "https://trx-api.theagilelabs.com/api/orders",
         options: {
           method: "POST",
           body: JSON.stringify({
