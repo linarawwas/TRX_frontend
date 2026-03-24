@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { apiClient } from '../../api/client';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { API_BASE } from '../../config/api';
@@ -34,7 +34,7 @@ const UpdateDefaultProduct: React.FC<UpdateDefaultProductProps> = ({ products, c
             };
 
             // Update default product based on selectedProduct
-            await axios.put(`${API_BASE}/api/adminDeterminedDefaults/defaultProduct`, data, {
+            await apiClient.put(`${API_BASE}/api/adminDeterminedDefaults/defaultProduct`, data, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }

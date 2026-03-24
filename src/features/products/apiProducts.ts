@@ -1,4 +1,4 @@
-import axios from "axios";
+import { apiClient } from "../../api/client";
 import { authAxiosConfig, jsonAxiosConfig } from "../api/http";
 
 export interface ProductResponse {
@@ -13,7 +13,7 @@ export async function listCompanyProducts(
   token: string,
   companyId: string
 ): Promise<ProductResponse[]> {
-  const { data } = await axios.get(
+  const { data } = await apiClient.get(
     `/api/products/company/${companyId}`,
     authAxiosConfig(token)
   );
@@ -21,7 +21,7 @@ export async function listCompanyProducts(
 }
 
 export async function deleteProductById(token: string, productId: string) {
-  await axios.delete(`/api/products/${productId}`, authAxiosConfig(token));
+  await apiClient.delete(`/api/products/${productId}`, authAxiosConfig(token));
 }
 
 export interface CreateProductPayload {
@@ -35,7 +35,7 @@ export async function createProduct(
   token: string,
   payload: CreateProductPayload
 ): Promise<ProductResponse> {
-  const { data } = await axios.post(
+  const { data } = await apiClient.post(
     "/api/products",
     payload,
     jsonAxiosConfig(token)
@@ -54,7 +54,7 @@ export async function updateProduct(
   productId: string,
   payload: UpdateProductPayload
 ): Promise<ProductResponse> {
-  const { data } = await axios.put(
+  const { data } = await apiClient.put(
     `/api/products/${productId}`,
     payload,
     jsonAxiosConfig(token)

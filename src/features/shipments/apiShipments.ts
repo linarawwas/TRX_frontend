@@ -1,4 +1,4 @@
-import axios from "axios";
+import { apiClient } from "../../api/client";
 import { jsonAxiosConfig, requestJson } from "../api/http";
 import {
   saveAreasByDayToDB,
@@ -75,7 +75,7 @@ export async function fetchShipmentsByRange(
   fromDate: DateObject,
   toDate: DateObject
 ): Promise<ShipmentData[]> {
-  const { data } = await axios.post<ShipmentsRangeResponse>(
+  const { data } = await apiClient.post<ShipmentsRangeResponse>(
     "/api/shipments/range",
     { companyId, fromDate, toDate },
     jsonAxiosConfig(token)

@@ -1,4 +1,4 @@
-import axios from "axios";
+import { apiClient } from "../../api/client";
 import { authAxiosConfig, requestJson } from "../api/http";
 
 export interface Payment {
@@ -54,7 +54,7 @@ export interface Order {
 }
 
 export async function fetchOrdersByCompany(token: string, companyId: string): Promise<Order[]> {
-  const { data } = await axios.get(
+  const { data } = await apiClient.get(
     `/api/orders/company/${companyId}`,
     authAxiosConfig(token)
   );

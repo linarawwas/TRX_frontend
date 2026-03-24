@@ -1,4 +1,4 @@
-import axios from "axios";
+import { apiClient } from "../../api/client";
 import { authAxiosConfig, jsonAxiosConfig } from "../api/http";
 
 export interface Area {
@@ -8,12 +8,12 @@ export interface Area {
 }
 
 export async function fetchAreasByCompany(token: string): Promise<Area[]> {
-  const { data } = await axios.get("/api/areas/company", authAxiosConfig(token));
+  const { data } = await apiClient.get("/api/areas/company", authAxiosConfig(token));
   return Array.isArray(data) ? data : [];
 }
 
 export async function fetchAreasByDay(token: string, dayId: string, companyId: string): Promise<Area[]> {
-  const { data } = await axios.post(
+  const { data } = await apiClient.post(
     `/api/areas/days/${dayId}`,
     { companyId },
     jsonAxiosConfig(token)
@@ -29,7 +29,7 @@ export async function fetchCustomersByArea(token: string, areaId: string): Promi
   sequence?: number | null;
   isActive?: boolean;
 }>> {
-  const { data } = await axios.get(
+  const { data } = await apiClient.get(
     `/api/customers/area/${areaId}`,
     authAxiosConfig(token)
   );
@@ -43,7 +43,7 @@ export async function reorderCustomersInArea(
   orderedCustomerIds: string[],
   options?: { force?: boolean; startAt?: number }
 ): Promise<void> {
-  await axios.post(
+  await apiClient.post(
     `/api/areas/${areaId}/reorder?companyId=${companyId}`,
     {
       orderedCustomerIds,

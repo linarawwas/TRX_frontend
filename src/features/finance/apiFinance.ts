@@ -1,5 +1,5 @@
 // src/features/finance/apiFinance.ts
-import axios from "axios";
+import { apiClient } from "../../api/client";
 import { authAxiosConfig, jsonAxiosConfig, requestJson } from "../api/http";
 import type {
   Category,
@@ -37,22 +37,22 @@ export interface ExtraProfit {
 }
 
 export async function fetchExpenses(token: string): Promise<Expense[]> {
-  const { data } = await axios.get("/api/expenses", authAxiosConfig(token));
+  const { data } = await apiClient.get("/api/expenses", authAxiosConfig(token));
   return Array.isArray(data) ? data : [];
 }
 
 export async function deleteExpense(token: string, expenseId: string): Promise<void> {
-  await axios.delete(`/api/expenses/${expenseId}`, authAxiosConfig(token));
+  await apiClient.delete(`/api/expenses/${expenseId}`, authAxiosConfig(token));
 }
 
 export async function fetchExtraProfits(token: string, companyId: string): Promise<ExtraProfit[]> {
   void companyId;
-  const { data } = await axios.get("/api/extraProfits", authAxiosConfig(token));
+  const { data } = await apiClient.get("/api/extraProfits", authAxiosConfig(token));
   return Array.isArray(data) ? data : [];
 }
 
 export async function deleteExtraProfit(token: string, profitId: string): Promise<void> {
-  await axios.delete(`/api/extraProfits/${profitId}`, authAxiosConfig(token));
+  await apiClient.delete(`/api/extraProfits/${profitId}`, authAxiosConfig(token));
 }
 
 export interface CreateExpensePayload {
@@ -66,7 +66,7 @@ export async function createExpense(
   token: string,
   payload: CreateExpensePayload
 ): Promise<Expense> {
-  const { data } = await axios.post("/api/expenses", payload, jsonAxiosConfig(token));
+  const { data } = await apiClient.post("/api/expenses", payload, jsonAxiosConfig(token));
   return data;
 }
 
@@ -81,7 +81,7 @@ export async function createExtraProfit(
   token: string,
   payload: CreateExtraProfitPayload
 ): Promise<ExtraProfit> {
-  const { data } = await axios.post(
+  const { data } = await apiClient.post(
     "/api/extraProfits",
     payload,
     jsonAxiosConfig(token)
@@ -101,7 +101,7 @@ export async function updateExpense(
   expenseId: string,
   payload: UpdateExpensePayload
 ): Promise<Expense> {
-  const { data } = await axios.put(
+  const { data } = await apiClient.put(
     `/api/expenses/${expenseId}`,
     payload,
     jsonAxiosConfig(token)
@@ -121,7 +121,7 @@ export async function updateExtraProfit(
   profitId: string,
   payload: UpdateExtraProfitPayload
 ): Promise<ExtraProfit> {
-  const { data } = await axios.put(
+  const { data } = await apiClient.put(
     `/api/extraProfits/${profitId}`,
     payload,
     jsonAxiosConfig(token)

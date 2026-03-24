@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { apiClient } from '../../api/client';
 import { useSelector } from 'react-redux';
 import SpinLoader from '../UI reusables/SpinLoader/SpinLoader';
 import './DefaultProducts.css'
@@ -21,7 +21,7 @@ const DefaultProducts: React.FC = () => {
         // Fetch default product based on company ID
         const fetchData = async () => {
             try {
-                const response = await axios.get<DefaultProduct[]>(
+                const response = await apiClient.get<DefaultProduct[]>(
                     `${API_BASE}/api/adminDeterminedDefaults/company/${companyId}`, {
                     headers: {
                         Authorization: `Bearer ${token}`

@@ -1,6 +1,6 @@
 // CustomerOrders.tsx
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { apiClient } from "../../../api/client";
 import { useSelector } from "react-redux";
 import SpinLoader from "../../UI reusables/SpinLoader/SpinLoader";
 import { Link } from "react-router-dom";
@@ -47,7 +47,7 @@ const CustomerOrders: React.FC = () => {
   useEffect(() => {
     const fetchCustomerOrders = async () => {
       try {
-        const response = await axios.get(
+        const response = await apiClient.get(
           `${API_BASE}/api/orders/customer/${customerId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
