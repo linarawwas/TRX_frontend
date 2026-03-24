@@ -3,17 +3,11 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { toast } from "react-toastify";
 import "./AddDiscount.css";
-import {
-  fetchCompanyAreas,
-  updateCustomerDiscount,
-} from "../../features/customers/api";
-import { fetchCustomersByArea } from "../../features/areas/api";
+import { updateCustomerDiscount } from "../../features/customers/api";
 import { fetchCompanyExchangeRate } from "../../features/finance/api";
+import { useCompanyAreas } from "../../features/customers/hooks/useCompanyAreas";
+import { useAreaCustomers } from "../../features/areas/hooks/useAreaCustomers";
 
-interface Area {
-  _id: string;
-  name: string;
-}
 interface Customer {
   _id: string;
   name: string;
@@ -34,8 +28,6 @@ const AddDiscount: React.FC = () => {
   const companyId = useSelector((state: RootState) => state.user.companyId);
   const token = useSelector((state: RootState) => state.user.token);
 
-  const [areaOptions, setAreaOptions] = useState<Area[]>([]);
-  const [customerOptions, setCustomerOptions] = useState<Customer[]>([]);
   const [exchangeRate, setExchangeRate] = useState<number | null>(null); // LBP per 1 USD (read-only)
   const [loading, setLoading] = useState(false);
 
@@ -54,13 +46,19 @@ const AddDiscount: React.FC = () => {
 
   const toNumber = (v: number | "") => (typeof v === "number" ? v : 0);
 
-  // Fetch areas
+  const { areas: areaOptions, error: areasError } = useCompanyAreas(
+    token,
+    Boolean(token && companyId)
+  );
+  const { customers, error: customersError } = useAreaCustomers(
+    token,
+    formData.areaId,
+    Boolean(token && formData.areaId)
+  );
+
   useEffect(() => {
-    if (!token) return;
-    fetchCompanyAreas(token)
-      .then(setAreaOptions)
-      .catch(() => toast.error("خطأ في تحميل المناطق"));
-  }, [companyId, token]);
+    if (areasError) toast.error("خطأ في تحميل المناطق");
+  }, [areasError]);
 
   // Fetch company exchange rate (read-only, server-managed)
   useEffect(() => {
@@ -75,13 +73,9 @@ const AddDiscount: React.FC = () => {
       });
   }, [token]);
 
-  // Fetch customers by area
   useEffect(() => {
-    if (!token || !formData.areaId) return;
-    fetchCustomersByArea(token, formData.areaId)
-      .then((data) => setCustomerOptions(data as Customer[]))
-      .catch(() => toast.error("خطأ في تحميل العملاء"));
-  }, [formData.areaId, token]);
+    if (customersError) toast.error("خطأ في تحميل العملاء");
+  }, [customersError]);
 
   // Input handlers
   const handleInputChange = (
@@ -210,7 +204,7 @@ const AddDiscount: React.FC = () => {
             disabled={!formData.areaId}
           >
             <option value="">اختر عميل</option>
-            {customerOptions.map((c) => (
+            {(customers as Customer[]).map((c) => (
               <option key={c._id} value={c._id}>
                 {c.name}
               </option>

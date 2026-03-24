@@ -6,31 +6,22 @@ import AddToModel from "../../AddToModel/AddToModel";
 import {
   createCustomerWithSequence,
   fetchActiveCustomersForArea,
-  fetchCompanyAreas,
 } from "../../../features/customers/api";
+import { useCompanyAreas } from "../../../features/customers/hooks/useCompanyAreas";
 
-type Area = { _id: string; name: string };
 type CustomerLite = { _id: string; name: string; sequence?: number | null };
 
 const AddCustomer: React.FC = () => {
   const token: string = useSelector((s: any) => s.user.token);
 
-  const [areas, setAreas] = useState<Area[]>([]);
   const [afterList, setAfterList] = useState<CustomerLite[]>([]);
   const [currentAreaId, setCurrentAreaId] = useState<string>("");
   const [formKey, setFormKey] = useState(0); // re-mount to reset (we’ll keep area preselected)
+  const { areas, error: areasError } = useCompanyAreas(token, Boolean(token));
 
-  // load areas
   useEffect(() => {
-    (async () => {
-      try {
-        const data = await fetchCompanyAreas(token);
-        setAreas(Array.isArray(data) ? data : []);
-      } catch {
-        toast.error("تعذّر جلب المناطق");
-      }
-    })();
-  }, [token]);
+    if (areasError) toast.error("تعذّر جلب المناطق");
+  }, [areasError]);
 
   // load ACTIVE customers for selected area (for "after X")
   useEffect(() => {

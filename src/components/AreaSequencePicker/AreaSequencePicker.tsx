@@ -1,10 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import "./AreaSequencePicker.css";
-import {
-  fetchCustomersByArea,
-  reorderAreaCustomers,
-} from "../../features/areas/api";
+import { reorderAreaCustomers } from "../../features/areas/api";
+import { useAreaCustomers } from "../../features/areas/hooks/useAreaCustomers";
 
 interface Customer {
   _id: string;
@@ -40,39 +38,32 @@ const AreaSequencePicker: React.FC<AreaSequencePickerProps> = ({
   disabled = false,
   title = "تغيير الترتيب داخل المنطقة",
 }) => {
-  const [list, setList] = useState<Customer[]>([]);
-  const [loading, setLoading] = useState(false);
   const [pos, setPos] = useState(value);
   const [busy, setBusy] = useState(false);
+  const { customers, loading, error } = useAreaCustomers(
+    token,
+    areaId,
+    Boolean(areaId && token)
+  );
 
   // keep internal in sync if parent controls value
   useEffect(() => setPos(value), [value]);
 
-  // load customers for this area (ordered)
   useEffect(() => {
-    if (!areaId) {
-      setList([]);
-      return;
-    }
-    (async () => {
-      try {
-        setLoading(true);
-        const data = await fetchCustomersByArea(token, areaId);
-        const sorted = [...data].sort((a: Customer, b: Customer) => {
-          const sa = a.sequence ?? Number.POSITIVE_INFINITY;
-          const sb = b.sequence ?? Number.POSITIVE_INFINITY;
-          if (sa !== sb) return sa - sb;
-          return (a.name || "").localeCompare(b.name || "", "ar");
-        });
-        setList(sorted);
-      } catch (e) {
-        console.error(e);
-        toast.error("تعذر تحميل زبائن هذه المنطقة");
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [areaId, token]);
+    if (!error) return;
+    toast.error("تعذر تحميل زبائن هذه المنطقة");
+  }, [error]);
+
+  const list = useMemo(
+    () =>
+      [...(customers as Customer[])].sort((a: Customer, b: Customer) => {
+        const sa = a.sequence ?? Number.POSITIVE_INFINITY;
+        const sb = b.sequence ?? Number.POSITIVE_INFINITY;
+        if (sa !== sb) return sa - sb;
+        return (a.name || "").localeCompare(b.name || "", "ar");
+      }),
+    [customers]
+  );
 
   // reset selection when area changes
   useEffect(() => {

@@ -3,31 +3,20 @@ import { useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import "../AddCustomers/AddCustomers.css";
 import "./AddCustomerInitials.css";
-import {
-  fetchCompanyAreas,
-  uploadCustomersWithOrders,
-} from "../../../features/customers/api";
+import { uploadCustomersWithOrders } from "../../../features/customers/api";
+import { useCompanyAreas } from "../../../features/customers/hooks/useCompanyAreas";
 const AddCustomerInitials = (): JSX.Element => {
   const [file, setFile] = useState<File | null>(null);
-  const [areas, setAreas] = useState<Array<{ _id: string; name: string }>>([]);
   const [selectedAreaId, setSelectedAreaId] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState("Preparing upload...");
   const token: string = useSelector((state: any) => state.user.token);
   const companyId: string = useSelector((state: any) => state.user.companyId);
+  const { areas, error: areasError } = useCompanyAreas(token, Boolean(companyId));
 
   useEffect(() => {
-    const fetchAreas = async () => {
-      try {
-        const data = await fetchCompanyAreas(token);
-        setAreas(data);
-      } catch (error) {
-        toast.error("Error fetching areas");
-      }
-    };
-
-    if (companyId) fetchAreas();
-  }, [companyId, token]);
+    if (areasError) toast.error("Error fetching areas");
+  }, [areasError]);
 
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
