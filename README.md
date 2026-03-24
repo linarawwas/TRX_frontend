@@ -200,7 +200,7 @@ REACT_APP_API_BASE_URL=/api
 
 Current baseline from `npm audit --json`:
 
-- **High:** 16
+- **High:** 11
 - **Moderate:** 3
 - **Low:** 13
 - **Critical:** 0
@@ -214,7 +214,7 @@ Current baseline from `npm audit --json`:
 | `crypto-browserify` | `3.12.1` | no safe non-breaking path in current chain | direct | low |
 | `serialize-javascript` | `6.0.2`, `4.0.0` | `>=7.0.3` (blocked on Node 18 + CRA 5 toolchain) | transitive | high (open) |
 | `underscore` | `1.13.8` | resolved (`1.13.8`) | transitive | high (resolved) |
-| `flatted` | `3.4.1` | `>=3.4.2` | transitive | high |
+| `flatted` | `3.4.2` | resolved (`3.4.2`) | transitive | high (resolved) |
 | `nth-check` | `1.0.2` | `>=2.0.1` | transitive | high |
 | `postcss` | `7.0.39` (vulnerable node), `8.5.8` present | `>=8.4.31` on vulnerable path | transitive | moderate |
 | `elliptic` | `6.6.1` | parent replacement required | transitive | low |
@@ -232,6 +232,7 @@ Notes:
 - This section is intentionally a living status tracker and is updated as fixes are applied.
 - `xlsx` was upgraded to `0.20.2` using the official SheetJS tarball source to remove npm advisory exposure while preserving existing API usage in the app.
 - `underscore` is pinned to `1.13.8` via npm `overrides` to remove recursion/DoS advisory exposure from the `jsonpath` chain.
+- `flatted` is pinned to `3.4.2` via npm `overrides` to eliminate prototype-pollution risk in the eslint cache dependency chain.
 - `serialize-javascript@7.0.4` was tested but reverted because it breaks builds on this runtime/toolchain (`Node 18.13.0` + CRA 5). Safe remediation for this path requires parent toolchain upgrade.
 
 ## Docker deployment shape
