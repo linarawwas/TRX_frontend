@@ -1,7 +1,7 @@
 // src/features/areas/utils/sortCustomers.ts
 export interface CustomerWithSequence {
   _id: string;
-  name: string;
+  name?: string;
   sequence?: number | null;
 }
 

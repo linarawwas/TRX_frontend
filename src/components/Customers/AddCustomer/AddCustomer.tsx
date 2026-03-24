@@ -6,6 +6,7 @@ import AddToModel from "../../AddToModel/AddToModel";
 import { useCompanyAreas } from "../../../features/customers/hooks/useCompanyAreas";
 import { useActiveAreaCustomers } from "../../../features/customers/hooks/useActiveAreaCustomers";
 import { useCreateCustomerWithSequence } from "../../../features/customers/hooks/useCreateCustomerWithSequence";
+import { sortCustomersBySequence } from "../../../features/areas/utils/sortCustomers";
 
 type CustomerLite = { _id: string; name: string; sequence?: number | null };
 
@@ -31,12 +32,7 @@ const AddCustomer: React.FC = () => {
       setAfterList([]);
       return;
     }
-    const sorted = [...(activeCustomers || [])].sort((a, b) => {
-      const sa = a.sequence ?? Number.POSITIVE_INFINITY;
-      const sb = b.sequence ?? Number.POSITIVE_INFINITY;
-      if (sa !== sb) return sa - sb;
-      return (a.name || "").localeCompare(b.name || "", "ar");
-    });
+    const sorted = sortCustomersBySequence(activeCustomers || []);
     setAfterList(sorted);
   }, [activeCustomers, currentAreaId]);
 

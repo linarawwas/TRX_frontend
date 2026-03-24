@@ -28,41 +28,40 @@ It highlights current architectural problems without changing behavior.
   - `src/features/orders/apiOrders.ts` (`fetchOrdersByCustomer`)
   - `src/components/Customers/CustomerOrders/CustomerOrders.tsx` (direct axios call)
 
-### 1.3 Reorder endpoint used via both feature API and direct component fetch
+### 1.3 Reorder endpoint implemented in multiple feature APIs
 
 - **Severity: Medium**
-- **Issue:** `/api/areas/${areaId}/reorder?companyId=${companyId}` has direct component usage plus feature API wrapper.
-- **Why it matters:** increases drift risk in payload format and error semantics.
+- **Issue:** `/api/areas/${areaId}/reorder?companyId=${companyId}` is implemented in two feature API modules.
+- **Why it matters:** increases drift risk in payload format and error semantics between modules.
 - **References:**
   - `src/features/areas/apiAreas.ts` (`reorderCustomersInArea`)
-  - `src/components/AreaSequencePicker/AreaSequencePicker.tsx` (direct fetch)
+  - `src/features/areas/api.ts` (`reorderAreaCustomers`)
 
 ## 2) Mixed `fetch`/`axios`/RTK Query Usage
 
-### 2.1 Transport strategy is mixed for production API calls
+### 2.1 Transport strategy remains mixed for production API calls
 
 - **Severity: High**
 - **Issue:** the codebase uses:
-  - direct `fetch(...)` in UI/components/hooks,
-  - direct `axios` in UI/components,
-  - feature APIs using both `axios` and `requestJson`,
+  - feature APIs over `apiClient`,
+  - feature APIs over `requestJson`/`requestRaw`,
   - RTK Query for selected endpoints only.
 - **Why it matters:** inconsistent interceptors, error handling, cancellation behavior, and testability.
 - **References (representative):**
-  - direct fetch in UI: `src/components/AddDiscount/AddDiscount.tsx`
-  - direct axios in UI: `src/components/Products/DefaultProduct.tsx`
-  - feature mixed transport: `src/features/finance/apiFinance.ts`
+  - feature API over axios client: `src/features/customers/api.ts`
+  - feature API over request helpers: `src/features/customers/apiCustomers.ts`
+  - mixed transport across features: `src/features/finance/apiFinance.ts`
   - RTK Query: `src/features/api/trxApi.ts`
   - shared fetch wrapper: `src/features/api/http.ts`
 
-### 2.2 Hook-level direct transport still exists in business flows
+### 2.2 Legacy fetch-like response wrappers still exist in business flows
 
 - **Severity: High**
-- **Issue:** business-critical hooks still perform raw `fetch` calls.
-- **Why it matters:** bypasses centralized API abstraction and complicates retries/offline consistency.
+- **Issue:** business-critical flows still rely on `requestRaw` (fetch-like response shape) for compatibility.
+- **Why it matters:** keeps divergent response semantics (`ok/status/statusText/data`) vs normalized request helpers.
 - **References:**
-  - `src/features/orders/hooks/useRecordOrderController.ts` (`POST /api/orders`)
-  - `src/hooks/useSyncOfflineOrders.ts` (replays queued requests using `fetch(request.url, ...)`)
+  - `src/features/orders/hooks/useRecordOrderController.ts` (`requestRaw` for `POST /api/orders`)
+  - `src/hooks/useSyncOfflineOrders.ts` (`requestRaw` for replaying queued requests)
 
 ## 3) Hardcoded URLs vs `API_BASE`
 
@@ -97,15 +96,10 @@ It highlights current architectural problems without changing behavior.
 - **Issue:** many components/pages still call API endpoints directly instead of using feature APIs/hooks.
 - **Why it matters:** weakens separation of concerns and makes future data-layer migrations harder.
 - **References:**
-  - `src/components/AddDiscount/AddDiscount.tsx`
-  - `src/components/Customers/AddCustomer/AddCustomer.tsx`
-  - `src/components/Customers/AddCustomerInitials/AddCustomerInitials.tsx`
   - `src/components/Customers/AddCustomers/AddCustomers.tsx`
   - `src/components/Areas/AddArea/AddArea.tsx`
-  - `src/components/AreaSequencePicker/AreaSequencePicker.tsx`
   - `src/components/Shipments/RoundsHistory/RoundsHistory.tsx`
   - `src/components/Customers/CustomerOrders/CustomerOrders.tsx`
-  - `src/pages/SharedPages/Login/LoginForm.tsx`
   - `src/components/Auth/Register.tsx`
   - `src/components/Products/DefaultProduct.tsx`
   - `src/components/Products/UpdateDefaultProduct.tsx`
@@ -120,14 +114,15 @@ It highlights current architectural problems without changing behavior.
 
 ## 5) Inconsistent Error/Loading Handling
 
-### 5.1 Inconsistent `response.ok` handling in direct `fetch`
+### 5.1 Inconsistent success semantics across API layers
 
 - **Severity: High**
-- **Issue:** some fetch calls check `response.ok`, others parse blindly or assume success.
+- **Issue:** some APIs return `{ ok, data }`, others throw via `requestJson`, while some return raw data directly.
 - **Why it matters:** failed responses can silently propagate invalid state.
 - **References:**
-  - checks present: `src/components/Customers/AddCustomer/AddCustomer.tsx`, `src/components/Shipments/RoundsHistory/RoundsHistory.tsx`
-  - weak/partial checks: `src/components/AddDiscount/AddDiscount.tsx` (early `.then(res => res.json())` patterns), `src/components/Customers/AddCustomers/AddCustomers.tsx` (response object unused)
+  - `{ ok, data }` response style: `src/features/customers/api.ts`, `src/features/areas/api.ts`
+  - thrown error style: `src/features/customers/apiCustomers.ts` via `requestJson`
+  - direct data style: `src/features/areas/apiAreas.ts` (`fetchAreasByCompany`, `fetchCustomersByArea`)
 
 ### 5.2 Inconsistent loading states around API calls
 

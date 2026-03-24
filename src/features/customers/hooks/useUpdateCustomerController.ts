@@ -25,6 +25,7 @@ import {
   updateCustomerById,
 } from "../apiCustomers";
 import { fetchAreasByCompany } from "../../areas/apiAreas";
+import { sortCustomersBySequence } from "../../areas/utils/sortCustomers";
 import type { RootState } from "../../../redux/store";
 
 type Area = { _id: string; name: string };
@@ -137,12 +138,7 @@ export function useUpdateCustomerController() {
         const filtered = Array.isArray(list)
           ? list.filter((c) => String(c._id) !== String(customerId))
           : [];
-        const sorted = [...filtered].sort((a, b) => {
-          const sa = a.sequence ?? Number.POSITIVE_INFINITY;
-          const sb = b.sequence ?? Number.POSITIVE_INFINITY;
-          if (sa !== sb) return sa - sb;
-          return (a.name || "").localeCompare(b.name || "", "ar");
-        });
+        const sorted = sortCustomersBySequence(filtered);
         setAreaCustomers(sorted);
       } catch (err) {
         if (cancelled) return;

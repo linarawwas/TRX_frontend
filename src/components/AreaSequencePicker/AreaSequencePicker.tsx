@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import "./AreaSequencePicker.css";
 import { useAreaCustomers } from "../../features/areas/hooks/useAreaCustomers";
 import { useReorderAreaCustomers } from "../../features/areas/hooks/useReorderAreaCustomers";
+import { sortCustomersBySequence } from "../../features/areas/utils/sortCustomers";
 
 interface Customer {
   _id: string;
@@ -57,13 +58,7 @@ const AreaSequencePicker: React.FC<AreaSequencePickerProps> = ({
   }, [error]);
 
   const list = useMemo(
-    () =>
-      [...(customers as Customer[])].sort((a: Customer, b: Customer) => {
-        const sa = a.sequence ?? Number.POSITIVE_INFINITY;
-        const sb = b.sequence ?? Number.POSITIVE_INFINITY;
-        if (sa !== sb) return sa - sb;
-        return (a.name || "").localeCompare(b.name || "", "ar");
-      }),
+    () => sortCustomersBySequence(customers as Customer[]),
     [customers]
   );
 

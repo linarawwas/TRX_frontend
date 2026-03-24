@@ -75,9 +75,11 @@ See [**docs/folder-structure.md**](docs/folder-structure.md) for a detailed brea
 
 - **RTK Query first for shared read state** — Read-heavy, cacheable, cross-screen list/detail flows belong in `src/features/api/trxApi.ts`.
 - **Feature API modules for imperative flows** — Mutations and feature-owned requests live in `src/features/**/api*.ts`.
+- **Prefer feature hooks in UI** — Components should consume `src/features/**/hooks` for request state instead of managing API loading/error wiring inline.
 - **No business HTTP in UI files** — Pages, components, and controller hooks should call feature hooks or feature API functions rather than building requests inline.
 - **Shared non-RTK HTTP boundary** — Non-RTK requests should use `src/features/api/http.ts` so auth headers, JSON parsing, and API URL resolution stay consistent.
 - **`src/utils/` is not for domain API ownership** — Keep it for infrastructure and pure helpers such as IndexedDB, i18n, money/date utilities, and logging.
+- **Reuse existing transforms** — Use shared utilities such as `src/features/areas/utils/sortCustomers.ts` for sequence/name ordering instead of duplicating sort logic.
 
 ### Folder responsibility policy
 

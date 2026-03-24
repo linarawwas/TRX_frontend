@@ -33,16 +33,6 @@ const COMPLETED_KEY = (areaId?: string) =>
 const PENDING_KEY = (areaId?: string) =>
   `trx.pending.collapsed.${areaId ?? "unknown"}`;
 
-// stable sort helper: sequence asc, nulls last, then name
-const bySequenceThenName = (a: Customer, b: Customer) => {
-  const sa =
-    typeof a.sequence === "number" ? a.sequence! : Number.POSITIVE_INFINITY;
-  const sb =
-    typeof b.sequence === "number" ? b.sequence! : Number.POSITIVE_INFINITY;
-  if (sa !== sb) return sa - sb;
-  return (a.name || "").localeCompare(b.name || "", "ar");
-};
-
 const CustomersForArea = (): JSX.Element => {
   const location = useLocation();
 
