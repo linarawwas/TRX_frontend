@@ -201,8 +201,8 @@ REACT_APP_API_BASE_URL=/api
 Current baseline from `npm audit --json`:
 
 - **High:** 11
-- **Moderate:** 3
-- **Low:** 13
+- **Moderate:** 1
+- **Low:** 0
 - **Critical:** 0
 
 ### Vulnerability map (current)
@@ -210,16 +210,16 @@ Current baseline from `npm audit --json`:
 | Package | Current version(s) | Patched version target | Dependency type | Severity |
 |---|---:|---:|---|---|
 | `xlsx` | `0.20.2` | resolved (`0.20.2`) | direct | high (resolved) |
-| `react-scripts` | `5.0.1` | semver-major migration required | direct | high |
-| `crypto-browserify` | `3.12.1` | no safe non-breaking path in current chain | direct | low |
+| `react-scripts` | `5.0.1` | parent/toolchain migration required | direct | high (open) |
+| `crypto-browserify` | removed | resolved (dependency removed) | direct | low (resolved) |
 | `serialize-javascript` | `6.0.2`, `4.0.0` | `>=7.0.3` (blocked on Node 18 + CRA 5 toolchain) | transitive | high (open) |
 | `underscore` | `1.13.8` | resolved (`1.13.8`) | transitive | high (resolved) |
 | `flatted` | `3.4.2` | resolved (`3.4.2`) | transitive | high (resolved) |
-| `nth-check` | `1.0.2` | `>=2.0.1` | transitive | high |
-| `postcss` | `7.0.39` (vulnerable node), `8.5.8` present | `>=8.4.31` on vulnerable path | transitive | moderate |
-| `elliptic` | `6.6.1` | parent replacement required | transitive | low |
-| `@tootallnate/once` | `1.1.2` | `>=3.0.1` | transitive | low |
-| `webpack-dev-server` | `4.15.2` | `>=5.2.1` | transitive | moderate |
+| `nth-check` | `2.1.1` | resolved (`2.1.1`) | transitive | high (resolved) |
+| `postcss` | `8.5.8` | resolved (`>=8.4.31`) | transitive | moderate (resolved) |
+| `elliptic` | removed with `crypto-browserify` chain | resolved | transitive | low (resolved) |
+| `@tootallnate/once` | `3.0.1` | resolved (`3.0.1`) | transitive | low (resolved) |
+| `webpack-dev-server` | `4.15.2` | `>=5.2.1` (incompatible override with CRA 5 config) | transitive | moderate (open) |
 | `@svgr/plugin-svgo` / `@svgr/webpack` / `svgo` / `css-select` | `5.5.0` / `5.5.0` / `1.3.2` / `2.1.0` | requires parent major upgrade path | transitive | high |
 | `workbox-build` / `workbox-webpack-plugin` / `rollup-plugin-terser` | `6.6.0` / `6.6.0` / `7.0.2` | requires parent upgrade path | transitive | high |
 | `resolve-url-loader` | `4.0.0` | requires parent upgrade path | transitive | moderate |
@@ -233,7 +233,10 @@ Notes:
 - `xlsx` was upgraded to `0.20.2` using the official SheetJS tarball source to remove npm advisory exposure while preserving existing API usage in the app.
 - `underscore` is pinned to `1.13.8` via npm `overrides` to remove recursion/DoS advisory exposure from the `jsonpath` chain.
 - `flatted` is pinned to `3.4.2` via npm `overrides` to eliminate prototype-pollution risk in the eslint cache dependency chain.
+- `@tootallnate/once`, `nth-check`, and `postcss` are pinned via npm `overrides` to patched versions to address transitive advisories safely.
+- `crypto-browserify` was removed because app source no longer uses it; this also removes the `elliptic` transitive vulnerability chain.
 - `serialize-javascript@7.0.4` was tested but reverted because it breaks builds on this runtime/toolchain (`Node 18.13.0` + CRA 5). Safe remediation for this path requires parent toolchain upgrade.
+- `webpack-dev-server@5` was tested and reverted because CRA 5 injects deprecated v4-only options (`onAfterSetupMiddleware`/`onBeforeSetupMiddleware`) and fails startup with v5.
 
 ## Docker deployment shape
 
