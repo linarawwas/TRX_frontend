@@ -209,7 +209,7 @@ Current baseline from `npm audit --json`:
 
 | Package | Current version(s) | Patched version target | Dependency type | Severity |
 |---|---:|---:|---|---|
-| `xlsx` | `0.18.5` | `>=0.20.2` | direct | high |
+| `xlsx` | `0.20.2` | resolved (`0.20.2`) | direct | high (resolved) |
 | `react-scripts` | `5.0.1` | semver-major migration required | direct | high |
 | `crypto-browserify` | `3.12.1` | no safe non-breaking path in current chain | direct | low |
 | `serialize-javascript` | `6.0.2`, `4.0.0` | `>=7.0.3` | transitive | high |
@@ -230,6 +230,7 @@ Notes:
 
 - Several transitive vulnerabilities are locked under `react-scripts@5` and require careful, non-breaking remediation strategy.
 - This section is intentionally a living status tracker and is updated as fixes are applied.
+- `xlsx` was upgraded to `0.20.2` using the official SheetJS tarball source to remove npm advisory exposure while preserving existing API usage in the app.
 
 ## Docker deployment shape
 
