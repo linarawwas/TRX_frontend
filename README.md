@@ -196,6 +196,41 @@ REACT_APP_API_BASE_URL=/api
 - **Service worker** — Production only; registration and update events are logged through `src/utils/logger.ts`.
 - **IndexedDB** — Add `?idbdebug=1` or set `localStorage.IDB_DEBUG = "1"` for verbose logs.
 
+## Security
+
+Current baseline from `npm audit --json`:
+
+- **High:** 16
+- **Moderate:** 3
+- **Low:** 13
+- **Critical:** 0
+
+### Vulnerability map (current)
+
+| Package | Current version(s) | Patched version target | Dependency type | Severity |
+|---|---:|---:|---|---|
+| `xlsx` | `0.18.5` | `>=0.20.2` | direct | high |
+| `react-scripts` | `5.0.1` | semver-major migration required | direct | high |
+| `crypto-browserify` | `3.12.1` | no safe non-breaking path in current chain | direct | low |
+| `serialize-javascript` | `6.0.2`, `4.0.0` | `>=7.0.3` | transitive | high |
+| `underscore` | `1.13.6` | `>1.13.7` | transitive | high |
+| `flatted` | `3.4.1` | `>=3.4.2` | transitive | high |
+| `nth-check` | `1.0.2` | `>=2.0.1` | transitive | high |
+| `postcss` | `7.0.39` (vulnerable node), `8.5.8` present | `>=8.4.31` on vulnerable path | transitive | moderate |
+| `elliptic` | `6.6.1` | parent replacement required | transitive | low |
+| `@tootallnate/once` | `1.1.2` | `>=3.0.1` | transitive | low |
+| `webpack-dev-server` | `4.15.2` | `>=5.2.1` | transitive | moderate |
+| `@svgr/plugin-svgo` / `@svgr/webpack` / `svgo` / `css-select` | `5.5.0` / `5.5.0` / `1.3.2` / `2.1.0` | requires parent major upgrade path | transitive | high |
+| `workbox-build` / `workbox-webpack-plugin` / `rollup-plugin-terser` | `6.6.0` / `6.6.0` / `7.0.2` | requires parent upgrade path | transitive | high |
+| `resolve-url-loader` | `4.0.0` | requires parent upgrade path | transitive | moderate |
+| `jest` chain (`@jest/core`, `jest-cli`, `jest-config`, `jest-environment-jsdom`, `jsdom`, `http-proxy-agent`) | `27.x` / `16.7.0` / `4.0.1` | parent upgrade path | transitive | low |
+| `bfj` / `jsonpath` | `7.1.0` / `1.3.0` | parent upgrade path | transitive | high |
+
+Notes:
+
+- Several transitive vulnerabilities are locked under `react-scripts@5` and require careful, non-breaking remediation strategy.
+- This section is intentionally a living status tracker and is updated as fixes are applied.
+
 ## Docker deployment shape
 
 - Frontend is built to static assets during image build.
