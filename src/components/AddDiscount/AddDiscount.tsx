@@ -3,10 +3,10 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { toast } from "react-toastify";
 import "./AddDiscount.css";
-import { updateCustomerDiscount } from "../../features/customers/api";
-import { fetchCompanyExchangeRate } from "../../features/finance/api";
 import { useCompanyAreas } from "../../features/customers/hooks/useCompanyAreas";
 import { useAreaCustomers } from "../../features/areas/hooks/useAreaCustomers";
+import { useCompanyExchangeRate } from "../../features/finance/hooks/useCompanyExchangeRate";
+import { useUpdateCustomerDiscount } from "../../features/customers/hooks/useUpdateCustomerDiscount";
 
 interface Customer {
   _id: string;
@@ -27,9 +27,6 @@ interface FormData {
 const AddDiscount: React.FC = () => {
   const companyId = useSelector((state: RootState) => state.user.companyId);
   const token = useSelector((state: RootState) => state.user.token);
-
-  const [exchangeRate, setExchangeRate] = useState<number | null>(null); // LBP per 1 USD (read-only)
-  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
     areaId: "",
@@ -55,23 +52,12 @@ const AddDiscount: React.FC = () => {
     formData.areaId,
     Boolean(token && formData.areaId)
   );
+  const { exchangeRate } = useCompanyExchangeRate(token, Boolean(token));
+  const { submit: submitDiscount, loading } = useUpdateCustomerDiscount(token);
 
   useEffect(() => {
     if (areasError) toast.error("خطأ في تحميل المناطق");
   }, [areasError]);
-
-  // Fetch company exchange rate (read-only, server-managed)
-  useEffect(() => {
-    if (!token) return;
-    fetchCompanyExchangeRate(token)
-      .then((data) => {
-        setExchangeRate(data?.exchangeRateInLBP ?? null);
-      })
-      .catch(() => {
-        setExchangeRate(null);
-        // Only warn if user chooses LBP later and we still have no rate
-      });
-  }, [token]);
 
   useEffect(() => {
     if (customersError) toast.error("خطأ في تحميل العملاء");
@@ -107,11 +93,9 @@ const AddDiscount: React.FC = () => {
       toast.error("جلسة المستخدم غير متاحة");
       return;
     }
-    setLoading(true);
 
     if (!formData.areaId || !formData.customerId) {
       toast.error("يرجى اختيار المنطقة والعميل");
-      setLoading(false);
       return;
     }
 
@@ -120,7 +104,6 @@ const AddDiscount: React.FC = () => {
       isNaN(Number(formData.valueAfterDiscount))
     ) {
       toast.error("يرجى إدخال قيمة الخصم بشكل صحيح");
-      setLoading(false);
       return;
     }
 
@@ -134,7 +117,6 @@ const AddDiscount: React.FC = () => {
         toast.error(
           "لا يمكن التحويل من ليرة إلى دولار لأن سعر الصرف غير متاح حالياً"
         );
-        setLoading(false);
         return;
       }
       valueAfterDiscountUSD =
@@ -153,11 +135,7 @@ const AddDiscount: React.FC = () => {
     };
 
     try {
-      const response = await updateCustomerDiscount(
-        token,
-        formData.customerId,
-        payload
-      );
+      const response = await submitDiscount(formData.customerId, payload);
       if (!response.ok) throw new Error("Network error");
 
       toast.success("تم حفظ الخصم بنجاح!");
@@ -172,8 +150,6 @@ const AddDiscount: React.FC = () => {
       });
     } catch {
       toast.error("فشل حفظ الخصم. حاول مرة أخرى.");
-    } finally {
-      setLoading(false);
     }
   };
 

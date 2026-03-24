@@ -3,11 +3,9 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import AddToModel from "../../AddToModel/AddToModel";
-import {
-  createCustomerWithSequence,
-  fetchActiveCustomersForArea,
-} from "../../../features/customers/api";
 import { useCompanyAreas } from "../../../features/customers/hooks/useCompanyAreas";
+import { useActiveAreaCustomers } from "../../../features/customers/hooks/useActiveAreaCustomers";
+import { useCreateCustomerWithSequence } from "../../../features/customers/hooks/useCreateCustomerWithSequence";
 
 type CustomerLite = { _id: string; name: string; sequence?: number | null };
 
@@ -18,32 +16,33 @@ const AddCustomer: React.FC = () => {
   const [currentAreaId, setCurrentAreaId] = useState<string>("");
   const [formKey, setFormKey] = useState(0); // re-mount to reset (we’ll keep area preselected)
   const { areas, error: areasError } = useCompanyAreas(token, Boolean(token));
+  const {
+    customers: activeCustomers,
+    error: activeCustomersError,
+  } = useActiveAreaCustomers(token, currentAreaId);
+  const { submit: submitCreateCustomer } = useCreateCustomerWithSequence(token);
 
   useEffect(() => {
     if (areasError) toast.error("تعذّر جلب المناطق");
   }, [areasError]);
 
-  // load ACTIVE customers for selected area (for "after X")
   useEffect(() => {
     if (!currentAreaId) {
       setAfterList([]);
       return;
     }
-    (async () => {
-      try {
-        const list = await fetchActiveCustomersForArea(token, currentAreaId);
-        const sorted = [...(list || [])].sort((a, b) => {
-          const sa = a.sequence ?? Number.POSITIVE_INFINITY;
-          const sb = b.sequence ?? Number.POSITIVE_INFINITY;
-          if (sa !== sb) return sa - sb;
-          return (a.name || "").localeCompare(b.name || "", "ar");
-        });
-        setAfterList(sorted);
-      } catch {
-        toast.error("تعذّر جلب زبائن المنطقة");
-      }
-    })();
-  }, [currentAreaId, token]);
+    const sorted = [...(activeCustomers || [])].sort((a, b) => {
+      const sa = a.sequence ?? Number.POSITIVE_INFINITY;
+      const sb = b.sequence ?? Number.POSITIVE_INFINITY;
+      if (sa !== sb) return sa - sb;
+      return (a.name || "").localeCompare(b.name || "", "ar");
+    });
+    setAfterList(sorted);
+  }, [activeCustomers, currentAreaId]);
+
+  useEffect(() => {
+    if (activeCustomersError) toast.error("تعذّر جلب زبائن المنطقة");
+  }, [activeCustomersError]);
 
   const areaOptions = useMemo(
     () =>
@@ -106,7 +105,7 @@ const AddCustomer: React.FC = () => {
       startAt: 1,
     };
 
-    const response = await createCustomerWithSequence(token, payload);
+    const response = await submitCreateCustomer(payload);
     const j = response.data;
     if (!response.ok) throw new Error((j as { error?: string })?.error || "فشل إنشاء الزبون");
     return j;

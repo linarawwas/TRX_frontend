@@ -3,8 +3,8 @@ import { useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import "../AddCustomers/AddCustomers.css";
 import "./AddCustomerInitials.css";
-import { uploadCustomersWithOrders } from "../../../features/customers/api";
 import { useCompanyAreas } from "../../../features/customers/hooks/useCompanyAreas";
+import { useUploadCustomersWithOrders } from "../../../features/customers/hooks/useUploadCustomersWithOrders";
 const AddCustomerInitials = (): JSX.Element => {
   const [file, setFile] = useState<File | null>(null);
   const [selectedAreaId, setSelectedAreaId] = useState<string>("");
@@ -13,6 +13,7 @@ const AddCustomerInitials = (): JSX.Element => {
   const token: string = useSelector((state: any) => state.user.token);
   const companyId: string = useSelector((state: any) => state.user.companyId);
   const { areas, error: areasError } = useCompanyAreas(token, Boolean(companyId));
+  const { submit: submitUpload } = useUploadCustomersWithOrders(token);
 
   useEffect(() => {
     if (areasError) toast.error("Error fetching areas");
@@ -51,7 +52,7 @@ const AddCustomerInitials = (): JSX.Element => {
       await new Promise((res) => setTimeout(res, 700));
       setLoadingStep("Uploading to database...");
 
-      const response = await uploadCustomersWithOrders(token, formData);
+      const response = await submitUpload(formData);
       if (!response.ok) throw new Error("Upload failed");
 
       const result = response.data;

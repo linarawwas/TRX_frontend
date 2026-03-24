@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import "./AreaSequencePicker.css";
-import { reorderAreaCustomers } from "../../features/areas/api";
 import { useAreaCustomers } from "../../features/areas/hooks/useAreaCustomers";
+import { useReorderAreaCustomers } from "../../features/areas/hooks/useReorderAreaCustomers";
 
 interface Customer {
   _id: string;
@@ -45,6 +45,8 @@ const AreaSequencePicker: React.FC<AreaSequencePickerProps> = ({
     areaId,
     Boolean(areaId && token)
   );
+  const { submit: submitReorder, loading: reorderLoading } =
+    useReorderAreaCustomers(token, companyId);
 
   // keep internal in sync if parent controls value
   useEffect(() => setPos(value), [value]);
@@ -109,14 +111,9 @@ const AreaSequencePicker: React.FC<AreaSequencePickerProps> = ({
             ];
     }
 
-    setBusy(true);
     try {
-      const response = await reorderAreaCustomers(
-        token,
-        areaId,
-        companyId,
-        next
-      );
+      setBusy(true);
+      const response = await submitReorder(areaId, next);
       const data = response.data;
       if (!response.ok) {
         const message =
@@ -143,7 +140,7 @@ const AreaSequencePicker: React.FC<AreaSequencePickerProps> = ({
           className="sequence-form__select"
           value={pos}
           onChange={(e) => handleSelect(e.target.value)}
-          disabled={disabled || loading || !areaId || busy}
+          disabled={disabled || loading || !areaId || busy || reorderLoading}
         >
           <option value="__START__">في بداية القائمة</option>
           <option value="__END__">في نهاية القائمة</option>
@@ -165,7 +162,7 @@ const AreaSequencePicker: React.FC<AreaSequencePickerProps> = ({
           className="sequence-form__btn"
           type="button"
           onClick={applyNow}
-          disabled={busy || !areaId}
+          disabled={busy || !areaId || reorderLoading}
         >
           {busy ? "جارٍ التطبيق…" : "تطبيق"}
         </button>
