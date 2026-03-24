@@ -1,11 +1,24 @@
 .login-wrapper {
+  width: 100vw;
   margin-left: 0;
   min-height: 100vh;
+  min-height: 100dvh;
   background: linear-gradient(to bottom right, #0a2e57, #123255);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
+}
+
+body.login-page {
+  margin: 0;
+  background: #0a2e57;
+}
+
+body.login-page #root {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: linear-gradient(to bottom right, #0a2e57, #123255);
 }
 
 .header {
