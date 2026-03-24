@@ -15,6 +15,15 @@ interface Sums {
   lastRateLBP?: number; // optional: from last order snapshot
 }
 
+const parseOrderBody = (raw: string | undefined): Record<string, any> | null => {
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as Record<string, any>;
+  } catch {
+    return null;
+  }
+};
+
 const CustomerInvoices: React.FC<{ customerId: string }> = ({ customerId }) => {
   const [sums, setSums] = useState<Sums | null>(null);
   const [loading, setLoading] = useState(true);
@@ -43,9 +52,10 @@ const CustomerInvoices: React.FC<{ customerId: string }> = ({ customerId }) => {
             (r: any) =>
               r?.url?.includes("/api/orders") &&
               r?.options?.method === "POST" &&
-              JSON.parse(r?.options?.body || "{}")?.customerid === customerId
+              parseOrderBody(r?.options?.body)?.customerid === customerId
           )
-          .map((r: any) => JSON.parse(r.options.body));
+          .map((r: any) => parseOrderBody(r.options?.body))
+          .filter((order): order is Record<string, any> => Boolean(order));
 
         if (cachedInvoice) {
           let delivered = cachedInvoice.deliveredSum || 0;

@@ -26,6 +26,15 @@ type PendingOrderPayload = {
   returned?: number;
 };
 
+const parsePendingBody = (raw: string | undefined): PendingOrderPayload | null => {
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as PendingOrderPayload;
+  } catch {
+    return null;
+  }
+};
+
 /** Load cached invoice + pending local “create order” adjustments (offline-safe). */
 export async function getAdjustedInvoiceSums(customerId: string, companyId?: string) {
   const cached = (await getCustomerInvoicesFromDB(customerId)) as
@@ -39,10 +48,10 @@ export async function getAdjustedInvoiceSums(customerId: string, companyId?: str
         typeof request?.options?.body === "string" &&
         request?.url?.includes("/api/orders") &&
         request?.options?.method === "POST" &&
-        (JSON.parse(request.options.body) as PendingOrderPayload)?.customerid ===
-          customerId
+        parsePendingBody(request.options.body)?.customerid === customerId
     )
-    .map((request) => JSON.parse(request.options?.body || "{}") as PendingOrderPayload);
+    .map((request) => parsePendingBody(request.options?.body))
+    .filter((payload): payload is PendingOrderPayload => Boolean(payload));
 
   let delivered = cached?.deliveredSum || 0;
   let returned  = cached?.returnedSum  || 0;

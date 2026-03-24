@@ -18,6 +18,15 @@ interface PendingRequest {
 
 const logger = createLogger("offline-sync");
 
+const parseJsonBody = (raw: string | undefined) => {
+  if (!raw) return {};
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return {};
+  }
+};
+
 const useSyncOfflineOrders = () => {
   const dispatch = useDispatch();
   const syncInProgress = useRef(false);
@@ -62,7 +71,7 @@ const useSyncOfflineOrders = () => {
       for (const request of pendingRequests) {
         try {
           logger.debug("Processing request.", request);
-          const body = JSON.parse(request.options.body || "{}");
+          const body = parseJsonBody(request.options.body);
 
           if (!request.url || !request.url.startsWith("http")) {
             logger.error("Invalid request URL.", request.url);

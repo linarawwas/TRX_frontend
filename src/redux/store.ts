@@ -13,7 +13,15 @@ export type RootState = Omit<BaseRootState, 'shipment'> & {
 
 // Load the state from localStorage when initializing the Redux store
 const savedState = localStorage.getItem('reduxState');
-const preloadedState = savedState ? JSON.parse(savedState) : undefined;
+const parseSavedState = (raw: string | null) => {
+  if (!raw) return undefined;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return undefined;
+  }
+};
+const preloadedState = parseSavedState(savedState);
 
 export const store = configureStore({
   reducer: rootReducer,

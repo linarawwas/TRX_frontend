@@ -22,12 +22,21 @@ const COMPANY_ID_KEY = "companyId";
 const IS_ADMIN_KEY = "isAdmin";
 const USERNAME_KEY = "username";
 
+function parseBoolean(raw: string | null): boolean {
+  if (!raw) return false;
+  try {
+    return Boolean(JSON.parse(raw));
+  } catch {
+    return false;
+  }
+}
+
 export function loadAuthFromStorage(): StoredAuth {
   const token = localStorage.getItem(TOKEN_KEY);
   const companyId = localStorage.getItem(COMPANY_ID_KEY);
   const username = localStorage.getItem(USERNAME_KEY);
   const isAdminRaw = localStorage.getItem(IS_ADMIN_KEY);
-  const isAdmin = isAdminRaw ? JSON.parse(isAdminRaw) : false;
+  const isAdmin = parseBoolean(isAdminRaw);
 
   return {
     token,
