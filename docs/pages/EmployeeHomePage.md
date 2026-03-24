@@ -7,32 +7,38 @@
 ## Overview
 
 The Employee Home Page serves as the primary dashboard for employees, providing:
+
 - Welcome message with user name and current date
 - Today's shipment progress snapshot (collapsible)
 - Current round progress snapshot (collapsible)
-- Quick action buttons for common tasks (profits, expenses, start shipment, view shipment)
-- Modal overlays for adding profits/expenses and starting shipments
+- Quick action buttons for common tasks (start shipment, view shipment)
+- Modal overlays for starting shipments
 
 ## Key Components & Links
 
 ### Main Container
+
 - **[EmployeeHomePage.tsx](../../src/pages/EmployeePages/EmployeeHomePage/EmployeeHomePage.tsx)** - Main page component orchestrating all sections
 
 ### Snapshot Components
+
 - **[TodaySnapshot.tsx](../../src/components/AsideMenu/Right/TodaySnapshot.tsx)** - Displays today's overall shipment progress and financial KPIs
 - **[RoundSnapshot.tsx](../../src/components/AsideMenu/Right/RoundSnapshot.tsx)** - Displays current round progress and financial KPIs
 - **[ProgressSnapshot.tsx](../../src/components/snapshots/ProgressSnapshot.tsx)** - Shared presentational component for both snapshots (progress bar, KPIs, collapsible panel)
 
 ### Action Components
+
 - **[FeatureSection.tsx](../../src/components/LandingPage/FeatureSection.tsx)** - Quick action buttons with modal overlays for profits/expenses/shipment
 
 ### Data & Selectors
+
 - **[shipment.ts](../../src/redux/selectors/shipment.ts)** - Typed Redux selectors:
   - `selectShipmentMeta` - Returns shipment ID and dayId
   - `selectTodayProgress` - Returns today's target, delivered, returned, and financial values
   - `selectRoundProgress` - Returns current round progress and financial deltas
 
 ### Utilities
+
 - **[progress.ts](../../src/features/shipments/utils/progress.ts)** - Pure utility functions:
   - `computeProgress(delivered, target)` - Calculates progress percentage, over-delivery, and reached status
   - `formatMoneyPair(usd, lbp)` - Formats USD and LBP values for display
@@ -56,30 +62,30 @@ EmployeeHomePage (layout)
 ### Selector Responsibilities
 
 1. **selectShipmentMeta**
-   - Returns `{ id: shipment._id, dayId: shipment.dayId }`
-   - Used by FeatureSection to link to current shipment
-
+  - Returns `{ id: shipment._id, dayId: shipment.dayId }`
+  - Used by FeatureSection to link to current shipment
 2. **selectTodayProgress**
-   - Returns all today's shipment values:
-     - `target, delivered, returned`
-     - `paidUSD, paidLBP, expUSD, expLBP, profUSD, profLBP`
-   - Used by TodaySnapshot
-
+  - Returns all today's shipment values:
+    - `target, delivered, returned`
+    - `paidUSD, paidLBP, expUSD, expLBP, profUSD, profLBP`
+  - Used by TodaySnapshot
 3. **selectRoundProgress**
-   - Returns current round deltas (this round only):
-     - `sequence, targetRound`
-     - `deliveredThisRound, returnedThisRound`
-     - `usdThisRound, lbpThisRound, expUsdThisRound, expLbpThisRound, profUsdThisRound, profLbpThisRound`
-   - Used by RoundSnapshot
+  - Returns current round deltas (this round only):
+    - `sequence, targetRound`
+    - `deliveredThisRound, returnedThisRound`
+    - `usdThisRound, lbpThisRound, expUsdThisRound, expLbpThisRound, profUsdThisRound, profLbpThisRound`
+  - Used by RoundSnapshot
 
 ## i18n Keys
 
-All user-facing Arabic strings are extracted to translation keys under the `emp.*` namespace:
+All user-facing Arabic strings are extracted to translation keys under the `emp.`* namespace:
 
 ### Home Page
+
 - `emp.home.hello` - "مرحبا"
 
 ### Snapshots
+
 - `emp.snap.today.title` - "إحصاءات اليوم"
 - `emp.snap.round.title` - "إحصاءات الجولة #"
 - `emp.snap.goal` - "الهدف"
@@ -88,6 +94,7 @@ All user-facing Arabic strings are extracted to translation keys under the `emp.
 - `emp.snap.percentOfGoal` - "% من الهدف"
 
 ### KPIs
+
 - `emp.kpi.cashToday` - "نقدية اليوم"
 - `emp.kpi.expenses` - "المصاريف"
 - `emp.kpi.extraProfits` - "الأرباح الإضافية"
@@ -96,9 +103,11 @@ All user-facing Arabic strings are extracted to translation keys under the `emp.
 - `emp.kpi.extraProfitsRound` - "الأرباح الإضافية (الجولة)"
 
 ### Round Messages
+
 - `emp.round.targetLock` - "اكتمل الهدف لهذه الجولة. لزيادة التسليم، ابدأ جولة جديدة."
 
 ### Actions
+
 - `emp.actions.goToShipment` - "الذهاب إلى تفاصيل الشحنة"
 - `emp.actions.addProfits` - "إضافة أرباح"
 - `emp.actions.addExpenses` - "إضافة مصاريف"
@@ -106,6 +115,7 @@ All user-facing Arabic strings are extracted to translation keys under the `emp.
 - `emp.actions.close` - "إغلاق النموذج"
 
 ### Footer
+
 - `emp.footer.copyright` - "© 2025 تيركس بواسطة لينة الرواّس. جميع الحقوق محفوظة."
 
 **Translation utility:** [src/utils/i18n.ts](../../src/utils/i18n.ts)
@@ -113,6 +123,7 @@ All user-facing Arabic strings are extracted to translation keys under the `emp.
 ## Accessibility
 
 ### Modal Improvements
+
 - Modal dialogs include `role="dialog"` and `aria-modal="true"`
 - Close button receives initial focus when modal opens
 - ESC key closes modal (handled via `onKeyDown` on overlay)
@@ -120,6 +131,7 @@ All user-facing Arabic strings are extracted to translation keys under the `emp.
 - Toggle buttons include `type="button"` and proper `aria-label` attributes
 
 ### Keyboard Navigation
+
 - TAB focus moves into modal content
 - ESC key closes modal
 - All action buttons are keyboard accessible

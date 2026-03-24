@@ -9,9 +9,7 @@ import {
 import "./FeatureSection.css";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { RootState } from "../../redux/store";
 import { selectRoundProgress, selectShipmentMeta } from "../../redux/selectors/shipment";
-import { computeProgress } from "../../features/shipments/utils/progress";
 import { t } from "../../utils/i18n";
 
 const FeatureSection: React.FC = () => {
@@ -19,8 +17,6 @@ const FeatureSection: React.FC = () => {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const { dayId } = useSelector(selectShipmentMeta);
-  const { targetRound, deliveredThisRound } = useSelector(selectRoundProgress);
-  const { reached } = computeProgress(deliveredThisRound, targetRound);
 
   const handleShipmentToggle = useCallback(() => {
     setActiveForm((prev) => (prev === "shipment" ? null : "shipment"));
@@ -78,7 +74,7 @@ const FeatureSection: React.FC = () => {
                 background: "none",
                 border: "none",
                 padding: 0,
-                // cursor: reached ? "pointer" : "not-allowed",
+             cursor:"pointer",
                 color: "inherit",
                 opacity: 1,
               }}

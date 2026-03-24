@@ -160,7 +160,7 @@ npm install
 ### Environment variables
 
 - **API base** — All requests use `API_BASE` from `src/config/api.ts`.
-  - When the app runs on **localhost** (any port), the frontend **always** uses `http://localhost:5000` so dev never hits a remote API.
+  - When the app runs on **localhost** (any port), the frontend **always** uses `http://localhost:5000/` so dev never hits a remote API.
   - Otherwise it uses `REACT_APP_API_BASE_URL` or `REACT_APP_API_BASE` from `.env` (no trailing slash).
   - For production behind nginx reverse proxy, use `REACT_APP_API_BASE_URL=/api`.
 
