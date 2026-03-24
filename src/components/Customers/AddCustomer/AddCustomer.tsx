@@ -3,7 +3,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import AddToModel from "../../AddToModel/AddToModel";
-import { API_BASE } from "../../../config/api";
+import {
+  createCustomerWithSequence,
+  fetchActiveCustomersForArea,
+  fetchCompanyAreas,
+} from "../../../features/customers/api";
 
 type Area = { _id: string; name: string };
 type CustomerLite = { _id: string; name: string; sequence?: number | null };
@@ -20,11 +24,7 @@ const AddCustomer: React.FC = () => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/areas/company`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error();
-        const data = await res.json();
+        const data = await fetchCompanyAreas(token);
         setAreas(Array.isArray(data) ? data : []);
       } catch {
         toast.error("تعذّر جلب المناطق");
@@ -40,12 +40,7 @@ const AddCustomer: React.FC = () => {
     }
     (async () => {
       try {
-        const res = await fetch(
-          `${API_BASE}/api/customers/area/${currentAreaId}/active`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        if (!res.ok) throw new Error();
-        const list: CustomerLite[] = await res.json();
+        const list = await fetchActiveCustomersForArea(token, currentAreaId);
         const sorted = [...(list || [])].sort((a, b) => {
           const sa = a.sequence ?? Number.POSITIVE_INFINITY;
           const sb = b.sequence ?? Number.POSITIVE_INFINITY;
@@ -120,20 +115,9 @@ const AddCustomer: React.FC = () => {
       startAt: 1,
     };
 
-    const res = await fetch(
-      `${API_BASE}/api/customers/create-with-sequence`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      }
-    );
-
-    const j = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(j?.error || "فشل إنشاء الزبون");
+    const response = await createCustomerWithSequence(token, payload);
+    const j = response.data;
+    if (!response.ok) throw new Error((j as { error?: string })?.error || "فشل إنشاء الزبون");
     return j;
   };
 

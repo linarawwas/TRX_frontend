@@ -1,7 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import "./AreaSequencePicker.css";
-import { API_BASE } from "../../config/api";
+import {
+  fetchCustomersByArea,
+  reorderAreaCustomers,
+} from "../../features/areas/api";
 
 interface Customer {
   _id: string;
@@ -54,11 +57,7 @@ const AreaSequencePicker: React.FC<AreaSequencePickerProps> = ({
     (async () => {
       try {
         setLoading(true);
-        const r = await fetch(
-          `${API_BASE}/api/customers/area/${areaId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        const data = await r.json();
+        const data = await fetchCustomersByArea(token, areaId);
         const sorted = [...data].sort((a: Customer, b: Customer) => {
           const sa = a.sequence ?? Number.POSITIVE_INFINITY;
           const sb = b.sequence ?? Number.POSITIVE_INFINITY;
@@ -121,24 +120,17 @@ const AreaSequencePicker: React.FC<AreaSequencePickerProps> = ({
 
     setBusy(true);
     try {
-      const res = await fetch(
-        `${API_BASE}/api/areas/${areaId}/reorder?companyId=${companyId}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            orderedCustomerIds: next,
-            force: true,
-            startAt: 1,
-          }),
-        }
+      const response = await reorderAreaCustomers(
+        token,
+        areaId,
+        companyId,
+        next
       );
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        toast.error(data?.error || "تعذر حفظ الترتيب");
+      const data = response.data;
+      if (!response.ok) {
+        const message =
+          typeof data?.error === "string" ? data.error : "تعذر حفظ الترتيب";
+        toast.error(message);
         return;
       }
       toast.success("تم تحديث ترتيب الزبائن");

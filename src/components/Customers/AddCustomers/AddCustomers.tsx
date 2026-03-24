@@ -3,7 +3,7 @@ import * as XLSX from 'xlsx';
 import './AddCustomers.css';
 import { useSelector } from 'react-redux';
 import { ToastContainer, toast } from 'react-toastify';
-import { API_BASE } from '../../../config/api';
+import { uploadCustomersMany } from '../../../features/customers/api';
 
 const AddCustomers = (): JSX.Element => {
   const [file, setFile] = useState<File | null>(null);
@@ -55,14 +55,7 @@ const AddCustomers = (): JSX.Element => {
           }
   
           try {
-            const response = await fetch(`${API_BASE}/api/customers/many`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify(customerData),
-            });
+            await uploadCustomersMany(token, customerData);
   
             toast.success('Customers Added successfully');
           } catch (error) {

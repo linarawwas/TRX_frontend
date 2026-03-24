@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import AddToModel from "../../AddToModel/AddToModel";
-import { API_BASE } from "../../../config/api";
+import { createArea, fetchDays } from "../../../features/areas/api";
 
 type Day = { _id: string; name: string };
 
@@ -27,10 +27,7 @@ const AddArea: React.FC = () => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/days`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
+        const data = await fetchDays(token);
         setDays(Array.isArray(data) ? data : []);
       } catch {
         toast.error("فشل في تحميل الأيام");
@@ -70,18 +67,12 @@ const AddArea: React.FC = () => {
       companyId, // server may already infer it; include if your API expects it
     };
 
-    const res = await fetch(`${API_BASE}/api/areas`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(payload),
-    });
-
-    const j = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      throw new Error(j?.error || "فشل في إنشاء المنطقة");
+    const response = await createArea(token, payload);
+    const j = response.data;
+    if (!response.ok) {
+      const message =
+        typeof j?.error === "string" ? j.error : "فشل في إنشاء المنطقة";
+      throw new Error(message);
     }
     toast.success("تمت إضافة المنطقة بنجاح");
     return j;

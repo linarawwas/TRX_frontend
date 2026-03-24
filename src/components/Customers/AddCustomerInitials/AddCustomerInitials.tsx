@@ -3,7 +3,10 @@ import { useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import "../AddCustomers/AddCustomers.css";
 import "./AddCustomerInitials.css";
-import { API_BASE } from "../../../config/api";
+import {
+  fetchCompanyAreas,
+  uploadCustomersWithOrders,
+} from "../../../features/customers/api";
 const AddCustomerInitials = (): JSX.Element => {
   const [file, setFile] = useState<File | null>(null);
   const [areas, setAreas] = useState<Array<{ _id: string; name: string }>>([]);
@@ -16,20 +19,7 @@ const AddCustomerInitials = (): JSX.Element => {
   useEffect(() => {
     const fetchAreas = async () => {
       try {
-        const response = await fetch(
-          `${API_BASE}/api/areas/company`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch areas");
-        }
-
-        const data = await response.json();
+        const data = await fetchCompanyAreas(token);
         setAreas(data);
       } catch (error) {
         toast.error("Error fetching areas");
@@ -72,20 +62,10 @@ const AddCustomerInitials = (): JSX.Element => {
       await new Promise((res) => setTimeout(res, 700));
       setLoadingStep("Uploading to database...");
 
-      const response = await fetch(
-        `${API_BASE}/api/customers/uploadCustomersWithOrders`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        }
-      );
-
+      const response = await uploadCustomersWithOrders(token, formData);
       if (!response.ok) throw new Error("Upload failed");
 
-      const result = await response.json();
+      const result = response.data;
       toast.success(`${result.createdCount} customers added successfully`);
 
       setFile(null);

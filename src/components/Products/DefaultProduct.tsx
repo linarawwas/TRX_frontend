@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { apiClient } from '../../api/client';
 import { useSelector } from 'react-redux';
 import SpinLoader from '../UI reusables/SpinLoader/SpinLoader';
 import './DefaultProducts.css'
-import { API_BASE } from '../../config/api';
+import { fetchDefaultProductsByCompany } from '../../features/products/api';
 interface DefaultProduct {
     _id: string;
     key: string;
@@ -21,15 +20,9 @@ const DefaultProducts: React.FC = () => {
         // Fetch default product based on company ID
         const fetchData = async () => {
             try {
-                const response = await apiClient.get<DefaultProduct[]>(
-                    `${API_BASE}/api/adminDeterminedDefaults/company/${companyId}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-                );
+                const response = await fetchDefaultProductsByCompany(token, companyId);
                 // Filter the data to find the default product
-                const defaultProductData = response.data.find(
+                const defaultProductData = response.find(
                     (item) => item.key === 'defaultProduct'
                 );
                 if (defaultProductData) {

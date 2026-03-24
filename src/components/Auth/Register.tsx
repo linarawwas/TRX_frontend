@@ -3,7 +3,7 @@ import './Register.css'; // Import your CSS file
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from 'react-redux';
-import { API_BASE } from '../../config/api';
+import { registerUser } from '../../features/auth/api';
 
 const Register: React.FC = () => {
   const token: string = useSelector((state: any) => state.user.token);
@@ -27,14 +27,7 @@ const Register: React.FC = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch(`${API_BASE}/api/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData), // Send the form data as JSON
-      });
+      const response = await registerUser(token, formData);
 
       if (response.ok) {
         // Registration was successful
@@ -42,7 +35,7 @@ const Register: React.FC = () => {
         // You can redirect to the signIn page or handle it as needed
       } else {
         // Registration failed
-        const data = await response.json();
+        const data = response.data;
         toast.error(`Registration failed: ${data.error}`);
       }
     } catch (error:any) {

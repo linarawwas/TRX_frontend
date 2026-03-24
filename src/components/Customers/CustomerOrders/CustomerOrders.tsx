@@ -1,12 +1,11 @@
 // CustomerOrders.tsx
 import React, { useState, useEffect } from "react";
-import { apiClient } from "../../../api/client";
 import { useSelector } from "react-redux";
 import SpinLoader from "../../UI reusables/SpinLoader/SpinLoader";
 import { Link } from "react-router-dom";
 import "./CustomerOrders.css";
 import { fmtUSD, fmtLBP, fmtRateLBP, lbpToUsd, usdToLbp } from "../../../utils/money";
-import { API_BASE } from "../../../config/api";
+import { fetchCustomerOrders } from "../../../features/orders/api";
 
 interface Payment {
   date: string;
@@ -45,13 +44,10 @@ const CustomerOrders: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchCustomerOrders = async () => {
+    const loadCustomerOrders = async () => {
       try {
-        const response = await apiClient.get(
-          `${API_BASE}/api/orders/customer/${customerId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setCustomerOrders(response.data);
+        const response = await fetchCustomerOrders(token, customerId);
+        setCustomerOrders(response as Order[]);
       } catch (error) {
         console.error("Error fetching orders:", error);
       } finally {
@@ -59,7 +55,7 @@ const CustomerOrders: React.FC = () => {
       }
     };
 
-    if (companyId && customerId) fetchCustomerOrders();
+    if (companyId && customerId) loadCustomerOrders();
   }, [companyId, customerId, token]);
 
   const formatTimestamp = (ts: string) => {

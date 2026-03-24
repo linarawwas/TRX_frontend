@@ -3,7 +3,12 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { toast } from "react-toastify";
 import "./AddDiscount.css";
-import { API_BASE } from "../../config/api";
+import {
+  fetchCompanyAreas,
+  updateCustomerDiscount,
+} from "../../features/customers/api";
+import { fetchCustomersByArea } from "../../features/areas/api";
+import { fetchCompanyExchangeRate } from "../../features/finance/api";
 
 interface Area {
   _id: string;
@@ -51,23 +56,18 @@ const AddDiscount: React.FC = () => {
 
   // Fetch areas
   useEffect(() => {
-    fetch(`${API_BASE}/api/areas/company`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
+    if (!token) return;
+    fetchCompanyAreas(token)
       .then(setAreaOptions)
       .catch(() => toast.error("خطأ في تحميل المناطق"));
   }, [companyId, token]);
 
   // Fetch company exchange rate (read-only, server-managed)
   useEffect(() => {
-    fetch(`${API_BASE}/api/exchange-rate`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then(async (res) => {
-        if (!res.ok) throw new Error();
-        const data = await res.json();
-        setExchangeRate(data.exchangeRateInLBP ?? null);
+    if (!token) return;
+    fetchCompanyExchangeRate(token)
+      .then((data) => {
+        setExchangeRate(data?.exchangeRateInLBP ?? null);
       })
       .catch(() => {
         setExchangeRate(null);
@@ -77,12 +77,9 @@ const AddDiscount: React.FC = () => {
 
   // Fetch customers by area
   useEffect(() => {
-    if (!formData.areaId) return;
-    fetch(`${API_BASE}/api/customers/area/${formData.areaId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
-      .then(setCustomerOptions)
+    if (!token || !formData.areaId) return;
+    fetchCustomersByArea(token, formData.areaId)
+      .then((data) => setCustomerOptions(data as Customer[]))
       .catch(() => toast.error("خطأ في تحميل العملاء"));
   }, [formData.areaId, token]);
 
@@ -112,6 +109,10 @@ const AddDiscount: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading) return;
+    if (!token) {
+      toast.error("جلسة المستخدم غير متاحة");
+      return;
+    }
     setLoading(true);
 
     if (!formData.areaId || !formData.customerId) {
@@ -158,20 +159,13 @@ const AddDiscount: React.FC = () => {
     };
 
     try {
-      const res = await fetch(
-        `${API_BASE}/api/customers/${formData.customerId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
-        }
+      const response = await updateCustomerDiscount(
+        token,
+        formData.customerId,
+        payload
       );
-      if (!res.ok) throw new Error("Network error");
+      if (!response.ok) throw new Error("Network error");
 
-      await res.json();
       toast.success("تم حفظ الخصم بنجاح!");
 
       setFormData({

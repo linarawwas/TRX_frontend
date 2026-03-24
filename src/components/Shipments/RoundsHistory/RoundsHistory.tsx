@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./RoundsHistory.css";
 import { useSelector } from "react-redux";
-import { API_BASE } from "../../../config/api";
+import { fetchShipmentRounds } from "../../../features/shipments/api";
 
 type Round = {
   _id: string;
@@ -43,12 +43,10 @@ const RoundsHistory: React.FC<Props> = ({ shipmentId, totalToday, title }) => {
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch(
-          `${API_BASE}/api/shipments/${shipmentId}/rounds`,
-          { headers: { Authorization: `Bearer ${token}` }, signal: ctrl.signal }
-        );
-        if (!res.ok) throw new Error("Failed to load rounds");
-        const data: Round[] = await res.json();
+        if (ctrl.signal.aborted) return;
+        const response = await fetchShipmentRounds(token, shipmentId);
+        if (!response.ok) throw new Error("Failed to load rounds");
+        const data: Round[] = response.data;
         // sort by sequence ASC for a natural timeline
         data.sort((a, b) => a.sequence - b.sequence);
         setRounds(data);

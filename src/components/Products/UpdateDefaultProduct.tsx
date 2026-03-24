@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { apiClient } from '../../api/client';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import { API_BASE } from '../../config/api';
+import { updateDefaultProduct } from '../../features/products/api';
 
 interface Product {
     _id: string;
@@ -34,11 +33,7 @@ const UpdateDefaultProduct: React.FC<UpdateDefaultProductProps> = ({ products, c
             };
 
             // Update default product based on selectedProduct
-            await apiClient.put(`${API_BASE}/api/adminDeterminedDefaults/defaultProduct`, data, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
+            await updateDefaultProduct(token, data);
             // Handle success or update UI accordingly
             toast.success('Default product updated successfully.');
             setTimeout(() => {
