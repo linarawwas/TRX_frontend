@@ -1,5 +1,6 @@
 import type { AxiosRequestConfig } from "axios";
-import { API_BASE, apiUrl } from "../../config/api";
+import { API_BASE } from "../../config/api";
+import { apiClient } from "../../api/client";
 
 type RequestHeaders = Record<string, string>;
 
@@ -32,27 +33,6 @@ function buildHeaders(
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...headers,
   };
-}
-
-async function parseResponseBody(response: Response): Promise<unknown> {
-  if (typeof response.text === "function") {
-    const text = await response.text();
-    if (!text) {
-      return null;
-    }
-
-    try {
-      return JSON.parse(text);
-    } catch {
-      return text;
-    }
-  }
-
-  if (typeof response.json === "function") {
-    return response.json();
-  }
-
-  return null;
 }
 
 function getErrorMessage(body: unknown, fallbackMessage: string): string {
@@ -124,26 +104,53 @@ export async function requestJson<T>(
     ...init
   }: ApiRequestOptions = {}
 ): Promise<T> {
-  const response = await fetch(apiUrl(path), {
-    ...init,
+  const response = await apiClient.request<unknown>({
+    url: path,
     method,
     headers:
       jsonBody === undefined
         ? authHeaders(token, headers)
         : jsonHeaders(token, headers),
-    body: jsonBody === undefined ? undefined : JSON.stringify(jsonBody),
+    data: jsonBody === undefined ? undefined : jsonBody,
+    withCredentials: init.credentials === "include",
+    signal: (init as { signal?: AbortSignal }).signal,
+    validateStatus: () => true,
   });
 
-  const body = await parseResponseBody(response);
-  if (!response.ok) {
+  const body = response.data;
+  if (response.status < 200 || response.status >= 300) {
     throw new ApiRequestError(
       getErrorMessage(body, fallbackMessage),
-      response.status,
+      response.status ?? 0,
       body
     );
   }
 
   return body as T;
+}
+
+type RawRequestOptions = RequestInit & { body?: string };
+
+export async function requestRaw(
+  url: string,
+  options: RawRequestOptions
+): Promise<{ ok: boolean; status: number; statusText: string; data: unknown }> {
+  const response = await apiClient.request<unknown>({
+    url,
+    method: options.method || "GET",
+    headers: (options.headers as RequestHeaders | undefined) ?? {},
+    data: options.body,
+    withCredentials: options.credentials === "include",
+    signal: (options as { signal?: AbortSignal }).signal,
+    validateStatus: () => true,
+  });
+
+  return {
+    ok: response.status >= 200 && response.status < 300,
+    status: response.status ?? 0,
+    statusText: response.statusText || "",
+    data: response.data,
+  };
 }
 
 export async function requestVoid(

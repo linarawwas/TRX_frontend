@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { getPendingRequests, removeRequestFromDb } from "../utils/indexedDB";
 import { createLogger } from "../utils/logger";
+import { requestRaw } from "../features/api/http";
 import {
   removePendingOrder,
   addCustomerWithEmptyOrder,
@@ -70,7 +71,7 @@ const useSyncOfflineOrders = () => {
           }
 
           logger.debug("Sending request to server.");
-          const response = await fetch(request.url, request.options);
+          const response = await requestRaw(request.url, request.options);
 
           if (response.ok) {
             logger.info("Order synced successfully. Removing from IndexedDB.");
@@ -90,7 +91,7 @@ const useSyncOfflineOrders = () => {
             toast.success("تم إرسال الطلبات المسجلة بدون انترنت بنجاح!");
           } else {
             logger.error("Failed to sync order.", response.statusText);
-            toast.error(`Failed to sync order: ${response.statusText}`);
+            toast.error(`Failed to sync order: ${response.statusText || response.status}`);
           }
         } catch (error) {
           logger.error("Error syncing offline order.", error);
