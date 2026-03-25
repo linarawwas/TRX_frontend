@@ -34,7 +34,8 @@ Component/page/hook to API dependency graph (static code mapping).
 | `src/features/orders/hooks/useRecordOrderController.ts` | direct `POST /api/orders`; delegated `fetchAndCacheCustomerInvoice` -> `/api/customers/reciept/${customerId}` |
 | `src/hooks/useSyncOfflineOrders.ts` | dynamic replay `fetch(request.url, request.options)` |
 | `src/features/shipments/hooks/useStartShipmentController.tsx` | `fetchDayByWeekday` -> `/api/days/name/${weekday}`; `createRoundOrShipment` -> `/api/shipments`; `preloadShipmentData` -> `/api/shipments/preload/${dayId}` |
-| `src/features/shipments/hooks/useTodayShipmentTotals.ts` | RTK Query `POST /api/shipments/range` |
+| `src/features/shipments/hooks/useTodayShipmentTotals.ts` | RTK Query `POST /api/shipments/range` (canonical owner: `trxApi.listShipmentsRange`) |
+| `src/pages/SharedPages/Shipment/ShipmentsList.tsx` | `useLazyListShipmentsRangeQuery` -> RTK Query `POST /api/shipments/range` |
 | `src/features/finance/hooks/useFinanceEntries.ts` | `listFinances` -> `/api/finances?...` |
 | `src/features/finance/hooks/useDailySummary.ts` | `dailySummary` -> `/api/finances/summary/daily` |
 | `src/features/finance/hooks/useMonthlySummary.ts` | `monthlySummary` -> `/api/finances/summary/monthly` |
@@ -50,7 +51,7 @@ Component/page/hook to API dependency graph (static code mapping).
 
 | API module | Downstream transport |
 |---|---|
-| `src/features/api/trxApi.ts` | RTK Query `fetchBaseQuery` with `baseUrl: API_BASE` + bearer token |
+| `src/features/api/trxApi.ts` | RTK Query `fetchBaseQuery` with `baseUrl: API_BASE` + bearer token; single source of truth for `/api/shipments/range` |
 | `src/features/api/http.ts` | `fetch(apiUrl(path), ...)` + axios config helpers (`baseURL: API_BASE`) |
 | `src/features/*/api*.ts` | mostly `axios` and `requestJson` wrappers over `/api/...` |
 

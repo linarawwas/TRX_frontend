@@ -5,7 +5,8 @@ import "react-datepicker/dist/react-datepicker.css";
 import { useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import { selectUserToken, selectUserCompanyId } from "../../../redux/selectors/user";
-import { fetchShipmentsByRange, DateObject, ShipmentData } from "../../../features/shipments/apiShipments";
+import { useLazyListShipmentsRangeQuery } from "../../../features/api/trxApi";
+import { DateObject, ShipmentData } from "../../../features/shipments/apiShipments";
 import { formatUSD, formatLBP, formatDMY, computeShipmentTotals } from "../../../features/shipments/utils/formatShipment";
 import SpinLoader from "../../../components/UI reusables/SpinLoader/SpinLoader";
 import { t } from "../../../utils/i18n";
@@ -27,6 +28,7 @@ const ShipmentsList: React.FC = () => {
 
   const token = useSelector(selectUserToken);
   const companyId = useSelector(selectUserCompanyId);
+  const [listShipmentsRange] = useLazyListShipmentsRangeQuery();
 
   const formatDateObject = (d: DateObject): DateObject => ({
     day: d.day || null,
@@ -50,6 +52,8 @@ const ShipmentsList: React.FC = () => {
       toast.error(t("shipments.filter.dateRequired"));
       return;
     }
+    const requestFrom = { day: fFrom.day, month: fFrom.month, year: fFrom.year };
+    const requestTo = { day: fTo.day, month: fTo.month, year: fTo.year };
     if (!token || !companyId) {
       toast.error(t("common.error"));
       return;
@@ -57,7 +61,14 @@ const ShipmentsList: React.FC = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const fetched = await fetchShipmentsByRange(token, companyId, fFrom, fTo);
+      const payload = await listShipmentsRange({
+        companyId,
+        fromDate: requestFrom,
+        toDate: requestTo,
+      }).unwrap();
+      const fetched = Array.isArray(payload?.shipments)
+        ? (payload.shipments as ShipmentData[])
+        : [];
       setShipments(fetched || []);
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);

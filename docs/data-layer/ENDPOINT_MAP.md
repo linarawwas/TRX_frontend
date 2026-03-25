@@ -13,7 +13,7 @@ Endpoint-to-usage mapping across frontend transport layers (`fetch`, `axios`, RT
 
 | Endpoint | Method(s) | Used in |
 |---|---:|---|
-| `/api/shipments/range` | POST | `src/features/api/trxApi.ts` (`listShipmentsRange`), `src/features/shipments/apiShipments.ts` (`fetchShipmentsByRange`) |
+| `/api/shipments/range` | POST | `src/features/api/trxApi.ts` (`listShipmentsRange`); consumed by `src/features/shipments/hooks/useTodayShipmentTotals.ts` and `src/pages/SharedPages/Shipment/ShipmentsList.tsx` |
 | `/api/shipments/orders/by-date` | GET | `src/features/api/trxApi.ts` (`shipmentsOrdersByDate`) |
 | `/api/shipments` | POST | `src/features/shipments/apiShipments.ts` (`createRoundOrShipment`) |
 | `/api/shipments/preload/${dayId}` | GET | `src/features/shipments/apiShipments.ts` (`preloadShipmentData`) |

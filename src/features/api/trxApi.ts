@@ -112,6 +112,7 @@ export const trxApi = createApi({
 
 export const {
   useListShipmentsRangeQuery,
+  useLazyListShipmentsRangeQuery,
   useLazyShipmentsOrdersByDateQuery,
 } = trxApi;
 

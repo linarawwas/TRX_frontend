@@ -1,5 +1,4 @@
-import { apiClient } from "../../api/client";
-import { jsonAxiosConfig, requestJson } from "../api/http";
+import { requestJson } from "../api/http";
 import {
   saveAreasByDayToDB,
   saveCustomerDiscountToDB,
@@ -33,10 +32,6 @@ export interface ShipmentData {
   shipmentUSDExpenses: number;
 }
 
-export interface ShipmentsRangeResponse {
-  shipments: ShipmentData[];
-}
-
 type Area = { _id: string; name: string; customers?: any[]; [k: string]: any };
 
 export type PreloadProgress =
@@ -68,20 +63,6 @@ type CreateShipmentApiResponse = {
 };
 
 const logger = createLogger("shipments-api");
-
-export async function fetchShipmentsByRange(
-  token: string,
-  companyId: string,
-  fromDate: DateObject,
-  toDate: DateObject
-): Promise<ShipmentData[]> {
-  const { data } = await apiClient.post<ShipmentsRangeResponse>(
-    "/api/shipments/range",
-    { companyId, fromDate, toDate },
-    jsonAxiosConfig(token)
-  );
-  return Array.isArray(data?.shipments) ? data.shipments : [];
-}
 
 export async function fetchDayByWeekday(
   token: string,
