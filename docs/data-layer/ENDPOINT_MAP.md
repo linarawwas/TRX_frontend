@@ -1,6 +1,13 @@
 # Endpoint Map
 
-Endpoint-to-usage mapping across frontend transport layers (`fetch`, `axios`, RTK Query, `requestJson`).
+Endpoint-to-usage mapping across frontend transport layers.
+
+Transport labeling rules:
+
+- `src/features/api/trxApi.ts` => **RTK Query**
+- `src/features/*/api*.ts` using `requestJson(...)` => **requestJson**
+- `src/features/*/api*.ts` or component modules using `apiClient.*` => **apiClient (axios)**
+- runtime/offline replay paths => **fetch/runtime**
 
 ## Auth
 
@@ -13,23 +20,23 @@ Endpoint-to-usage mapping across frontend transport layers (`fetch`, `axios`, RT
 
 | Endpoint | Method(s) | Used in |
 |---|---:|---|
-| `/api/shipments/range` | POST | `src/features/api/trxApi.ts` (`listShipmentsRange`); consumed by `src/features/shipments/hooks/useTodayShipmentTotals.ts` and `src/pages/SharedPages/Shipment/ShipmentsList.tsx` |
-| `/api/shipments/orders/by-date` | GET | `src/features/api/trxApi.ts` (`shipmentsOrdersByDate`) |
-| `/api/shipments` | POST | `src/features/shipments/apiShipments.ts` (`createRoundOrShipment`) |
-| `/api/shipments/preload/${dayId}` | GET | `src/features/shipments/apiShipments.ts` (`preloadShipmentData`) |
-| `/api/shipments/${shipmentId}/rounds` | GET | `src/components/Shipments/RoundsHistory/RoundsHistory.tsx` |
-| `/api/days/name/${weekday}` | GET | `src/features/shipments/apiShipments.ts` (`fetchDayByWeekday`) |
+| `/api/shipments/range` | POST | `src/features/api/trxApi.ts` (`listShipmentsRange`, RTK Query); consumed by `src/features/shipments/hooks/useTodayShipmentTotals.ts` and `src/pages/SharedPages/Shipment/ShipmentsList.tsx` |
+| `/api/shipments/orders/by-date` | GET | `src/features/api/trxApi.ts` (`shipmentsOrdersByDate`, RTK Query) |
+| `/api/shipments` | POST | `src/features/shipments/apiShipments.ts` (`createRoundOrShipment`, requestJson) |
+| `/api/shipments/preload/${dayId}` | GET | `src/features/shipments/apiShipments.ts` (`preloadShipmentData`, requestJson) |
+| `/api/shipments/${shipmentId}/rounds` | GET | `src/components/Shipments/RoundsHistory/RoundsHistory.tsx` (`apiClient`) |
+| `/api/days/name/${weekday}` | GET | `src/features/shipments/apiShipments.ts` (`fetchDayByWeekday`, requestJson) |
 
 ## Orders
 
 | Endpoint | Method(s) | Used in |
 |---|---:|---|
 | `/api/orders` | POST | `src/features/orders/hooks/useRecordOrderController.ts` |
-| `/api/orders/${orderId}` | GET, PATCH, DELETE | `src/features/orders/apiOrders.ts` |
-| `/api/orders/addPayment/${orderId}` | PUT | `src/features/orders/apiOrders.ts` |
-| `/api/orders/company/${companyId}` | GET | `src/features/orders/apiOrders.ts` |
-| `/api/orders/customer/${customerId}` | GET | `src/features/orders/api.ts` (`fetchCustomerOrders`), `src/features/orders/apiOrders.ts` (`fetchOrdersByCustomer`), `src/features/orders/hooks/useOrdersByCustomer.ts` |
-| `/api/orders/customer/${customerId}/with-initial` | GET | `src/features/orders/apiOrders.ts`, `src/features/customers/apiCustomers.ts` |
+| `/api/orders/${orderId}` | GET, PATCH, DELETE | `src/features/orders/apiOrders.ts` (requestJson) |
+| `/api/orders/addPayment/${orderId}` | PUT | `src/features/orders/apiOrders.ts` (requestJson) |
+| `/api/orders/company/${companyId}` | GET | `src/features/orders/apiOrders.ts` (`apiClient`) |
+| `/api/orders/customer/${customerId}` | GET | `src/features/orders/api.ts` (`fetchCustomerOrders`, apiClient), `src/features/orders/apiOrders.ts` (`fetchOrdersByCustomer`, requestJson), `src/features/orders/hooks/useOrdersByCustomer.ts` |
+| `/api/orders/customer/${customerId}/with-initial` | GET | `src/features/orders/apiOrders.ts`, `src/features/customers/apiCustomers.ts` (requestJson) |
 
 ## Customers
 

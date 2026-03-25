@@ -1,54 +1,43 @@
 # Data Fetching Inventory
 
-This inventory scans the frontend repository for data-fetching patterns:
+This inventory scans the frontend repository for data-fetching patterns.
 
-- `fetch(...)`
-- `axios`
-- `API_BASE`
-- custom hooks that perform API calls (directly or via feature API modules)
+Current policy:
+
+- `requestJson` is the primary app-level transport for feature APIs.
+- RTK Query (`trxApi`) is used for query/caching-specific flows.
+- Raw `fetch` and direct `apiClient` usage are limited to allowed infra/runtime cases.
 
 Scope: `/src` and `/public/sw.js`.
 
-## 1) Direct `fetch(...)` in components/pages/hooks/runtime
+## 1) Allowed raw `fetch(...)` usage (exceptions only)
 
 
-| File path                                                              | Type  | Method       | Endpoint                                                         | Usage location                           |
-| ---------------------------------------------------------------------- | ----- | ------------ | ---------------------------------------------------------------- | ---------------------------------------- |
-| `src/pages/SharedPages/Login/LoginForm.tsx`                            | fetch | POST         | `${API_BASE}/api/auth/login`                                     | Login form submit                        |
-| `src/components/Auth/Register.tsx`                                     | fetch | POST         | `${API_BASE}/api/auth/register`                                  | Register form submit                     |
-| `src/components/Customers/AddCustomers/AddCustomers.tsx`               | fetch | POST         | `${API_BASE}/api/customers/many`                                 | Bulk customer upload UI                  |
-| `src/components/Customers/AddCustomer/AddCustomer.tsx`                 | fetch | GET          | `${API_BASE}/api/areas/company`                                  | Add-customer form bootstrap              |
-| `src/components/Customers/AddCustomer/AddCustomer.tsx`                 | fetch | GET          | `${API_BASE}/api/customers/area/${currentAreaId}/active`         | Placement list bootstrap                 |
-| `src/components/Customers/AddCustomer/AddCustomer.tsx`                 | fetch | POST         | `${API_BASE}/api/customers/create-with-sequence`                 | Add-customer submit                      |
-| `src/components/Customers/AddCustomerInitials/AddCustomerInitials.tsx` | fetch | GET          | `${API_BASE}/api/areas/company`                                  | Area list for upload form                |
-| `src/components/Customers/AddCustomerInitials/AddCustomerInitials.tsx` | fetch | POST         | `${API_BASE}/api/customers/uploadCustomersWithOrders`            | Customers+orders upload submit           |
-| `src/components/Areas/AddArea/AddArea.tsx`                             | fetch | GET          | `${API_BASE}/api/days`                                           | Add-area form bootstrap                  |
-| `src/components/Areas/AddArea/AddArea.tsx`                             | fetch | POST         | `${API_BASE}/api/areas`                                          | Add-area submit                          |
-| `src/components/AddDiscount/AddDiscount.tsx`                           | fetch | GET          | `${API_BASE}/api/areas/company`                                  | Discount form area list                  |
-| `src/components/AddDiscount/AddDiscount.tsx`                           | fetch | GET          | `${API_BASE}/api/exchange-rate`                                  | Discount form exchange-rate read         |
-| `src/components/AddDiscount/AddDiscount.tsx`                           | fetch | GET          | `${API_BASE}/api/customers/area/${formData.areaId}`              | Discount form customer list              |
-| `src/components/AddDiscount/AddDiscount.tsx`                           | fetch | PUT          | `${API_BASE}/api/customers/${formData.customerId}`               | Discount update submit                   |
-| `src/components/AreaSequencePicker/AreaSequencePicker.tsx`             | fetch | GET          | `${API_BASE}/api/customers/area/${areaId}`                       | Sequence picker customer list            |
-| `src/components/AreaSequencePicker/AreaSequencePicker.tsx`             | fetch | POST         | `${API_BASE}/api/areas/${areaId}/reorder?companyId=${companyId}` | Sequence reorder apply                   |
-| `src/components/Shipments/RoundsHistory/RoundsHistory.tsx`             | fetch | GET          | `${API_BASE}/api/shipments/${shipmentId}/rounds`                 | Rounds timeline                          |
-| `src/features/orders/hooks/useRecordOrderController.ts`                | fetch | POST         | `${API_BASE}/api/orders`                                         | Record order submit (online path)        |
-| `src/hooks/useSyncOfflineOrders.ts`                                    | fetch | dynamic      | `request.url` (queued offline requests)                          | Offline replay sync hook                 |
-| `src/features/api/http.ts`                                             | fetch | configurable | `apiUrl(path)`                                                   | Shared transport layer for `requestJson` |
-| `public/sw.js`                                                         | fetch | runtime      | request passthrough/cache flow                                   | Service worker network strategy          |
+| File path                           | Type  | Method       | Endpoint                                 | Usage location                           |
+| ----------------------------------- | ----- | ------------ | ---------------------------------------- | ---------------------------------------- |
+| `src/features/api/http.ts`          | fetch | configurable | `apiUrl(path)`                           | Infra transport implementation (`requestJson`) |
+| `src/hooks/useSyncOfflineOrders.ts` | fetch | dynamic      | `request.url` (queued offline requests)  | Offline replay sync hook                 |
+| `public/sw.js`                      | fetch | runtime      | request passthrough/cache flow           | Service worker network strategy          |
 
 
-## 2) Direct `axios` usage
+## 2) Direct `apiClient` (`axios`) usage
 
-### 2.1 Feature API modules (`src/features/**`)
+### 2.1 Legacy/exception wrappers (`src/features/**`)
 
 
 | File path                                | Type  | Method | Endpoint                                              | Usage location              |
 | ---------------------------------------- | ----- | ------ | ----------------------------------------------------- | --------------------------- |
+| `src/features/auth/api.ts`               | axios | POST   | `/api/auth/login`, `/api/auth/register`               | Auth API wrappers           |
+| `src/features/customers/api.ts`          | axios | GET/POST/PUT | customers + areas endpoints                      | Customer form API wrappers  |
+| `src/features/products/api.ts`           | axios | GET/PUT| `/api/adminDeterminedDefaults/*`                      | Defaults API wrappers       |
+| `src/features/areas/api.ts`              | axios | GET/POST | `/api/days`, `/api/areas`, `/api/customers/area/*`  | Area UI API wrappers        |
+| `src/features/finance/api.ts`            | axios | GET    | `/api/exchange-rate`                                  | Exchange-rate helper        |
+| `src/features/orders/api.ts`             | axios | GET    | `/api/orders/customer/${customerId}`                  | Customer orders API         |
+| `src/features/shipments/api.ts`          | axios | GET    | `/api/shipments/${shipmentId}/rounds`                 | Rounds history helper       |
 | `src/features/products/apiProducts.ts`   | axios | GET    | `/api/products/company/${companyId}`                  | Product list API            |
 | `src/features/products/apiProducts.ts`   | axios | DELETE | `/api/products/${productId}`                          | Product delete API          |
 | `src/features/products/apiProducts.ts`   | axios | POST   | `/api/products`                                       | Product create API          |
 | `src/features/products/apiProducts.ts`   | axios | PUT    | `/api/products/${productId}`                          | Product update API          |
-| `src/features/orders/api.ts`             | axios | GET    | `/api/orders/customer/${customerId}`                  | Customer orders API         |
 | `src/features/orders/apiOrders.ts`       | axios | GET    | `/api/orders/company/${companyId}`                    | Company orders API          |
 | `src/features/areas/apiAreas.ts`         | axios | GET    | `/api/areas/company`                                  | Areas by company API        |
 | `src/features/areas/apiAreas.ts`         | axios | POST   | `/api/areas/days/${dayId}`                            | Areas by day API            |
@@ -64,7 +53,7 @@ Scope: `/src` and `/public/sw.js`.
 | `src/features/finance/apiFinance.ts`     | axios | PUT    | `/api/extraProfits/${profitId}`                       | Profit update API           |
 
 
-### 2.2 UI components with direct axios
+### 2.2 UI components with direct `apiClient` calls
 
 
 | File path                                                    | Type  | Method | Endpoint                                                       | Usage location            |
@@ -73,9 +62,9 @@ Scope: `/src` and `/public/sw.js`.
 | `src/components/Products/UpdateDefaultProduct.tsx`           | axios | PUT    | `${API_BASE}/api/adminDeterminedDefaults/defaultProduct`       | Default product update UI |
 
 
-## 3) Shared request layer (`requestJson`) usage
+## 3) Primary transport (`requestJson`) usage
 
-`requestJson` is implemented in `src/features/api/http.ts` and used across feature APIs:
+`requestJson` is implemented in `src/features/api/http.ts` and is the canonical normalized transport (headers + parsing + error shaping) used by:
 
 - `src/features/customers/apiCustomers.ts`
 - `src/features/distributors/apiDistributors.ts`
@@ -86,8 +75,8 @@ Scope: `/src` and `/public/sw.js`.
 It centralizes:
 
 - base URL resolution via `apiUrl()`
-- auth header injection for non-RTK requests
-- JSON parse/error normalization
+- standardized auth header injection
+- centralized JSON parse and error normalization
 
 ## 4) RTK Query endpoints
 
@@ -102,23 +91,11 @@ Defined in `src/features/api/trxApi.ts`:
 
 ## 5) `API_BASE` usage inventory
 
-`API_BASE` is sourced from `src/config/api.ts` and appears in:
+`API_BASE` is sourced from `src/config/api.ts` and appears in transport infrastructure:
 
-- `src/features/api/http.ts` (axios config baseURL + `apiUrl`)
+- `src/api/client.ts` (`apiClient` baseURL)
+- `src/features/api/http.ts` (`requestJson` baseURL + `apiUrl`)
 - `src/features/api/trxApi.ts` (RTK Query baseUrl)
-- direct UI calls:
-  - `src/pages/SharedPages/Login/LoginForm.tsx`
-  - `src/components/Auth/Register.tsx`
-  - `src/components/Customers/AddCustomers/AddCustomers.tsx`
-  - `src/components/Customers/AddCustomer/AddCustomer.tsx`
-  - `src/components/Customers/AddCustomerInitials/AddCustomerInitials.tsx`
-  - `src/components/Areas/AddArea/AddArea.tsx`
-  - `src/components/AddDiscount/AddDiscount.tsx`
-  - `src/components/AreaSequencePicker/AreaSequencePicker.tsx`
-  - `src/components/Shipments/RoundsHistory/RoundsHistory.tsx`
-  - `src/components/Products/DefaultProduct.tsx`
-  - `src/components/Products/UpdateDefaultProduct.tsx`
-  - `src/features/orders/hooks/useRecordOrderController.ts`
 
 ## 6) Custom hooks performing API calls
 

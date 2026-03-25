@@ -1,6 +1,7 @@
 # Usage Graph
 
 Component/page/hook to API dependency graph (static code mapping).
+Primary transport is `requestJson` (plus RTK Query where applicable); `apiClient` entries are legacy/exception paths.
 
 ## Pages
 
@@ -11,18 +12,18 @@ Component/page/hook to API dependency graph (static code mapping).
 | `src/pages/AdminPages/FinanceDashboard/FinanceDashboard.tsx` | `useFinanceCategories` -> `/api/finance-categories`; `useDailySummary` -> `/api/finances/summary/daily`; `useMonthlySummary` -> `/api/finances/summary/monthly`; `useFinanceEntries` -> `/api/finances?...`; mutations via `createFinance/updateFinance/deleteFinance` |
 | `src/pages/EmployeePages/EmployeeHomePage/EmployeeHomePage.tsx` | no direct transport (composes children) |
 
-## Components (direct transport in component file)
+## Components (domain dependency from component file)
 
 | Component | API dependency |
 |---|---|
-| `src/components/Auth/Register.tsx` | `POST /api/auth/register` |
-| `src/components/Customers/AddCustomers/AddCustomers.tsx` | `POST /api/customers/many` |
-| `src/components/Customers/AddCustomer/AddCustomer.tsx` | `GET /api/areas/company`, `GET /api/customers/area/${id}/active`, `POST /api/customers/create-with-sequence` |
-| `src/components/Customers/AddCustomerInitials/AddCustomerInitials.tsx` | `GET /api/areas/company`, `POST /api/customers/uploadCustomersWithOrders` |
-| `src/components/Areas/AddArea/AddArea.tsx` | `GET /api/days`, `POST /api/areas` |
-| `src/components/AddDiscount/AddDiscount.tsx` | `GET /api/areas/company`, `GET /api/exchange-rate`, `GET /api/customers/area/${id}`, `PUT /api/customers/${id}` |
-| `src/components/AreaSequencePicker/AreaSequencePicker.tsx` | `GET /api/customers/area/${id}`, `POST /api/areas/${id}/reorder?companyId=${companyId}` |
-| `src/components/Shipments/RoundsHistory/RoundsHistory.tsx` | `GET /api/shipments/${shipmentId}/rounds` |
+| `src/components/Auth/Register.tsx` | auth feature API helper -> `POST /api/auth/register` |
+| `src/components/Customers/AddCustomers/AddCustomers.tsx` | customers feature API helper -> `POST /api/customers/many` |
+| `src/components/Customers/AddCustomer/AddCustomer.tsx` | customers/areas feature API helpers for area bootstrap + create customer |
+| `src/components/Customers/AddCustomerInitials/AddCustomerInitials.tsx` | customers feature API helper for upload flow |
+| `src/components/Areas/AddArea/AddArea.tsx` | areas feature API helpers for day bootstrap + area creation |
+| `src/components/AddDiscount/AddDiscount.tsx` | discount/customer/area API helpers |
+| `src/components/AreaSequencePicker/AreaSequencePicker.tsx` | area customers + reorder helpers |
+| `src/components/Shipments/RoundsHistory/RoundsHistory.tsx` | `fetchShipmentRounds` -> `GET /api/shipments/${shipmentId}/rounds` (`apiClient`) |
 | `src/components/Products/DefaultProduct.tsx` | `GET /api/adminDeterminedDefaults/company/${companyId}` |
 | `src/components/Products/UpdateDefaultProduct.tsx` | `PUT /api/adminDeterminedDefaults/defaultProduct` |
 
@@ -43,7 +44,7 @@ Component/page/hook to API dependency graph (static code mapping).
 | `src/features/finance/hooks/useAddProfit.ts` | `createExtraProfit` -> `POST /api/extraProfits` |
 | `src/features/products/hooks/useProducts.ts` | `listCompanyProducts` -> `GET /api/products/company/${companyId}`; `deleteProductById` -> `DELETE /api/products/${productId}` |
 | `src/features/products/hooks/useAddProduct.ts` | `createProduct` -> `POST /api/products` |
-| `src/features/orders/hooks/useOrdersByCustomer.ts` | `fetchCustomerOrders` -> `GET /api/orders/customer/${customerId}` |
+| `src/features/orders/hooks/useOrdersByCustomer.ts` | `fetchCustomerOrders` -> `GET /api/orders/customer/${customerId}` (`apiClient`) |
 | `src/features/customers/hooks/useUpdateCustomerController.ts` | customer APIs (`/api/customers/...`) + areas API (`/api/areas/company`) + active customers by area |
 | `src/features/distributors/hooks/useCompanyDistributorData.ts` | distributors APIs + customers company + orders company + products company |
 
@@ -52,8 +53,8 @@ Component/page/hook to API dependency graph (static code mapping).
 | API module | Downstream transport |
 |---|---|
 | `src/features/api/trxApi.ts` | RTK Query `fetchBaseQuery` with `baseUrl: API_BASE` + bearer token; single source of truth for `/api/shipments/range` |
-| `src/features/api/http.ts` | `fetch(apiUrl(path), ...)` + axios config helpers (`baseURL: API_BASE`) |
-| `src/features/*/api*.ts` | mostly `axios` and `requestJson` wrappers over `/api/...` |
+| `src/features/api/http.ts` | `requestJson`/`requestRaw` transport + shared auth/error normalization |
+| `src/features/*/api*.ts` | requestJson-first API modules; some legacy `apiClient` wrappers remain |
 
 ## Runtime Network Node
 
