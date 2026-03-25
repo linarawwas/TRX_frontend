@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { getPendingRequests, removeRequestFromDb } from "../utils/indexedDB";
 import { createLogger } from "../utils/logger";
-import { runUnifiedRequest, UnifiedRequestError } from "../features/api/rtkRequest";
+import { ApiRequestError, requestJson } from "../features/api/http";
 import {
   removePendingOrder,
   addCustomerWithEmptyOrder,
@@ -27,21 +27,26 @@ const parseJsonBody = (raw: string | undefined) => {
   }
 };
 
-const normalizeHeaders = (
-  headers: HeadersInit | undefined
-): Record<string, string> => {
-  if (!headers) return {};
-  if (headers instanceof Headers) {
-    const out: Record<string, string> = {};
-    headers.forEach((value, key) => {
-      out[key] = value;
-    });
-    return out;
+const parseReplayBody = (raw: string | undefined): unknown => {
+  if (!raw) return undefined;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return raw;
   }
-  if (Array.isArray(headers)) {
-    return Object.fromEntries(headers);
+};
+
+const toReplayPath = (url: string): string | null => {
+  if (url.startsWith("/api/")) return url;
+  if (url.startsWith("http")) {
+    try {
+      const parsed = new URL(url);
+      return `${parsed.pathname}${parsed.search}`;
+    } catch {
+      return null;
+    }
   }
-  return headers as Record<string, string>;
+  return null;
 };
 
 const useSyncOfflineOrders = () => {
@@ -90,51 +95,47 @@ const useSyncOfflineOrders = () => {
           logger.debug("Processing request.", request);
           const body = parseJsonBody(request.options.body);
 
-          if (!request.url || !request.url.startsWith("http")) {
+          const replayPath = request.url ? toReplayPath(request.url) : null;
+          if (!replayPath) {
             logger.error("Invalid request URL.", request.url);
             toast.error("Invalid request URL. Sync failed.");
             continue;
           }
 
           logger.debug("Sending request to server.");
-          await runUnifiedRequest<unknown>(
-            {
-              url: request.url,
-              method: ((request.options.method || "GET").toUpperCase() as
-                | "GET"
-                | "POST"
-                | "PUT"
-                | "PATCH"
-                | "DELETE"),
-              body: request.options.body,
-              headers: normalizeHeaders(request.options.headers),
-            },
-            "Failed to sync order"
-          );
-
-          {
-            logger.info("Order synced successfully. Removing from IndexedDB.");
-            await removeRequestFromDb(request.id);
-
-            if (
-              parseInt(String(body.delivered)) === 0 &&
-              parseInt(String(body.returned)) === 0 &&
-              parseInt(String(body.paid)) === 0
-            ) {
-              dispatch(addCustomerWithEmptyOrder(body.customerid));
-            } else {
-              dispatch(addCustomerWithFilledOrder(body.customerid));
+          try {
+            await requestJson<unknown>(replayPath, {
+              method: request.options.method || "GET",
+              headers: (request.options.headers as Record<string, string>) ?? {},
+              jsonBody: parseReplayBody(request.options.body),
+              credentials: request.options.credentials,
+              fallbackMessage: "Failed to sync order",
+            });
+          } catch (error) {
+            if (error instanceof ApiRequestError) {
+              logger.error("Failed to sync order.", error);
+              toast.error(`Failed to sync order: ${error.message}`);
+              continue;
             }
+            throw error;
+          }
 
-            dispatch(removePendingOrder(body.customerid));
-            toast.success("تم إرسال الطلبات المسجلة بدون انترنت بنجاح!");
+          logger.info("Order synced successfully. Removing from IndexedDB.");
+          await removeRequestFromDb(request.id);
+
+          if (
+            parseInt(String(body.delivered)) === 0 &&
+            parseInt(String(body.returned)) === 0 &&
+            parseInt(String(body.paid)) === 0
+          ) {
+            dispatch(addCustomerWithEmptyOrder(body.customerid));
+          } else {
+            dispatch(addCustomerWithFilledOrder(body.customerid));
           }
+
+          dispatch(removePendingOrder(body.customerid));
+          toast.success("تم إرسال الطلبات المسجلة بدون انترنت بنجاح!");
         } catch (error) {
-          if (error instanceof UnifiedRequestError) {
-            logger.error("Failed to sync order.", error.message);
-            toast.error(`Failed to sync order: ${error.message || error.status}`);
-            continue;
-          }
           logger.error("Error syncing offline order.", error);
           toast.error("Network error, retrying in 10 seconds...");
           setTimeout(syncOfflineOrders, 10000);

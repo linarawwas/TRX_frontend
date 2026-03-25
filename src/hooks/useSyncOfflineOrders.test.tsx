@@ -3,6 +3,7 @@ import { act, render, waitFor } from "@testing-library/react";
 import useSyncOfflineOrders from "./useSyncOfflineOrders";
 import { getPendingRequests, removeRequestFromDb } from "../utils/indexedDB";
 import { toast } from "react-toastify";
+import { requestJson, ApiRequestError } from "../features/api/http";
 
 const mockDispatch = jest.fn();
 
@@ -25,6 +26,21 @@ jest.mock("react-toastify", () => ({
   },
 }));
 
+jest.mock("../features/api/http", () => ({
+  __esModule: true,
+  requestJson: jest.fn(),
+  ApiRequestError: class ApiRequestError extends Error {
+    status: number;
+    body: unknown;
+    constructor(message: string, status: number, body: unknown) {
+      super(message);
+      this.name = "ApiRequestError";
+      this.status = status;
+      this.body = body;
+    }
+  },
+}));
+
 function TestComponent() {
   useSyncOfflineOrders();
   return null;
@@ -36,9 +52,9 @@ const mockGetPendingRequests = getPendingRequests as jest.MockedFunction<
 const mockRemoveRequestFromDb = removeRequestFromDb as jest.MockedFunction<
   typeof removeRequestFromDb
 >;
+const mockRequestJson = requestJson as jest.MockedFunction<typeof requestJson>;
 
 describe("useSyncOfflineOrders", () => {
-  const originalFetch = global.fetch;
   const originalNavigatorOnLine = navigator.onLine;
 
   beforeEach(() => {
@@ -46,6 +62,7 @@ describe("useSyncOfflineOrders", () => {
     mockDispatch.mockReset();
     mockGetPendingRequests.mockReset();
     mockRemoveRequestFromDb.mockReset();
+    mockRequestJson.mockReset();
     (toast.success as jest.Mock).mockReset();
     (toast.error as jest.Mock).mockReset();
 
@@ -54,17 +71,12 @@ describe("useSyncOfflineOrders", () => {
       value: true,
     });
 
-    global.fetch = jest.fn(async () => ({
-      ok: true,
-      json: async () => ({}),
-      statusText: "OK",
-    })) as any;
+    mockRequestJson.mockResolvedValue({});
   });
 
   afterEach(() => {
     jest.runOnlyPendingTimers();
     jest.useRealTimers();
-    global.fetch = originalFetch;
     Object.defineProperty(navigator, "onLine", {
       configurable: true,
       value: originalNavigatorOnLine,
@@ -75,7 +87,7 @@ describe("useSyncOfflineOrders", () => {
     mockGetPendingRequests.mockResolvedValue([
       {
         id: 1,
-        url: "http://localhost:5000/api/orders",
+        url: "/api/orders",
         options: {
           method: "POST",
           body: JSON.stringify({
@@ -96,8 +108,8 @@ describe("useSyncOfflineOrders", () => {
 
     await waitFor(() => {
       expect(mockGetPendingRequests).toHaveBeenCalled();
-      expect(global.fetch).toHaveBeenCalledWith(
-        "http://localhost:5000/api/orders",
+      expect(mockRequestJson).toHaveBeenCalledWith(
+        "/api/orders",
         expect.objectContaining({ method: "POST" })
       );
       expect(mockRemoveRequestFromDb).toHaveBeenCalledWith(1);
@@ -122,10 +134,10 @@ describe("useSyncOfflineOrders", () => {
     await Promise.resolve();
 
     expect(mockGetPendingRequests).not.toHaveBeenCalled();
-    expect(global.fetch).not.toHaveBeenCalled();
+    expect(mockRequestJson).not.toHaveBeenCalled();
   });
 
-  test("shows an error for invalid request urls without calling fetch", async () => {
+  test("shows an error for invalid request urls without replay call", async () => {
     mockGetPendingRequests.mockResolvedValue([
       {
         id: 1,
@@ -147,7 +159,7 @@ describe("useSyncOfflineOrders", () => {
       expect(toast.error).toHaveBeenCalledWith("Invalid request URL. Sync failed.");
     });
 
-    expect(global.fetch).not.toHaveBeenCalled();
+    expect(mockRequestJson).not.toHaveBeenCalled();
     expect(mockRemoveRequestFromDb).not.toHaveBeenCalled();
   });
 
@@ -155,7 +167,7 @@ describe("useSyncOfflineOrders", () => {
     mockGetPendingRequests.mockResolvedValue([
       {
         id: 1,
-        url: "http://localhost:5000/api/orders",
+        url: "/api/orders",
         options: {
           method: "POST",
           body: JSON.stringify({
@@ -168,14 +180,9 @@ describe("useSyncOfflineOrders", () => {
       },
     ] as any);
 
-    global.fetch = jest
-      .fn()
+    mockRequestJson
       .mockRejectedValueOnce(new Error("network down"))
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({}),
-        statusText: "OK",
-      } as any);
+      .mockResolvedValueOnce({});
 
     render(<TestComponent />);
 
@@ -205,7 +212,7 @@ describe("useSyncOfflineOrders", () => {
     mockGetPendingRequests.mockResolvedValue([
       {
         id: 1,
-        url: "http://localhost:5000/api/orders",
+        url: "/api/orders",
         options: {
           method: "POST",
           body: JSON.stringify({
@@ -218,15 +225,10 @@ describe("useSyncOfflineOrders", () => {
       },
     ] as any);
 
-    global.fetch = jest
-      .fn()
+    mockRequestJson
       .mockRejectedValueOnce(new Error("network down 1"))
       .mockRejectedValueOnce(new Error("network down 2"))
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({}),
-        statusText: "OK",
-      } as any);
+      .mockResolvedValueOnce({});
 
     render(<TestComponent />);
 
@@ -242,7 +244,7 @@ describe("useSyncOfflineOrders", () => {
 
     await waitFor(() => {
       expect(mockGetPendingRequests).toHaveBeenCalledTimes(3);
-      expect(global.fetch).toHaveBeenCalledTimes(3);
+      expect(mockRequestJson).toHaveBeenCalledTimes(3);
       expect((toast.error as jest.Mock).mock.calls).toContainEqual([
         "Network error, retrying in 10 seconds...",
       ]);
@@ -250,6 +252,36 @@ describe("useSyncOfflineOrders", () => {
       expect(toast.success).toHaveBeenCalledWith(
         "تم إرسال الطلبات المسجلة بدون انترنت بنجاح!"
       );
+    });
+  });
+
+  test("does not retry on API status errors (ApiRequestError)", async () => {
+    mockGetPendingRequests.mockResolvedValue([
+      {
+        id: 1,
+        url: "/api/orders",
+        options: {
+          method: "POST",
+          body: JSON.stringify({ customerid: "customer-1", delivered: 1 }),
+        },
+      },
+    ] as any);
+
+    mockRequestJson.mockRejectedValueOnce(
+      new ApiRequestError("Bad Request", 400, { message: "Bad Request" })
+    );
+
+    render(<TestComponent />);
+
+    await act(async () => {
+      jest.advanceTimersByTime(20000);
+    });
+
+    await waitFor(() => {
+      expect(mockGetPendingRequests).toHaveBeenCalledTimes(1);
+      expect(mockRequestJson).toHaveBeenCalledTimes(1);
+      expect(toast.error).toHaveBeenCalledWith("Failed to sync order: Bad Request");
+      expect(mockRemoveRequestFromDb).not.toHaveBeenCalled();
     });
   });
 });
