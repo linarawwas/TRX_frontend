@@ -53,8 +53,8 @@ const RoundsHistory: React.FC<Props> = ({ shipmentId, totalToday, title }) => {
         return;
       }
       const data: Round[] = Array.isArray(response.data) ? response.data : [];
-      data.sort((a, b) => a.sequence - b.sequence);
-      setRounds(data);
+      const sorted = [...data].sort((a, b) => a.sequence - b.sequence);
+      setRounds(sorted);
       setLoading(false);
     })();
 

@@ -45,21 +45,17 @@ import {
 } from "../../../features/shipments/apiShipments";
 
 // AddToModel: keep a minimal stub to trigger submit path
-jest.mock("../../AddToModel/AddToModel", () => {
-  const MockAddToModel = (props: any) => (
-    <div>
-      <h1 data-testid="title">{props.title}</h1>
-      <button
-        onClick={() => props.onSubmit({ carryingForDelivery: 5 })}
-        aria-label="fake-submit"
-      >
-        Fake Submit
-      </button>
-    </div>
-  );
-  MockAddToModel.displayName = "MockAddToModel";
-  return MockAddToModel;
-});
+jest.mock("../../AddToModel/AddToModel", () => (props: any) => (
+  <div>
+    <h1 data-testid="title">{props.title}</h1>
+    <button
+      onClick={() => props.onSubmit({ carryingForDelivery: 5 })}
+      aria-label="fake-submit"
+    >
+      Fake Submit
+    </button>
+  </div>
+));
 
 // Silence CSS
 jest.mock("./StartShipment.css", () => ({}));

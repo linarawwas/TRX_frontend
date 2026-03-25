@@ -101,12 +101,12 @@ Feature-owned business helpers such as invoice/order projections should live und
 
 - `src/config/api.ts` is the single authority for `API_BASE` and `apiUrl()`.
 - RTK Query uses that base through `fetchBaseQuery`.
-- Feature wrappers route through RTK Query via `src/features/api/rtkRequest.ts`.
+- Non-RTK feature APIs use it indirectly through `src/features/api/http.ts`.
 
 #### Auth headers
 
 - RTK Query injects `Authorization` via `prepareHeaders` in `trxApi`.
-- Feature wrappers pass auth token to the unified RTK request endpoint.
+- Non-RTK feature APIs use `authHeaders()`, `requestJson()`, `authAxiosConfig()`, or `jsonAxiosConfig()` from `src/features/api/http.ts`.
 - UI files should not manually construct auth headers for business-domain calls.
 
 ### Incremental migration stance
@@ -115,10 +115,11 @@ This architecture is enforced incrementally, not via a full rewrite.
 
 Current truth:
 
-- Transport is unified through RTK Query.
-- Feature APIs are preserved for domain boundaries, but their execution path is RTK-backed.
-- Compatibility response envelopes may still exist in selected wrappers to preserve UI behavior.
+- RTK Query is still intentionally selective, not universal.
+- Some feature APIs still use `axios` while others use shared `fetch` helpers.
+- That transport mix is acceptable temporarily as long as ownership is feature-first and auth/base behavior stays centralized.
 - Routed screens are still not universally wrapped under `pages/`, but the highest-signal flows now use thin route-entry pages and feature-owned controllers as the default pattern.
+- A few lower-priority direct request sites may still exist and should be treated as remaining migration work, not hidden debt.
 
 ### Preferred decision tree
 
