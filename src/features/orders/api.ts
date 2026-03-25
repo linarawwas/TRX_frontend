@@ -1,4 +1,4 @@
-import { apiClient } from "../../api/client";
+import { runUnifiedRequest } from "../api/rtkRequest";
 
 export type CustomerOrder = any;
 
@@ -6,11 +6,12 @@ export async function fetchCustomerOrders(
   token: string,
   customerId: string
 ): Promise<CustomerOrder[]> {
-  const response = await apiClient.get<CustomerOrder[]>(
-    `/api/orders/customer/${customerId}`,
+  const response = await runUnifiedRequest<CustomerOrder[] | unknown>(
     {
-      headers: { Authorization: `Bearer ${token}` },
-    }
+      url: `/api/orders/customer/${customerId}`,
+      token,
+    },
+    "Failed to fetch customer orders"
   );
-  return Array.isArray(response.data) ? response.data : [];
+  return Array.isArray(response) ? response : [];
 }

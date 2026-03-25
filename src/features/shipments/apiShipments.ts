@@ -1,4 +1,4 @@
-import { requestJson } from "../api/http";
+import { runUnifiedRequest } from "../api/rtkRequest";
 import {
   saveAreasByDayToDB,
   saveCustomerDiscountToDB,
@@ -68,10 +68,13 @@ export async function fetchDayByWeekday(
   token: string,
   weekday: string
 ): Promise<Array<{ _id: string }>> {
-  const data = await requestJson<unknown[]>(`/api/days/name/${weekday}`, {
-    token,
-    fallbackMessage: "Failed to fetch work day",
-  });
+  const data = await runUnifiedRequest<unknown[]>(
+    {
+      url: `/api/days/name/${weekday}`,
+      token,
+    },
+    "Failed to fetch work day"
+  );
   return Array.isArray(data) ? (data as Array<{ _id: string }>) : [];
 }
 
@@ -82,12 +85,15 @@ export async function createRoundOrShipment(opts: {
   prevDayId?: string | null;
 }) {
   const { token, payload, prevShipmentId, prevDayId } = opts;
-  const out = await requestJson<CreateShipmentApiResponse>("/api/shipments", {
-    token,
-    method: "POST",
-    jsonBody: payload,
-    fallbackMessage: "Shipment creation failed",
-  });
+  const out = await runUnifiedRequest<CreateShipmentApiResponse>(
+    {
+      url: "/api/shipments",
+      token,
+      method: "POST",
+      body: payload,
+    },
+    "Shipment creation failed"
+  );
 
   if (!out?.shipment?._id) {
     throw new Error(out?.error || "Shipment creation failed");
@@ -120,10 +126,13 @@ export async function preloadShipmentData({
   try {
     emit({ type: "start" });
 
-    const data = await requestJson<any>(`/api/shipments/preload/${dayId}`, {
-      token,
-      fallbackMessage: "Preload failed",
-    });
+    const data = await runUnifiedRequest<any>(
+      {
+        url: `/api/shipments/preload/${dayId}`,
+        token,
+      },
+      "Preload failed"
+    );
 
     const dayData = data.day;
     const areasByDay: Area[] = Array.isArray(data.areas) ? data.areas : [];

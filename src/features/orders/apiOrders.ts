@@ -1,5 +1,4 @@
-import { apiClient } from "../../api/client";
-import { authAxiosConfig, requestJson } from "../api/http";
+import { runUnifiedRequest } from "../api/rtkRequest";
 
 export interface Payment {
   date: string;
@@ -54,9 +53,12 @@ export interface Order {
 }
 
 export async function fetchOrdersByCompany(token: string, companyId: string): Promise<Order[]> {
-  const { data } = await apiClient.get(
-    `/api/orders/company/${companyId}`,
-    authAxiosConfig(token)
+  const data = await runUnifiedRequest<unknown>(
+    {
+      url: `/api/orders/company/${companyId}`,
+      token,
+    },
+    "Failed to fetch company orders"
   );
   return Array.isArray(data) ? data : [];
 }
@@ -84,10 +86,10 @@ export interface OrdersWithInitialResponse {
 }
 
 export async function fetchOrderById(token: string, orderId: string): Promise<Order> {
-  return requestJson<Order>(`/api/orders/${orderId}`, {
-    token,
-    fallbackMessage: "Failed to fetch order",
-  });
+  return runUnifiedRequest<Order>(
+    { url: `/api/orders/${orderId}`, token },
+    "Failed to fetch order"
+  );
 }
 
 export async function updateOrderById(
@@ -95,23 +97,20 @@ export async function updateOrderById(
   orderId: string,
   payload: UpdateOrderPayload
 ): Promise<Order> {
-  return requestJson<Order>(`/api/orders/${orderId}`, {
-    token,
-    method: "PATCH",
-    jsonBody: payload,
-    fallbackMessage: "Failed to update order",
-  });
+  return runUnifiedRequest<Order>(
+    { url: `/api/orders/${orderId}`, token, method: "PATCH", body: payload },
+    "Failed to update order"
+  );
 }
 
 export async function deleteOrderById(
   token: string,
   orderId: string
 ): Promise<void> {
-  await requestJson(`/api/orders/${orderId}`, {
-    token,
-    method: "DELETE",
-    fallbackMessage: "Failed to delete order",
-  });
+  await runUnifiedRequest(
+    { url: `/api/orders/${orderId}`, token, method: "DELETE" },
+    "Failed to delete order"
+  );
 }
 
 export async function addPaymentToOrder(
@@ -119,22 +118,25 @@ export async function addPaymentToOrder(
   orderId: string,
   payload: AddPaymentPayload
 ): Promise<unknown> {
-  return requestJson(`/api/orders/addPayment/${orderId}`, {
-    token,
-    method: "PUT",
-    jsonBody: payload,
-    fallbackMessage: "Failed to add payment",
-  });
+  return runUnifiedRequest(
+    {
+      url: `/api/orders/addPayment/${orderId}`,
+      token,
+      method: "PUT",
+      body: payload,
+    },
+    "Failed to add payment"
+  );
 }
 
 export async function fetchOrdersByCustomer(
   token: string,
   customerId: string
 ): Promise<Order[]> {
-  const data = await requestJson<unknown>(`/api/orders/customer/${customerId}`, {
-    token,
-    fallbackMessage: "Failed to fetch customer orders",
-  });
+  const data = await runUnifiedRequest<unknown>(
+    { url: `/api/orders/customer/${customerId}`, token },
+    "Failed to fetch customer orders"
+  );
   return Array.isArray(data) ? (data as Order[]) : [];
 }
 
@@ -142,12 +144,12 @@ export async function fetchOrdersByCustomerWithInitial(
   token: string,
   customerId: string
 ): Promise<OrdersWithInitialResponse> {
-  const data = await requestJson<OrdersWithInitialResponse>(
-    `/api/orders/customer/${customerId}/with-initial`,
+  const data = await runUnifiedRequest<OrdersWithInitialResponse>(
     {
+      url: `/api/orders/customer/${customerId}/with-initial`,
       token,
-      fallbackMessage: "Failed to fetch customer statement orders",
-    }
+    },
+    "Failed to fetch customer statement orders"
   );
   return {
     orders: Array.isArray(data?.orders) ? data.orders : [],

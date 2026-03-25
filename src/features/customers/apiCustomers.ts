@@ -1,4 +1,4 @@
-import { requestJson } from "../api/http";
+import { runUnifiedRequest } from "../api/rtkRequest";
 import { saveCustomerInvoicesToDB } from "../../utils/indexedDB";
 
 export interface Customer {
@@ -16,13 +16,16 @@ export interface CustomersResponse {
 }
 
 export async function fetchCustomersByCompany(token: string): Promise<CustomersResponse> {
-  const data = await requestJson<{
+  const data = await runUnifiedRequest<{
     active?: Customer[];
     inactive?: Customer[];
-  }>("/api/customers/company", {
-    token,
-    fallbackMessage: "Failed to fetch company customers",
-  });
+  }>(
+    {
+      url: "/api/customers/company",
+      token,
+    },
+    "Failed to fetch company customers"
+  );
   return {
     active: Array.isArray(data?.active) ? data.active : [],
     inactive: Array.isArray(data?.inactive) ? data.inactive : [],
@@ -73,20 +76,26 @@ export async function fetchCustomerById(
   token: string,
   customerId: string
 ): Promise<CustomerDetail> {
-  return requestJson<CustomerDetail>(`/api/customers/${customerId}`, {
-    token,
-    fallbackMessage: "Failed to fetch customer",
-  });
+  return runUnifiedRequest<CustomerDetail>(
+    {
+      url: `/api/customers/${customerId}`,
+      token,
+    },
+    "Failed to fetch customer"
+  );
 }
 
 export async function fetchActiveCustomersByArea(
   token: string,
   areaId: string
 ): Promise<ActiveAreaCustomer[]> {
-  const data = await requestJson<unknown>(`/api/customers/area/${areaId}/active`, {
-    token,
-    fallbackMessage: "Failed to fetch active customers",
-  });
+  const data = await runUnifiedRequest<unknown>(
+    {
+      url: `/api/customers/area/${areaId}/active`,
+      token,
+    },
+    "Failed to fetch active customers"
+  );
   return Array.isArray(data) ? (data as ActiveAreaCustomer[]) : [];
 }
 
@@ -95,23 +104,29 @@ export async function updateCustomerById(
   customerId: string,
   payload: UpdateCustomerPayload
 ): Promise<CustomerDetail> {
-  return requestJson<CustomerDetail>(`/api/customers/${customerId}`, {
-    token,
-    method: "PATCH",
-    jsonBody: payload,
-    fallbackMessage: "Failed to update customer",
-  });
+  return runUnifiedRequest<CustomerDetail>(
+    {
+      url: `/api/customers/${customerId}`,
+      token,
+      method: "PATCH",
+      body: payload,
+    },
+    "Failed to update customer"
+  );
 }
 
 export async function deactivateCustomer(
   token: string,
   customerId: string
 ): Promise<void> {
-  await requestJson(`/api/customers/${customerId}/deactivate`, {
-    token,
-    method: "PATCH",
-    fallbackMessage: "Failed to deactivate customer",
-  });
+  await runUnifiedRequest(
+    {
+      url: `/api/customers/${customerId}/deactivate`,
+      token,
+      method: "PATCH",
+    },
+    "Failed to deactivate customer"
+  );
 }
 
 export async function restoreCustomer(
@@ -119,23 +134,29 @@ export async function restoreCustomer(
   customerId: string,
   payload: RestoreCustomerPayload
 ): Promise<unknown> {
-  return requestJson(`/api/customers/${customerId}/restore`, {
-    token,
-    method: "PATCH",
-    jsonBody: payload,
-    fallbackMessage: "Failed to restore customer",
-  });
+  return runUnifiedRequest(
+    {
+      url: `/api/customers/${customerId}/restore`,
+      token,
+      method: "PATCH",
+      body: payload,
+    },
+    "Failed to restore customer"
+  );
 }
 
 export async function hardDeleteCustomer(
   token: string,
   customerId: string
 ): Promise<unknown> {
-  return requestJson(`/api/customers/${customerId}/hard`, {
-    token,
-    method: "DELETE",
-    fallbackMessage: "Failed to delete customer",
-  });
+  return runUnifiedRequest(
+    {
+      url: `/api/customers/${customerId}/hard`,
+      token,
+      method: "DELETE",
+    },
+    "Failed to delete customer"
+  );
 }
 
 export async function updateCustomerOpening(
@@ -143,12 +164,15 @@ export async function updateCustomerOpening(
   customerId: string,
   payload: OpeningEditorPayload
 ): Promise<unknown> {
-  return requestJson(`/api/customers/${customerId}/opening`, {
-    token,
-    method: "PATCH",
-    jsonBody: payload,
-    fallbackMessage: "Failed to update opening",
-  });
+  return runUnifiedRequest(
+    {
+      url: `/api/customers/${customerId}/opening`,
+      token,
+      method: "PATCH",
+      body: payload,
+    },
+    "Failed to update opening"
+  );
 }
 
 export async function fetchAndCacheCustomerInvoice(
@@ -156,12 +180,12 @@ export async function fetchAndCacheCustomerInvoice(
   token: string
 ): Promise<void> {
   try {
-    const data = await requestJson<{ sums?: unknown }>(
-      `/api/customers/reciept/${customerId}`,
+    const data = await runUnifiedRequest<{ sums?: unknown }>(
       {
+        url: `/api/customers/reciept/${customerId}`,
         token,
-        fallbackMessage: "Failed to fetch customer invoice",
-      }
+      },
+      "Failed to fetch customer invoice"
     );
     if (data?.sums) {
       await saveCustomerInvoicesToDB(customerId, data.sums);
@@ -209,13 +233,16 @@ export async function fetchCustomerStatement(
 ): Promise<CustomerStatementResponse> {
   const [customer, statement] = await Promise.all([
     fetchCustomerById(token, customerId),
-    requestJson<{
+    runUnifiedRequest<{
       orders?: CustomerStatementOrder[];
       initial?: CustomerStatementInitialSummary;
-    }>(`/api/orders/customer/${customerId}/with-initial`, {
-      token,
-      fallbackMessage: "Failed to fetch customer statement",
-    }),
+    }>(
+      {
+        url: `/api/orders/customer/${customerId}/with-initial`,
+        token,
+      },
+      "Failed to fetch customer statement"
+    ),
   ]);
 
   return {

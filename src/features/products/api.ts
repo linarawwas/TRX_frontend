@@ -1,4 +1,4 @@
-import { apiClient } from "../../api/client";
+import { runUnifiedRequest } from "../api/rtkRequest";
 
 export interface DefaultProductRecord {
   _id: string;
@@ -12,20 +12,27 @@ export async function fetchDefaultProductsByCompany(
   token: string,
   companyId: string
 ): Promise<DefaultProductRecord[]> {
-  const response = await apiClient.get<DefaultProductRecord[]>(
-    `/api/adminDeterminedDefaults/company/${companyId}`,
+  const response = await runUnifiedRequest<DefaultProductRecord[] | unknown>(
     {
-      headers: { Authorization: `Bearer ${token}` },
-    }
+      url: `/api/adminDeterminedDefaults/company/${companyId}`,
+      token,
+    },
+    "Failed to fetch default products"
   );
-  return Array.isArray(response.data) ? response.data : [];
+  return Array.isArray(response) ? response : [];
 }
 
 export async function updateDefaultProduct(
   token: string,
   payload: { value: string; companyId: string }
 ): Promise<void> {
-  await apiClient.put("/api/adminDeterminedDefaults/defaultProduct", payload, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  await runUnifiedRequest(
+    {
+      url: "/api/adminDeterminedDefaults/defaultProduct",
+      method: "PUT",
+      token,
+      body: payload,
+    },
+    "Failed to update default product"
+  );
 }

@@ -1,4 +1,4 @@
-import { apiClient } from "../../api/client";
+import { runUnifiedRequest, UnifiedRequestError } from "../api/rtkRequest";
 
 export type AreaOption = { _id: string; name: string };
 export type CustomerOption = { _id: string; name: string; sequence?: number | null };
@@ -7,75 +7,83 @@ export async function uploadCustomersMany(
   token: string,
   customers: Array<Record<string, unknown>>
 ): Promise<void> {
-  await apiClient.post("/api/customers/many", customers, {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+  await runUnifiedRequest(
+    {
+      url: "/api/customers/many",
+      method: "POST",
+      token,
+      body: customers,
     },
-    // Preserve old behavior where caller did not check response.ok.
-    validateStatus: () => true,
-  });
+    "Failed to upload customers"
+  );
 }
 
 export async function fetchCompanyAreas(token: string): Promise<AreaOption[]> {
-  const response = await apiClient.get<AreaOption[]>("/api/areas/company", {
-    headers: { Authorization: `Bearer ${token}` },
-    validateStatus: () => true,
-  });
-  return Array.isArray(response.data) ? response.data : [];
+  const response = await runUnifiedRequest<AreaOption[] | unknown>(
+    { url: "/api/areas/company", token },
+    "Failed to fetch areas"
+  );
+  return Array.isArray(response) ? response : [];
 }
 
 export async function fetchActiveCustomersForArea(
   token: string,
   areaId: string
 ): Promise<CustomerOption[]> {
-  const response = await apiClient.get<CustomerOption[]>(
-    `/api/customers/area/${areaId}/active`,
+  const response = await runUnifiedRequest<CustomerOption[] | unknown>(
     {
-      headers: { Authorization: `Bearer ${token}` },
-      validateStatus: () => true,
-    }
+      url: `/api/customers/area/${areaId}/active`,
+      token,
+    },
+    "Failed to fetch customers"
   );
-  return Array.isArray(response.data) ? response.data : [];
+  return Array.isArray(response) ? response : [];
 }
 
 export async function createCustomerWithSequence(
   token: string,
   payload: Record<string, unknown>
 ): Promise<{ ok: boolean; data: Record<string, unknown> }> {
-  const response = await apiClient.post<Record<string, unknown>>(
-    "/api/customers/create-with-sequence",
-    payload,
-    {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+  try {
+    const data = await runUnifiedRequest<Record<string, unknown>>(
+      {
+        url: "/api/customers/create-with-sequence",
+        method: "POST",
+        token,
+        body: payload,
       },
-      validateStatus: () => true,
+      "Failed to create customer"
+    );
+    return { ok: true, data: data ?? {} };
+  } catch (error) {
+    if (error instanceof UnifiedRequestError) {
+      return { ok: false, data: (error.body as Record<string, unknown>) ?? {} };
     }
-  );
-  return {
-    ok: response.status >= 200 && response.status < 300,
-    data: (response.data ?? {}) as Record<string, unknown>,
-  };
+    return { ok: false, data: {} };
+  }
 }
 
 export async function uploadCustomersWithOrders(
   token: string,
   formData: FormData
 ): Promise<{ ok: boolean; data: Record<string, any> }> {
-  const response = await apiClient.post<Record<string, any>>(
-    "/api/customers/uploadCustomersWithOrders",
-    formData,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-      validateStatus: () => true,
+  try {
+    const data = await runUnifiedRequest<Record<string, any>>(
+      {
+        url: "/api/customers/uploadCustomersWithOrders",
+        method: "POST",
+        token,
+        body: formData,
+      },
+      "Failed to upload customers with orders"
+    );
+    return { ok: true, data: data ?? {} };
+  } catch (error) {
+    if (error instanceof UnifiedRequestError) {
+      return { ok: false, data: (error.body as Record<string, any>) ?? {} };
     }
-  );
-  return {
-    ok: response.status >= 200 && response.status < 300,
-    data: response.data ?? {},
-  };
+    return { ok: false, data: {} };
+  }
 }
 
 export async function updateCustomerDiscount(
@@ -83,19 +91,21 @@ export async function updateCustomerDiscount(
   customerId: string,
   payload: Record<string, unknown>
 ): Promise<{ ok: boolean; data: Record<string, unknown> }> {
-  const response = await apiClient.put<Record<string, unknown>>(
-    `/api/customers/${customerId}`,
-    payload,
-    {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+  try {
+    const data = await runUnifiedRequest<Record<string, unknown>>(
+      {
+        url: `/api/customers/${customerId}`,
+        method: "PUT",
+        token,
+        body: payload,
       },
-      validateStatus: () => true,
+      "Failed to update customer"
+    );
+    return { ok: true, data: data ?? {} };
+  } catch (error) {
+    if (error instanceof UnifiedRequestError) {
+      return { ok: false, data: (error.body as Record<string, unknown>) ?? {} };
     }
-  );
-  return {
-    ok: response.status >= 200 && response.status < 300,
-    data: (response.data ?? {}) as Record<string, unknown>,
-  };
+    return { ok: false, data: {} };
+  }
 }

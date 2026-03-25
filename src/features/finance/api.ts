@@ -1,14 +1,14 @@
-import { apiClient } from "../../api/client";
+import { runUnifiedRequest } from "../api/rtkRequest";
 
 export async function fetchCompanyExchangeRate(
   token: string
 ): Promise<{ exchangeRateInLBP?: number } | null> {
-  const response = await apiClient.get<{ exchangeRateInLBP?: number }>(
-    "/api/exchange-rate",
+  const response = await runUnifiedRequest<{ exchangeRateInLBP?: number }>(
     {
-      headers: { Authorization: `Bearer ${token}` },
-      validateStatus: () => true,
-    }
+      url: "/api/exchange-rate",
+      token,
+    },
+    "Failed to fetch exchange rate"
   );
-  return response.data ?? null;
+  return response ?? null;
 }

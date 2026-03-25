@@ -1,6 +1,5 @@
 // src/features/finance/apiFinance.ts
-import { apiClient } from "../../api/client";
-import { authAxiosConfig, jsonAxiosConfig, requestJson } from "../api/http";
+import { runUnifiedRequest } from "../api/rtkRequest";
 import type {
   Category,
   DailySummary,
@@ -37,22 +36,34 @@ export interface ExtraProfit {
 }
 
 export async function fetchExpenses(token: string): Promise<Expense[]> {
-  const { data } = await apiClient.get("/api/expenses", authAxiosConfig(token));
+  const data = await runUnifiedRequest<unknown>(
+    { url: "/api/expenses", token },
+    "Failed to fetch expenses"
+  );
   return Array.isArray(data) ? data : [];
 }
 
 export async function deleteExpense(token: string, expenseId: string): Promise<void> {
-  await apiClient.delete(`/api/expenses/${expenseId}`, authAxiosConfig(token));
+  await runUnifiedRequest(
+    { url: `/api/expenses/${expenseId}`, method: "DELETE", token },
+    "Failed to delete expense"
+  );
 }
 
 export async function fetchExtraProfits(token: string, companyId: string): Promise<ExtraProfit[]> {
   void companyId;
-  const { data } = await apiClient.get("/api/extraProfits", authAxiosConfig(token));
+  const data = await runUnifiedRequest<unknown>(
+    { url: "/api/extraProfits", token },
+    "Failed to fetch extra profits"
+  );
   return Array.isArray(data) ? data : [];
 }
 
 export async function deleteExtraProfit(token: string, profitId: string): Promise<void> {
-  await apiClient.delete(`/api/extraProfits/${profitId}`, authAxiosConfig(token));
+  await runUnifiedRequest(
+    { url: `/api/extraProfits/${profitId}`, method: "DELETE", token },
+    "Failed to delete extra profit"
+  );
 }
 
 export interface CreateExpensePayload {
@@ -66,7 +77,10 @@ export async function createExpense(
   token: string,
   payload: CreateExpensePayload
 ): Promise<Expense> {
-  const { data } = await apiClient.post("/api/expenses", payload, jsonAxiosConfig(token));
+  const data = await runUnifiedRequest<Expense>(
+    { url: "/api/expenses", method: "POST", token, body: payload },
+    "Failed to create expense"
+  );
   return data;
 }
 
@@ -81,10 +95,9 @@ export async function createExtraProfit(
   token: string,
   payload: CreateExtraProfitPayload
 ): Promise<ExtraProfit> {
-  const { data } = await apiClient.post(
-    "/api/extraProfits",
-    payload,
-    jsonAxiosConfig(token)
+  const data = await runUnifiedRequest<ExtraProfit>(
+    { url: "/api/extraProfits", method: "POST", token, body: payload },
+    "Failed to create extra profit"
   );
   return data;
 }
@@ -101,10 +114,14 @@ export async function updateExpense(
   expenseId: string,
   payload: UpdateExpensePayload
 ): Promise<Expense> {
-  const { data } = await apiClient.put(
-    `/api/expenses/${expenseId}`,
-    payload,
-    jsonAxiosConfig(token)
+  const data = await runUnifiedRequest<Expense>(
+    {
+      url: `/api/expenses/${expenseId}`,
+      method: "PUT",
+      token,
+      body: payload,
+    },
+    "Failed to update expense"
   );
   return data;
 }
@@ -121,10 +138,14 @@ export async function updateExtraProfit(
   profitId: string,
   payload: UpdateExtraProfitPayload
 ): Promise<ExtraProfit> {
-  const { data } = await apiClient.put(
-    `/api/extraProfits/${profitId}`,
-    payload,
-    jsonAxiosConfig(token)
+  const data = await runUnifiedRequest<ExtraProfit>(
+    {
+      url: `/api/extraProfits/${profitId}`,
+      method: "PUT",
+      token,
+      body: payload,
+    },
+    "Failed to update extra profit"
   );
   return data;
 }
@@ -154,12 +175,10 @@ export async function createFinance(
   token: string,
   body: FinancePayload
 ): Promise<FinanceEntry> {
-  return requestJson<FinanceEntry>("/api/finances", {
-    token,
-    method: "POST",
-    jsonBody: body,
-    fallbackMessage: "Failed",
-  });
+  return runUnifiedRequest<FinanceEntry>(
+    { url: "/api/finances", token, method: "POST", body },
+    "Failed"
+  );
 }
 
 export async function updateFinance(
@@ -167,23 +186,20 @@ export async function updateFinance(
   id: string,
   body: Partial<FinancePayload>
 ): Promise<FinanceEntry> {
-  return requestJson<FinanceEntry>(`/api/finances/${id}`, {
-    token,
-    method: "PATCH",
-    jsonBody: body,
-    fallbackMessage: "Failed",
-  });
+  return runUnifiedRequest<FinanceEntry>(
+    { url: `/api/finances/${id}`, token, method: "PATCH", body },
+    "Failed"
+  );
 }
 
 export async function deleteFinance(
   token: string,
   id: string
 ): Promise<{ success?: boolean }> {
-  return requestJson<{ success?: boolean }>(`/api/finances/${id}`, {
-    token,
-    method: "DELETE",
-    fallbackMessage: "Failed",
-  });
+  return runUnifiedRequest<{ success?: boolean }>(
+    { url: `/api/finances/${id}`, token, method: "DELETE" },
+    "Failed"
+  );
 }
 
 export async function dailySummary(
@@ -192,10 +208,10 @@ export async function dailySummary(
 ): Promise<DailySummary> {
   const url = new URL("/api/finances/summary/daily", window.location.origin);
   url.searchParams.set("date", dateISO);
-  return requestJson<DailySummary>(`${url.pathname}${url.search}`, {
-    token,
-    fallbackMessage: "Failed",
-  });
+  return runUnifiedRequest<DailySummary>(
+    { url: `${url.pathname}${url.search}`, token },
+    "Failed"
+  );
 }
 
 export async function monthlySummary(
@@ -206,17 +222,17 @@ export async function monthlySummary(
   const url = new URL("/api/finances/summary/monthly", window.location.origin);
   url.searchParams.set("year", String(y));
   url.searchParams.set("month", String(m));
-  return requestJson<MonthlyRow[]>(`${url.pathname}${url.search}`, {
-    token,
-    fallbackMessage: "Failed",
-  });
+  return runUnifiedRequest<MonthlyRow[]>(
+    { url: `${url.pathname}${url.search}`, token },
+    "Failed"
+  );
 }
 
 export async function listCategories(token: string): Promise<Category[]> {
-  const data = await requestJson<unknown>("/api/finance-categories", {
-    token,
-    fallbackMessage: "Failed to load categories",
-  });
+  const data = await runUnifiedRequest<unknown>(
+    { url: "/api/finance-categories", token },
+    "Failed to load categories"
+  );
   return Array.isArray(data) ? data : [];
 }
 
@@ -233,12 +249,12 @@ export async function listFinances(
   const queryParams = new URLSearchParams({ from, to });
 
   try {
-    const raw = await requestJson<FinanceEntry[] | { items?: FinanceEntry[] }>(
-      `/api/finances?${queryParams.toString()}`,
+    const raw = await runUnifiedRequest<FinanceEntry[] | { items?: FinanceEntry[] }>(
       {
-      token,
-      fallbackMessage: "Failed to list finances",
-      }
+        url: `/api/finances?${queryParams.toString()}`,
+        token,
+      },
+      "Failed to list finances"
     );
     let data = Array.isArray(raw) ? raw : raw.items || [];
 

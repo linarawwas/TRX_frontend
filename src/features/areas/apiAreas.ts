@@ -1,5 +1,4 @@
-import { apiClient } from "../../api/client";
-import { authAxiosConfig, jsonAxiosConfig } from "../api/http";
+import { runUnifiedRequest } from "../api/rtkRequest";
 
 export interface Area {
   _id: string;
@@ -8,15 +7,22 @@ export interface Area {
 }
 
 export async function fetchAreasByCompany(token: string): Promise<Area[]> {
-  const { data } = await apiClient.get("/api/areas/company", authAxiosConfig(token));
+  const data = await runUnifiedRequest<unknown>(
+    { url: "/api/areas/company", token },
+    "Failed to fetch areas"
+  );
   return Array.isArray(data) ? data : [];
 }
 
 export async function fetchAreasByDay(token: string, dayId: string, companyId: string): Promise<Area[]> {
-  const { data } = await apiClient.post(
-    `/api/areas/days/${dayId}`,
-    { companyId },
-    jsonAxiosConfig(token)
+  const data = await runUnifiedRequest<any>(
+    {
+      url: `/api/areas/days/${dayId}`,
+      method: "POST",
+      token,
+      body: { companyId },
+    },
+    "Failed to fetch day areas"
   );
   return Array.isArray(data) ? data : Array.isArray(data?.areas) ? data.areas : [];
 }
@@ -29,9 +35,12 @@ export async function fetchCustomersByArea(token: string, areaId: string): Promi
   sequence?: number | null;
   isActive?: boolean;
 }>> {
-  const { data } = await apiClient.get(
-    `/api/customers/area/${areaId}`,
-    authAxiosConfig(token)
+  const data = await runUnifiedRequest<unknown>(
+    {
+      url: `/api/customers/area/${areaId}`,
+      token,
+    },
+    "Failed to fetch customers"
   );
   return Array.isArray(data) ? data : [];
 }
@@ -43,14 +52,19 @@ export async function reorderCustomersInArea(
   orderedCustomerIds: string[],
   options?: { force?: boolean; startAt?: number }
 ): Promise<void> {
-  await apiClient.post(
-    `/api/areas/${areaId}/reorder?companyId=${companyId}`,
+  await runUnifiedRequest(
     {
-      orderedCustomerIds,
-      force: options?.force ?? true,
-      startAt: options?.startAt ?? 1,
+      url: `/api/areas/${areaId}/reorder`,
+      method: "POST",
+      token,
+      params: { companyId },
+      body: {
+        orderedCustomerIds,
+        force: options?.force ?? true,
+        startAt: options?.startAt ?? 1,
+      },
     },
-    jsonAxiosConfig(token)
+    "Failed to reorder customers"
   );
 }
 

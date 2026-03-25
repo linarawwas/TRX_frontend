@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { getPendingRequests, removeRequestFromDb } from "../utils/indexedDB";
 import { createLogger } from "../utils/logger";
-import { requestRaw } from "../features/api/http";
+import { runUnifiedRequest, UnifiedRequestError } from "../features/api/rtkRequest";
 import {
   removePendingOrder,
   addCustomerWithEmptyOrder,
@@ -25,6 +25,23 @@ const parseJsonBody = (raw: string | undefined) => {
   } catch {
     return {};
   }
+};
+
+const normalizeHeaders = (
+  headers: HeadersInit | undefined
+): Record<string, string> => {
+  if (!headers) return {};
+  if (headers instanceof Headers) {
+    const out: Record<string, string> = {};
+    headers.forEach((value, key) => {
+      out[key] = value;
+    });
+    return out;
+  }
+  if (Array.isArray(headers)) {
+    return Object.fromEntries(headers);
+  }
+  return headers as Record<string, string>;
 };
 
 const useSyncOfflineOrders = () => {
@@ -80,9 +97,22 @@ const useSyncOfflineOrders = () => {
           }
 
           logger.debug("Sending request to server.");
-          const response = await requestRaw(request.url, request.options);
+          await runUnifiedRequest<unknown>(
+            {
+              url: request.url,
+              method: ((request.options.method || "GET").toUpperCase() as
+                | "GET"
+                | "POST"
+                | "PUT"
+                | "PATCH"
+                | "DELETE"),
+              body: request.options.body,
+              headers: normalizeHeaders(request.options.headers),
+            },
+            "Failed to sync order"
+          );
 
-          if (response.ok) {
+          {
             logger.info("Order synced successfully. Removing from IndexedDB.");
             await removeRequestFromDb(request.id);
 
@@ -98,11 +128,13 @@ const useSyncOfflineOrders = () => {
 
             dispatch(removePendingOrder(body.customerid));
             toast.success("تم إرسال الطلبات المسجلة بدون انترنت بنجاح!");
-          } else {
-            logger.error("Failed to sync order.", response.statusText);
-            toast.error(`Failed to sync order: ${response.statusText || response.status}`);
           }
         } catch (error) {
+          if (error instanceof UnifiedRequestError) {
+            logger.error("Failed to sync order.", error.message);
+            toast.error(`Failed to sync order: ${error.message || error.status}`);
+            continue;
+          }
           logger.error("Error syncing offline order.", error);
           toast.error("Network error, retrying in 10 seconds...");
           setTimeout(syncOfflineOrders, 10000);

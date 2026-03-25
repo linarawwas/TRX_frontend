@@ -1,45 +1,42 @@
-import { apiClient } from "../../api/client";
+import { runUnifiedRequest, UnifiedRequestError } from "../api/rtkRequest";
 
 export async function fetchDays(
   token: string
 ): Promise<Array<{ _id: string; name: string }>> {
-  const response = await apiClient.get("/api/days", {
-    headers: { Authorization: `Bearer ${token}` },
-    validateStatus: () => true,
-  });
-  return Array.isArray(response.data) ? response.data : [];
+  const response = await runUnifiedRequest<unknown>(
+    { url: "/api/days", token },
+    "Failed to fetch days"
+  );
+  return Array.isArray(response) ? response : [];
 }
 
 export async function createArea(
   token: string,
   payload: Record<string, unknown>
 ): Promise<{ ok: boolean; data: Record<string, unknown> }> {
-  const response = await apiClient.post<Record<string, unknown>>(
-    "/api/areas",
-    payload,
-    {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      validateStatus: () => true,
+  try {
+    const data = await runUnifiedRequest<Record<string, unknown>>(
+      { url: "/api/areas", method: "POST", token, body: payload },
+      "Failed to create area"
+    );
+    return { ok: true, data: data ?? {} };
+  } catch (error) {
+    if (error instanceof UnifiedRequestError) {
+      return { ok: false, data: (error.body as Record<string, unknown>) ?? {} };
     }
-  );
-  return {
-    ok: response.status >= 200 && response.status < 300,
-    data: (response.data ?? {}) as Record<string, unknown>,
-  };
+    return { ok: false, data: {} };
+  }
 }
 
 export async function fetchCustomersByArea(
   token: string,
   areaId: string
 ): Promise<Array<{ _id: string; name?: string; sequence?: number }>> {
-  const response = await apiClient.get(`/api/customers/area/${areaId}`, {
-    headers: { Authorization: `Bearer ${token}` },
-    validateStatus: () => true,
-  });
-  return Array.isArray(response.data) ? response.data : [];
+  const response = await runUnifiedRequest<unknown>(
+    { url: `/api/customers/area/${areaId}`, token },
+    "Failed to fetch area customers"
+  );
+  return Array.isArray(response) ? response : [];
 }
 
 export async function reorderAreaCustomers(
@@ -48,23 +45,26 @@ export async function reorderAreaCustomers(
   companyId: string,
   orderedCustomerIds: string[]
 ): Promise<{ ok: boolean; data: Record<string, unknown> }> {
-  const response = await apiClient.post<Record<string, unknown>>(
-    `/api/areas/${areaId}/reorder?companyId=${companyId}`,
-    {
-      orderedCustomerIds,
-      force: true,
-      startAt: 1,
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
+  try {
+    const data = await runUnifiedRequest<Record<string, unknown>>(
+      {
+        url: `/api/areas/${areaId}/reorder`,
+        method: "POST",
+        token,
+        params: { companyId },
+        body: {
+          orderedCustomerIds,
+          force: true,
+          startAt: 1,
+        },
       },
-      validateStatus: () => true,
+      "Failed to reorder area customers"
+    );
+    return { ok: true, data: data ?? {} };
+  } catch (error) {
+    if (error instanceof UnifiedRequestError) {
+      return { ok: false, data: (error.body as Record<string, unknown>) ?? {} };
     }
-  );
-  return {
-    ok: response.status >= 200 && response.status < 300,
-    data: (response.data ?? {}) as Record<string, unknown>,
-  };
+    return { ok: false, data: {} };
+  }
 }

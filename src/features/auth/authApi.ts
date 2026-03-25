@@ -1,5 +1,5 @@
 import type { Dispatch } from "redux";
-import { ApiRequestError, requestJson } from "../api/http";
+import { runUnifiedRequest, UnifiedRequestError } from "../api/rtkRequest";
 import { setCompanyId, setIsAdmin, setUsername } from "../../redux/UserInfo/action";
 import { persistAuthToStorage } from "./authStorage";
 
@@ -15,12 +15,12 @@ export async function fetchMeAndSync(
 ): Promise<MeResponse> {
   let userData: MeResponse;
   try {
-    userData = await requestJson<MeResponse>("/api/users/me", {
-      token,
-      fallbackMessage: "Failed to fetch /api/users/me",
-    });
+    userData = await runUnifiedRequest<MeResponse>(
+      { url: "/api/users/me", token },
+      "Failed to fetch /api/users/me"
+    );
   } catch (error) {
-    if (error instanceof ApiRequestError) {
+    if (error instanceof UnifiedRequestError) {
       throw new Error(`Failed to fetch /api/users/me (${error.status})`);
     }
     throw error;

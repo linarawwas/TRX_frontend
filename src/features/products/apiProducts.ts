@@ -1,5 +1,4 @@
-import { apiClient } from "../../api/client";
-import { authAxiosConfig, jsonAxiosConfig } from "../api/http";
+import { runUnifiedRequest } from "../api/rtkRequest";
 
 export interface ProductResponse {
   _id: string;
@@ -13,15 +12,25 @@ export async function listCompanyProducts(
   token: string,
   companyId: string
 ): Promise<ProductResponse[]> {
-  const { data } = await apiClient.get(
-    `/api/products/company/${companyId}`,
-    authAxiosConfig(token)
+  const data = await runUnifiedRequest<ProductResponse[]>(
+    {
+      url: `/api/products/company/${companyId}`,
+      token,
+    },
+    "Failed to list products"
   );
   return data as ProductResponse[];
 }
 
 export async function deleteProductById(token: string, productId: string) {
-  await apiClient.delete(`/api/products/${productId}`, authAxiosConfig(token));
+  await runUnifiedRequest(
+    {
+      url: `/api/products/${productId}`,
+      method: "DELETE",
+      token,
+    },
+    "Failed to delete product"
+  );
 }
 
 export interface CreateProductPayload {
@@ -35,10 +44,14 @@ export async function createProduct(
   token: string,
   payload: CreateProductPayload
 ): Promise<ProductResponse> {
-  const { data } = await apiClient.post(
-    "/api/products",
-    payload,
-    jsonAxiosConfig(token)
+  const data = await runUnifiedRequest(
+    {
+      url: "/api/products",
+      method: "POST",
+      token,
+      body: payload,
+    },
+    "Failed to create product"
   );
   return data as ProductResponse;
 }
@@ -54,10 +67,14 @@ export async function updateProduct(
   productId: string,
   payload: UpdateProductPayload
 ): Promise<ProductResponse> {
-  const { data } = await apiClient.put(
-    `/api/products/${productId}`,
-    payload,
-    jsonAxiosConfig(token)
+  const data = await runUnifiedRequest(
+    {
+      url: `/api/products/${productId}`,
+      method: "PUT",
+      token,
+      body: payload,
+    },
+    "Failed to update product"
   );
   return data as ProductResponse;
 }

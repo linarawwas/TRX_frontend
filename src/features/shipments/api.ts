@@ -1,4 +1,4 @@
-import { apiClient } from "../../api/client";
+import { runUnifiedRequest, UnifiedRequestError } from "../api/rtkRequest";
 
 export type ShipmentRound = {
   _id: string;
@@ -14,15 +14,26 @@ export async function fetchShipmentRounds(
   token: string,
   shipmentId: string
 ): Promise<{ ok: boolean; data: ShipmentRound[] }> {
-  const response = await apiClient.get<ShipmentRound[]>(
-    `/api/shipments/${shipmentId}/rounds`,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-      validateStatus: () => true,
+  try {
+    const data = await runUnifiedRequest<ShipmentRound[] | unknown>(
+      {
+        url: `/api/shipments/${shipmentId}/rounds`,
+        token,
+      },
+      "Failed to fetch shipment rounds"
+    );
+    return {
+      ok: true,
+      data: Array.isArray(data) ? data : [],
+    };
+  } catch (error) {
+    if (error instanceof UnifiedRequestError) {
+      const body = error.body;
+      return {
+        ok: false,
+        data: Array.isArray(body) ? (body as ShipmentRound[]) : [],
+      };
     }
-  );
-  return {
-    ok: response.status >= 200 && response.status < 300,
-    data: Array.isArray(response.data) ? response.data : [],
-  };
+    return { ok: false, data: [] };
+  }
 }
