@@ -28,7 +28,7 @@ Endpoint-to-usage mapping across frontend transport layers (`fetch`, `axios`, RT
 | `/api/orders/${orderId}` | GET, PATCH, DELETE | `src/features/orders/apiOrders.ts` |
 | `/api/orders/addPayment/${orderId}` | PUT | `src/features/orders/apiOrders.ts` |
 | `/api/orders/company/${companyId}` | GET | `src/features/orders/apiOrders.ts` |
-| `/api/orders/customer/${customerId}` | GET | `src/features/orders/apiOrders.ts`, `src/components/Customers/CustomerOrders/CustomerOrders.tsx` |
+| `/api/orders/customer/${customerId}` | GET | `src/features/orders/api.ts` (`fetchCustomerOrders`), `src/features/orders/apiOrders.ts` (`fetchOrdersByCustomer`), `src/features/orders/hooks/useOrdersByCustomer.ts` |
 | `/api/orders/customer/${customerId}/with-initial` | GET | `src/features/orders/apiOrders.ts`, `src/features/customers/apiCustomers.ts` |
 
 ## Customers

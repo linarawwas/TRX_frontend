@@ -48,6 +48,7 @@ Scope: `/src` and `/public/sw.js`.
 | `src/features/products/apiProducts.ts`   | axios | DELETE | `/api/products/${productId}`                          | Product delete API          |
 | `src/features/products/apiProducts.ts`   | axios | POST   | `/api/products`                                       | Product create API          |
 | `src/features/products/apiProducts.ts`   | axios | PUT    | `/api/products/${productId}`                          | Product update API          |
+| `src/features/orders/api.ts`             | axios | GET    | `/api/orders/customer/${customerId}`                  | Customer orders API         |
 | `src/features/orders/apiOrders.ts`       | axios | GET    | `/api/orders/company/${companyId}`                    | Company orders API          |
 | `src/features/areas/apiAreas.ts`         | axios | GET    | `/api/areas/company`                                  | Areas by company API        |
 | `src/features/areas/apiAreas.ts`         | axios | POST   | `/api/areas/days/${dayId}`                            | Areas by day API            |
@@ -70,7 +71,6 @@ Scope: `/src` and `/public/sw.js`.
 | ------------------------------------------------------------ | ----- | ------ | -------------------------------------------------------------- | ------------------------- |
 | `src/components/Products/DefaultProduct.tsx`                 | axios | GET    | `${API_BASE}/api/adminDeterminedDefaults/company/${companyId}` | Default product read UI   |
 | `src/components/Products/UpdateDefaultProduct.tsx`           | axios | PUT    | `${API_BASE}/api/adminDeterminedDefaults/defaultProduct`       | Default product update UI |
-| `src/components/Customers/CustomerOrders/CustomerOrders.tsx` | axios | GET    | `${API_BASE}/api/orders/customer/${customerId}`                | Customer orders UI        |
 
 
 ## 3) Shared request layer (`requestJson`) usage
@@ -116,7 +116,6 @@ Defined in `src/features/api/trxApi.ts`:
   - `src/components/AddDiscount/AddDiscount.tsx`
   - `src/components/AreaSequencePicker/AreaSequencePicker.tsx`
   - `src/components/Shipments/RoundsHistory/RoundsHistory.tsx`
-  - `src/components/Customers/CustomerOrders/CustomerOrders.tsx`
   - `src/components/Products/DefaultProduct.tsx`
   - `src/components/Products/UpdateDefaultProduct.tsx`
   - `src/features/orders/hooks/useRecordOrderController.ts`
@@ -140,6 +139,7 @@ Defined in `src/features/api/trxApi.ts`:
 | `src/features/shipments/hooks/useStartShipmentController.tsx`  | hook->feature API  | `/api/days/name/${weekday}`, `/api/shipments`, `/api/shipments/preload/${dayId}`   | Start shipment modal  |
 | `src/features/shipments/hooks/useTodayShipmentTotals.ts`       | hook->RTK Query    | `/api/shipments/range` (canonical `trxApi.listShipmentsRange`)                    | Dashboard totals      |
 | `src/pages/SharedPages/Shipment/ShipmentsList.tsx`             | page->RTK Query    | `/api/shipments/range` via `useLazyListShipmentsRangeQuery`                        | Shipment list filtering |
+| `src/features/orders/hooks/useOrdersByCustomer.ts`             | hook->feature API  | `/api/orders/customer/${customerId}` via `fetchCustomerOrders`                      | Customer orders view  |
 | `src/features/finance/hooks/useFinanceEntries.ts`              | hook->feature API  | `/api/finances?...`                                                                | Finance dashboard     |
 | `src/features/finance/hooks/useDailySummary.ts`                | hook->feature API  | `/api/finances/summary/daily`                                                      | Finance dashboard     |
 | `src/features/finance/hooks/useMonthlySummary.ts`              | hook->feature API  | `/api/finances/summary/monthly`                                                    | Finance dashboard     |

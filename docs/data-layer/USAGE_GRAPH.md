@@ -23,7 +23,6 @@ Component/page/hook to API dependency graph (static code mapping).
 | `src/components/AddDiscount/AddDiscount.tsx` | `GET /api/areas/company`, `GET /api/exchange-rate`, `GET /api/customers/area/${id}`, `PUT /api/customers/${id}` |
 | `src/components/AreaSequencePicker/AreaSequencePicker.tsx` | `GET /api/customers/area/${id}`, `POST /api/areas/${id}/reorder?companyId=${companyId}` |
 | `src/components/Shipments/RoundsHistory/RoundsHistory.tsx` | `GET /api/shipments/${shipmentId}/rounds` |
-| `src/components/Customers/CustomerOrders/CustomerOrders.tsx` | `GET /api/orders/customer/${customerId}` |
 | `src/components/Products/DefaultProduct.tsx` | `GET /api/adminDeterminedDefaults/company/${companyId}` |
 | `src/components/Products/UpdateDefaultProduct.tsx` | `PUT /api/adminDeterminedDefaults/defaultProduct` |
 
@@ -44,6 +43,7 @@ Component/page/hook to API dependency graph (static code mapping).
 | `src/features/finance/hooks/useAddProfit.ts` | `createExtraProfit` -> `POST /api/extraProfits` |
 | `src/features/products/hooks/useProducts.ts` | `listCompanyProducts` -> `GET /api/products/company/${companyId}`; `deleteProductById` -> `DELETE /api/products/${productId}` |
 | `src/features/products/hooks/useAddProduct.ts` | `createProduct` -> `POST /api/products` |
+| `src/features/orders/hooks/useOrdersByCustomer.ts` | `fetchCustomerOrders` -> `GET /api/orders/customer/${customerId}` |
 | `src/features/customers/hooks/useUpdateCustomerController.ts` | customer APIs (`/api/customers/...`) + areas API (`/api/areas/company`) + active customers by area |
 | `src/features/distributors/hooks/useCompanyDistributorData.ts` | distributors APIs + customers company + orders company + products company |
 
