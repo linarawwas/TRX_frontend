@@ -9,6 +9,13 @@ Transport labeling rules:
 - `src/features/*/api*.ts` or component modules using `apiClient.*` => **apiClient (axios)**
 - runtime/offline replay paths => **fetch/runtime**
 
+## API Response Contract
+
+- **Primary (`requestJson`)**: endpoint payload is returned directly; failures raise `ApiRequestError` (`message`, `status`, `body`).
+- **Legacy compatibility envelope**: some auth/legacy wrappers still return `{ ok, status, data }`.
+- **Offline/runtime**: `requestRaw(...)` uses `{ ok, status, statusText, data }` for replay-safe branching.
+- **RTK Query**: consumers read `{ data, error, isLoading }` from hook state.
+
 ## Auth
 
 | Endpoint | Method(s) | Used in |

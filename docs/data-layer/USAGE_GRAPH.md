@@ -3,11 +3,18 @@
 Component/page/hook to API dependency graph (static code mapping).
 Primary transport is `requestJson` (plus RTK Query where applicable); `apiClient` entries are legacy/exception paths.
 
+## API Response Contract
+
+- `requestJson`: returns domain payload directly; errors throw `ApiRequestError`.
+- `requestRaw` (offline/runtime): returns `{ ok, status, statusText, data }`.
+- RTK Query: read `{ data, error, isLoading }` from query hooks.
+- Legacy `{ ok, data }` envelopes are compatibility paths only and not the primary example format.
+
 ## Pages
 
 | Component/Page | API dependency |
 |---|---|
-| `src/pages/SharedPages/Login/LoginForm.tsx` | `POST /api/auth/login` (direct `fetch`) |
+| `src/pages/SharedPages/Login/LoginForm.tsx` | `loginUser` -> `POST /api/auth/login` (compat envelope: `{ ok, status, data }`) |
 | `src/pages/AdminPages/ProductsList/Products.tsx` | via `useProducts` -> `/api/products/company/${companyId}`, `/api/products/${productId}` and direct `updateProduct` -> `/api/products/${productId}` |
 | `src/pages/AdminPages/FinanceDashboard/FinanceDashboard.tsx` | `useFinanceCategories` -> `/api/finance-categories`; `useDailySummary` -> `/api/finances/summary/daily`; `useMonthlySummary` -> `/api/finances/summary/monthly`; `useFinanceEntries` -> `/api/finances?...`; mutations via `createFinance/updateFinance/deleteFinance` |
 | `src/pages/EmployeePages/EmployeeHomePage/EmployeeHomePage.tsx` | no direct transport (composes children) |
@@ -31,7 +38,7 @@ Primary transport is `requestJson` (plus RTK Query where applicable); `apiClient
 
 | Hook | API dependency |
 |---|---|
-| `src/features/orders/hooks/useRecordOrderController.ts` | direct `POST /api/orders`; delegated `fetchAndCacheCustomerInvoice` -> `/api/customers/reciept/${customerId}` |
+| `src/features/orders/hooks/useRecordOrderController.ts` | `requestRaw` `POST /api/orders`; delegated `fetchAndCacheCustomerInvoice` -> `/api/customers/reciept/${customerId}` |
 | `src/hooks/useSyncOfflineOrders.ts` | dynamic replay `fetch(request.url, request.options)` |
 | `src/features/shipments/hooks/useStartShipmentController.tsx` | `fetchDayByWeekday` -> `/api/days/name/${weekday}`; `createRoundOrShipment` -> `/api/shipments`; `preloadShipmentData` -> `/api/shipments/preload/${dayId}` |
 | `src/features/shipments/hooks/useTodayShipmentTotals.ts` | RTK Query `POST /api/shipments/range` (canonical owner: `trxApi.listShipmentsRange`) |

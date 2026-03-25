@@ -10,6 +10,25 @@ Current policy:
 
 Scope: `/src` and `/public/sw.js`.
 
+## API Response Contract
+
+Primary contract (requestJson):
+
+- Success: returns the endpoint payload directly (typed generic), e.g. `T`.
+- Failure: throws `ApiRequestError` with normalized `message`, `status`, and raw `body`.
+- No `{ ok, data }` envelope in the requestJson-first path.
+
+Allowed exception contracts:
+
+- `requestRaw(...)` (offline/runtime flows): returns `{ ok, status, statusText, data }`.
+- RTK Query hooks: expose `{ data, error, isLoading }` from query state.
+
+Examples (current standard):
+
+- `const order = await requestJson<Order>(\`/api/orders/${orderId}\`, { token })`
+- `const list = await requestJson<Order[]>(\`/api/orders/customer/${customerId}\`, { token })`
+- `const res = await requestRaw("/api/orders", request.options) // { ok, status, data }`
+
 ## 1) Allowed raw `fetch(...)` usage (exceptions only)
 
 
@@ -104,7 +123,7 @@ Defined in `src/features/api/trxApi.ts`:
 
 | Hook file                                               | Type       | Method  | Endpoint                 | Usage location    |
 | ------------------------------------------------------- | ---------- | ------- | ------------------------ | ----------------- |
-| `src/features/orders/hooks/useRecordOrderController.ts` | hook+fetch | POST    | `${API_BASE}/api/orders` | Record order flow |
+| `src/features/orders/hooks/useRecordOrderController.ts` | hook+requestRaw | POST | `/api/orders` | Record order flow |
 | `src/hooks/useSyncOfflineOrders.ts`                     | hook+fetch | dynamic | queued `request.url`     | Offline replay    |
 
 
