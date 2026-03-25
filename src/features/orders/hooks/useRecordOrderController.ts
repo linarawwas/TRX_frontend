@@ -24,7 +24,7 @@ import {
 } from "../../../redux/Order/action";
 import { getProductTypeFromDB, saveRequest } from "../../../utils/indexedDB";
 import { fetchAndCacheCustomerInvoice } from "../../customers/apiCustomers";
-import { runUnifiedRequest } from "../../api/rtkRequest";
+import { rtkJson } from "../../api/rtkTransport";
 import {
   selectRoundProgress,
   selectShipmentExchangeRateLBP,
@@ -317,15 +317,12 @@ export function useRecordOrderController(props: RecordOrderProps) {
       }
 
       try {
-        await runUnifiedRequest<Record<string, unknown>>(
-          {
-            url: "/api/orders",
-            method: "POST",
-            token,
-            body: payload,
-          },
-          "فشل إنشاء الطلب"
-        );
+        await rtkJson<Record<string, unknown>>("/api/orders", {
+          token,
+          method: "POST",
+          jsonBody: payload,
+          fallbackMessage: "فشل إنشاء الطلب",
+        });
       } catch (error) {
         const message =
           error instanceof Error ? error.message : "فشل إنشاء الطلب";

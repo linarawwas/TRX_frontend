@@ -3,7 +3,7 @@ import { act, render, waitFor } from "@testing-library/react";
 import useSyncOfflineOrders from "./useSyncOfflineOrders";
 import { getPendingRequests, removeRequestFromDb } from "../utils/indexedDB";
 import { toast } from "react-toastify";
-import { requestJson, ApiRequestError } from "../features/api/http";
+import { rtkJson, TransportError } from "../features/api/rtkTransport";
 
 const mockDispatch = jest.fn();
 
@@ -26,10 +26,10 @@ jest.mock("react-toastify", () => ({
   },
 }));
 
-jest.mock("../features/api/http", () => ({
+jest.mock("../features/api/rtkTransport", () => ({
   __esModule: true,
-  requestJson: jest.fn(),
-  ApiRequestError: class ApiRequestError extends Error {
+  rtkJson: jest.fn(),
+  TransportError: class TransportError extends Error {
     status: number;
     body: unknown;
     constructor(message: string, status: number, body: unknown) {
@@ -52,7 +52,7 @@ const mockGetPendingRequests = getPendingRequests as jest.MockedFunction<
 const mockRemoveRequestFromDb = removeRequestFromDb as jest.MockedFunction<
   typeof removeRequestFromDb
 >;
-const mockRequestJson = requestJson as jest.MockedFunction<typeof requestJson>;
+const mockRequestJson = rtkJson as jest.MockedFunction<typeof rtkJson>;
 
 describe("useSyncOfflineOrders", () => {
   const originalNavigatorOnLine = navigator.onLine;
@@ -255,7 +255,7 @@ describe("useSyncOfflineOrders", () => {
     });
   });
 
-  test("does not retry on API status errors (ApiRequestError)", async () => {
+  test("does not retry on API status errors (TransportError)", async () => {
     mockGetPendingRequests.mockResolvedValue([
       {
         id: 1,
@@ -268,7 +268,7 @@ describe("useSyncOfflineOrders", () => {
     ] as any);
 
     mockRequestJson.mockRejectedValueOnce(
-      new ApiRequestError("Bad Request", 400, { message: "Bad Request" })
+      new TransportError("Bad Request", 400, { message: "Bad Request" })
     );
 
     render(<TestComponent />);

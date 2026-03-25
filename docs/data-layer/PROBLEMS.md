@@ -41,25 +41,20 @@ It highlights current architectural problems without changing behavior.
 
 ### 2.1 Transport strategy remains mixed for production API calls
 
-- **Severity: High**
-- **Issue:** the codebase uses:
-  - feature APIs over `apiClient`,
-  - feature APIs over `requestJson`,
-  - RTK Query for selected endpoints only.
-- **Why it matters:** inconsistent interceptors, error handling, cancellation behavior, and testability.
+- **Severity: Low**
+- **Issue:** transport has been unified to RTK Query (`trxApi.transport` via `rtkJson`/`rtkEnvelope`), but some compatibility wrappers still expose different consumer contracts (`throw` vs envelope).
+- **Why it matters:** consumer-level semantics still vary across legacy wrappers, even though network transport is centralized.
 - **References (representative):**
-  - feature API over axios client: `src/features/customers/api.ts`
-  - feature API over request helpers: `src/features/customers/apiCustomers.ts`
-  - mixed transport across features: `src/features/finance/apiFinance.ts`
-  - RTK Query: `src/features/api/trxApi.ts`
-  - shared fetch wrapper: `src/features/api/http.ts`
+  - RTK transport: `src/features/api/trxApi.ts`, `src/features/api/rtkTransport.ts`
+  - envelope wrappers: `src/features/auth/api.ts`, `src/features/customers/api.ts`
+  - throw-style wrappers: `src/features/customers/apiCustomers.ts`, `src/features/orders/apiOrders.ts`
 
 ### 2.2 Legacy fetch-like response wrappers still exist in business flows
 
 - **Severity: Medium**
 - **Issue:** legacy fetch-like wrapper semantics were present in business-critical flows and required full migration to unified transport.
 - **Why it matters:** divergent response semantics (`ok/status/statusText/data`) can create inconsistent error paths.
-- **Current status:** resolved in runtime code (replay uses `requestJson` with normalized queued paths).
+- **Current status:** resolved in runtime code (replay uses `rtkJson` with normalized queued paths).
 
 ## 3) Hardcoded URLs vs `API_BASE`
 
@@ -115,11 +110,11 @@ It highlights current architectural problems without changing behavior.
 ### 5.1 Inconsistent success semantics across API layers
 
 - **Severity: High**
-- **Issue:** some APIs return `{ ok, data }`, others throw via `requestJson`, while some return raw data directly.
+- **Issue:** some APIs return `{ ok, data }`, while others throw via `rtkJson`.
 - **Why it matters:** failed responses can silently propagate invalid state.
 - **References:**
   - `{ ok, data }` response style: `src/features/customers/api.ts`, `src/features/areas/api.ts`
-  - thrown error style: `src/features/customers/apiCustomers.ts` via `requestJson`
+  - thrown error style: `src/features/customers/apiCustomers.ts` via `rtkJson`
   - direct data style: `src/features/areas/apiAreas.ts` (`fetchAreasByCompany`, `fetchCustomersByArea`)
 
 ### 5.2 Inconsistent loading states around API calls
@@ -134,10 +129,10 @@ It highlights current architectural problems without changing behavior.
 ### 5.3 Error normalization differs by path
 
 - **Severity: Medium**
-- **Issue:** some paths use centralized `ApiRequestError` (`requestJson`), while others use ad-hoc toast/console handling.
+- **Issue:** some paths use centralized `TransportError` (`rtkJson`), while others use ad-hoc toast/console handling.
 - **Why it matters:** inconsistent error messages and difficult global observability.
 - **References:**
-  - centralized: `src/features/api/http.ts`
+  - centralized: `src/features/api/rtkTransport.ts`
   - ad-hoc: `src/components/Customers/CustomerOrders/CustomerOrders.tsx`, `src/components/Products/DefaultProduct.tsx`, `src/components/Auth/Register.tsx`
 
 ## 6) Summary Risk Profile

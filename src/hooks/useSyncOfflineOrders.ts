@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { getPendingRequests, removeRequestFromDb } from "../utils/indexedDB";
 import { createLogger } from "../utils/logger";
-import { ApiRequestError, requestJson } from "../features/api/http";
+import { rtkJson, TransportError } from "../features/api/rtkTransport";
 import {
   removePendingOrder,
   addCustomerWithEmptyOrder,
@@ -104,15 +104,18 @@ const useSyncOfflineOrders = () => {
 
           logger.debug("Sending request to server.");
           try {
-            await requestJson<unknown>(replayPath, {
-              method: request.options.method || "GET",
+            const replayMethod = (
+              request.options.method || "GET"
+            ) as "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+            await rtkJson<unknown>(replayPath, {
+              method: replayMethod,
               headers: (request.options.headers as Record<string, string>) ?? {},
               jsonBody: parseReplayBody(request.options.body),
               credentials: request.options.credentials,
               fallbackMessage: "Failed to sync order",
             });
           } catch (error) {
-            if (error instanceof ApiRequestError) {
+            if (error instanceof TransportError) {
               logger.error("Failed to sync order.", error);
               toast.error(`Failed to sync order: ${error.message}`);
               continue;

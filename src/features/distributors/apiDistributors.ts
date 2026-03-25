@@ -1,4 +1,4 @@
-import { runUnifiedRequest } from "../api/rtkRequest";
+import { rtkJson } from "../api/rtkTransport";
 
 export type DateRange = { from?: string; to?: string };
 
@@ -17,27 +17,29 @@ function withRange(path: string, range: DateRange) {
 }
 
 export async function listDistributors(token: string) {
-  return runUnifiedRequest<DistributorRecord[]>(
-    { url: "/api/distributors", token },
-    "Failed to list distributors"
-  );
+  return rtkJson<DistributorRecord[]>("/api/distributors", {
+    token,
+    fallbackMessage: "Failed to list distributors",
+  });
 }
 
 export async function distributorsSummary(token: string, range: DateRange) {
-  return runUnifiedRequest(
-    { url: withRange("/api/distributors/summary", range), token },
-    "Failed to load distributors summary"
-  );
+  return rtkJson(withRange("/api/distributors/summary", range), {
+    token,
+    fallbackMessage: "Failed to load distributors summary",
+  });
 }
 
 export async function createDistributor(
   token: string,
   payload: { name: string; commissionPct?: number }
 ) {
-  return runUnifiedRequest(
-    { url: "/api/distributors", token, method: "POST", body: payload },
-    "Failed to create distributor"
-  );
+  return rtkJson("/api/distributors", {
+    token,
+    method: "POST",
+    jsonBody: payload,
+    fallbackMessage: "Failed to create distributor",
+  });
 }
 
 export async function updateDistributor(
@@ -45,24 +47,27 @@ export async function updateDistributor(
   id: string,
   payload: Partial<{ name: string; commissionPct: number }>
 ) {
-  return runUnifiedRequest(
-    { url: `/api/distributors/${id}`, token, method: "PATCH", body: payload },
-    "Failed to update distributor"
-  );
+  return rtkJson(`/api/distributors/${id}`, {
+    token,
+    method: "PATCH",
+    jsonBody: payload,
+    fallbackMessage: "Failed to update distributor",
+  });
 }
 
 export async function deleteDistributor(token: string, id: string) {
-  return runUnifiedRequest(
-    { url: `/api/distributors/${id}`, token, method: "DELETE" },
-    "Failed to delete distributor"
-  );
+  return rtkJson(`/api/distributors/${id}`, {
+    token,
+    method: "DELETE",
+    fallbackMessage: "Failed to delete distributor",
+  });
 }
 
 export async function distributorCustomers(token: string, id: string) {
-  return runUnifiedRequest(
-    { url: `/api/distributors/${id}/customers`, token },
-    "Failed to load distributor customers"
-  );
+  return rtkJson(`/api/distributors/${id}/customers`, {
+    token,
+    fallbackMessage: "Failed to load distributor customers",
+  });
 }
 
 export async function distributorSummary(
@@ -70,10 +75,10 @@ export async function distributorSummary(
   id: string,
   range: DateRange
 ) {
-  return runUnifiedRequest(
-    { url: withRange(`/api/distributors/${id}/detail`, range), token },
-    "Failed to load summary"
-  );
+  return rtkJson(withRange(`/api/distributors/${id}/detail`, range), {
+    token,
+    fallbackMessage: "Failed to load summary",
+  });
 }
 
 export async function assignCustomerToDistributor(
@@ -81,27 +86,21 @@ export async function assignCustomerToDistributor(
   customerId: string,
   distributorId: string
 ) {
-  return runUnifiedRequest(
-    {
-      url: `/api/distributors/customers/${customerId}/assign`,
-      token,
-      method: "PATCH",
-      body: { distributorId },
-    },
-    "Failed to assign"
-  );
+  return rtkJson(`/api/distributors/customers/${customerId}/assign`, {
+    token,
+    method: "PATCH",
+    jsonBody: { distributorId },
+    fallbackMessage: "Failed to assign",
+  });
 }
 
 export async function unassignCustomerFromDistributor(
   token: string,
   customerId: string
 ) {
-  return runUnifiedRequest(
-    {
-      url: `/api/distributors/customers/${customerId}/unassign`,
-      token,
-      method: "PATCH",
-    },
-    "Failed to unassign"
-  );
+  return rtkJson(`/api/distributors/customers/${customerId}/unassign`, {
+    token,
+    method: "PATCH",
+    fallbackMessage: "Failed to unassign",
+  });
 }

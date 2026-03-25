@@ -1,18 +1,20 @@
 # Usage Graph
 
 Component/page/hook to API dependency graph (static code mapping).
-Primary transport is `requestJson` (plus RTK Query where applicable); `apiClient` entries are legacy/exception paths.
+Primary transport is RTK Query (`trxApi`) via feature endpoints and shared `rtkJson`/`rtkEnvelope` wrappers.
 
 ## API Response Contract
 
-- `requestJson`: returns domain payload directly; errors throw `ApiRequestError`.
+- `rtkJson`: returns domain payload directly; errors throw `TransportError`.
+- `rtkEnvelope`: returns compatibility `{ ok, status, statusText, data }`.
 - RTK Query: read `{ data, error, isLoading }` from query hooks.
 - Legacy `{ ok, data }` envelopes are compatibility paths only and not the primary example format.
 
 ### Offline compatibility strategy
 
-- Online writes use `requestJson` for consistent error handling.
-- Offline writes are queued and replayed with `requestJson` in `useSyncOfflineOrders` after queued URL normalization.
+- Online writes use `rtkJson` for consistent error handling.
+- Offline writes are queued and replayed with `rtkJson` in `useSyncOfflineOrders` after queued URL normalization.
+- Replay removes queue entries only after success and keeps failed entries for future retries.
 
 ## Pages
 
@@ -34,7 +36,7 @@ Primary transport is `requestJson` (plus RTK Query where applicable); `apiClient
 | `src/components/Areas/AddArea/AddArea.tsx` | areas feature API helpers for day bootstrap + area creation |
 | `src/components/AddDiscount/AddDiscount.tsx` | discount/customer/area API helpers |
 | `src/components/AreaSequencePicker/AreaSequencePicker.tsx` | area customers + reorder helpers |
-| `src/components/Shipments/RoundsHistory/RoundsHistory.tsx` | `fetchShipmentRounds` -> `GET /api/shipments/${shipmentId}/rounds` (`apiClient`) |
+| `src/components/Shipments/RoundsHistory/RoundsHistory.tsx` | `fetchShipmentRounds` -> `GET /api/shipments/${shipmentId}/rounds` (`rtkEnvelope`) |
 | `src/components/Products/DefaultProduct.tsx` | `GET /api/adminDeterminedDefaults/company/${companyId}` |
 | `src/components/Products/UpdateDefaultProduct.tsx` | `PUT /api/adminDeterminedDefaults/defaultProduct` |
 
@@ -42,8 +44,8 @@ Primary transport is `requestJson` (plus RTK Query where applicable); `apiClient
 
 | Hook | API dependency |
 |---|---|
-| `src/features/orders/hooks/useRecordOrderController.ts` | `requestJson` `POST /api/orders`; delegated `fetchAndCacheCustomerInvoice` -> `/api/customers/reciept/${customerId}` |
-| `src/hooks/useSyncOfflineOrders.ts` | dynamic replay via `requestJson(normalizedPath, replayOptions)` |
+| `src/features/orders/hooks/useRecordOrderController.ts` | `rtkJson` `POST /api/orders`; delegated `fetchAndCacheCustomerInvoice` -> `/api/customers/reciept/${customerId}` |
+| `src/hooks/useSyncOfflineOrders.ts` | dynamic replay via `rtkJson(normalizedPath, replayOptions)` |
 | `src/features/shipments/hooks/useStartShipmentController.tsx` | `fetchDayByWeekday` -> `/api/days/name/${weekday}`; `createRoundOrShipment` -> `/api/shipments`; `preloadShipmentData` -> `/api/shipments/preload/${dayId}` |
 | `src/features/shipments/hooks/useTodayShipmentTotals.ts` | RTK Query `POST /api/shipments/range` (canonical owner: `trxApi.listShipmentsRange`) |
 | `src/pages/SharedPages/Shipment/ShipmentsList.tsx` | `useLazyListShipmentsRangeQuery` -> RTK Query `POST /api/shipments/range` |
@@ -55,7 +57,7 @@ Primary transport is `requestJson` (plus RTK Query where applicable); `apiClient
 | `src/features/finance/hooks/useAddProfit.ts` | `createExtraProfit` -> `POST /api/extraProfits` |
 | `src/features/products/hooks/useProducts.ts` | `listCompanyProducts` -> `GET /api/products/company/${companyId}`; `deleteProductById` -> `DELETE /api/products/${productId}` |
 | `src/features/products/hooks/useAddProduct.ts` | `createProduct` -> `POST /api/products` |
-| `src/features/orders/hooks/useOrdersByCustomer.ts` | `fetchCustomerOrders` -> `GET /api/orders/customer/${customerId}` (`apiClient`) |
+| `src/features/orders/hooks/useOrdersByCustomer.ts` | `fetchCustomerOrders` -> `GET /api/orders/customer/${customerId}` (`rtkEnvelope`) |
 | `src/features/customers/hooks/useUpdateCustomerController.ts` | customer APIs (`/api/customers/...`) + areas API (`/api/areas/company`) + active customers by area |
 | `src/features/distributors/hooks/useCompanyDistributorData.ts` | distributors APIs + customers company + orders company + products company |
 
@@ -78,8 +80,8 @@ Primary transport is `requestJson` (plus RTK Query where applicable); `apiClient
 | API module | Downstream transport |
 |---|---|
 | `src/features/api/trxApi.ts` | RTK Query `fetchBaseQuery` with `baseUrl: API_BASE` + bearer token; single source of truth for `/api/shipments/range` |
-| `src/features/api/http.ts` | `requestJson` transport + shared auth/error normalization |
-| `src/features/*/api*.ts` | requestJson-first API modules; some legacy `apiClient` wrappers remain |
+| `src/features/api/rtkTransport.ts` | shared wrappers over `trxApi.transport` (`rtkJson`, `rtkEnvelope`) |
+| `src/features/*/api*.ts` | RTK-transport feature modules (no direct client transport calls) |
 
 ## Runtime Network Node
 

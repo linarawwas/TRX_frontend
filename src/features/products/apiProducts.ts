@@ -1,4 +1,4 @@
-import { runUnifiedRequest } from "../api/rtkRequest";
+import { rtkJson, rtkVoid } from "../api/rtkTransport";
 
 export interface ProductResponse {
   _id: string;
@@ -12,25 +12,15 @@ export async function listCompanyProducts(
   token: string,
   companyId: string
 ): Promise<ProductResponse[]> {
-  const data = await runUnifiedRequest<ProductResponse[]>(
-    {
-      url: `/api/products/company/${companyId}`,
-      token,
-    },
-    "Failed to list products"
+  const data = await rtkJson<ProductResponse[]>(
+    `/api/products/company/${companyId}`,
+    { token }
   );
-  return data as ProductResponse[];
+  return data;
 }
 
 export async function deleteProductById(token: string, productId: string) {
-  await runUnifiedRequest(
-    {
-      url: `/api/products/${productId}`,
-      method: "DELETE",
-      token,
-    },
-    "Failed to delete product"
-  );
+  await rtkVoid(`/api/products/${productId}`, { token, method: "DELETE" });
 }
 
 export interface CreateProductPayload {
@@ -44,16 +34,11 @@ export async function createProduct(
   token: string,
   payload: CreateProductPayload
 ): Promise<ProductResponse> {
-  const data = await runUnifiedRequest(
-    {
-      url: "/api/products",
-      method: "POST",
-      token,
-      body: payload,
-    },
-    "Failed to create product"
+  const data = await rtkJson<ProductResponse>(
+    "/api/products",
+    { token, method: "POST", jsonBody: payload }
   );
-  return data as ProductResponse;
+  return data;
 }
 
 export interface UpdateProductPayload {
@@ -67,15 +52,10 @@ export async function updateProduct(
   productId: string,
   payload: UpdateProductPayload
 ): Promise<ProductResponse> {
-  const data = await runUnifiedRequest(
-    {
-      url: `/api/products/${productId}`,
-      method: "PUT",
-      token,
-      body: payload,
-    },
-    "Failed to update product"
+  const data = await rtkJson<ProductResponse>(
+    `/api/products/${productId}`,
+    { token, method: "PUT", jsonBody: payload }
   );
-  return data as ProductResponse;
+  return data;
 }
 

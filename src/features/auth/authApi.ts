@@ -1,5 +1,5 @@
 import type { Dispatch } from "redux";
-import { runUnifiedRequest, UnifiedRequestError } from "../api/rtkRequest";
+import { rtkJson, TransportError } from "../api/rtkTransport";
 import { setCompanyId, setIsAdmin, setUsername } from "../../redux/UserInfo/action";
 import { persistAuthToStorage } from "./authStorage";
 
@@ -15,12 +15,12 @@ export async function fetchMeAndSync(
 ): Promise<MeResponse> {
   let userData: MeResponse;
   try {
-    userData = await runUnifiedRequest<MeResponse>(
-      { url: "/api/users/me", token },
-      "Failed to fetch /api/users/me"
-    );
+    userData = await rtkJson<MeResponse>("/api/users/me", {
+      token,
+      fallbackMessage: "Failed to fetch /api/users/me",
+    });
   } catch (error) {
-    if (error instanceof UnifiedRequestError) {
+    if (error instanceof TransportError) {
       throw new Error(`Failed to fetch /api/users/me (${error.status})`);
     }
     throw error;

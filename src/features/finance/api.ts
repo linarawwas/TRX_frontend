@@ -1,14 +1,8 @@
-import { runUnifiedRequest } from "../api/rtkRequest";
+import { rtkEnvelope } from "../api/rtkTransport";
 
 export async function fetchCompanyExchangeRate(
   token: string
 ): Promise<{ exchangeRateInLBP?: number } | null> {
-  const response = await runUnifiedRequest<{ exchangeRateInLBP?: number }>(
-    {
-      url: "/api/exchange-rate",
-      token,
-    },
-    "Failed to fetch exchange rate"
-  );
-  return response ?? null;
+  const response = await rtkEnvelope("/api/exchange-rate", { token });
+  return response.data ?? null;
 }

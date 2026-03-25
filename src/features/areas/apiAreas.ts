@@ -1,4 +1,4 @@
-import { runUnifiedRequest } from "../api/rtkRequest";
+import { rtkJson, rtkVoid } from "../api/rtkTransport";
 
 export interface Area {
   _id: string;
@@ -7,24 +7,20 @@ export interface Area {
 }
 
 export async function fetchAreasByCompany(token: string): Promise<Area[]> {
-  const data = await runUnifiedRequest<unknown>(
-    { url: "/api/areas/company", token },
-    "Failed to fetch areas"
-  );
+  const data = await rtkJson<unknown>("/api/areas/company", { token });
   return Array.isArray(data) ? data : [];
 }
 
 export async function fetchAreasByDay(token: string, dayId: string, companyId: string): Promise<Area[]> {
-  const data = await runUnifiedRequest<any>(
-    {
-      url: `/api/areas/days/${dayId}`,
-      method: "POST",
-      token,
-      body: { companyId },
-    },
-    "Failed to fetch day areas"
+  const data = await rtkJson<unknown>(
+    `/api/areas/days/${dayId}`,
+    { token, method: "POST", jsonBody: { companyId } }
   );
-  return Array.isArray(data) ? data : Array.isArray(data?.areas) ? data.areas : [];
+  if (Array.isArray(data)) return data as Area[];
+  if (data && typeof data === "object" && Array.isArray((data as { areas?: unknown }).areas)) {
+    return (data as { areas: Area[] }).areas;
+  }
+  return [];
 }
 
 export async function fetchCustomersByArea(token: string, areaId: string): Promise<Array<{
@@ -35,13 +31,7 @@ export async function fetchCustomersByArea(token: string, areaId: string): Promi
   sequence?: number | null;
   isActive?: boolean;
 }>> {
-  const data = await runUnifiedRequest<unknown>(
-    {
-      url: `/api/customers/area/${areaId}`,
-      token,
-    },
-    "Failed to fetch customers"
-  );
+  const data = await rtkJson<unknown>(`/api/customers/area/${areaId}`, { token });
   return Array.isArray(data) ? data : [];
 }
 
@@ -52,19 +42,17 @@ export async function reorderCustomersInArea(
   orderedCustomerIds: string[],
   options?: { force?: boolean; startAt?: number }
 ): Promise<void> {
-  await runUnifiedRequest(
+  await rtkVoid(
+    `/api/areas/${areaId}/reorder?companyId=${companyId}`,
     {
-      url: `/api/areas/${areaId}/reorder`,
-      method: "POST",
       token,
-      params: { companyId },
-      body: {
+      method: "POST",
+      jsonBody: {
         orderedCustomerIds,
         force: options?.force ?? true,
         startAt: options?.startAt ?? 1,
       },
-    },
-    "Failed to reorder customers"
+    }
   );
 }
 

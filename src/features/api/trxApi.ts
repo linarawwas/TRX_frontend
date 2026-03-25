@@ -34,15 +34,6 @@ export interface ShipmentsOrdersByDateRequest {
   includeExternal?: boolean;
 }
 
-export interface UnifiedApiRequestArg {
-  url: string;
-  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-  token?: string | null;
-  body?: unknown;
-  params?: Record<string, string | number | boolean | null | undefined>;
-  headers?: Record<string, string>;
-}
-
 type OrderPayment = {
   amount: number;
   currency: "USD" | "LBP";
@@ -78,6 +69,22 @@ export interface ShipmentsOrdersByDateResponse {
     day?: number;
   };
 }
+
+export type TransportRequest = {
+  url: string;
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+  headers?: Record<string, string>;
+  body?: unknown;
+  params?: Record<string, string | number | boolean>;
+  credentials?: RequestCredentials;
+};
+
+export type TransportResponse = {
+  ok: boolean;
+  status: number;
+  statusText: string;
+  data: unknown;
+};
 
 export const trxApi = createApi({
   reducerPath: "trxApi",
@@ -116,23 +123,40 @@ export const trxApi = createApi({
         return `/api/shipments/orders/by-date?${params.toString()}`;
       },
     }),
-    unifiedApiRequest: builder.mutation<unknown, UnifiedApiRequestArg>({
-      query: ({ url, method = "GET", token, body, params, headers }) => {
-        const search = new URLSearchParams();
-        if (params) {
-          Object.entries(params).forEach(([key, value]) => {
-            if (value === null || value === undefined) return;
-            search.set(key, String(value));
-          });
+    transport: builder.mutation<TransportResponse, TransportRequest>({
+      queryFn: async (request, _api, _extraOptions, baseQuery) => {
+        const result = await baseQuery({
+          url: request.url,
+          method: request.method ?? "GET",
+          body: request.body,
+          headers: request.headers,
+          params: request.params,
+          credentials: request.credentials,
+        });
+
+        if ("error" in result && result.error) {
+          const statusValue = result.error.status;
+          const status =
+            typeof statusValue === "number" ? statusValue : 500;
+          return {
+            data: {
+              ok: false,
+              status,
+              statusText:
+                typeof statusValue === "string" ? statusValue : "Request failed",
+              data: (result.error as { data?: unknown }).data,
+            },
+          };
         }
-        const path = search.toString() ? `${url}?${search.toString()}` : url;
+
+        const status = result.meta?.response?.status ?? 200;
+        const statusText = result.meta?.response?.statusText ?? "";
         return {
-          url: path,
-          method,
-          body,
-          headers: {
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-            ...(headers ?? {}),
+          data: {
+            ok: status >= 200 && status < 300,
+            status,
+            statusText,
+            data: result.data,
           },
         };
       },
@@ -144,6 +168,6 @@ export const {
   useListShipmentsRangeQuery,
   useLazyListShipmentsRangeQuery,
   useLazyShipmentsOrdersByDateQuery,
-  useUnifiedApiRequestMutation,
+  useTransportMutation,
 } = trxApi;
 

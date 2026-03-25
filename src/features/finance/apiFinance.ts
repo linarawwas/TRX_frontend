@@ -1,5 +1,5 @@
 // src/features/finance/apiFinance.ts
-import { runUnifiedRequest } from "../api/rtkRequest";
+import { rtkJson, rtkVoid } from "../api/rtkTransport";
 import type {
   Category,
   DailySummary,
@@ -36,34 +36,22 @@ export interface ExtraProfit {
 }
 
 export async function fetchExpenses(token: string): Promise<Expense[]> {
-  const data = await runUnifiedRequest<unknown>(
-    { url: "/api/expenses", token },
-    "Failed to fetch expenses"
-  );
+  const data = await rtkJson<unknown>("/api/expenses", { token });
   return Array.isArray(data) ? data : [];
 }
 
 export async function deleteExpense(token: string, expenseId: string): Promise<void> {
-  await runUnifiedRequest(
-    { url: `/api/expenses/${expenseId}`, method: "DELETE", token },
-    "Failed to delete expense"
-  );
+  await rtkVoid(`/api/expenses/${expenseId}`, { token, method: "DELETE" });
 }
 
 export async function fetchExtraProfits(token: string, companyId: string): Promise<ExtraProfit[]> {
   void companyId;
-  const data = await runUnifiedRequest<unknown>(
-    { url: "/api/extraProfits", token },
-    "Failed to fetch extra profits"
-  );
+  const data = await rtkJson<unknown>("/api/extraProfits", { token });
   return Array.isArray(data) ? data : [];
 }
 
 export async function deleteExtraProfit(token: string, profitId: string): Promise<void> {
-  await runUnifiedRequest(
-    { url: `/api/extraProfits/${profitId}`, method: "DELETE", token },
-    "Failed to delete extra profit"
-  );
+  await rtkVoid(`/api/extraProfits/${profitId}`, { token, method: "DELETE" });
 }
 
 export interface CreateExpensePayload {
@@ -77,10 +65,11 @@ export async function createExpense(
   token: string,
   payload: CreateExpensePayload
 ): Promise<Expense> {
-  const data = await runUnifiedRequest<Expense>(
-    { url: "/api/expenses", method: "POST", token, body: payload },
-    "Failed to create expense"
-  );
+  const data = await rtkJson<Expense>("/api/expenses", {
+    token,
+    method: "POST",
+    jsonBody: payload,
+  });
   return data;
 }
 
@@ -95,9 +84,9 @@ export async function createExtraProfit(
   token: string,
   payload: CreateExtraProfitPayload
 ): Promise<ExtraProfit> {
-  const data = await runUnifiedRequest<ExtraProfit>(
-    { url: "/api/extraProfits", method: "POST", token, body: payload },
-    "Failed to create extra profit"
+  const data = await rtkJson<ExtraProfit>(
+    "/api/extraProfits",
+    { token, method: "POST", jsonBody: payload }
   );
   return data;
 }
@@ -114,14 +103,9 @@ export async function updateExpense(
   expenseId: string,
   payload: UpdateExpensePayload
 ): Promise<Expense> {
-  const data = await runUnifiedRequest<Expense>(
-    {
-      url: `/api/expenses/${expenseId}`,
-      method: "PUT",
-      token,
-      body: payload,
-    },
-    "Failed to update expense"
+  const data = await rtkJson<Expense>(
+    `/api/expenses/${expenseId}`,
+    { token, method: "PUT", jsonBody: payload }
   );
   return data;
 }
@@ -138,14 +122,9 @@ export async function updateExtraProfit(
   profitId: string,
   payload: UpdateExtraProfitPayload
 ): Promise<ExtraProfit> {
-  const data = await runUnifiedRequest<ExtraProfit>(
-    {
-      url: `/api/extraProfits/${profitId}`,
-      method: "PUT",
-      token,
-      body: payload,
-    },
-    "Failed to update extra profit"
+  const data = await rtkJson<ExtraProfit>(
+    `/api/extraProfits/${profitId}`,
+    { token, method: "PUT", jsonBody: payload }
   );
   return data;
 }
@@ -175,10 +154,12 @@ export async function createFinance(
   token: string,
   body: FinancePayload
 ): Promise<FinanceEntry> {
-  return runUnifiedRequest<FinanceEntry>(
-    { url: "/api/finances", token, method: "POST", body },
-    "Failed"
-  );
+  return rtkJson<FinanceEntry>("/api/finances", {
+    token,
+    method: "POST",
+    jsonBody: body,
+    fallbackMessage: "Failed",
+  });
 }
 
 export async function updateFinance(
@@ -186,20 +167,23 @@ export async function updateFinance(
   id: string,
   body: Partial<FinancePayload>
 ): Promise<FinanceEntry> {
-  return runUnifiedRequest<FinanceEntry>(
-    { url: `/api/finances/${id}`, token, method: "PATCH", body },
-    "Failed"
-  );
+  return rtkJson<FinanceEntry>(`/api/finances/${id}`, {
+    token,
+    method: "PATCH",
+    jsonBody: body,
+    fallbackMessage: "Failed",
+  });
 }
 
 export async function deleteFinance(
   token: string,
   id: string
 ): Promise<{ success?: boolean }> {
-  return runUnifiedRequest<{ success?: boolean }>(
-    { url: `/api/finances/${id}`, token, method: "DELETE" },
-    "Failed"
-  );
+  return rtkJson<{ success?: boolean }>(`/api/finances/${id}`, {
+    token,
+    method: "DELETE",
+    fallbackMessage: "Failed",
+  });
 }
 
 export async function dailySummary(
@@ -208,10 +192,10 @@ export async function dailySummary(
 ): Promise<DailySummary> {
   const url = new URL("/api/finances/summary/daily", window.location.origin);
   url.searchParams.set("date", dateISO);
-  return runUnifiedRequest<DailySummary>(
-    { url: `${url.pathname}${url.search}`, token },
-    "Failed"
-  );
+  return rtkJson<DailySummary>(`${url.pathname}${url.search}`, {
+    token,
+    fallbackMessage: "Failed",
+  });
 }
 
 export async function monthlySummary(
@@ -222,17 +206,17 @@ export async function monthlySummary(
   const url = new URL("/api/finances/summary/monthly", window.location.origin);
   url.searchParams.set("year", String(y));
   url.searchParams.set("month", String(m));
-  return runUnifiedRequest<MonthlyRow[]>(
-    { url: `${url.pathname}${url.search}`, token },
-    "Failed"
-  );
+  return rtkJson<MonthlyRow[]>(`${url.pathname}${url.search}`, {
+    token,
+    fallbackMessage: "Failed",
+  });
 }
 
 export async function listCategories(token: string): Promise<Category[]> {
-  const data = await runUnifiedRequest<unknown>(
-    { url: "/api/finance-categories", token },
-    "Failed to load categories"
-  );
+  const data = await rtkJson<unknown>("/api/finance-categories", {
+    token,
+    fallbackMessage: "Failed to load categories",
+  });
   return Array.isArray(data) ? data : [];
 }
 
@@ -249,12 +233,12 @@ export async function listFinances(
   const queryParams = new URLSearchParams({ from, to });
 
   try {
-    const raw = await runUnifiedRequest<FinanceEntry[] | { items?: FinanceEntry[] }>(
+    const raw = await rtkJson<FinanceEntry[] | { items?: FinanceEntry[] }>(
+      `/api/finances?${queryParams.toString()}`,
       {
-        url: `/api/finances?${queryParams.toString()}`,
-        token,
-      },
-      "Failed to list finances"
+      token,
+      fallbackMessage: "Failed to list finances",
+      }
     );
     let data = Array.isArray(raw) ? raw : raw.items || [];
 

@@ -5,22 +5,31 @@ Endpoint-to-usage mapping across frontend transport layers.
 Transport labeling rules:
 
 - `src/features/api/trxApi.ts` => **RTK Query**
-- `src/features/*/api*.ts` using `requestJson(...)` => **requestJson**
-- `src/features/*/api*.ts` or component modules using `apiClient.*` => **apiClient (axios)**
+- `src/features/*/api*.ts` using `rtkJson(...)` => **RTK transport (json)**
+- `src/features/*/api*.ts` using `rtkEnvelope(...)` => **RTK transport (envelope)**
 - runtime/offline replay paths => **fetch/runtime**
 
 ## API Response Contract
 
-- **Primary (`requestJson`)**: endpoint payload is returned directly; failures raise `ApiRequestError` (`message`, `status`, `body`).
-- **Legacy compatibility envelope**: some auth/legacy wrappers still return `{ ok, status, data }`.
-- **Offline/runtime**: queued replay also uses `requestJson(...)` after queued URL normalization.
+- **Primary (`rtkJson`)**: endpoint payload is returned directly; failures raise `TransportError` (`message`, `status`, `body`).
+- **Compatibility envelope (`rtkEnvelope`)**: `{ ok, status, statusText, data }`.
+- **Offline/runtime**: queued replay also uses `rtkJson(...)` after queued URL normalization.
 - **RTK Query**: consumers read `{ data, error, isLoading }` from hook state.
 
 ### Offline compatibility strategy
 
-- Online write-paths prefer `requestJson`.
+- Online write-paths use `rtkJson`.
 - Offline writes are queued to IndexedDB and replayed later.
-- Replay uses `requestJson` over normalized API paths while preserving queued payload/body and queue timing.
+- Replay uses `rtkJson` over normalized API paths while preserving queued payload/body and queue timing.
+- Retry policy: network/runtime failures schedule replay retry after 10 seconds.
+- Queue safety: queued items are deleted only after successful replay response.
+
+## Adding New Endpoints
+
+1. Add endpoint logic in `src/features/api/trxApi.ts` (query/mutation or `injectEndpoints`).
+2. Expose typed hooks for component usage when stateful query/mutation behavior is needed.
+3. For compatibility wrappers in `src/features/*/api*.ts`, call only `rtkJson` or `rtkEnvelope`.
+4. Keep payload shape identical to backend contracts; do not introduce UI-specific transforms in transport.
 
 ## Auth
 
@@ -35,21 +44,21 @@ Transport labeling rules:
 |---|---:|---|
 | `/api/shipments/range` | POST | `src/features/api/trxApi.ts` (`listShipmentsRange`, RTK Query); consumed by `src/features/shipments/hooks/useTodayShipmentTotals.ts` and `src/pages/SharedPages/Shipment/ShipmentsList.tsx` |
 | `/api/shipments/orders/by-date` | GET | `src/features/api/trxApi.ts` (`shipmentsOrdersByDate`, RTK Query) |
-| `/api/shipments` | POST | `src/features/shipments/apiShipments.ts` (`createRoundOrShipment`, requestJson) |
-| `/api/shipments/preload/${dayId}` | GET | `src/features/shipments/apiShipments.ts` (`preloadShipmentData`, requestJson) |
-| `/api/shipments/${shipmentId}/rounds` | GET | `src/components/Shipments/RoundsHistory/RoundsHistory.tsx` (`apiClient`) |
-| `/api/days/name/${weekday}` | GET | `src/features/shipments/apiShipments.ts` (`fetchDayByWeekday`, requestJson) |
+| `/api/shipments` | POST | `src/features/shipments/apiShipments.ts` (`createRoundOrShipment`, rtkJson) |
+| `/api/shipments/preload/${dayId}` | GET | `src/features/shipments/apiShipments.ts` (`preloadShipmentData`, rtkJson) |
+| `/api/shipments/${shipmentId}/rounds` | GET | `src/components/Shipments/RoundsHistory/RoundsHistory.tsx` (`rtkEnvelope`) |
+| `/api/days/name/${weekday}` | GET | `src/features/shipments/apiShipments.ts` (`fetchDayByWeekday`, rtkJson) |
 
 ## Orders
 
 | Endpoint | Method(s) | Used in |
 |---|---:|---|
-| `/api/orders` | POST | `src/features/orders/hooks/useRecordOrderController.ts` (`requestJson`) |
-| `/api/orders/${orderId}` | GET, PATCH, DELETE | `src/features/orders/apiOrders.ts` (requestJson) |
-| `/api/orders/addPayment/${orderId}` | PUT | `src/features/orders/apiOrders.ts` (requestJson) |
-| `/api/orders/company/${companyId}` | GET | `src/features/orders/apiOrders.ts` (`apiClient`) |
-| `/api/orders/customer/${customerId}` | GET | `src/features/orders/api.ts` (`fetchCustomerOrders`, apiClient), `src/features/orders/apiOrders.ts` (`fetchOrdersByCustomer`, requestJson), `src/features/orders/hooks/useOrdersByCustomer.ts` |
-| `/api/orders/customer/${customerId}/with-initial` | GET | `src/features/orders/apiOrders.ts`, `src/features/customers/apiCustomers.ts` (requestJson) |
+| `/api/orders` | POST | `src/features/orders/hooks/useRecordOrderController.ts` (`rtkJson`) |
+| `/api/orders/${orderId}` | GET, PATCH, DELETE | `src/features/orders/apiOrders.ts` (`rtkJson`) |
+| `/api/orders/addPayment/${orderId}` | PUT | `src/features/orders/apiOrders.ts` (`rtkJson`) |
+| `/api/orders/company/${companyId}` | GET | `src/features/orders/apiOrders.ts` (`rtkJson`) |
+| `/api/orders/customer/${customerId}` | GET | `src/features/orders/api.ts`, `src/features/orders/apiOrders.ts`, `src/features/orders/hooks/useOrdersByCustomer.ts` |
+| `/api/orders/customer/${customerId}/with-initial` | GET | `src/features/orders/apiOrders.ts`, `src/features/customers/apiCustomers.ts` (`rtkJson`) |
 
 ## Customers
 
@@ -126,6 +135,6 @@ Transport labeling rules:
 | Endpoint pattern | Method(s) | Used in |
 |---|---:|---|
 | `request.url` from IndexedDB queue | dynamic | `src/hooks/useSyncOfflineOrders.ts` |
-| `apiUrl(path)` from `requestJson` | configurable | `src/features/api/http.ts` |
+| RTK `baseUrl` from `API_BASE` | configurable | `src/features/api/trxApi.ts` |
 | Service Worker passthrough request | runtime | `public/sw.js` |
 
