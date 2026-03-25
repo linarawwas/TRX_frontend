@@ -1,4 +1,4 @@
-import { rtkJson } from "../api/rtkTransport";
+import { rtkResult, type ApiResult } from "../api/rtkTransport";
 import {
   saveAreasByDayToDB,
   saveCustomerDiscountToDB,
@@ -67,12 +67,16 @@ const logger = createLogger("shipments-api");
 export async function fetchDayByWeekday(
   token: string,
   weekday: string
-): Promise<Array<{ _id: string }>> {
-  const data = await rtkJson<unknown[]>(`/api/days/name/${weekday}`, {
+): Promise<ApiResult<Array<{ _id: string }>>> {
+  const result = await rtkResult<unknown[]>(`/api/days/name/${weekday}`, {
     token,
     fallbackMessage: "Failed to fetch work day",
   });
-  return Array.isArray(data) ? (data as Array<{ _id: string }>) : [];
+  if (result.error) return { data: null, error: result.error };
+  return {
+    data: Array.isArray(result.data) ? (result.data as Array<{ _id: string }>) : [],
+    error: null,
+  };
 }
 
 export async function createRoundOrShipment(opts: {
@@ -80,17 +84,23 @@ export async function createRoundOrShipment(opts: {
   payload: CreateRoundPayload;
   prevShipmentId?: string | null;
   prevDayId?: string | null;
-}) {
+}): Promise<
+  ApiResult<{ shipment: any; round: any; isNewShipment: boolean }>
+> {
   const { token, payload, prevShipmentId, prevDayId } = opts;
-  const out = await rtkJson<CreateShipmentApiResponse>("/api/shipments", {
+  const result = await rtkResult<CreateShipmentApiResponse>("/api/shipments", {
     token,
     method: "POST",
     jsonBody: payload,
     fallbackMessage: "Shipment creation failed",
   });
+  if (result.error || !result.data) {
+    return { data: null, error: result.error || "Shipment creation failed" };
+  }
+  const out = result.data;
 
   if (!out?.shipment?._id) {
-    throw new Error(out?.error || "Shipment creation failed");
+    return { data: null, error: out?.error || "Shipment creation failed" };
   }
 
   const { shipment, round = null } = out;
@@ -101,7 +111,7 @@ export async function createRoundOrShipment(opts: {
     shipment.dayId === prevDayId
   );
 
-  return { shipment, round, isNewShipment };
+  return { data: { shipment, round, isNewShipment }, error: null };
 }
 
 export async function preloadShipmentData({
@@ -114,16 +124,22 @@ export async function preloadShipmentData({
   token: string;
   companyId?: string;
   onProgress?: (p: PreloadProgress) => void;
-}) {
+}): Promise<ApiResult<null>> {
   const emit = (p: PreloadProgress) => onProgress?.(p);
 
-  try {
-    emit({ type: "start" });
+  emit({ type: "start" });
 
-    const data = await rtkJson<any>(`/api/shipments/preload/${dayId}`, {
-      token,
-      fallbackMessage: "Preload failed",
-    });
+  const preloadResult = await rtkResult<any>(`/api/shipments/preload/${dayId}`, {
+    token,
+    fallbackMessage: "Preload failed",
+  });
+  if (preloadResult.error || !preloadResult.data) {
+    const message = preloadResult.error || "Preload failed";
+    emit({ type: "error", message });
+    return { data: null, error: message };
+  }
+  try {
+    const data = preloadResult.data;
 
     const dayData = data.day;
     const areasByDay: Area[] = Array.isArray(data.areas) ? data.areas : [];
@@ -217,13 +233,14 @@ export async function preloadShipmentData({
       type: "done",
       totals: { areas: totalAreas, customers: totalCustomers },
     });
+    return { data: null, error: null };
   } catch (error: any) {
     logger.error("Error during shipment preload.", error);
     emit({
       type: "error",
       message: error?.message || "Preload failed",
     });
-    throw error;
+    return { data: null, error: error?.message || "Preload failed" };
   }
 }
 

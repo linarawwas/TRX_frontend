@@ -95,16 +95,15 @@ function UpdateOrder(): JSX.Element {
 
   useEffect(() => {
     (async () => {
-      try {
-        if (!orderId || !token) return;
-        const data = await fetchOrderById(token, orderId);
-        setOrderData(data);
-      } catch (err) {
-        console.error("Error:", err);
-        toast.error("تعذر تحميل الطلب");
-      } finally {
+      if (!orderId || !token) return;
+      const result = await fetchOrderById(token, orderId);
+      if (result.error || !result.data) {
+        toast.error(result.error || "تعذر تحميل الطلب");
         setLoading(false);
+        return;
       }
+      setOrderData(result.data);
+      setLoading(false);
     })();
   }, [orderId, token]);
 
@@ -158,15 +157,18 @@ function UpdateOrder(): JSX.Element {
     const l = n(edit.lbp);
     if (l !== undefined) body.lbpTotal = l;
 
-    try {
-      if (!token) throw new Error("Missing auth token");
-      const data = await updateOrderById(token, orderId, body);
-      setOrderData(data);
-      toast.success("تم حفظ التعديل");
-      setShowEdit(false);
-    } catch (err: any) {
-      toast.error(err?.message || "فشل العملية");
+    if (!token) {
+      toast.error("Missing auth token");
+      return;
     }
+    const result = await updateOrderById(token, orderId, body);
+    if (result.error || !result.data) {
+      toast.error(result.error || "فشل العملية");
+      return;
+    }
+    setOrderData(result.data);
+    toast.success("تم حفظ التعديل");
+    setShowEdit(false);
   };
 
   const askDelete = () => {
@@ -177,15 +179,18 @@ function UpdateOrder(): JSX.Element {
 
   const performDelete = async () => {
     if (!orderId) return;
-    try {
-      if (!token) throw new Error("Missing auth token");
-      await deleteOrderById(token, orderId);
-      toast.success("تم حذف الطلب");
-      setShowDelete(false);
-      setTimeout(() => navigate(-1), 300);
-    } catch (err: any) {
-      toast.error(err?.message || "فشل العملية");
+    if (!token) {
+      toast.error("Missing auth token");
+      return;
     }
+    const result = await deleteOrderById(token, orderId);
+    if (result.error) {
+      toast.error(result.error || "فشل العملية");
+      return;
+    }
+    toast.success("تم حذف الطلب");
+    setShowDelete(false);
+    setTimeout(() => navigate(-1), 300);
   };
 
   return (

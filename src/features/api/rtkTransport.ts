@@ -11,6 +11,11 @@ type TransportOptions = Omit<TransportRequest, "url" | "headers" | "body"> & {
   fallbackMessage?: string;
 };
 
+export type ApiResult<T> = {
+  data: T | null;
+  error: string | null;
+};
+
 export class TransportError extends Error {
   status: number;
   body: unknown;
@@ -109,4 +114,19 @@ export async function rtkVoid(
   options: TransportOptions = {}
 ): Promise<void> {
   await rtkJson<unknown>(path, options);
+}
+
+export async function rtkResult<T>(
+  path: string,
+  options: TransportOptions = {}
+): Promise<ApiResult<T>> {
+  try {
+    const data = await rtkJson<T>(path, options);
+    return { data, error: null };
+  } catch (error) {
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Request failed",
+    };
+  }
 }

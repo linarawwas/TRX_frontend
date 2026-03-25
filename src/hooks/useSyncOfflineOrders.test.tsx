@@ -3,7 +3,7 @@ import { act, render, waitFor } from "@testing-library/react";
 import useSyncOfflineOrders from "./useSyncOfflineOrders";
 import { getPendingRequests, removeRequestFromDb } from "../utils/indexedDB";
 import { toast } from "react-toastify";
-import { rtkJson, TransportError } from "../features/api/rtkTransport";
+import { rtkResult } from "../features/api/rtkTransport";
 
 const mockDispatch = jest.fn();
 
@@ -28,17 +28,7 @@ jest.mock("react-toastify", () => ({
 
 jest.mock("../features/api/rtkTransport", () => ({
   __esModule: true,
-  rtkJson: jest.fn(),
-  TransportError: class TransportError extends Error {
-    status: number;
-    body: unknown;
-    constructor(message: string, status: number, body: unknown) {
-      super(message);
-      this.name = "ApiRequestError";
-      this.status = status;
-      this.body = body;
-    }
-  },
+  rtkResult: jest.fn(),
 }));
 
 function TestComponent() {
@@ -52,7 +42,7 @@ const mockGetPendingRequests = getPendingRequests as jest.MockedFunction<
 const mockRemoveRequestFromDb = removeRequestFromDb as jest.MockedFunction<
   typeof removeRequestFromDb
 >;
-const mockRequestJson = rtkJson as jest.MockedFunction<typeof rtkJson>;
+const mockRequestJson = rtkResult as jest.MockedFunction<typeof rtkResult>;
 
 describe("useSyncOfflineOrders", () => {
   const originalNavigatorOnLine = navigator.onLine;
@@ -71,7 +61,7 @@ describe("useSyncOfflineOrders", () => {
       value: true,
     });
 
-    mockRequestJson.mockResolvedValue({});
+    mockRequestJson.mockResolvedValue({ data: {}, error: null });
   });
 
   afterEach(() => {
@@ -182,7 +172,7 @@ describe("useSyncOfflineOrders", () => {
 
     mockRequestJson
       .mockRejectedValueOnce(new Error("network down"))
-      .mockResolvedValueOnce({});
+      .mockResolvedValueOnce({ data: {}, error: null });
 
     render(<TestComponent />);
 
@@ -228,7 +218,7 @@ describe("useSyncOfflineOrders", () => {
     mockRequestJson
       .mockRejectedValueOnce(new Error("network down 1"))
       .mockRejectedValueOnce(new Error("network down 2"))
-      .mockResolvedValueOnce({});
+      .mockResolvedValueOnce({ data: {}, error: null });
 
     render(<TestComponent />);
 
@@ -255,7 +245,7 @@ describe("useSyncOfflineOrders", () => {
     });
   });
 
-  test("does not retry on API status errors (TransportError)", async () => {
+  test("does not retry on API status errors", async () => {
     mockGetPendingRequests.mockResolvedValue([
       {
         id: 1,
@@ -267,9 +257,10 @@ describe("useSyncOfflineOrders", () => {
       },
     ] as any);
 
-    mockRequestJson.mockRejectedValueOnce(
-      new TransportError("Bad Request", 400, { message: "Bad Request" })
-    );
+    mockRequestJson.mockResolvedValueOnce({
+      data: null,
+      error: "Bad Request",
+    });
 
     render(<TestComponent />);
 

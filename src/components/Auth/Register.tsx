@@ -26,21 +26,12 @@ const Register: React.FC = () => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    try {
-      const response = await registerUser(token, formData);
-
-      if (response.ok) {
-        // Registration was successful
-        toast.success('User registered successfully');
-        // You can redirect to the signIn page or handle it as needed
-      } else {
-        // Registration failed
-        const data = response.data;
-        toast.error(`Registration failed: ${data.error}`);
-      }
-    } catch (error:any) {
-      toast.error('Registration error:', error);
+    const response = await registerUser(token, formData);
+    if (response.error) {
+      toast.error(`Registration failed: ${response.error}`);
+      return;
     }
+    toast.success('User registered successfully');
   };
 
   return (

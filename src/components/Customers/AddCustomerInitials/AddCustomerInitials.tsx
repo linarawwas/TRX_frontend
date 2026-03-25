@@ -53,7 +53,9 @@ const AddCustomerInitials = (): JSX.Element => {
       setLoadingStep("Uploading to database...");
 
       const response = await submitUpload(formData);
-      if (!response.ok) throw new Error("Upload failed");
+      if (response.error || !response.data) {
+        throw new Error(response.error || "Upload failed");
+      }
 
       const result = response.data;
       toast.success(`${result.createdCount} customers added successfully`);

@@ -1,4 +1,4 @@
-import { rtkJson } from "../api/rtkTransport";
+import { rtkResult, type ApiResult } from "../api/rtkTransport";
 import { saveCustomerInvoicesToDB } from "../../utils/indexedDB";
 
 export interface Customer {
@@ -15,17 +15,23 @@ export interface CustomersResponse {
   inactive: Customer[];
 }
 
-export async function fetchCustomersByCompany(token: string): Promise<CustomersResponse> {
-  const data = await rtkJson<{
+export async function fetchCustomersByCompany(token: string): Promise<ApiResult<CustomersResponse>> {
+  const result = await rtkResult<{
     active?: Customer[];
     inactive?: Customer[];
   }>("/api/customers/company", {
     token,
     fallbackMessage: "Failed to fetch company customers",
   });
+  if (!result.data) {
+    return { data: null, error: result.error };
+  }
   return {
-    active: Array.isArray(data?.active) ? data.active : [],
-    inactive: Array.isArray(data?.inactive) ? data.inactive : [],
+    data: {
+      active: Array.isArray(result.data.active) ? result.data.active : [],
+      inactive: Array.isArray(result.data.inactive) ? result.data.inactive : [],
+    },
+    error: null,
   };
 }
 
@@ -72,8 +78,8 @@ export interface OpeningEditorPayload {
 export async function fetchCustomerById(
   token: string,
   customerId: string
-): Promise<CustomerDetail> {
-  return rtkJson<CustomerDetail>(`/api/customers/${customerId}`, {
+): Promise<ApiResult<CustomerDetail>> {
+  return rtkResult<CustomerDetail>(`/api/customers/${customerId}`, {
     token,
     fallbackMessage: "Failed to fetch customer",
   });
@@ -82,20 +88,24 @@ export async function fetchCustomerById(
 export async function fetchActiveCustomersByArea(
   token: string,
   areaId: string
-): Promise<ActiveAreaCustomer[]> {
-  const data = await rtkJson<unknown>(`/api/customers/area/${areaId}/active`, {
+): Promise<ApiResult<ActiveAreaCustomer[]>> {
+  const result = await rtkResult<unknown>(`/api/customers/area/${areaId}/active`, {
     token,
     fallbackMessage: "Failed to fetch active customers",
   });
-  return Array.isArray(data) ? (data as ActiveAreaCustomer[]) : [];
+  if (result.error) return { data: null, error: result.error };
+  return {
+    data: Array.isArray(result.data) ? (result.data as ActiveAreaCustomer[]) : [],
+    error: null,
+  };
 }
 
 export async function updateCustomerById(
   token: string,
   customerId: string,
   payload: UpdateCustomerPayload
-): Promise<CustomerDetail> {
-  return rtkJson<CustomerDetail>(`/api/customers/${customerId}`, {
+): Promise<ApiResult<CustomerDetail>> {
+  return rtkResult<CustomerDetail>(`/api/customers/${customerId}`, {
     token,
     method: "PATCH",
     jsonBody: payload,
@@ -106,8 +116,8 @@ export async function updateCustomerById(
 export async function deactivateCustomer(
   token: string,
   customerId: string
-): Promise<void> {
-  await rtkJson(`/api/customers/${customerId}/deactivate`, {
+): Promise<ApiResult<null>> {
+  return rtkResult<null>(`/api/customers/${customerId}/deactivate`, {
     token,
     method: "PATCH",
     fallbackMessage: "Failed to deactivate customer",
@@ -118,8 +128,8 @@ export async function restoreCustomer(
   token: string,
   customerId: string,
   payload: RestoreCustomerPayload
-): Promise<unknown> {
-  return rtkJson(`/api/customers/${customerId}/restore`, {
+): Promise<ApiResult<unknown>> {
+  return rtkResult(`/api/customers/${customerId}/restore`, {
     token,
     method: "PATCH",
     jsonBody: payload,
@@ -130,8 +140,8 @@ export async function restoreCustomer(
 export async function hardDeleteCustomer(
   token: string,
   customerId: string
-): Promise<unknown> {
-  return rtkJson(`/api/customers/${customerId}/hard`, {
+): Promise<ApiResult<unknown>> {
+  return rtkResult(`/api/customers/${customerId}/hard`, {
     token,
     method: "DELETE",
     fallbackMessage: "Failed to delete customer",
@@ -142,8 +152,8 @@ export async function updateCustomerOpening(
   token: string,
   customerId: string,
   payload: OpeningEditorPayload
-): Promise<unknown> {
-  return rtkJson(`/api/customers/${customerId}/opening`, {
+): Promise<ApiResult<unknown>> {
+  return rtkResult(`/api/customers/${customerId}/opening`, {
     token,
     method: "PATCH",
     jsonBody: payload,
@@ -154,21 +164,15 @@ export async function updateCustomerOpening(
 export async function fetchAndCacheCustomerInvoice(
   customerId: string,
   token: string
-): Promise<void> {
-  try {
-    const data = await rtkJson<{ sums?: unknown }>(
-      `/api/customers/reciept/${customerId}`,
-      {
-        token,
-        fallbackMessage: "Failed to fetch customer invoice",
-      }
-    );
-    if (data?.sums) {
-      await saveCustomerInvoicesToDB(customerId, data.sums);
-    }
-  } catch {
-    // Swallow to preserve existing caller behavior.
+): Promise<ApiResult<null>> {
+  const result = await rtkResult<{ sums?: unknown }>(`/api/customers/reciept/${customerId}`, {
+    token,
+    fallbackMessage: "Failed to fetch customer invoice",
+  });
+  if (!result.error && result.data?.sums) {
+    await saveCustomerInvoicesToDB(customerId, result.data.sums);
   }
+  return { data: null, error: result.error };
 }
 
 export interface CustomerStatementInitialSummary {
@@ -206,10 +210,10 @@ export interface CustomerStatementResponse {
 export async function fetchCustomerStatement(
   token: string,
   customerId: string
-): Promise<CustomerStatementResponse> {
-  const [customer, statement] = await Promise.all([
+): Promise<ApiResult<CustomerStatementResponse>> {
+  const [customerResult, statementResult] = await Promise.all([
     fetchCustomerById(token, customerId),
-    rtkJson<{
+    rtkResult<{
       orders?: CustomerStatementOrder[];
       initial?: CustomerStatementInitialSummary;
     }>(`/api/orders/customer/${customerId}/with-initial`, {
@@ -217,16 +221,29 @@ export async function fetchCustomerStatement(
       fallbackMessage: "Failed to fetch customer statement",
     }),
   ]);
+  if (customerResult.error || !customerResult.data) {
+    return { data: null, error: customerResult.error || "Failed to fetch customer statement" };
+  }
+  if (statementResult.error) {
+    return { data: null, error: statementResult.error };
+  }
 
   return {
-    customer,
-    orders: Array.isArray(statement?.orders) ? statement.orders : [],
-    initial: statement?.initial ?? {
-      bottlesLeft: 0,
-      balanceUSD: 0,
-      at: null,
-      orderId: null,
+    data: {
+      customer: customerResult.data,
+      orders:
+        statementResult.data && Array.isArray(statementResult.data.orders)
+          ? statementResult.data.orders
+          : [],
+      initial:
+        statementResult.data?.initial ?? {
+          bottlesLeft: 0,
+          balanceUSD: 0,
+          at: null,
+          orderId: null,
+        },
     },
+    error: null,
   };
 }
 

@@ -109,17 +109,12 @@ const AreaSequencePicker: React.FC<AreaSequencePickerProps> = ({
     try {
       setBusy(true);
       const response = await submitReorder(areaId, next);
-      const data = response.data;
-      if (!response.ok) {
-        const message =
-          typeof data?.error === "string" ? data.error : "تعذر حفظ الترتيب";
-        toast.error(message);
+      if (response.error) {
+        toast.error(response.error || "تعذر حفظ الترتيب");
         return;
       }
       toast.success("تم تحديث ترتيب الزبائن");
       onApplied && onApplied();
-    } catch (e) {
-      toast.error("خطأ في الشبكة");
     } finally {
       setBusy(false);
     }

@@ -12,16 +12,15 @@ export function useOrdersByCustomer(
 
   useEffect(() => {
     const loadCustomerOrders = async () => {
-      try {
-        const response = await fetchCustomerOrders(token, customerId);
-        setOrders(response);
+      const response = await fetchCustomerOrders(token, customerId);
+      if (response.error) {
+        console.error("Error fetching orders:", response.error);
+        setError(response.error);
+      } else {
+        setOrders(Array.isArray(response.data) ? response.data : []);
         setError(null);
-      } catch (err) {
-        console.error("Error fetching orders:", err);
-        setError(err instanceof Error ? err.message : String(err));
-      } finally {
-        setLoading(false);
       }
+      setLoading(false);
     };
 
     if (companyId && customerId) {

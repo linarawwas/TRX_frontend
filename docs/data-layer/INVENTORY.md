@@ -5,7 +5,7 @@ This inventory scans the frontend repository for data-fetching patterns.
 Current policy:
 
 - RTK Query (`trxApi`) is the only network transport layer.
-- Feature modules call the RTK transport mutation via `rtkJson` / `rtkEnvelope` helpers.
+- Feature modules call the RTK transport mutation via `rtkResult`.
 - Raw `fetch` is limited to runtime/service-worker behavior.
 
 Scope: `/src` and `/public/sw.js`.
@@ -14,25 +14,31 @@ Scope: `/src` and `/public/sw.js`.
 
 Primary contract (RTK transport):
 
-- `rtkJson`: success returns payload (`T`), failure throws `TransportError(message, status, body)`.
-- `rtkEnvelope`: returns compatibility envelope `{ ok, status, statusText, data }`.
+- `ApiResult<T> = { data: T | null; error: string | null }`.
+- Every auth/customers/orders/areas/shipments API wrapper returns `ApiResult<T>` (no throws, no `{ ok, data }`).
 
 Allowed exception contracts:
 
-- Offline replay uses `rtkJson(...)` against normalized queued paths.
+- Offline replay uses `rtkResult(...)` against normalized queued paths.
 - RTK Query hooks: expose `{ data, error, isLoading }` from query state.
 
 Examples (current standard):
 
-- `const order = await rtkJson<Order>(\`/api/orders/${orderId}\`, { token })`
-- `const list = await rtkJson<Order[]>(\`/api/orders/customer/${customerId}\`, { token })`
-- `await rtkJson("/api/orders", { method: "POST", jsonBody: payload, token })`
+- `const result = await fetchOrderById(token, orderId) // { data, error }`
+- `if (result.error) { toast.error(result.error); return; }`
+- `const orders = result.data || []`
+
+Error handling guidelines:
+
+- Never throw from domain API wrappers; return `error` string instead.
+- Keep fallback messages domain-specific (user-facing when possible).
+- On consumer side, gate all reads with `if (result.error || !result.data)` before accessing payload.
 
 ### Offline compatibility strategy
 
-- Order submission uses `rtkJson` while online for unified error handling.
+- Order submission uses `rtkResult` while online for unified error handling.
 - When offline, requests are queued to IndexedDB (`saveRequest`) and replayed later.
-- Replay is handled in `useSyncOfflineOrders` via `rtkJson(...)` after normalizing queued URLs to API paths.
+- Replay is handled in `useSyncOfflineOrders` via `rtkResult(...)` after normalizing queued URLs to API paths.
 
 Offline replay behavior details:
 
@@ -59,8 +65,7 @@ No raw `fetch(...)` remains in `/src` application code.
 
 `rtkTransport` is the unified gateway used by feature API modules:
 
-- `rtkJson` for throw-on-failure semantics
-- `rtkEnvelope` for compatibility `{ ok, status, data }` flows
+- `rtkResult` for unified `{ data, error }` results
 
 ## 3) RTK Query endpoints
 
@@ -71,7 +76,7 @@ Defined in `src/features/api/trxApi.ts`:
 | ----------------------- | ------ | ------------------------------------------------------------ | ---------------------------------------------------------- |
 | `listShipmentsRange`    | POST   | `/api/shipments/range`                                       | `useTodayShipmentTotals`                                   |
 | `shipmentsOrdersByDate` | GET    | `/api/shipments/orders/by-date?includeExternal=...&date=...` | pages/components using `useLazyShipmentsOrdersByDateQuery` |
-| `transport`             | dynamic| dynamic                                                      | all feature API modules via `rtkJson` / `rtkEnvelope`     |
+| `transport`             | dynamic| dynamic                                                      | all feature API modules via `rtkResult`                   |
 
 
 ## 4) `API_BASE` usage inventory
@@ -87,8 +92,8 @@ Defined in `src/features/api/trxApi.ts`:
 
 | Hook file                                               | Type       | Method  | Endpoint                 | Usage location    |
 | ------------------------------------------------------- | ---------- | ------- | ------------------------ | ----------------- |
-| `src/features/orders/hooks/useRecordOrderController.ts` | hook+rtkJson | POST | `/api/orders` | Record order flow |
-| `src/hooks/useSyncOfflineOrders.ts`                     | hook+rtkJson | dynamic | queued `request.url`     | Offline replay    |
+| `src/features/orders/hooks/useRecordOrderController.ts` | hook+rtkResult | POST | `/api/orders` | Record order flow |
+| `src/hooks/useSyncOfflineOrders.ts`                     | hook+rtkResult | dynamic | queued `request.url`     | Offline replay    |
 
 
 ### 6.2 Hooks delegating to feature API modules / RTK Query

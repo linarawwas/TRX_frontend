@@ -1,4 +1,4 @@
-import { rtkJson, rtkVoid } from "../api/rtkTransport";
+import { rtkResult, type ApiResult } from "../api/rtkTransport";
 
 export interface Payment {
   date: string;
@@ -52,12 +52,16 @@ export interface Order {
   product: Product;
 }
 
-export async function fetchOrdersByCompany(token: string, companyId: string): Promise<Order[]> {
-  const data = await rtkJson<unknown>(
+export async function fetchOrdersByCompany(
+  token: string,
+  companyId: string
+): Promise<ApiResult<Order[]>> {
+  const result = await rtkResult<unknown>(
     `/api/orders/company/${companyId}`,
-    { token }
+    { token, fallbackMessage: "Failed to fetch company orders" }
   );
-  return Array.isArray(data) ? data : [];
+  if (result.error) return { data: null, error: result.error };
+  return { data: Array.isArray(result.data) ? (result.data as Order[]) : [], error: null };
 }
 
 export interface UpdateOrderPayload {
@@ -82,8 +86,11 @@ export interface OrdersWithInitialResponse {
   };
 }
 
-export async function fetchOrderById(token: string, orderId: string): Promise<Order> {
-  return rtkJson<Order>(`/api/orders/${orderId}`, {
+export async function fetchOrderById(
+  token: string,
+  orderId: string
+): Promise<ApiResult<Order>> {
+  return rtkResult<Order>(`/api/orders/${orderId}`, {
     token,
     fallbackMessage: "Failed to fetch order",
   });
@@ -93,8 +100,8 @@ export async function updateOrderById(
   token: string,
   orderId: string,
   payload: UpdateOrderPayload
-): Promise<Order> {
-  return rtkJson<Order>(`/api/orders/${orderId}`, {
+): Promise<ApiResult<Order>> {
+  return rtkResult<Order>(`/api/orders/${orderId}`, {
     token,
     method: "PATCH",
     jsonBody: payload,
@@ -105,8 +112,8 @@ export async function updateOrderById(
 export async function deleteOrderById(
   token: string,
   orderId: string
-): Promise<void> {
-  await rtkVoid(`/api/orders/${orderId}`, {
+): Promise<ApiResult<null>> {
+  return rtkResult<null>(`/api/orders/${orderId}`, {
     token,
     method: "DELETE",
     fallbackMessage: "Failed to delete order",
@@ -117,8 +124,8 @@ export async function addPaymentToOrder(
   token: string,
   orderId: string,
   payload: AddPaymentPayload
-): Promise<unknown> {
-  return rtkJson(`/api/orders/addPayment/${orderId}`, {
+): Promise<ApiResult<unknown>> {
+  return rtkResult(`/api/orders/addPayment/${orderId}`, {
     token,
     method: "PUT",
     jsonBody: payload,
@@ -129,28 +136,34 @@ export async function addPaymentToOrder(
 export async function fetchOrdersByCustomer(
   token: string,
   customerId: string
-): Promise<Order[]> {
-  const data = await rtkJson<unknown>(`/api/orders/customer/${customerId}`, {
+): Promise<ApiResult<Order[]>> {
+  const result = await rtkResult<unknown>(`/api/orders/customer/${customerId}`, {
     token,
     fallbackMessage: "Failed to fetch customer orders",
   });
-  return Array.isArray(data) ? (data as Order[]) : [];
+  if (result.error) return { data: null, error: result.error };
+  return { data: Array.isArray(result.data) ? (result.data as Order[]) : [], error: null };
 }
 
 export async function fetchOrdersByCustomerWithInitial(
   token: string,
   customerId: string
-): Promise<OrdersWithInitialResponse> {
-  const data = await rtkJson<OrdersWithInitialResponse>(
+): Promise<ApiResult<OrdersWithInitialResponse>> {
+  const result = await rtkResult<OrdersWithInitialResponse>(
     `/api/orders/customer/${customerId}/with-initial`,
     {
       token,
       fallbackMessage: "Failed to fetch customer statement orders",
     }
   );
+  if (result.error) return { data: null, error: result.error };
+  const payload = result.data ?? {};
   return {
-    orders: Array.isArray(data?.orders) ? data.orders : [],
-    initial: data?.initial,
+    data: {
+      orders: Array.isArray(payload.orders) ? payload.orders : [],
+      initial: payload.initial,
+    },
+    error: null,
   };
 }
 

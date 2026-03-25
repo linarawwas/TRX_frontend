@@ -21,18 +21,15 @@ export function useActiveAreaCustomers(token: string, areaId: string) {
     (async () => {
       setLoading(true);
       setError(null);
-      try {
-        const list = await fetchActiveCustomersForArea(token, areaId);
-        if (!cancelled) setCustomers(Array.isArray(list) ? list : []);
-      } catch (err) {
-        if (!cancelled) {
+      const result = await fetchActiveCustomersForArea(token, areaId);
+      if (!cancelled) {
+        if (result.error) {
           setCustomers([]);
-          setError(
-            err instanceof Error ? err.message : "Failed to load area customers"
-          );
+          setError(result.error);
+        } else {
+          setCustomers(Array.isArray(result.data) ? result.data : []);
         }
-      } finally {
-        if (!cancelled) setLoading(false);
+        setLoading(false);
       }
     })();
 

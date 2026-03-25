@@ -21,21 +21,20 @@ export default function LoginForm(): JSX.Element {
       return toast.error("يرجى إدخال البريد الإلكتروني وكلمة المرور");
     }
 
-    try {
-      const response = await loginUser({ email, password });
-      const data = response.data;
-
-      if (response.ok) {
-        toast.success("تم تسجيل الدخول بنجاح");
-        localStorage.setItem("token", data.token);
-        setTimeout(() => window.location.reload(), 1000);
-      } else {
-        toast.error(data?.message || "بيانات الدخول غير صحيحة");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("حدث خطأ أثناء تسجيل الدخول. حاول مرة أخرى.");
+    const response = await loginUser({ email, password });
+    if (response.error || !response.data) {
+      toast.error(
+        response.error ||
+          (typeof response.data?.message === "string"
+            ? response.data.message
+            : "بيانات الدخول غير صحيحة")
+      );
+      return;
     }
+
+    toast.success("تم تسجيل الدخول بنجاح");
+    localStorage.setItem("token", response.data.token);
+    setTimeout(() => window.location.reload(), 1000);
   };
 
   return (

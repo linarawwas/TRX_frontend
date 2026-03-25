@@ -5,6 +5,21 @@ type MutationState = {
   error: string | null;
 };
 
+type ApiResultLike = {
+  data: unknown;
+  error: string | null;
+};
+
+function isApiResultLike(value: unknown): value is ApiResultLike {
+  return (
+    !!value &&
+    typeof value === "object" &&
+    "data" in value &&
+    "error" in value &&
+    typeof (value as { error?: unknown }).error !== "undefined"
+  );
+}
+
 export function useAsyncMutation<TArgs extends unknown[], TResult>(
   fn: (...args: TArgs) => Promise<TResult>,
   fallbackMessage: string
@@ -17,7 +32,11 @@ export function useAsyncMutation<TArgs extends unknown[], TResult>(
   const submit = async (...args: TArgs): Promise<TResult> => {
     setState({ loading: true, error: null });
     try {
-      return await fn(...args);
+      const result = await fn(...args);
+      if (isApiResultLike(result) && result.error) {
+        setState({ loading: false, error: result.error });
+      }
+      return result;
     } catch (err) {
       setState({
         loading: false,

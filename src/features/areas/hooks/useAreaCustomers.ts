@@ -29,15 +29,15 @@ export function useAreaCustomers(
 
     setLoading(true);
     setError(null);
-    try {
-      const data = await fetchCustomersByArea(token, areaId);
-      setCustomers(Array.isArray(data) ? data : []);
-    } catch (err) {
+    const result = await fetchCustomersByArea(token, areaId);
+    if (result.error) {
       setCustomers([]);
-      setError(err instanceof Error ? err.message : "Failed to fetch customers");
-    } finally {
+      setError(result.error);
       setLoading(false);
+      return;
     }
+    setCustomers(Array.isArray(result.data) ? result.data : []);
+    setLoading(false);
   }, [areaId, enabled, token]);
 
   useEffect(() => {

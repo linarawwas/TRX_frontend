@@ -5,22 +5,20 @@ Endpoint-to-usage mapping across frontend transport layers.
 Transport labeling rules:
 
 - `src/features/api/trxApi.ts` => **RTK Query**
-- `src/features/*/api*.ts` using `rtkJson(...)` => **RTK transport (json)**
-- `src/features/*/api*.ts` using `rtkEnvelope(...)` => **RTK transport (envelope)**
+- `src/features/*/api*.ts` using `rtkResult(...)` => **RTK transport (ApiResult)**
 - runtime/offline replay paths => **fetch/runtime**
 
 ## API Response Contract
 
-- **Primary (`rtkJson`)**: endpoint payload is returned directly; failures raise `TransportError` (`message`, `status`, `body`).
-- **Compatibility envelope (`rtkEnvelope`)**: `{ ok, status, statusText, data }`.
-- **Offline/runtime**: queued replay also uses `rtkJson(...)` after queued URL normalization.
+- **Primary (`ApiResult<T>`)**: `{ data: T | null, error: string | null }`.
+- **Offline/runtime**: queued replay also uses `ApiResult` via `rtkResult(...)` after queued URL normalization.
 - **RTK Query**: consumers read `{ data, error, isLoading }` from hook state.
 
 ### Offline compatibility strategy
 
-- Online write-paths use `rtkJson`.
+- Online write-paths use `rtkResult`.
 - Offline writes are queued to IndexedDB and replayed later.
-- Replay uses `rtkJson` over normalized API paths while preserving queued payload/body and queue timing.
+- Replay uses `rtkResult` over normalized API paths while preserving queued payload/body and queue timing.
 - Retry policy: network/runtime failures schedule replay retry after 10 seconds.
 - Queue safety: queued items are deleted only after successful replay response.
 
@@ -28,7 +26,7 @@ Transport labeling rules:
 
 1. Add endpoint logic in `src/features/api/trxApi.ts` (query/mutation or `injectEndpoints`).
 2. Expose typed hooks for component usage when stateful query/mutation behavior is needed.
-3. For compatibility wrappers in `src/features/*/api*.ts`, call only `rtkJson` or `rtkEnvelope`.
+3. In wrappers under `src/features/*/api*.ts`, call `rtkResult` and return `{ data, error }`.
 4. Keep payload shape identical to backend contracts; do not introduce UI-specific transforms in transport.
 
 ## Auth
@@ -44,21 +42,21 @@ Transport labeling rules:
 |---|---:|---|
 | `/api/shipments/range` | POST | `src/features/api/trxApi.ts` (`listShipmentsRange`, RTK Query); consumed by `src/features/shipments/hooks/useTodayShipmentTotals.ts` and `src/pages/SharedPages/Shipment/ShipmentsList.tsx` |
 | `/api/shipments/orders/by-date` | GET | `src/features/api/trxApi.ts` (`shipmentsOrdersByDate`, RTK Query) |
-| `/api/shipments` | POST | `src/features/shipments/apiShipments.ts` (`createRoundOrShipment`, rtkJson) |
-| `/api/shipments/preload/${dayId}` | GET | `src/features/shipments/apiShipments.ts` (`preloadShipmentData`, rtkJson) |
-| `/api/shipments/${shipmentId}/rounds` | GET | `src/components/Shipments/RoundsHistory/RoundsHistory.tsx` (`rtkEnvelope`) |
-| `/api/days/name/${weekday}` | GET | `src/features/shipments/apiShipments.ts` (`fetchDayByWeekday`, rtkJson) |
+| `/api/shipments` | POST | `src/features/shipments/apiShipments.ts` (`createRoundOrShipment`, `ApiResult`) |
+| `/api/shipments/preload/${dayId}` | GET | `src/features/shipments/apiShipments.ts` (`preloadShipmentData`, `ApiResult`) |
+| `/api/shipments/${shipmentId}/rounds` | GET | `src/components/Shipments/RoundsHistory/RoundsHistory.tsx` (`ApiResult`) |
+| `/api/days/name/${weekday}` | GET | `src/features/shipments/apiShipments.ts` (`fetchDayByWeekday`, `ApiResult`) |
 
 ## Orders
 
 | Endpoint | Method(s) | Used in |
 |---|---:|---|
-| `/api/orders` | POST | `src/features/orders/hooks/useRecordOrderController.ts` (`rtkJson`) |
-| `/api/orders/${orderId}` | GET, PATCH, DELETE | `src/features/orders/apiOrders.ts` (`rtkJson`) |
-| `/api/orders/addPayment/${orderId}` | PUT | `src/features/orders/apiOrders.ts` (`rtkJson`) |
-| `/api/orders/company/${companyId}` | GET | `src/features/orders/apiOrders.ts` (`rtkJson`) |
+| `/api/orders` | POST | `src/features/orders/hooks/useRecordOrderController.ts` (`ApiResult`) |
+| `/api/orders/${orderId}` | GET, PATCH, DELETE | `src/features/orders/apiOrders.ts` (`ApiResult`) |
+| `/api/orders/addPayment/${orderId}` | PUT | `src/features/orders/apiOrders.ts` (`ApiResult`) |
+| `/api/orders/company/${companyId}` | GET | `src/features/orders/apiOrders.ts` (`ApiResult`) |
 | `/api/orders/customer/${customerId}` | GET | `src/features/orders/api.ts`, `src/features/orders/apiOrders.ts`, `src/features/orders/hooks/useOrdersByCustomer.ts` |
-| `/api/orders/customer/${customerId}/with-initial` | GET | `src/features/orders/apiOrders.ts`, `src/features/customers/apiCustomers.ts` (`rtkJson`) |
+| `/api/orders/customer/${customerId}/with-initial` | GET | `src/features/orders/apiOrders.ts`, `src/features/customers/apiCustomers.ts` (`ApiResult`) |
 
 ## Customers
 

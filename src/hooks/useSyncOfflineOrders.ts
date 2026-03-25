@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { getPendingRequests, removeRequestFromDb } from "../utils/indexedDB";
 import { createLogger } from "../utils/logger";
-import { rtkJson, TransportError } from "../features/api/rtkTransport";
+import { rtkResult } from "../features/api/rtkTransport";
 import {
   removePendingOrder,
   addCustomerWithEmptyOrder,
@@ -103,24 +103,20 @@ const useSyncOfflineOrders = () => {
           }
 
           logger.debug("Sending request to server.");
-          try {
-            const replayMethod = (
-              request.options.method || "GET"
-            ) as "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-            await rtkJson<unknown>(replayPath, {
-              method: replayMethod,
-              headers: (request.options.headers as Record<string, string>) ?? {},
-              jsonBody: parseReplayBody(request.options.body),
-              credentials: request.options.credentials,
-              fallbackMessage: "Failed to sync order",
-            });
-          } catch (error) {
-            if (error instanceof TransportError) {
-              logger.error("Failed to sync order.", error);
-              toast.error(`Failed to sync order: ${error.message}`);
-              continue;
-            }
-            throw error;
+          const replayMethod = (
+            request.options.method || "GET"
+          ) as "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+          const replayResult = await rtkResult<unknown>(replayPath, {
+            method: replayMethod,
+            headers: (request.options.headers as Record<string, string>) ?? {},
+            jsonBody: parseReplayBody(request.options.body),
+            credentials: request.options.credentials,
+            fallbackMessage: "Failed to sync order",
+          });
+          if (replayResult.error) {
+            logger.error("Failed to sync order.", replayResult.error);
+            toast.error(`Failed to sync order: ${replayResult.error}`);
+            continue;
           }
 
           logger.info("Order synced successfully. Removing from IndexedDB.");

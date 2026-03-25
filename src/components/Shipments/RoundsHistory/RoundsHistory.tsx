@@ -40,21 +40,22 @@ const RoundsHistory: React.FC<Props> = ({ shipmentId, totalToday, title }) => {
     const ctrl = new AbortController();
 
     (async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        if (ctrl.signal.aborted) return;
-        const response = await fetchShipmentRounds(token, shipmentId);
-        if (!response.ok) throw new Error("Failed to load rounds");
-        const data: Round[] = response.data;
-        // sort by sequence ASC for a natural timeline
-        data.sort((a, b) => a.sequence - b.sequence);
-        setRounds(data);
-      } catch (e: any) {
-        if (e?.name !== "AbortError") setError(e?.message || "Load error");
-      } finally {
+      setLoading(true);
+      setError(null);
+      if (ctrl.signal.aborted) {
         setLoading(false);
+        return;
       }
+      const response = await fetchShipmentRounds(token, shipmentId);
+      if (response.error) {
+        setError(response.error || "Load error");
+        setLoading(false);
+        return;
+      }
+      const data: Round[] = Array.isArray(response.data) ? response.data : [];
+      data.sort((a, b) => a.sequence - b.sequence);
+      setRounds(data);
+      setLoading(false);
     })();
 
     return () => ctrl.abort();

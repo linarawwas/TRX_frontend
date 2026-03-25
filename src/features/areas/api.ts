@@ -1,37 +1,48 @@
-import { rtkEnvelope } from "../api/rtkTransport";
+import { rtkResult, type ApiResult } from "../api/rtkTransport";
 
 export async function fetchDays(
   token: string
-): Promise<Array<{ _id: string; name: string }>> {
-  const response = await rtkEnvelope("/api/days", {
+): Promise<ApiResult<Array<{ _id: string; name: string }>>> {
+  const response = await rtkResult<unknown>("/api/days", {
     token,
+    fallbackMessage: "فشل في تحميل الأيام",
   });
-  return Array.isArray(response.data) ? response.data : [];
+  if (response.error) return { data: null, error: response.error };
+  return {
+    data: Array.isArray(response.data)
+      ? (response.data as Array<{ _id: string; name: string }>)
+      : [],
+    error: null,
+  };
 }
 
 export async function createArea(
   token: string,
   payload: Record<string, unknown>
-): Promise<{ ok: boolean; data: Record<string, unknown> }> {
-  const response = await rtkEnvelope("/api/areas", {
+): Promise<ApiResult<Record<string, unknown>>> {
+  return rtkResult<Record<string, unknown>>("/api/areas", {
     token,
     method: "POST",
     jsonBody: payload,
+    fallbackMessage: "فشل في إنشاء المنطقة",
   });
-  return {
-    ok: response.ok,
-    data: (response.data ?? {}) as Record<string, unknown>,
-  };
 }
 
 export async function fetchCustomersByArea(
   token: string,
   areaId: string
-): Promise<Array<{ _id: string; name?: string; sequence?: number }>> {
-  const response = await rtkEnvelope(`/api/customers/area/${areaId}`, {
+): Promise<ApiResult<Array<{ _id: string; name?: string; sequence?: number }>>> {
+  const response = await rtkResult<unknown>(`/api/customers/area/${areaId}`, {
     token,
+    fallbackMessage: "تعذر تحميل زبائن هذه المنطقة",
   });
-  return Array.isArray(response.data) ? response.data : [];
+  if (response.error) return { data: null, error: response.error };
+  return {
+    data: Array.isArray(response.data)
+      ? (response.data as Array<{ _id: string; name?: string; sequence?: number }>)
+      : [],
+    error: null,
+  };
 }
 
 export async function reorderAreaCustomers(
@@ -39,8 +50,8 @@ export async function reorderAreaCustomers(
   areaId: string,
   companyId: string,
   orderedCustomerIds: string[]
-): Promise<{ ok: boolean; data: Record<string, unknown> }> {
-  const response = await rtkEnvelope(
+): Promise<ApiResult<Record<string, unknown>>> {
+  return rtkResult<Record<string, unknown>>(
     `/api/areas/${areaId}/reorder?companyId=${companyId}`,
     {
       token,
@@ -50,10 +61,7 @@ export async function reorderAreaCustomers(
         force: true,
         startAt: 1,
       },
+      fallbackMessage: "تعذر حفظ الترتيب",
     }
   );
-  return {
-    ok: response.ok,
-    data: (response.data ?? {}) as Record<string, unknown>,
-  };
 }

@@ -18,15 +18,15 @@ export function useCompanyAreas(token: string | null, enabled = true) {
 
     setLoading(true);
     setError(null);
-    try {
-      const data = await fetchCompanyAreas(token);
-      setAreas(Array.isArray(data) ? data : []);
-    } catch (err) {
+    const result = await fetchCompanyAreas(token);
+    if (result.error) {
       setAreas([]);
-      setError(err instanceof Error ? err.message : "Failed to fetch areas");
-    } finally {
+      setError(result.error);
       setLoading(false);
+      return;
     }
+    setAreas(Array.isArray(result.data) ? result.data : []);
+    setLoading(false);
   }, [enabled, token]);
 
   useEffect(() => {

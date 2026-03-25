@@ -26,12 +26,12 @@ const AddArea: React.FC = () => {
 
   useEffect(() => {
     (async () => {
-      try {
-        const data = await fetchDays(token);
-        setDays(Array.isArray(data) ? data : []);
-      } catch {
-        toast.error("فشل في تحميل الأيام");
+      const result = await fetchDays(token);
+      if (result.error) {
+        toast.error(result.error || "فشل في تحميل الأيام");
+        return;
       }
+      setDays(Array.isArray(result.data) ? result.data : []);
     })();
   }, [token]);
 
@@ -68,14 +68,11 @@ const AddArea: React.FC = () => {
     };
 
     const response = await createArea(token, payload);
-    const j = response.data;
-    if (!response.ok) {
-      const message =
-        typeof j?.error === "string" ? j.error : "فشل في إنشاء المنطقة";
-      throw new Error(message);
+    if (response.error || !response.data) {
+      throw new Error(response.error || "فشل في إنشاء المنطقة");
     }
     toast.success("تمت إضافة المنطقة بنجاح");
-    return j;
+    return response.data;
   };
 
 

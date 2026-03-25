@@ -39,23 +39,20 @@ const Customers: React.FC = () => {
     let cancelled = false;
 
     (async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await fetchCustomersByCompany(token);
-        if (cancelled) return;
-        setActiveCustomers(Array.isArray(data?.active) ? data.active : []);
-        setInactiveCustomers(Array.isArray(data?.inactive) ? data.inactive : []);
-      } catch (err) {
-        if (cancelled) return;
-        const message = err instanceof Error ? err.message : String(err);
-        setError(message);
-        console.error("Error fetching customers:", err);
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+      setLoading(true);
+      setError(null);
+      const result = await fetchCustomersByCompany(token);
+      if (cancelled) return;
+      if (result.error || !result.data) {
+        setError(result.error || "Failed to fetch customers");
+        setLoading(false);
+        return;
       }
+      setActiveCustomers(Array.isArray(result.data.active) ? result.data.active : []);
+      setInactiveCustomers(
+        Array.isArray(result.data.inactive) ? result.data.inactive : []
+      );
+      setLoading(false);
     })();
 
     return () => {

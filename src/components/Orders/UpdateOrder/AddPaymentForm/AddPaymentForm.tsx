@@ -54,25 +54,25 @@ const AddPaymentForm = ({ orderId, orderData, setOrderData, onSuccess }) => {
     if (!canSubmit) return;
 
     setIsSubmitting(true);
-    try {
-      const payload = {
-        paymentAmount: Number(paymentAmount),
-        paymentCurrency,
-      };
-      await addPaymentToOrder(token, orderId, payload);
-
-      toast.success("تمت إضافة الدفعة بنجاح");
-
-      // refresh order so receipt updates
-      const data = await fetchOrderById(token, orderId);
-      setOrderData(data);
-      resetForm();
-      onSuccess?.(); // close the sheet
-    } catch (error: any) {
-      toast.error(error?.message || "فشل في إضافة الدفعة");
-    } finally {
+    const payload = {
+      paymentAmount: Number(paymentAmount),
+      paymentCurrency,
+    };
+    const submitResult = await addPaymentToOrder(token, orderId, payload);
+    if (submitResult.error) {
+      toast.error(submitResult.error || "فشل في إضافة الدفعة");
       setIsSubmitting(false);
+      return;
     }
+    toast.success("تمت إضافة الدفعة بنجاح");
+
+    const orderResult = await fetchOrderById(token, orderId);
+    if (orderResult.data) {
+      setOrderData(orderResult.data);
+    }
+    resetForm();
+    onSuccess?.();
+    setIsSubmitting(false);
   };
 
   return (

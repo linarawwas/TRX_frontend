@@ -102,9 +102,10 @@ const AddCustomer: React.FC = () => {
     };
 
     const response = await submitCreateCustomer(payload);
-    const j = response.data;
-    if (!response.ok) throw new Error((j as { error?: string })?.error || "فشل إنشاء الزبون");
-    return j;
+    if (response.error || !response.data) {
+      throw new Error(response.error || "فشل إنشاء الزبون");
+    }
+    return response.data;
   };
 
   const confirmBuilder = (data: Record<string, any>) => {

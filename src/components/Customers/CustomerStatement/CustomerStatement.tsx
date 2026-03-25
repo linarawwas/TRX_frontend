@@ -89,19 +89,18 @@ const CustomerStatement: React.FC = () => {
 
   useEffect(() => {
     (async () => {
-      try {
-        setLoading(true);
-        if (!customerId || !token) return;
-        const statement = await fetchCustomerStatement(token, customerId);
-        setCustomer(statement.customer);
-        setOrders(statement.orders);
-        setOpening(statement.initial);
-      } catch (e) {
-        console.error(e);
-        toast.error("تعذر تحميل كشف الحساب");
-      } finally {
+      setLoading(true);
+      if (!customerId || !token) return;
+      const statement = await fetchCustomerStatement(token, customerId);
+      if (statement.error || !statement.data) {
+        toast.error(statement.error || "تعذر تحميل كشف الحساب");
         setLoading(false);
+        return;
       }
+      setCustomer(statement.data.customer);
+      setOrders(statement.data.orders);
+      setOpening(statement.data.initial);
+      setLoading(false);
     })();
   }, [customerId, token]);
 
@@ -439,14 +438,14 @@ const CustomerStatement: React.FC = () => {
               onSuccess={async () => {
                 setShowSheet(false);
                 // refresh statement after payment
-                try {
-                  if (!customerId || !token) return;
-                  const refreshed = await fetchOrdersByCustomer(token, customerId);
-                  setOrders(refreshed);
-                  toast.success("تمت إضافة الدفعة");
-                } catch (error: any) {
-                  toast.error(error?.message || "تعذر تحديث كشف الحساب");
+                if (!customerId || !token) return;
+                const refreshed = await fetchOrdersByCustomer(token, customerId);
+                if (refreshed.error) {
+                  toast.error(refreshed.error || "تعذر تحديث كشف الحساب");
+                  return;
                 }
+                setOrders(refreshed.data || []);
+                toast.success("تمت إضافة الدفعة");
               }}
             />
           )}

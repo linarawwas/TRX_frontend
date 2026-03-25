@@ -1,5 +1,5 @@
 import type { Dispatch } from "redux";
-import { rtkJson, TransportError } from "../api/rtkTransport";
+import { rtkResult, type ApiResult } from "../api/rtkTransport";
 import { setCompanyId, setIsAdmin, setUsername } from "../../redux/UserInfo/action";
 import { persistAuthToStorage } from "./authStorage";
 
@@ -12,32 +12,27 @@ export interface MeResponse {
 export async function fetchMeAndSync(
   token: string,
   dispatch: Dispatch
-): Promise<MeResponse> {
-  let userData: MeResponse;
-  try {
-    userData = await rtkJson<MeResponse>("/api/users/me", {
-      token,
-      fallbackMessage: "Failed to fetch /api/users/me",
-    });
-  } catch (error) {
-    if (error instanceof TransportError) {
-      throw new Error(`Failed to fetch /api/users/me (${error.status})`);
-    }
-    throw error;
+): Promise<ApiResult<MeResponse>> {
+  const result = await rtkResult<MeResponse>("/api/users/me", {
+    token,
+    fallbackMessage: "Failed to fetch /api/users/me",
+  });
+  if (!result.data) {
+    return result;
   }
 
   // Persist to storage
   persistAuthToStorage({
-    companyId: userData.companyId,
-    isAdmin: userData.isAdmin,
-    username: userData.name,
+    companyId: result.data.companyId,
+    isAdmin: result.data.isAdmin,
+    username: result.data.name,
   });
 
   // Dispatch to Redux
-  dispatch(setCompanyId(userData.companyId));
-  dispatch(setIsAdmin(userData.isAdmin));
-  dispatch(setUsername(userData.name));
+  dispatch(setCompanyId(result.data.companyId));
+  dispatch(setIsAdmin(result.data.isAdmin));
+  dispatch(setUsername(result.data.name));
 
-  return userData;
+  return result;
 }
 

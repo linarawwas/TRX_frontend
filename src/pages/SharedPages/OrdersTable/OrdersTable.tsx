@@ -25,22 +25,17 @@ const OrdersTable: React.FC = () => {
     let cancelled = false;
 
     (async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await fetchOrdersByCompany(token, companyId);
-        if (cancelled) return;
-        setOrders(data);
-      } catch (err) {
-        if (cancelled) return;
-        const message = err instanceof Error ? err.message : String(err);
-        setError(message);
-        console.error("Error fetching orders:", err);
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+      setLoading(true);
+      setError(null);
+      const result = await fetchOrdersByCompany(token, companyId);
+      if (cancelled) return;
+      if (result.error) {
+        setError(result.error);
+        setLoading(false);
+        return;
       }
+      setOrders(Array.isArray(result.data) ? result.data : []);
+      setLoading(false);
     })();
 
     return () => {

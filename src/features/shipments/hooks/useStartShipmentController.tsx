@@ -119,7 +119,7 @@ export function useStartShipmentController() {
     setPhaseAreas(false);
 
     try {
-      await preloadShipmentData({
+      const preloadResult = await preloadShipmentData({
         dayId: shipmentData.dayId,
         token,
         onProgress: (event) => {
@@ -191,6 +191,12 @@ export function useStartShipmentController() {
           }
         },
       });
+      if (preloadResult.error) {
+        logger.error("Preloading failed.", preloadResult.error);
+        setPreloadError(true);
+        setShowLoadingModal(false);
+        toast.error("⚠️ فشل في تحميل البيانات");
+      }
     } catch (error) {
       logger.error("Preloading failed.", error);
       setPreloadError(true);
@@ -208,15 +214,14 @@ export function useStartShipmentController() {
     if (!token) return;
 
     const initializeDate = async () => {
-      try {
-        const { year, month, day, weekday } = getBeirutParts();
-        const data = await fetchDayByWeekday(token, weekday);
-        if (!data?.length) throw new Error("Day not found in DB");
-        setShipmentData({ dayId: data[0]._id, day, month, year });
-      } catch (error) {
-        logger.error("Day initialization failed.", error);
+      const { year, month, day, weekday } = getBeirutParts();
+      const result = await fetchDayByWeekday(token, weekday);
+      if (result.error || !result.data?.length) {
+        logger.error("Day initialization failed.", result.error);
         toast.error("تعذر تحديد يوم العمل");
+        return;
       }
+      setShipmentData({ dayId: result.data[0]._id, day, month, year });
     };
 
     void initializeDate();
@@ -254,12 +259,17 @@ export function useStartShipmentController() {
         },
       };
 
-      const { shipment, round, isNewShipment } = await createRoundOrShipment({
+      const result = await createRoundOrShipment({
         token,
         payload,
         prevShipmentId,
         prevDayId,
       });
+      if (result.error || !result.data) {
+        toast.error("⚠️ فشل في تسجيل الشحنة: " + (result.error || ""));
+        return;
+      }
+      const { shipment, round, isNewShipment } = result.data;
 
       if (isNewShipment) {
         dispatch(clearShipmentInfo());
@@ -306,10 +316,6 @@ export function useStartShipmentController() {
           shipment.carryingForDelivery
         }`
       );
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "";
-      logger.error("Failed to register shipment.", error);
-      toast.error("⚠️ فشل في تسجيل الشحنة: " + message);
     } finally {
       setIsSubmitting(false);
     }
@@ -382,12 +388,12 @@ export function useStartShipmentController() {
 
   const handleDevReload = async () => {
     if (!token || !shipmentData.dayId) return;
-    try {
-      await preloadShipmentData({ dayId: shipmentData.dayId, token });
-      navigate(`/areas/${shipmentData.dayId}`);
-    } catch {
+    const result = await preloadShipmentData({ dayId: shipmentData.dayId, token });
+    if (result.error) {
       toast.error("❌ تعذر تحميل بيانات الشحنة.");
+      return;
     }
+    navigate(`/areas/${shipmentData.dayId}`);
   };
 
   const isDevMode =

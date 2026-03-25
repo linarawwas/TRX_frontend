@@ -89,24 +89,33 @@ export function useUpdateCustomerController() {
   const fetchAreas = useCallback(() => {
     if (!token) return;
     fetchAreasByCompany(token)
-      .then((data) => setAreas(data as Area[]))
+      .then((result) => {
+        if (result.error) {
+          console.error("Areas load failed:", result.error);
+          return;
+        }
+        setAreas((result.data || []) as Area[]);
+      })
       .catch((e) => console.error("Areas load failed:", e));
   }, [token]);
 
   const fetchCustomer = useCallback(async () => {
     setLoading(true);
-    try {
-      if (!token) throw new Error("Missing auth token");
-      const data = await fetchCustomerById(token, customerId);
-      setCustomerData(data as CustomerDetail);
-      await fetchAndCacheCustomerInvoice(customerId || "", token || "");
-      setInvoiceReady(true);
-    } catch (e) {
-      console.error("Fetch error:", e);
-      setInvoiceReady(true);
-    } finally {
+    if (!token) {
       setLoading(false);
+      return;
     }
+    const result = await fetchCustomerById(token, customerId);
+    if (result.error || !result.data) {
+      console.error("Fetch error:", result.error);
+      setInvoiceReady(true);
+      setLoading(false);
+      return;
+    }
+    setCustomerData(result.data as CustomerDetail);
+    await fetchAndCacheCustomerInvoice(customerId || "", token || "");
+    setInvoiceReady(true);
+    setLoading(false);
   }, [customerId, token]);
 
   useEffect(() => {
@@ -130,24 +139,26 @@ export function useUpdateCustomerController() {
 
     let cancelled = false;
     (async () => {
-      try {
-        setPlacementLoading(true);
-        if (!token) throw new Error("Missing auth token");
-        const list = await fetchActiveCustomersByArea(token, targetAreaId);
-        if (cancelled) return;
-        const filtered = Array.isArray(list)
-          ? list.filter((c) => String(c._id) !== String(customerId))
-          : [];
-        const sorted = sortCustomersBySequence(filtered);
-        setAreaCustomers(sorted);
-      } catch (err) {
-        if (cancelled) return;
-        console.error("Unable to load placement options", err);
+      setPlacementLoading(true);
+      if (!token) {
+        if (!cancelled) setPlacementLoading(false);
+        return;
+      }
+      const result = await fetchActiveCustomersByArea(token, targetAreaId);
+      if (cancelled) return;
+      if (result.error) {
+        console.error("Unable to load placement options", result.error);
         setAreaCustomers([]);
         toast.error("تعذر تحميل زبائن المنطقة للترتيب");
-      } finally {
-        if (!cancelled) setPlacementLoading(false);
+        setPlacementLoading(false);
+        return;
       }
+      const filtered = Array.isArray(result.data)
+        ? result.data.filter((c) => String(c._id) !== String(customerId))
+        : [];
+      const sorted = sortCustomersBySequence(filtered);
+      setAreaCustomers(sorted);
+      setPlacementLoading(false);
     })();
 
     return () => {
@@ -222,27 +233,31 @@ export function useUpdateCustomerController() {
   const submitUpdate = async () => {
     if (!pendingChanges) return;
     setIsMutating(true);
-    try {
-      if (!token) throw new Error("Missing auth token");
-      await updateCustomerById(token, customerId, pendingChanges);
-      toast.success("تم التحديث بنجاح");
-      setEditOpen(false);
-      setUpdatedInfo((prev) => ({
-        ...prev,
-        name: "",
-        phone: "",
-        address: "",
-        areaId: "",
-        placement: "",
-      }));
-      setConfirmOpen(false);
-      setPendingChanges(null);
-      fetchCustomer();
-    } catch (e: any) {
-      toast.error(e?.message || "فشل التحديث");
-    } finally {
+    if (!token) {
+      toast.error("Missing auth token");
       setIsMutating(false);
+      return;
     }
+    const result = await updateCustomerById(token, customerId, pendingChanges);
+    if (result.error) {
+      toast.error(result.error || "فشل التحديث");
+      setIsMutating(false);
+      return;
+    }
+    toast.success("تم التحديث بنجاح");
+    setEditOpen(false);
+    setUpdatedInfo((prev) => ({
+      ...prev,
+      name: "",
+      phone: "",
+      address: "",
+      areaId: "",
+      placement: "",
+    }));
+    setConfirmOpen(false);
+    setPendingChanges(null);
+    fetchCustomer();
+    setIsMutating(false);
   };
 
   const handleRecordOrder = () => {
@@ -258,45 +273,44 @@ export function useUpdateCustomerController() {
     if (!customerId) return;
     if (!window.confirm("هل تريد إيقاف هذا الزبون؟")) return;
     setIsMutating(true);
-    try {
-      if (!token) throw new Error("Missing auth token");
-      await deactivateCustomer(token, customerId);
-      toast.success("تم إيقاف الزبون");
-      setShowRestoreOptions(false);
-      setRestoreSequence("");
-      fetchCustomer();
-    } catch (e: any) {
-      toast.error(e?.message || "فشل العملية");
-    } finally {
+    if (!token) {
+      toast.error("Missing auth token");
       setIsMutating(false);
+      return;
     }
+    const result = await deactivateCustomer(token, customerId);
+    if (result.error) {
+      toast.error(result.error || "فشل العملية");
+      setIsMutating(false);
+      return;
+    }
+    toast.success("تم إيقاف الزبون");
+    setShowRestoreOptions(false);
+    setRestoreSequence("");
+    fetchCustomer();
+    setIsMutating(false);
   };
 
   const restoreRequest = async (body: any) => {
-    if (!token) throw new Error("Missing auth token");
+    if (!token) return { data: null, error: "Missing auth token" };
     return restoreCustomer(token, customerId, body || {});
   };
 
   const handleRestoreAuto = async () => {
     if (!customerId) return;
     setIsMutating(true);
-    try {
-      const areaId = customerData?.areaId?._id;
-      await restoreRequest({ areaId });
-      toast.success("تم تنشيط الزبون");
-      setShowRestoreOptions(false);
-      setRestoreSequence("");
-      fetchCustomer();
-    } catch (e: any) {
-      if (e?.status === 409) {
-        toast.warn("رقم الترتيب مستخدم. اختر رقمًا آخر.");
-        setShowRestoreOptions(true);
-        return;
-      }
-      toast.error(e?.message || "فشل العملية");
-    } finally {
+    const areaId = customerData?.areaId?._id;
+    const result = await restoreRequest({ areaId });
+    if (result.error) {
+      toast.error(result.error || "فشل العملية");
       setIsMutating(false);
+      return;
     }
+    toast.success("تم تنشيط الزبون");
+    setShowRestoreOptions(false);
+    setRestoreSequence("");
+    fetchCustomer();
+    setIsMutating(false);
   };
 
   const handleRestoreWithSequence = async (e: FormEvent) => {
@@ -306,24 +320,21 @@ export function useUpdateCustomerController() {
       return;
     }
     setIsMutating(true);
-    try {
-      const areaId = customerData?.areaId?._id;
-      await restoreRequest({
-        areaId,
-        sequence: Number(restoreSequence),
-      });
-      toast.success("تم تنشيط الزبون وتعيين الترتيب");
-      setShowRestoreOptions(false);
-      setRestoreSequence("");
-      fetchCustomer();
-    } catch (e: any) {
-      if (e?.status === 409) {
-        return toast.warn("هذا الرقم ما زال مستخدمًا. جرّب رقمًا مختلفًا.");
-      }
-      toast.error(e?.message || "فشل العملية");
-    } finally {
+    const areaId = customerData?.areaId?._id;
+    const result = await restoreRequest({
+      areaId,
+      sequence: Number(restoreSequence),
+    });
+    if (result.error) {
+      toast.error(result.error || "فشل العملية");
       setIsMutating(false);
+      return;
     }
+    toast.success("تم تنشيط الزبون وتعيين الترتيب");
+    setShowRestoreOptions(false);
+    setRestoreSequence("");
+    fetchCustomer();
+    setIsMutating(false);
   };
 
   const openDeleteModal = () => {
@@ -336,21 +347,21 @@ export function useUpdateCustomerController() {
 
   const performHardDelete = async () => {
     setIsMutating(true);
-    try {
-      if (!token) throw new Error("Missing auth token");
-      await hardDeleteCustomer(token, customerId);
-      toast.success("تم حذف الزبون نهائيًا");
-      setShowDeleteModal(false);
-      setTimeout(() => navigate(-1), 300);
-    } catch (e: any) {
-      if (e?.status === 409) {
-        toast.error(e?.message || "لا يمكن الحذف: لدى الزبون طلبات مرتبطة.");
-        return;
-      }
-      toast.error(e?.message || "فشل العملية");
-    } finally {
+    if (!token) {
+      toast.error("Missing auth token");
       setIsMutating(false);
+      return;
     }
+    const result = await hardDeleteCustomer(token, customerId);
+    if (result.error) {
+      toast.error(result.error || "فشل العملية");
+      setIsMutating(false);
+      return;
+    }
+    toast.success("تم حذف الزبون نهائيًا");
+    setShowDeleteModal(false);
+    setTimeout(() => navigate(-1), 300);
+    setIsMutating(false);
   };
 
   const avatarText = useMemo(

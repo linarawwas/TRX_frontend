@@ -33,22 +33,17 @@ export default function Areas(): JSX.Element {
     let cancelled = false;
 
     (async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await fetchAreasByCompany(token);
-        if (cancelled) return;
-        setAreas(data);
-      } catch (err) {
-        if (cancelled) return;
-        const message = err instanceof Error ? err.message : String(err);
-        setError(message);
-        console.error("Error fetching areas:", err);
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+      setLoading(true);
+      setError(null);
+      const result = await fetchAreasByCompany(token);
+      if (cancelled) return;
+      if (result.error) {
+        setError(result.error);
+        setLoading(false);
+        return;
       }
+      setAreas(Array.isArray(result.data) ? result.data : []);
+      setLoading(false);
     })();
 
     return () => {

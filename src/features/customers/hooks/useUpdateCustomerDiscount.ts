@@ -5,7 +5,10 @@ export function useUpdateCustomerDiscount(token: string | null) {
   return useAsyncMutation(
     (customerId: string, payload: Record<string, unknown>) => {
       if (!token) {
-        throw new Error("Missing auth token");
+        return Promise.resolve({
+          data: null,
+          error: "Missing auth token",
+        });
       }
       return updateCustomerDiscount(token, customerId, payload);
     },

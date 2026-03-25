@@ -17,8 +17,10 @@ function Layout() {
   useLayoutEffect(() => {
     if (!token) return;
 
-    fetchMeAndSync(token, dispatch).catch((error) => {
-      console.error("Error fetching user data:", error);
+    fetchMeAndSync(token, dispatch).then((result) => {
+      if (result.error) {
+        console.error("Error fetching user data:", result.error);
+      }
     });
   }, [dispatch, token]);
 

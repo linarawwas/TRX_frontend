@@ -67,18 +67,18 @@ export function useCompanyDistributorData(
 
   const refreshCustomers = useCallback(async () => {
     setCustomersLoading(true);
-    try {
-      const payload: CustomersResponse = await fetchCustomersByCompany(token);
-      const active = Array.isArray(payload?.active) ? payload.active : [];
-      const inactive = Array.isArray(payload?.inactive) ? payload.inactive : [];
-      setCustomers([...active, ...inactive]);
-    } catch (error) {
-      console.error("Failed to load customers:", error);
+    const payload = await fetchCustomersByCompany(token);
+    if (payload.error || !payload.data) {
+      console.error("Failed to load customers:", payload.error);
       setCustomers([]);
-      toast.error(getErrorMessage(error, "فشل تحميل بيانات العملاء"));
-    } finally {
+      toast.error(getErrorMessage(payload.error, "فشل تحميل بيانات العملاء"));
       setCustomersLoading(false);
+      return;
     }
+    const active = Array.isArray(payload.data.active) ? payload.data.active : [];
+    const inactive = Array.isArray(payload.data.inactive) ? payload.data.inactive : [];
+    setCustomers([...active, ...inactive]);
+    setCustomersLoading(false);
   }, [token]);
 
   const refreshOrders = useCallback(async () => {
@@ -87,16 +87,16 @@ export function useCompanyDistributorData(
       return;
     }
     setOrdersLoading(true);
-    try {
-      const payload = await fetchOrdersByCompany(token, companyId);
-      setOrders(Array.isArray(payload) ? payload : []);
-    } catch (error) {
-      console.error("Failed to load orders:", error);
+    const payload = await fetchOrdersByCompany(token, companyId);
+    if (payload.error) {
+      console.error("Failed to load orders:", payload.error);
       setOrders([]);
-      toast.error(getErrorMessage(error, "فشل تحميل الطلبيات"));
-    } finally {
+      toast.error(getErrorMessage(payload.error, "فشل تحميل الطلبيات"));
       setOrdersLoading(false);
+      return;
     }
+    setOrders(Array.isArray(payload.data) ? payload.data : []);
+    setOrdersLoading(false);
   }, [token, companyId]);
 
   const refreshProducts = useCallback(async () => {

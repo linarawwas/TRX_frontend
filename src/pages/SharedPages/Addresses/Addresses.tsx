@@ -40,25 +40,19 @@ export default function Addresses(): JSX.Element {
     let cancelled = false;
 
     (async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await fetchCustomersByArea(token, areaId);
-        if (cancelled) return;
-
-        const sorted = sortCustomersBySequence(data);
-        setCustomers(sorted);
-        setOrderIds(sorted.map((c) => c._id));
-      } catch (e) {
-        if (cancelled) return;
-        const err = e instanceof Error ? e.message : String(e);
-        setError(err);
-        console.error("Error fetching customers:", e);
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+      setLoading(true);
+      setError(null);
+      const result = await fetchCustomersByArea(token, areaId);
+      if (cancelled) return;
+      if (result.error) {
+        setError(result.error);
+        setLoading(false);
+        return;
       }
+      const sorted = sortCustomersBySequence(result.data || []);
+      setCustomers(sorted);
+      setOrderIds(sorted.map((c) => c._id));
+      setLoading(false);
     })();
 
     return () => {
@@ -165,18 +159,16 @@ export default function Addresses(): JSX.Element {
       return;
     }
 
-    try {
-      await reorderCustomersInArea(token, areaId, companyId, orderIds, {
-        force: true,
-        startAt: 1,
-      });
-      toast.success(t("addresses.reorder.saveSuccess"));
-      setReorderMode(false);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      console.error("applyReorder error:", err);
-      toast.error(message || t("addresses.reorder.connectionError"));
+    const result = await reorderCustomersInArea(token, areaId, companyId, orderIds, {
+      force: true,
+      startAt: 1,
+    });
+    if (result.error) {
+      toast.error(result.error || t("addresses.reorder.connectionError"));
+      return;
     }
+    toast.success(t("addresses.reorder.saveSuccess"));
+    setReorderMode(false);
   };
 
   const cancelReorder = (e?: React.MouseEvent) => {

@@ -136,7 +136,7 @@ const AddDiscount: React.FC = () => {
 
     try {
       const response = await submitDiscount(formData.customerId, payload);
-      if (!response.ok) throw new Error("Network error");
+      if (response.error) throw new Error(response.error);
 
       toast.success("تم حفظ الخصم بنجاح!");
 

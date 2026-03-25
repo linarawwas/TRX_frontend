@@ -1,4 +1,4 @@
-import { rtkEnvelope } from "../api/rtkTransport";
+import { rtkResult, type ApiResult } from "../api/rtkTransport";
 
 export type ShipmentRound = {
   _id: string;
@@ -13,12 +13,14 @@ export type ShipmentRound = {
 export async function fetchShipmentRounds(
   token: string,
   shipmentId: string
-): Promise<{ ok: boolean; data: ShipmentRound[] }> {
-  const response = await rtkEnvelope(`/api/shipments/${shipmentId}/rounds`, {
+): Promise<ApiResult<ShipmentRound[]>> {
+  const response = await rtkResult<unknown>(`/api/shipments/${shipmentId}/rounds`, {
     token,
+    fallbackMessage: "Failed to load rounds",
   });
+  if (response.error) return { data: null, error: response.error };
   return {
-    ok: response.ok,
-    data: Array.isArray(response.data) ? response.data : [],
+    data: Array.isArray(response.data) ? (response.data as ShipmentRound[]) : [],
+    error: null,
   };
 }
