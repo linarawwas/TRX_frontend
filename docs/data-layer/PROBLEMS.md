@@ -1,151 +1,107 @@
 # Data Fetching Problems and Architectural Analysis
 
-This analysis is derived from:
+This document reflects the current runtime code and marks each major problem as:
 
-- `docs/data-layer/INVENTORY.md`
-- `docs/data-layer/ENDPOINT_MAP.md`
-- `docs/data-layer/USAGE_GRAPH.md`
+- **Resolved**
+- **Partially Resolved**
+- **Open**
 
-It highlights current architectural problems without changing behavior.
+## 1) Duplicate Endpoint Ownership
 
-## 1) Duplicate Endpoint Usage
+### 1.1 `/api/shipments/range` duplicated across layers
 
-### 1.1 Same endpoint implemented in multiple layers
+- **Severity:** Low
+- **Status:** **Resolved**
+- **Current reality:** Canonical ownership is RTK Query (`trxApi.listShipmentsRange`).
+- **Reference:** `src/features/api/trxApi.ts`
 
-- **Severity: High**
-- **Issue:** `POST /api/shipments/range` exists in both RTK Query and feature axios API.
-- **Why it matters:** duplicated cache/fetch paths can diverge in headers, retries, error handling, and data shape assumptions.
+### 1.2 `/api/orders/customer/${customerId}` appears in two feature APIs
+
+- **Severity:** Medium
+- **Status:** **Open**
+- **Issue:** endpoint exists in both `src/features/orders/api.ts` and `src/features/orders/apiOrders.ts`.
+- **Why it matters:** two wrappers for one contract can drift in defaults and consumer expectations.
+
+### 1.3 `/api/areas/${areaId}/reorder?companyId=${companyId}` duplicated
+
+- **Severity:** Medium
+- **Status:** **Open**
+- **Issue:** reorder exists in both `src/features/areas/api.ts` and `src/features/areas/apiAreas.ts`.
+
+## 2) Transport and Contract Consistency
+
+### 2.1 Legacy transport helpers (`apiClient`, `requestRaw`, `requestJson`)
+
+- **Severity:** Low
+- **Status:** **Resolved**
+- **Current reality:** transport is unified on RTK-based wrappers; legacy helpers are removed from runtime code paths.
+
+### 2.2 API response contract inconsistency (requested domains)
+
+- **Severity:** Low
+- **Status:** **Resolved**
+- **Scope:** auth, customers, orders, areas, shipments now use `ApiResult<T> = { data, error }`.
 - **References:**
-  - `src/features/api/trxApi.ts` (`listShipmentsRange`)
-  - `src/features/shipments/apiShipments.ts` (`fetchShipmentsByRange`)
+  - `src/features/auth/api.ts`
+  - `src/features/customers/api.ts`
+  - `src/features/orders/apiOrders.ts`
+  - `src/features/areas/api.ts`
+  - `src/features/shipments/apiShipments.ts`
 
-### 1.2 Same endpoint split between feature API and component-level calls
+### 2.3 Cross-feature contract consistency outside requested scope
 
-- **Severity: Medium**
-- **Issue:** `GET /api/orders/customer/${customerId}` is called both via feature API and directly inside a component.
-- **Why it matters:** creates two ownership paths for the same backend contract.
-- **References:**
-  - `src/features/orders/apiOrders.ts` (`fetchOrdersByCustomer`)
-  - `src/components/Customers/CustomerOrders/CustomerOrders.tsx` (direct axios call)
+- **Severity:** Medium
+- **Status:** **Open**
+- **Issue:** not all remaining feature modules are migrated to `ApiResult<T>` yet (e.g. distributors still uses throw-based `rtkJson`).
+- **Reference:** `src/features/distributors/apiDistributors.ts`
 
-### 1.3 Reorder endpoint implemented in multiple feature APIs
+## 3) Hardcoded URLs vs Config
 
-- **Severity: Medium**
-- **Issue:** `/api/areas/${areaId}/reorder?companyId=${companyId}` is implemented in two feature API modules.
-- **Why it matters:** increases drift risk in payload format and error semantics between modules.
-- **References:**
-  - `src/features/areas/apiAreas.ts` (`reorderCustomersInArea`)
-  - `src/features/areas/api.ts` (`reorderAreaCustomers`)
+### 3.1 API host hardcoding
 
-## 2) Mixed `fetch`/`axios`/RTK Query Usage
+- **Severity:** Low
+- **Status:** **Resolved**
+- **Current reality:** production API calls rely on configured base URL and relative paths.
 
-### 2.1 Transport strategy remains mixed for production API calls
+### 3.2 `API_BASE` localhost fallback
 
-- **Severity: Low**
-- **Issue:** transport has been unified to RTK Query (`trxApi.transport` via `rtkJson`/`rtkEnvelope`), but some compatibility wrappers still expose different consumer contracts (`throw` vs envelope).
-- **Why it matters:** consumer-level semantics still vary across legacy wrappers, even though network transport is centralized.
-- **References (representative):**
-  - RTK transport: `src/features/api/trxApi.ts`, `src/features/api/rtkTransport.ts`
-  - envelope wrappers: `src/features/auth/api.ts`, `src/features/customers/api.ts`
-  - throw-style wrappers: `src/features/customers/apiCustomers.ts`, `src/features/orders/apiOrders.ts`
+- **Severity:** Low
+- **Status:** **Open (by design)**
+- **Issue:** fallback remains `http://localhost:5000` when env vars are missing.
+- **Reference:** `src/config/api.ts`
 
-### 2.2 Legacy fetch-like response wrappers still exist in business flows
+### 3.3 Non-API external hardcoded URL
 
-- **Severity: Medium**
-- **Issue:** legacy fetch-like wrapper semantics were present in business-critical flows and required full migration to unified transport.
-- **Why it matters:** divergent response semantics (`ok/status/statusText/data`) can create inconsistent error paths.
-- **Current status:** resolved in runtime code (replay uses `rtkJson` with normalized queued paths).
+- **Severity:** Low
+- **Status:** **Open (intentional)**
+- **Issue:** WhatsApp integration uses hardcoded `https://wa.me`.
+- **Reference:** `src/features/orders/hooks/useRecordOrderController.ts`
 
-## 3) Hardcoded URLs vs `API_BASE`
+## 4) Abstraction Boundaries (UI vs Domain)
 
-### 3.1 Production API endpoints are mostly not hardcoded
+### 4.1 Direct feature API orchestration in components/pages
 
-- **Severity: Low**
-- **Issue:** no broad hardcoded production API host usage was found in app runtime API calls; most calls use `API_BASE` or relative URLs under shared config.
-- **Why it matters:** this is a positive consistency signal.
-
-### 3.2 Fallback localhost base exists in config
-
-- **Severity: Low**
-- **Issue:** `API_BASE` defaults to `http://localhost:5000` if env vars are not set.
-- **Why it matters:** safe for local development, but accidental env misconfiguration can route non-local runs to localhost.
-- **References:**
-  - `src/config/api.ts`
-
-### 3.3 Non-API hardcoded external URL exists for WhatsApp integration
-
-- **Severity: Low**
-- **Issue:** `https://wa.me` is intentionally hardcoded for message redirect.
-- **Why it matters:** not a data API concern, but still hardcoded network destination.
-- **References:**
-  - `src/features/orders/hooks/useRecordOrderController.ts`
-  - `src/utils/whatsapp.ts`
-
-## 4) Missing Abstraction (API Calls Inside Components/Pages)
-
-### 4.1 Component-owned business HTTP in multiple screens
-
-- **Severity: High**
-- **Issue:** many components/pages still call API endpoints directly instead of using feature APIs/hooks.
-- **Why it matters:** weakens separation of concerns and makes future data-layer migrations harder.
-- **References:**
-  - `src/components/Customers/AddCustomers/AddCustomers.tsx`
+- **Severity:** Medium
+- **Status:** **Partially Resolved**
+- **Issue:** several screens still orchestrate API calls in component/page files instead of dedicated domain controllers.
+- **Representative references:**
   - `src/components/Areas/AddArea/AddArea.tsx`
-  - `src/components/Shipments/RoundsHistory/RoundsHistory.tsx`
-  - `src/components/Customers/CustomerOrders/CustomerOrders.tsx`
   - `src/components/Auth/Register.tsx`
   - `src/components/Products/DefaultProduct.tsx`
   - `src/components/Products/UpdateDefaultProduct.tsx`
+  - `src/pages/AdminPages/FinanceDashboard/FinanceDashboard.tsx`
 
-### 4.2 Page-level orchestration still directly invokes mutation APIs
+## 5) Error / Loading Behavior Uniformity
 
-- **Severity: Medium**
-- **Issue:** pages invoke API modules directly rather than domain hooks in some flows.
-- **Why it matters:** reduces consistency of view-controller boundaries.
-- **References:**
-  - `src/pages/AdminPages/FinanceDashboard/FinanceDashboard.tsx` (direct `createFinance/updateFinance/deleteFinance`)
+### 5.1 Loading and error UX semantics differ per screen
 
-## 5) Inconsistent Error/Loading Handling
-
-### 5.1 Inconsistent success semantics across API layers
-
-- **Severity: High**
-- **Issue:** some APIs return `{ ok, data }`, while others throw via `rtkJson`.
-- **Why it matters:** failed responses can silently propagate invalid state.
-- **References:**
-  - `{ ok, data }` response style: `src/features/customers/api.ts`, `src/features/areas/api.ts`
-  - thrown error style: `src/features/customers/apiCustomers.ts` via `rtkJson`
-  - direct data style: `src/features/areas/apiAreas.ts` (`fetchAreasByCompany`, `fetchCustomersByArea`)
-
-### 5.2 Inconsistent loading states around API calls
-
-- **Severity: Medium**
-- **Issue:** some flows have full loading lifecycle (`loading`, `finally`), others have none or partial.
-- **Why it matters:** UX and retry behavior differ by screen.
-- **References:**
-  - structured loading: `src/components/Shipments/RoundsHistory/RoundsHistory.tsx`, `src/features/finance/hooks/useFinanceEntries.ts`
-  - minimal/none: `src/components/Auth/Register.tsx`, `src/components/Customers/AddCustomers/AddCustomers.tsx`, `src/components/Products/UpdateDefaultProduct.tsx`
-
-### 5.3 Error normalization differs by path
-
-- **Severity: Medium**
-- **Issue:** some paths use centralized `TransportError` (`rtkJson`), while others use ad-hoc toast/console handling.
-- **Why it matters:** inconsistent error messages and difficult global observability.
-- **References:**
-  - centralized: `src/features/api/rtkTransport.ts`
-  - ad-hoc: `src/components/Customers/CustomerOrders/CustomerOrders.tsx`, `src/components/Products/DefaultProduct.tsx`, `src/components/Auth/Register.tsx`
+- **Severity:** Medium
+- **Status:** **Open**
+- **Issue:** although wrapper contract is consistent, UI-level handling patterns (toasts, retries, fallback messages, loading lifecycles) still vary by feature/screen.
 
 ## 6) Summary Risk Profile
 
-- **Highest-risk architectural issues (High):**
-  - duplicated critical endpoint (`/api/shipments/range`) across RTK Query + axios
-  - business API calls still living in UI components/hooks
-  - inconsistent direct-fetch success/error handling
-- **Medium-risk issues:**
-  - mixed transport across features and UI
-  - uneven loading/error UX semantics
-  - endpoint ownership split between feature API and component direct calls
-- **Low-risk issues:**
-  - localhost fallback in `API_BASE`
-  - non-API hardcoded external URL (`wa.me`)
+- **High:** none currently confirmed in data transport/contract layer.
+- **Medium:** duplicate endpoint wrappers, UI/domain boundary inconsistencies, loading/error UX variance.
+- **Low:** config fallback (`API_BASE` localhost) and intentional external URL (`wa.me`).
 

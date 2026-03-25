@@ -2,6 +2,9 @@
 
 Endpoint-to-usage mapping across frontend transport layers.
 
+Status vocabulary is aligned with `docs/data-layer/PROBLEMS.md`:
+**Resolved / Partially Resolved / Open**.
+
 Transport labeling rules:
 
 - `src/features/api/trxApi.ts` => **RTK Query**
@@ -28,6 +31,11 @@ Transport labeling rules:
 2. Expose typed hooks for component usage when stateful query/mutation behavior is needed.
 3. In wrappers under `src/features/*/api*.ts`, call `rtkResult` and return `{ data, error }`.
 4. Keep payload shape identical to backend contracts; do not introduce UI-specific transforms in transport.
+
+### Current status snapshot
+
+- **Resolved:** canonical ownership for `/api/shipments/range` in RTK Query.
+- **Open:** duplicate wrapper ownership still exists for `/api/orders/customer/${customerId}` and `/api/areas/${areaId}/reorder?...`.
 
 ## Auth
 

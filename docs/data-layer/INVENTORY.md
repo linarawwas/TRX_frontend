@@ -10,6 +10,20 @@ Current policy:
 
 Scope: `/src` and `/public/sw.js`.
 
+## Status Alignment
+
+This document uses the same status vocabulary as `docs/data-layer/PROBLEMS.md`:
+
+- **Resolved**
+- **Partially Resolved**
+- **Open**
+
+Current alignment snapshot:
+
+- **Resolved:** transport unification to RTK wrappers and `ApiResult<T>` contract across auth/customers/orders/areas/shipments.
+- **Partially Resolved:** UI/domain boundary separation (many screens are cleaner, some still orchestrate API in component/page files).
+- **Open:** duplicate endpoint wrappers in some features and cross-feature contract migration outside requested scope (notably distributors).
+
 ## API Response Contract
 
 Primary contract (RTK transport):
