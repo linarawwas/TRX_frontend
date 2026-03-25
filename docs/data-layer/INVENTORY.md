@@ -37,12 +37,11 @@ Examples (current standard):
 
 ## 1) Allowed raw `fetch(...)` usage (exceptions only)
 
+No raw `fetch(...)` remains in `/src` application code.
 
-| File path                           | Type  | Method       | Endpoint                                 | Usage location                           |
-| ----------------------------------- | ----- | ------------ | ---------------------------------------- | ---------------------------------------- |
-| `src/features/api/http.ts`          | fetch | configurable | `apiUrl(path)`                           | Infra transport implementation (`requestJson`) |
-| `src/hooks/useSyncOfflineOrders.ts` | fetch | dynamic      | `request.url` (queued offline requests)  | Offline replay sync hook                 |
-| `public/sw.js`                      | fetch | runtime      | request passthrough/cache flow           | Service worker network strategy          |
+| File path      | Type  | Method  | Endpoint                       | Usage location                   |
+| -------------- | ----- | ------- | ------------------------------ | -------------------------------- |
+| `public/sw.js` | fetch | runtime | request passthrough/cache flow | Service worker network strategy  |
 
 
 ## 2) Direct `apiClient` (`axios`) usage
@@ -130,7 +129,7 @@ Defined in `src/features/api/trxApi.ts`:
 | Hook file                                               | Type       | Method  | Endpoint                 | Usage location    |
 | ------------------------------------------------------- | ---------- | ------- | ------------------------ | ----------------- |
 | `src/features/orders/hooks/useRecordOrderController.ts` | hook+requestJson | POST | `/api/orders` | Record order flow |
-| `src/hooks/useSyncOfflineOrders.ts`                     | hook+fetch | dynamic | queued `request.url`     | Offline replay    |
+| `src/hooks/useSyncOfflineOrders.ts`                     | hook+requestRaw | dynamic | queued `request.url`     | Offline replay    |
 
 
 ### 6.2 Hooks delegating to feature API modules / RTK Query
@@ -142,6 +141,13 @@ Defined in `src/features/api/trxApi.ts`:
 | `src/features/shipments/hooks/useTodayShipmentTotals.ts`       | hook->RTK Query    | `/api/shipments/range` (canonical `trxApi.listShipmentsRange`)                    | Dashboard totals      |
 | `src/pages/SharedPages/Shipment/ShipmentsList.tsx`             | page->RTK Query    | `/api/shipments/range` via `useLazyListShipmentsRangeQuery`                        | Shipment list filtering |
 | `src/features/orders/hooks/useOrdersByCustomer.ts`             | hook->feature API  | `/api/orders/customer/${customerId}` via `fetchCustomerOrders`                      | Customer orders view  |
+| `src/features/customers/hooks/useCompanyAreas.ts`              | hook->feature API  | `/api/areas/company`                                                                  | Areas bootstrap in customer flows |
+| `src/features/customers/hooks/useActiveAreaCustomers.ts`       | hook->feature API  | `/api/customers/area/${areaId}/active`                                                | Active customer placement list |
+| `src/features/customers/hooks/useCreateCustomerWithSequence.ts`| hook->feature API  | `/api/customers/create-with-sequence`                                                 | Add customer submit |
+| `src/features/customers/hooks/useUploadCustomersWithOrders.ts` | hook->feature API  | `/api/customers/uploadCustomersWithOrders`                                            | Bulk initials upload |
+| `src/features/customers/hooks/useUpdateCustomerDiscount.ts`    | hook->feature API  | `/api/customers/${customerId}`                                                        | Discount update submit |
+| `src/features/areas/hooks/useAreaCustomers.ts`                 | hook->feature API  | `/api/customers/area/${areaId}`                                                       | Area customer listing |
+| `src/features/areas/hooks/useReorderAreaCustomers.ts`          | hook->feature API  | `/api/areas/${areaId}/reorder?companyId=${companyId}`                                | Area sequence reorder |
 | `src/features/finance/hooks/useFinanceEntries.ts`              | hook->feature API  | `/api/finances?...`                                                                | Finance dashboard     |
 | `src/features/finance/hooks/useDailySummary.ts`                | hook->feature API  | `/api/finances/summary/daily`                                                      | Finance dashboard     |
 | `src/features/finance/hooks/useMonthlySummary.ts`              | hook->feature API  | `/api/finances/summary/monthly`                                                    | Finance dashboard     |

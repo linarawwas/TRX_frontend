@@ -56,26 +56,26 @@ Transport labeling rules:
 | Endpoint | Method(s) | Used in |
 |---|---:|---|
 | `/api/customers/company` | GET | `src/features/customers/apiCustomers.ts` |
-| `/api/customers/${customerId}` | GET, PATCH, PUT | `src/features/customers/apiCustomers.ts`, `src/components/AddDiscount/AddDiscount.tsx` |
+| `/api/customers/${customerId}` | GET, PATCH, PUT | `src/features/customers/apiCustomers.ts`, `src/features/customers/hooks/useUpdateCustomerDiscount.ts` |
 | `/api/customers/${customerId}/deactivate` | PATCH | `src/features/customers/apiCustomers.ts` |
 | `/api/customers/${customerId}/restore` | PATCH | `src/features/customers/apiCustomers.ts` |
 | `/api/customers/${customerId}/hard` | DELETE | `src/features/customers/apiCustomers.ts` |
 | `/api/customers/${customerId}/opening` | PATCH | `src/features/customers/apiCustomers.ts` |
 | `/api/customers/reciept/${customerId}` | GET | `src/features/customers/apiCustomers.ts` |
-| `/api/customers/area/${areaId}` | GET | `src/features/areas/apiAreas.ts`, `src/components/AddDiscount/AddDiscount.tsx`, `src/components/AreaSequencePicker/AreaSequencePicker.tsx` |
-| `/api/customers/area/${areaId}/active` | GET | `src/features/customers/apiCustomers.ts`, `src/components/Customers/AddCustomer/AddCustomer.tsx` |
-| `/api/customers/create-with-sequence` | POST | `src/components/Customers/AddCustomer/AddCustomer.tsx` |
+| `/api/customers/area/${areaId}` | GET | `src/features/areas/apiAreas.ts`, `src/features/areas/hooks/useAreaCustomers.ts` |
+| `/api/customers/area/${areaId}/active` | GET | `src/features/customers/apiCustomers.ts`, `src/features/customers/hooks/useActiveAreaCustomers.ts` |
+| `/api/customers/create-with-sequence` | POST | `src/features/customers/hooks/useCreateCustomerWithSequence.ts` |
 | `/api/customers/many` | POST | `src/components/Customers/AddCustomers/AddCustomers.tsx` |
-| `/api/customers/uploadCustomersWithOrders` | POST | `src/components/Customers/AddCustomerInitials/AddCustomerInitials.tsx` |
+| `/api/customers/uploadCustomersWithOrders` | POST | `src/features/customers/hooks/useUploadCustomersWithOrders.ts` |
 
 ## Areas / Days / Sequence
 
 | Endpoint | Method(s) | Used in |
 |---|---:|---|
-| `/api/areas/company` | GET | `src/features/areas/apiAreas.ts`, `src/components/Customers/AddCustomer/AddCustomer.tsx`, `src/components/Customers/AddCustomerInitials/AddCustomerInitials.tsx`, `src/components/AddDiscount/AddDiscount.tsx` |
+| `/api/areas/company` | GET | `src/features/areas/apiAreas.ts`, `src/features/customers/hooks/useCompanyAreas.ts` |
 | `/api/areas/days/${dayId}` | POST | `src/features/areas/apiAreas.ts` |
 | `/api/areas` | POST | `src/components/Areas/AddArea/AddArea.tsx` |
-| `/api/areas/${areaId}/reorder?companyId=${companyId}` | POST | `src/features/areas/apiAreas.ts`, `src/components/AreaSequencePicker/AreaSequencePicker.tsx` |
+| `/api/areas/${areaId}/reorder?companyId=${companyId}` | POST | `src/features/areas/apiAreas.ts`, `src/features/areas/hooks/useReorderAreaCustomers.ts` |
 | `/api/days` | GET | `src/components/Areas/AddArea/AddArea.tsx` |
 
 ## Products / Defaults

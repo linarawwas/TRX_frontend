@@ -44,7 +44,7 @@ Primary transport is `requestJson` (plus RTK Query where applicable); `apiClient
 | Hook | API dependency |
 |---|---|
 | `src/features/orders/hooks/useRecordOrderController.ts` | `requestJson` `POST /api/orders`; delegated `fetchAndCacheCustomerInvoice` -> `/api/customers/reciept/${customerId}` |
-| `src/hooks/useSyncOfflineOrders.ts` | dynamic replay `fetch(request.url, request.options)` |
+| `src/hooks/useSyncOfflineOrders.ts` | dynamic replay via `requestRaw(request.url, request.options)` |
 | `src/features/shipments/hooks/useStartShipmentController.tsx` | `fetchDayByWeekday` -> `/api/days/name/${weekday}`; `createRoundOrShipment` -> `/api/shipments`; `preloadShipmentData` -> `/api/shipments/preload/${dayId}` |
 | `src/features/shipments/hooks/useTodayShipmentTotals.ts` | RTK Query `POST /api/shipments/range` (canonical owner: `trxApi.listShipmentsRange`) |
 | `src/pages/SharedPages/Shipment/ShipmentsList.tsx` | `useLazyListShipmentsRangeQuery` -> RTK Query `POST /api/shipments/range` |
@@ -59,6 +59,20 @@ Primary transport is `requestJson` (plus RTK Query where applicable); `apiClient
 | `src/features/orders/hooks/useOrdersByCustomer.ts` | `fetchCustomerOrders` -> `GET /api/orders/customer/${customerId}` (`apiClient`) |
 | `src/features/customers/hooks/useUpdateCustomerController.ts` | customer APIs (`/api/customers/...`) + areas API (`/api/areas/company`) + active customers by area |
 | `src/features/distributors/hooks/useCompanyDistributorData.ts` | distributors APIs + customers company + orders company + products company |
+
+## Domain Hooks Layer
+
+| Domain Hook | Primary responsibility | Consumers |
+|---|---|---|
+| `src/features/customers/hooks/useCompanyAreas.ts` | load company areas once and share area options state | `AddCustomer`, `AddCustomerInitials`, `AddDiscount` |
+| `src/features/customers/hooks/useActiveAreaCustomers.ts` | fetch active placement list for selected area | `AddCustomer` |
+| `src/features/customers/hooks/useCreateCustomerWithSequence.ts` | submit create-customer payload with sequence placement | `AddCustomer` |
+| `src/features/customers/hooks/useUploadCustomersWithOrders.ts` | upload customer initials/orders batch | `AddCustomerInitials` |
+| `src/features/customers/hooks/useUpdateCustomerDiscount.ts` | apply discount updates for selected customer | `AddDiscount` |
+| `src/features/customers/hooks/useUpdateCustomerController.ts` | orchestrate update-customer page data/mutations | `UpdateCustomer` |
+| `src/features/orders/hooks/useOrdersByCustomer.ts` | load customer order history for UI rendering | `CustomerOrders` |
+| `src/features/areas/hooks/useAreaCustomers.ts` | shared customers-by-area query state | `AddDiscount`, `AreaSequencePicker` |
+| `src/features/areas/hooks/useReorderAreaCustomers.ts` | submit area sequence reorder mutations | `AreaSequencePicker` |
 
 ## API Layer Nodes
 
