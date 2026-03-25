@@ -13,8 +13,14 @@ Transport labeling rules:
 
 - **Primary (`requestJson`)**: endpoint payload is returned directly; failures raise `ApiRequestError` (`message`, `status`, `body`).
 - **Legacy compatibility envelope**: some auth/legacy wrappers still return `{ ok, status, data }`.
-- **Offline/runtime**: `requestRaw(...)` uses `{ ok, status, statusText, data }` for replay-safe branching.
+- **Offline/runtime**: `requestRaw(...)` is reserved for queued replay/runtime flows and uses `{ ok, status, statusText, data }`.
 - **RTK Query**: consumers read `{ data, error, isLoading }` from hook state.
+
+### Offline compatibility strategy
+
+- Online write-paths prefer `requestJson`.
+- Offline writes are queued to IndexedDB and replayed later.
+- Replay uses `requestRaw` to execute stored dynamic request envelopes without changing queued payload shape.
 
 ## Auth
 
@@ -38,7 +44,7 @@ Transport labeling rules:
 
 | Endpoint | Method(s) | Used in |
 |---|---:|---|
-| `/api/orders` | POST | `src/features/orders/hooks/useRecordOrderController.ts` |
+| `/api/orders` | POST | `src/features/orders/hooks/useRecordOrderController.ts` (`requestJson`) |
 | `/api/orders/${orderId}` | GET, PATCH, DELETE | `src/features/orders/apiOrders.ts` (requestJson) |
 | `/api/orders/addPayment/${orderId}` | PUT | `src/features/orders/apiOrders.ts` (requestJson) |
 | `/api/orders/company/${companyId}` | GET | `src/features/orders/apiOrders.ts` (`apiClient`) |

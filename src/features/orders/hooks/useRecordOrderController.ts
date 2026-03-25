@@ -24,7 +24,7 @@ import {
 } from "../../../redux/Order/action";
 import { getProductTypeFromDB, saveRequest } from "../../../utils/indexedDB";
 import { fetchAndCacheCustomerInvoice } from "../../customers/apiCustomers";
-import { requestRaw } from "../../api/http";
+import { requestJson } from "../../api/http";
 import {
   selectRoundProgress,
   selectShipmentExchangeRateLBP,
@@ -316,13 +316,17 @@ export function useRecordOrderController(props: RecordOrderProps) {
         return true;
       }
 
-      const res = await requestRaw(request.url, request.options);
-      const data =
-        res.data && typeof res.data === "object"
-          ? (res.data as Record<string, unknown>)
-          : {};
-      if (!res.ok) {
-        toast.error(`❌ ${data.error || data.message || "فشل إنشاء الطلب"}`);
+      try {
+        await requestJson<Record<string, unknown>>("/api/orders", {
+          token,
+          method: "POST",
+          jsonBody: payload,
+          fallbackMessage: "فشل إنشاء الطلب",
+        });
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "فشل إنشاء الطلب";
+        toast.error(`❌ ${message}`);
         return false;
       }
 

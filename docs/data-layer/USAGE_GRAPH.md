@@ -6,9 +6,14 @@ Primary transport is `requestJson` (plus RTK Query where applicable); `apiClient
 ## API Response Contract
 
 - `requestJson`: returns domain payload directly; errors throw `ApiRequestError`.
-- `requestRaw` (offline/runtime): returns `{ ok, status, statusText, data }`.
+- `requestRaw` (offline/runtime replay only): returns `{ ok, status, statusText, data }`.
 - RTK Query: read `{ data, error, isLoading }` from query hooks.
 - Legacy `{ ok, data }` envelopes are compatibility paths only and not the primary example format.
+
+### Offline compatibility strategy
+
+- Online writes use `requestJson` for consistent error handling.
+- Offline writes are queued and replayed with `requestRaw` in `useSyncOfflineOrders`.
 
 ## Pages
 
@@ -38,7 +43,7 @@ Primary transport is `requestJson` (plus RTK Query where applicable); `apiClient
 
 | Hook | API dependency |
 |---|---|
-| `src/features/orders/hooks/useRecordOrderController.ts` | `requestRaw` `POST /api/orders`; delegated `fetchAndCacheCustomerInvoice` -> `/api/customers/reciept/${customerId}` |
+| `src/features/orders/hooks/useRecordOrderController.ts` | `requestJson` `POST /api/orders`; delegated `fetchAndCacheCustomerInvoice` -> `/api/customers/reciept/${customerId}` |
 | `src/hooks/useSyncOfflineOrders.ts` | dynamic replay `fetch(request.url, request.options)` |
 | `src/features/shipments/hooks/useStartShipmentController.tsx` | `fetchDayByWeekday` -> `/api/days/name/${weekday}`; `createRoundOrShipment` -> `/api/shipments`; `preloadShipmentData` -> `/api/shipments/preload/${dayId}` |
 | `src/features/shipments/hooks/useTodayShipmentTotals.ts` | RTK Query `POST /api/shipments/range` (canonical owner: `trxApi.listShipmentsRange`) |

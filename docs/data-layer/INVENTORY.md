@@ -20,14 +20,20 @@ Primary contract (requestJson):
 
 Allowed exception contracts:
 
-- `requestRaw(...)` (offline/runtime flows): returns `{ ok, status, statusText, data }`.
+- `requestRaw(...)` (offline replay/runtime flows only): returns `{ ok, status, statusText, data }`.
 - RTK Query hooks: expose `{ data, error, isLoading }` from query state.
 
 Examples (current standard):
 
 - `const order = await requestJson<Order>(\`/api/orders/${orderId}\`, { token })`
 - `const list = await requestJson<Order[]>(\`/api/orders/customer/${customerId}\`, { token })`
-- `const res = await requestRaw("/api/orders", request.options) // { ok, status, data }`
+- `const replay = await requestRaw(request.url, request.options) // offline replay path`
+
+### Offline compatibility strategy
+
+- Order submission uses `requestJson` while online for unified error handling.
+- When offline, requests are queued to IndexedDB (`saveRequest`) and replayed later.
+- Replay is handled in `useSyncOfflineOrders` via `requestRaw(request.url, request.options)` to preserve dynamic queued request fidelity.
 
 ## 1) Allowed raw `fetch(...)` usage (exceptions only)
 
@@ -123,7 +129,7 @@ Defined in `src/features/api/trxApi.ts`:
 
 | Hook file                                               | Type       | Method  | Endpoint                 | Usage location    |
 | ------------------------------------------------------- | ---------- | ------- | ------------------------ | ----------------- |
-| `src/features/orders/hooks/useRecordOrderController.ts` | hook+requestRaw | POST | `/api/orders` | Record order flow |
+| `src/features/orders/hooks/useRecordOrderController.ts` | hook+requestJson | POST | `/api/orders` | Record order flow |
 | `src/hooks/useSyncOfflineOrders.ts`                     | hook+fetch | dynamic | queued `request.url`     | Offline replay    |
 
 
