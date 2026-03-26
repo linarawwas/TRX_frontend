@@ -73,3 +73,5 @@ RecordOrderForCustomer (page)
 **See also:** [Areas for day — baseline](./refactor-baseline-areas-for-day.md) (`AreasForDay`: IndexedDB-only areas list, order `areaId` wiring).
 
 **See also:** [Areas (company list) — baseline](./refactor-baseline-areas.md) (`/areas` Addresses hub: `fetchAreasByCompany`, `AddArea`).
+
+**See also:** [Addresses (customers by area) — baseline](./refactor-baseline-addresses.md) (`/addresses/:areaId`, reorder, `fetchCustomersByArea`).
