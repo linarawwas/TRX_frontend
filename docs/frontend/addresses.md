@@ -9,7 +9,8 @@ Lists customers in an area with search, optional drag-and-drop reorder, and pers
 
 ## UX
 
-- **Reorder mode:** Toggle enables DnD (non-touch) and up/down controls; fixed apply/cancel bar at bottom.
+- **List:** Name, address, status pill; **phone is not shown** on this screen. **Sequence** appears as a **side pin** (server order in browse mode; **draft position 1…n** while reordering).
+- **Reorder mode:** Instruction banner, DnD (non-touch), compact up/down column; fixed apply/cancel bar at bottom.
 - **Navigation:** Card links to `/updateCustomer/:id` when not in reorder mode.
 
 ## Architecture notes

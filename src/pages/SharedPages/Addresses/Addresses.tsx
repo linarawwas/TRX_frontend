@@ -9,6 +9,7 @@ import { reorderCustomersInArea } from "../../../features/areas/apiAreas";
 import { t } from "../../../utils/i18n";
 import { createLogger } from "../../../utils/logger";
 import { useAddressesAreaCustomers } from "./hooks/useAddressesAreaCustomers";
+import { AddressesPageSkeleton } from "./components/AddressesPageSkeleton";
 
 const logger = createLogger("addresses-reorder");
 
@@ -188,9 +189,7 @@ export default function Addresses(): JSX.Element {
             </div>
 
             {loading ? (
-              <p className="address-card-loading" role="status" aria-live="polite">
-                {t("addresses.loading")}
-              </p>
+              <AddressesPageSkeleton />
             ) : error ? (
               <div className="addresses-error-panel" role="alert">
                 <p className="addresses-error-panel__text">
@@ -207,92 +206,114 @@ export default function Addresses(): JSX.Element {
             ) : filtered.length === 0 ? (
               <p className="address-card-empty">{t("addresses.empty")}</p>
             ) : (
-              <div className={`address-card-list ${reorderMode ? "reorder" : ""}`}>
+              <div className={`address-card-list ${reorderMode ? "address-card-list--reorder" : ""}`}>
+                {reorderMode && (
+                  <div className="addresses-reorder-banner" role="status">
+                    <span className="addresses-reorder-banner__icon" aria-hidden>
+                      ↕
+                    </span>
+                    <span className="addresses-reorder-banner__text">
+                      {t("addresses.reorder.hint")}
+                    </span>
+                  </div>
+                )}
                 {filtered.map((customer, i) => {
-                  const CardContent = (
-                    <>
-                      {reorderMode && (
-                        <div className="seq-col" aria-hidden>
-                          <div className="seq-num">{customer.sequence ?? "—"}</div>
-                          <div className="drag-handle">≡</div>
-                          <div className="move-buttons">
-                            <button
-                              type="button"
-                              className="mv-btn"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                moveItem(customer._id, "up");
-                              }}
-                              aria-label={t("addresses.customer.moveUp")}
-                            >
-                              ▲
-                            </button>
-                            <button
-                              type="button"
-                              className="mv-btn"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                moveItem(customer._id, "down");
-                              }}
-                              aria-label={t("addresses.customer.moveDown")}
-                            >
-                              ▼
-                            </button>
-                          </div>
-                        </div>
-                      )}
+                  const posInOrder = orderIds.indexOf(customer._id);
+                  const pinValue =
+                    reorderMode && posInOrder >= 0
+                      ? String(posInOrder + 1)
+                      : customer.sequence != null
+                        ? String(customer.sequence)
+                        : "—";
 
-                      <p>
-                        <span className="address-card-label">{t("addresses.customer.name")}:</span>{" "}
-                        {customer.name}
-                      </p>
-                      <p>
-                        <span className="address-card-label">{t("addresses.customer.phone")}:</span>{" "}
-                        {customer.phone}
-                      </p>
-                      <p>
-                        <span className="address-card-label">{t("addresses.customer.address")}:</span>{" "}
-                        {customer.address}
-                      </p>
-                      <p>
-                        <span className="address-card-label">{t("addresses.customer.status")}:</span>{" "}
+                  const mainBlock = (
+                    <div className="address-card__main">
+                      <div className="address-card__name">{customer.name}</div>
+                      <div className="address-card__address">{customer.address}</div>
+                      <div
+                        className={`address-card__status-pill ${
+                          customer.isActive
+                            ? "address-card__status-pill--active"
+                            : "address-card__status-pill--inactive"
+                        }`}
+                      >
                         {customer.isActive
                           ? t("addresses.customer.status.active")
                           : t("addresses.customer.status.inactive")}
-                      </p>
+                      </div>
+                    </div>
+                  );
 
-                      {!reorderMode && (
-                        <p className="address-card-seq">
-                          <span className="address-card-label">{t("addresses.customer.sequence")}:</span>{" "}
-                          {customer.sequence ?? "—"}
-                        </p>
-                      )}
+                  const pinBlock = (
+                    <div
+                      className={`address-card__pin ${reorderMode ? "address-card__pin--draft" : ""}`}
+                      title={t("addresses.customer.sequence")}
+                    >
+                      <span className="address-card__pin-value">{pinValue}</span>
+                    </div>
+                  );
+
+                  const toolsBlock = reorderMode ? (
+                    <div className="address-card__tools">
+                      <div className="address-card__drag" aria-hidden>
+                        ⋮⋮
+                      </div>
+                      <div className="address-card__step-btns">
+                        <button
+                          type="button"
+                          className="address-card__step-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            moveItem(customer._id, "up");
+                          }}
+                          aria-label={t("addresses.customer.moveUp")}
+                        >
+                          ↑
+                        </button>
+                        <button
+                          type="button"
+                          className="address-card__step-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            moveItem(customer._id, "down");
+                          }}
+                          aria-label={t("addresses.customer.moveDown")}
+                        >
+                          ↓
+                        </button>
+                      </div>
+                    </div>
+                  ) : null;
+
+                  const inner = (
+                    <>
+                      {pinBlock}
+                      {mainBlock}
+                      {toolsBlock}
                     </>
                   );
 
                   return (
                     <div
                       key={customer._id}
-                      className={`address-card ${reorderMode ? "draggable" : ""}`}
+                      className={`address-card address-card--row ${reorderMode ? "address-card--draggable" : ""}`}
                       draggable={reorderMode && !("ontouchstart" in window)}
                       onDragStart={onDragStart(i)}
                       onDragOver={onDragOver(i)}
                       onDragEnd={onDragEnd()}
                       onDrop={onDrop(i)}
-                      title={
-                        reorderMode
-                          ? t("addresses.reorder.hint")
-                          : ""
-                      }
+                      title={reorderMode ? t("addresses.reorder.hint") : undefined}
                     >
                       {reorderMode ? (
-                        <div className="address-card-link">{CardContent}</div>
+                        <div className="address-card__inner">{inner}</div>
                       ) : (
                         <Link
                           to={`/updateCustomer/${customer._id}`}
-                          className="address-card-link"
+                          className="address-card__inner address-card__inner--link"
                         >
-                          {CardContent}
+                          {inner}
                         </Link>
                       )}
                     </div>

@@ -4,11 +4,11 @@ import "./Areas.css";
 import { useSelector } from "react-redux";
 import { selectUserToken } from "../../../redux/selectors/user";
 import AddArea from "../../../components/Areas/AddArea/AddArea";
-import SpinLoader from "../../../components/UI reusables/SpinLoader/SpinLoader";
 import { t } from "../../../utils/i18n";
 import { useAreasCompanyList } from "./hooks/useAreasCompanyList";
 import { AreasConnectivityBar } from "./components/AreasConnectivityBar";
 import { AreasErrorPanel } from "./components/AreasErrorPanel";
+import { AreasPageSkeleton } from "./components/AreasPageSkeleton";
 
 export default function Areas(): JSX.Element {
   const token = useSelector(selectUserToken);
@@ -46,9 +46,7 @@ export default function Areas(): JSX.Element {
           </header>
 
           {loading ? (
-            <div className="areas-loading" aria-busy="true">
-              <SpinLoader />
-            </div>
+            <AreasPageSkeleton />
           ) : error ? (
             <AreasErrorPanel message={error} onRetry={reload} />
           ) : (

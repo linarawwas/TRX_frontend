@@ -1,0 +1,30 @@
+/* Shared shimmer blocks for TRX page skeletons (Areas, Addresses, …) */
+
+@keyframes trx-skeleton-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.trx-skeleton-block {
+  background: linear-gradient(
+    90deg,
+    #f1f5f9 0%,
+    #f8fafc 38%,
+    #ecfdf5 52%,
+    #f8fafc 65%,
+    #f1f5f9 100%
+  );
+  background-size: 200% 100%;
+  animation: trx-skeleton-shimmer 1.35s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trx-skeleton-block {
+    animation: none;
+    background: #f1f5f9;
+  }
+}

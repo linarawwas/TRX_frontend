@@ -133,14 +133,6 @@
   outline-offset: 2px;
 }
 
-.areas-loading {
-  display: flex;
-  justify-content: center;
-  padding: 24px 0 16px;
-  min-height: 120px;
-  align-items: center;
-}
-
 .areas-error-panel {
   padding: 18px 16px;
   border-radius: 16px;
