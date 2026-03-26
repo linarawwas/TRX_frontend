@@ -1,101 +1,84 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "./Areas.css";
-import { Carousel } from "react-responsive-carousel";
-import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { useSelector } from "react-redux";
-import { selectUserToken, selectUserCompanyId } from "../../../redux/selectors/user";
-import { fetchAreasByCompany } from "../../../features/areas/apiAreas";
+import { selectUserToken } from "../../../redux/selectors/user";
 import AddArea from "../../../components/Areas/AddArea/AddArea";
 import SpinLoader from "../../../components/UI reusables/SpinLoader/SpinLoader";
 import { t } from "../../../utils/i18n";
-
-interface Area {
-  _id: string;
-  name: string;
-}
+import { useAreasCompanyList } from "./hooks/useAreasCompanyList";
+import { AreasConnectivityBar } from "./components/AreasConnectivityBar";
+import { AreasErrorPanel } from "./components/AreasErrorPanel";
 
 export default function Areas(): JSX.Element {
   const token = useSelector(selectUserToken);
-  const companyId = useSelector(selectUserCompanyId);
-  const [areas, setAreas] = useState<Area[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [formVisible, setFormVisible] = useState<boolean>(false);
+  const [formVisible, setFormVisible] = useState(false);
+
+  const { areas, loading, error, reload } = useAreasCompanyList(
+    token,
+    formVisible
+  );
 
   const handleFormToggle = () => {
-    setFormVisible(!formVisible);
+    setFormVisible((v) => !v);
   };
 
-  useEffect(() => {
-    if (!token) return;
-
-    let cancelled = false;
-
-    (async () => {
-      setLoading(true);
-      setError(null);
-      const result = await fetchAreasByCompany(token);
-      if (cancelled) return;
-      if (result.error) {
-        setError(result.error);
-        setLoading(false);
-        return;
-      }
-      setAreas(Array.isArray(result.data) ? result.data : []);
-      setLoading(false);
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [token, formVisible]);
-
   return (
-    <div className="areas-body" dir="rtl">
-      <div className="areas-header">
-        <h2 className="areas-title">{t("addresses.areas.title")}</h2>
-        <button
-          type="button"
-          className="toggle-form-btn"
-          onClick={handleFormToggle}
-          aria-expanded={formVisible}
-          aria-controls="add-area-form"
-        >
-          {formVisible ? t("addresses.areas.showAreas") : t("addresses.areas.addToggle")}
-        </button>
-      </div>
+    <div className="areas-page areas-page--shell" dir="rtl" lang="ar">
+      <div className="areas-page__glow" aria-hidden />
+      <div className="areas-page__inner">
+        <AreasConnectivityBar />
 
-      {loading ? (
-        <SpinLoader />
-      ) : error ? (
-        <p role="alert">{t("common.error")}: {error}</p>
-      ) : (
-        <>
-          {!formVisible && (
-            <div className="areas-grid">
-              {areas.length === 0 ? (
-                <p>{t("addresses.empty")}</p>
-              ) : (
-                areas.map((area) => (
-                  <Link
-                    to={`/addresses/${area._id}`}
-                    key={area._id}
-                    className="area-box"
-                  >
-                    {area.name}
-                  </Link>
-                ))
+        <div className="areas-page__surface">
+          <header className="areas-header">
+            <h1 className="areas-title">{t("addresses.areas.title")}</h1>
+            <button
+              type="button"
+              className="toggle-form-btn"
+              onClick={handleFormToggle}
+              aria-expanded={formVisible}
+              aria-controls="add-area-form"
+            >
+              {formVisible
+                ? t("addresses.areas.showAreas")
+                : t("addresses.areas.addToggle")}
+            </button>
+          </header>
+
+          {loading ? (
+            <div className="areas-loading" aria-busy="true">
+              <SpinLoader />
+            </div>
+          ) : error ? (
+            <AreasErrorPanel message={error} onRetry={reload} />
+          ) : (
+            <>
+              {!formVisible && (
+                <div className="areas-grid">
+                  {areas.length === 0 ? (
+                    <p className="areas-empty">{t("addresses.empty")}</p>
+                  ) : (
+                    areas.map((area) => (
+                      <Link
+                        to={`/addresses/${area._id}`}
+                        key={area._id}
+                        className="area-box"
+                      >
+                        {area.name}
+                      </Link>
+                    ))
+                  )}
+                </div>
               )}
-            </div>
+              {formVisible && (
+                <div id="add-area-form" className="add-area-form">
+                  <AddArea />
+                </div>
+              )}
+            </>
           )}
-          {formVisible && (
-            <div id="add-area-form" className="add-area-form">
-              <AddArea />
-            </div>
-          )}
-        </>
-      )}
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,77 +1,253 @@
-.areas-body {
-  padding: 20px 10px;
-  max-width: 1000px;
-  margin: 0 auto;
+/* Areas (company) — TRX enterprise shell */
+
+.areas-page--shell {
+  --areas-ink: #0f172a;
+  --areas-muted: #64748b;
+  --areas-stroke: rgba(15, 23, 42, 0.1);
+  --areas-inner-pad: 16px;
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  color: var(--areas-ink);
+  background: linear-gradient(165deg, #f1f5f9 0%, #e8f4f0 42%, #f8fafc 100%);
+  isolation: isolate;
+  box-sizing: border-box;
+}
+
+.areas-page__glow {
+  pointer-events: none;
+  position: fixed;
+  inset: -15% -25% auto -25%;
+  height: 48vh;
+  background: radial-gradient(
+    ellipse 75% 55% at 50% 0%,
+    rgba(16, 185, 129, 0.11) 0%,
+    transparent 68%
+  );
+  z-index: 0;
+}
+
+.areas-page__inner {
+  position: relative;
+  z-index: 1;
+  max-width: 960px;
+  margin-inline: auto;
+  padding: 12px var(--areas-inner-pad) 28px;
+  box-sizing: border-box;
+}
+
+.areas-page__surface {
+  position: relative;
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid var(--areas-stroke);
+  padding: 18px 16px 22px;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 16px 40px -16px rgba(15, 23, 42, 0.12),
+    0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+  overflow: hidden;
+}
+
+.areas-page__surface::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    #047857 0%,
+    #059669 45%,
+    #10b981 100%
+  );
+  opacity: 0.95;
+}
+
+.areas-page__surface > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Offline strip */
+.areas-connectivity-bar {
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #92400e;
+  text-align: center;
+  line-height: 1.45;
+}
+
+.areas-header {
+  margin-bottom: 8px;
 }
 
 .areas-title {
-  color: #082338;
-  font-size: 24px;
+  margin: 0 0 14px;
+  color: var(--areas-ink);
+  font-size: clamp(1.2rem, 4vw, 1.45rem);
   text-align: center;
-  font-weight: bold;
-  margin-bottom: 10px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
 }
 
 .toggle-form-btn {
-  background-color: #06355e;
-  color: white;
-  padding: 10px 20px;
-  border: 1px solid #082338;
-  border-radius: 25px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: 0.3s ease;
   display: block;
-  margin: 10px auto 20px auto;
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto 8px;
+  background: linear-gradient(180deg, #059669 0%, #047857 100%);
+  color: #fff;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    filter 0.15s ease,
+    transform 0.1s ease,
+    box-shadow 0.15s ease;
+  box-shadow:
+    0 4px 14px rgba(5, 150, 105, 0.28),
+    0 1px 0 rgba(255, 255, 255, 0.2) inset;
 }
 
 .toggle-form-btn:hover {
-  background-color: #0d94dd;
+  filter: brightness(1.05);
 }
 
-/* 🔲 Area Grid */
+.toggle-form-btn:active {
+  transform: scale(0.995);
+}
+
+.toggle-form-btn:focus-visible {
+  outline: 3px solid rgba(5, 150, 105, 0.45);
+  outline-offset: 2px;
+}
+
+.areas-loading {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0 16px;
+  min-height: 120px;
+  align-items: center;
+}
+
+.areas-error-panel {
+  padding: 18px 16px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #fef2f2 0%, #ffffff 100%);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  text-align: center;
+}
+
+.areas-error-panel__text {
+  margin: 0 0 14px;
+  color: #991b1b;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.areas-error-panel__retry {
+  min-height: 48px;
+  width: 100%;
+  padding: 12px 20px;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 15px;
+  cursor: pointer;
+  border: none;
+  background: linear-gradient(180deg, #059669 0%, #047857 100%);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.3);
+  transition: filter 0.15s ease;
+}
+
+.areas-error-panel__retry:hover {
+  filter: brightness(1.04);
+}
+
+.areas-error-panel__retry:focus-visible {
+  outline: 3px solid rgba(5, 150, 105, 0.45);
+  outline-offset: 2px;
+}
+
 .areas-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 15px;
-  padding: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  padding: 8px 0 4px;
   text-align: center;
 }
 
 .area-box {
   text-decoration: none;
-  color: #082338;
-  background-color: white;
-  border: 1px solid #082338;
-  border-radius: 15px;
-  padding: 12px;
-  font-size: 16px;
-  transition: background-color 0.2s ease;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  color: var(--areas-ink);
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid var(--areas-stroke);
+  border-radius: 16px;
+  padding: 14px 12px;
+  font-size: 15px;
+  font-weight: 800;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.1s ease;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
 }
 
 .area-box:hover {
-  background-color: #f0f4f8;
+  background: linear-gradient(180deg, #ecfdf5 0%, #f8fafc 100%);
+  border-color: rgba(5, 150, 105, 0.35);
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.12);
+}
+
+.area-box:active {
+  transform: scale(0.99);
+}
+
+.area-box:focus-visible {
+  outline: 3px solid rgba(5, 150, 105, 0.4);
+  outline-offset: 2px;
+}
+
+.areas-empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 20px 12px;
+  color: var(--areas-muted);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
 }
 
 .add-area-form {
-  margin-top: 30px;
-  padding: 10px;
+  margin-top: 8px;
+  padding: 8px 0 4px;
 }
 
-/* 📱 Mobile friendly */
 @media (max-width: 600px) {
   .areas-title {
-    font-size: 20px;
+    font-size: 1.15rem;
   }
 
   .toggle-form-btn {
     font-size: 14px;
-    padding: 8px 16px;
+    padding: 11px 16px;
   }
 
   .area-box {
-    font-size: 15px;
-    padding: 10px;
+    font-size: 14px;
+    padding: 12px 10px;
   }
 }
