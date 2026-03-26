@@ -65,3 +65,5 @@ RecordOrderForCustomer (page)
 ---
 
 **See also:** [Customers for area — baseline](./refactor-baseline-customers-for-area.md) (`CustomersForArea` feature: IndexedDB-only list, segmentation, no `requestRaw`).
+
+**See also:** [Employee home — baseline](./refactor-baseline-employee-home.md) (`EmployeeHomePage`: Redux snapshots, IndexedDB pending count, `StartShipment` modal).
