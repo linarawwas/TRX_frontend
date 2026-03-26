@@ -71,3 +71,5 @@ RecordOrderForCustomer (page)
 **See also:** [Today / Round snapshots — baseline](./refactor-baseline-snapshots.md) (`TodaySnapshot`, `RoundSnapshot`, `ProgressSnapshot`, `RoundsHistory`).
 
 **See also:** [Areas for day — baseline](./refactor-baseline-areas-for-day.md) (`AreasForDay`: IndexedDB-only areas list, order `areaId` wiring).
+
+**See also:** [Areas (company list) — baseline](./refactor-baseline-areas.md) (`/areas` Addresses hub: `fetchAreasByCompany`, `AddArea`).
