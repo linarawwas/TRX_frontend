@@ -23,6 +23,12 @@
 - Add strings under `recordOrderForCustomer.*` in `src/utils/i18n.ts`.
 - Do not move submit/offline logic into the page component without a coordinated change to `useRecordOrderController` and tests.
 
+## Viewport behavior
+
+- The page uses **`100dvh`** with **`overflow: hidden`** on the shell and a short-lived **`overflow: hidden` on `html`/`body`** while this route is mounted, so the **browser page does not scroll**.
+- The **submit** control is **`position: fixed`** at the bottom (above the safe area) so the driver can always reach it without scrolling the document.
+- If content is taller than the remaining space (e.g. tall invoice block), **only** the inner `.record-order-container` scrolls; the submit bar stays pinned.
+
 ## Migration notes (2026-03)
 
 - Replaced inline discount `useEffect` with `useCustomerDiscountFromCache` for clearer loading/error boundaries and dev-safe logging.

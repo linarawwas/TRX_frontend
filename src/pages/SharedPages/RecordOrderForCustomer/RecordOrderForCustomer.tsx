@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import "./RecordOrderForCustomer.css";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -17,6 +18,17 @@ function RecordOrderForCustomer(): JSX.Element {
   const navigate = useNavigate();
   const { state } = useLocation();
   const isExternal = Boolean((state as { isExternal?: boolean })?.isExternal);
+
+  useEffect(() => {
+    const prevBody = document.body.style.overflow;
+    const prevHtml = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prevBody;
+      document.documentElement.style.overflow = prevHtml;
+    };
+  }, []);
 
   return (
     <div className="rofc-page" dir="rtl" lang="ar">
