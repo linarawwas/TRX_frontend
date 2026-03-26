@@ -1,5 +1,6 @@
 import React from "react";
 import "./DiscountCard.css";
+import { t } from "../../../utils/i18n";
 
 type Props = {
   /** USD unit price after discount (what your backend uses) */
@@ -24,7 +25,6 @@ const DiscountCard: React.FC<Props> = ({ unitPriceUSD, note, rateLBP }) => {
     <div className="discount-card" dir="rtl" aria-live="polite">
       <div className="dc-top">
         <div className="dc-icon" aria-hidden="true">
-          {/* check-badge */}
           <svg viewBox="0 0 24 24" width="20" height="20">
             <path
               d="M12 2l2.39 4.85L20 8l-3.6 3.51L17.8 18 12 15.5 6.2 18l1.4-6.49L4 8l5.61-1.15L12 2z"
@@ -40,25 +40,37 @@ const DiscountCard: React.FC<Props> = ({ unitPriceUSD, note, rateLBP }) => {
             />
           </svg>
         </div>
-        <div className="dc-title">خصم مُفعّل لهذا الزبون</div>
-        <div className="dc-chip">{fmtUSD(unitPriceUSD)} / القنّينة</div>
+        <div className="dc-title">{t("recordOrderForCustomer.discount.title")}</div>
+        <div className="dc-chip">
+          {t("recordOrderForCustomer.discount.perBottle", {
+            price: fmtUSD(unitPriceUSD),
+          })}
+        </div>
       </div>
 
       {lbpEq !== null && (
         <div className="dc-sub">
-          ≈ <strong>{fmtLBP(lbpEq)}</strong> / القنّينة
-          <span className="dc-rate"> (سعر مرجعي: {rateLBP!.toLocaleString("ar-LB")} ل.ل/1$)</span>
+          {t("recordOrderForCustomer.discount.lbpLine", {
+            lbp: fmtLBP(lbpEq),
+          })}{" "}
+          <span className="dc-rate">
+            {t("recordOrderForCustomer.discount.referenceRate", {
+              rate: rateLBP!.toLocaleString("ar-LB"),
+            })}
+          </span>
         </div>
       )}
 
       {note?.trim() ? (
         <div className="dc-note">
-          <span className="dc-note-label">ملاحظة الدفع:</span>
+          <span className="dc-note-label">
+            {t("recordOrderForCustomer.discount.paymentNoteLabel")}
+          </span>
           <span className="dc-note-text">{note}</span>
         </div>
       ) : null}
 
-      <div className="dc-foot">* يُطبَّق تلقائيًا على الحساب</div>
+      <div className="dc-foot">{t("recordOrderForCustomer.discount.footer")}</div>
     </div>
   );
 };

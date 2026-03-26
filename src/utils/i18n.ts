@@ -97,6 +97,8 @@ export type TranslationKey =
   | 'addresses.areas.addToggle'
   | 'addresses.areas.showAreas'
   | 'addresses.areas.addNew'
+  | 'addresses.areas.offlineHint'
+  | 'addresses.areas.retry'
   | 'addresses.areasForDay.title'
   | 'addresses.areasForDay.loading'
   | 'addresses.areasForDay.empty'
@@ -134,11 +136,6 @@ export type TranslationKey =
   | 'customersForArea.retry'
   | 'customersForArea.scrollTop'
   | 'customersForArea.pending.cardAriaLabel'
-  | 'recordOrderForCustomer.offlineHint'
-  | 'recordOrderForCustomer.retry'
-  | 'recordOrderForCustomer.missingCustomer'
-  | 'recordOrderForCustomer.discount.missing'
-  | 'recordOrderForCustomer.discount.loadFailed'
   | 'orders.title'
   | 'orders.table.customer'
   | 'orders.table.delivered'
@@ -224,7 +221,16 @@ export type TranslationKey =
   | 'common.apply'
   | 'common.moreOptions'
   | 'common.noChanges'
-  | 'common.edit';
+  | 'common.edit'
+  | 'recordOrderForCustomer.cache.noDiscountOffline'
+  | 'recordOrderForCustomer.cache.loadError'
+  | 'recordOrderForCustomer.discount.title'
+  | 'recordOrderForCustomer.discount.perBottle'
+  | 'recordOrderForCustomer.discount.lbpLine'
+  | 'recordOrderForCustomer.discount.referenceRate'
+  | 'recordOrderForCustomer.discount.paymentNoteLabel'
+  | 'recordOrderForCustomer.discount.footer'
+  | 'recordOrderForCustomer.discount.loadingHint';
 
 const translations: Record<TranslationKey, string> = {
   'dashboard.hello': 'مرحباً',
@@ -323,6 +329,9 @@ const translations: Record<TranslationKey, string> = {
   'addresses.areas.addToggle': '➕ إضافة منطقة جديدة؟',
   'addresses.areas.showAreas': 'عرض المناطق',
   'addresses.areas.addNew': 'إضافة منطقة جديدة؟',
+  'addresses.areas.offlineHint':
+    'غير متصل — التعديلات تُحفظ محلياً.',
+  'addresses.areas.retry': 'إعادة المحاولة',
   'addresses.areasForDay.title': '🚚 اختر المنطقة ليوم {{dayName}}',
   'addresses.areasForDay.loading': '⏳ جارٍ التحميل...',
   'addresses.areasForDay.empty': '😕 لا توجد مناطق محفوظة لهذا اليوم',
@@ -360,11 +369,6 @@ const translations: Record<TranslationKey, string> = {
   'customersForArea.retry': 'إعادة المحاولة',
   'customersForArea.scrollTop': 'العودة إلى أعلى القائمة',
   'customersForArea.pending.cardAriaLabel': '{{name}} — طلب غير مرسل بعد',
-  'recordOrderForCustomer.offlineHint': 'أنت غير متصل — سيتم إرسال الطلب عند عودة الشبكة.',
-  'recordOrderForCustomer.retry': 'إعادة المحاولة',
-  'recordOrderForCustomer.missingCustomer': 'لم يتم تحديد زبون. ارجع واختر زبوناً ثم أعد المحاولة.',
-  'recordOrderForCustomer.discount.missing': '⚠️ لم يتم العثور على بيانات الخصم في وضع عدم الاتصال.',
-  'recordOrderForCustomer.discount.loadFailed': '⚠️ فشل تحميل بيانات الخصم من الذاكرة المؤقتة.',
   'orders.title': 'Orders',
   'orders.table.customer': 'الزبون',
   'orders.table.delivered': 'المُسلّمة',
@@ -451,6 +455,17 @@ const translations: Record<TranslationKey, string> = {
   'common.moreOptions': 'المزيد من الخيارات لـ {{name}}',
   'common.noChanges': 'لا يوجد تغييرات للحفظ',
   'common.edit': 'تعديل',
+  'recordOrderForCustomer.cache.noDiscountOffline':
+    '⚠️ لم يتم العثور على بيانات الخصم في وضع عدم الاتصال.',
+  'recordOrderForCustomer.cache.loadError':
+    '⚠️ فشل تحميل بيانات الخصم من الذاكرة المؤقتة.',
+  'recordOrderForCustomer.discount.title': 'خصم مُفعّل لهذا الزبون',
+  'recordOrderForCustomer.discount.perBottle': '{{price}} / القنّينة',
+  'recordOrderForCustomer.discount.lbpLine': '≈ {{lbp}} / القنّينة',
+  'recordOrderForCustomer.discount.referenceRate': '(سعر مرجعي: {{rate}} ل.ل/1$)',
+  'recordOrderForCustomer.discount.paymentNoteLabel': 'ملاحظة الدفع:',
+  'recordOrderForCustomer.discount.footer': '* يُطبَّق تلقائيًا على الحساب',
+  'recordOrderForCustomer.discount.loadingHint': 'جارٍ تحميل بيانات الخصم…',
 };
 
 export function t(

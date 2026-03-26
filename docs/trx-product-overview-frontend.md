@@ -514,10 +514,10 @@ TRX serves multiple user roles within distribution companies:
   - *See [docs/pages/CustomersForArea.md](pages/CustomersForArea.md)*
 
 - **Record Order Screen** (`/recordOrderforCustomer`, `RecordOrderForCustomer` + `RecordOrder`): 
-  - **Shell:** back control (44px tap target), **connectivity strip** when offline (queues submit like before), **discount cache** from IndexedDB with loading skeleton, **error + retry** on IDB read failure, and **missing-customer** alert if Redux has no customer id
+  - **Shell:** back control (44px tap target), **discount cache** from IndexedDB via `useCustomerDiscountFromCache` (loading skeleton; same cache miss / load-error toasts as before), optional **LBP reference** on the discount card when a shipment rate exists
   - **Embedded flow (`RecordOrder`):** customer name header, delivered/returned steppers, USD/LBP payments, discount-driven checkout when cache says `hasDiscount`, balance preview, submit (offline queue unchanged)
   - Optional WhatsApp message sending
-  - *See [docs/pages/RecordOrderForCustomer.md](pages/RecordOrderForCustomer.md)*
+  - *See [docs/frontend/record-order-for-customer.md](frontend/record-order-for-customer.md)*
 
 #### Viewing & Reports
 - **Today's Orders Report**: 

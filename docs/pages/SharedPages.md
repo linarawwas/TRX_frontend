@@ -256,33 +256,27 @@ This document describes the refactoring of all pages in the `src/pages/SharedPag
 
 ### 10. RecordOrderForCustomer (`src/pages/SharedPages/RecordOrderForCustomer/RecordOrderForCustomer.tsx`)
 
-**Purpose**: Field shell for recording an order for the customer selected in Redux. Loads per-customer discount from IndexedDB and renders `RecordOrder` (business logic and submission live in `useRecordOrderController`).
+**Purpose**: Field shell for recording an order for the customer in Redux. Loads per-customer discount from IndexedDB via `useCustomerDiscountFromCache`, shows `DiscountCard` when `hasDiscount`, and renders `RecordOrder` (submit and offline logic in `useRecordOrderController`).
 
 **Data Flow**:
-- Selectors: `selectOrderCustomerId`
+- Selectors: `selectOrderCustomerId`, `selectShipmentExchangeRateLBP` (optional LBP hint on `DiscountCard`)
+- Hook: `useCustomerDiscountFromCache` → IndexedDB `getCustomerDiscountFromDB`
 - Location state: `isExternal` (passed to `RecordOrder`)
-- Hook: `useCustomerDiscountCache` → IndexedDB `getCustomerDiscountFromDB`
-- Components: `RecordOrderForCustomerConnectivityBar`, `RecordOrderForCustomerBackNav`, `RecordOrderForCustomerDiscountSection` (wraps local `DiscountCard`), `RecordOrder`
+- Components: `DiscountCard`, `RecordOrder`
 
 **Features**:
-- Offline connectivity strip (`useNavigatorOnline`)
-- Back navigation (pill button, safe-area aware)
-- Discount: loading skeleton, error + retry, card when `hasDiscount`
-- Alert when `customerId` is missing from Redux
-- External order flag support (unchanged)
+- Back navigation (pill, safe-area aware)
+- Discount loading skeleton; discount card when applicable; same cache toasts as before (missing cache / load error)
+- External order flag support
 
 **i18n Keys Used**:
-- `common.back`, `common.loading`
-- `recordOrderForCustomer.offlineHint`, `recordOrderForCustomer.retry`, `recordOrderForCustomer.missingCustomer`
-- `recordOrderForCustomer.discount.missing`, `recordOrderForCustomer.discount.loadFailed`
+- `common.back`, `recordOrderForCustomer.*` (cache toasts + discount card copy)
 
 **Accessibility**:
-- `role="status"` / `aria-live` on connectivity strip
-- `role="alert"` on discount error and missing customer
-- `aria-busy` on discount loading skeleton
-- `type="button"` on back and retry; `aria-label` on back; decorative SVG `aria-hidden`
+- `type="button"` on back; `aria-label` on back; decorative SVG `aria-hidden`
+- Discount skeleton: `role="status"`, `aria-busy`, `aria-label`
 
-*Details:* [RecordOrderForCustomer.md](RecordOrderForCustomer.md)
+*Details:* [record-order-for-customer.md](../frontend/record-order-for-customer.md)
 
 ---
 

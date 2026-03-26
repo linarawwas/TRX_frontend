@@ -1,18 +1,9 @@
-# RecordOrderForCustomer
+# Record order for customer
 
-Page shell for `/recordOrderforCustomer`: offline strip, back control, IndexedDB discount loading/error UI, and [`RecordOrder`](../../../components/Orders/RecordOrder/RecordOrder.tsx).
+Entry page for recording a delivery order for the customer selected in Redux (`selectOrderCustomerId`).
 
-## Files
+- **Layout & discount:** `RecordOrderForCustomer.tsx`, `RecordOrderForCustomer.css`, `DiscountCard.tsx`, `DiscountCard.css`
+- **IndexedDB discount:** `useCustomerDiscountFromCache.ts` (read-only cache; no HTTP here)
+- **Form / submit / offline:** `src/components/Orders/RecordOrder/RecordOrder.tsx` → `useRecordOrderController`
 
-- `RecordOrderForCustomer.tsx` — Composes shell + passes `customerData` / `isExternal` to `RecordOrder`.
-- `RecordOrderForCustomer.css` — `rofc-*` layout and states (connectivity, back, skeleton, error).
-- `hooks/useCustomerDiscountCache.ts` — IDB discount read + i18n toasts + `reload`.
-- `customerDiscountTypes.ts` — Shape aligned with `saveCustomerDiscountToDB` / preload.
-- `components/RecordOrderForCustomerConnectivityBar.tsx` — Offline-only banner (`useNavigatorOnline`).
-- `components/RecordOrderForCustomerBackNav.tsx` — Back pill.
-- `components/RecordOrderForCustomerDiscountSection.tsx` — Skeleton / error / `DiscountCard`.
-- `DiscountCard.tsx` / `DiscountCard.css` — Discount presentation when `hasDiscount`.
-
-## Product doc
-
-[docs/pages/RecordOrderForCustomer.md](../../../../docs/pages/RecordOrderForCustomer.md)
+Product documentation: `docs/frontend/record-order-for-customer.md` and `docs/architecture/refactor-baseline.md`.
