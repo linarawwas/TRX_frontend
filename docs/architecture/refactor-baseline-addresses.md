@@ -38,3 +38,12 @@ Addresses
 
 - Single-file fetch + large component; opportunity to extract hook and add retry for load errors.
 - Shell alignment with other TRX pages (gradient + surface).
+
+---
+
+## 6. Post-refactor (maintenance)
+
+- **Hook:** `Addresses/hooks/useAddressesAreaCustomers.ts` — load with cancellation on unmount, `reload()` for retry, dev logging on fetch failure.
+- **Missing `areaId` / `token`:** Loading clears and does not hang (fixed from early-return-only behavior).
+- **UI:** `addresses-page--shell` + surface card; error panel with retry; emerald accent aligned with Areas For Day / Customers For Area.
+- **Docs:** `docs/frontend/addresses.md`.

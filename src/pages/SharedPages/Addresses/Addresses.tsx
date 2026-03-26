@@ -1,64 +1,38 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import "./Addresses.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
 import { selectUserToken, selectUserCompanyId } from "../../../redux/selectors/user";
-import { fetchCustomersByArea, reorderCustomersInArea } from "../../../features/areas/apiAreas";
-import { sortCustomersBySequence } from "../../../features/areas/utils/sortCustomers";
+import { reorderCustomersInArea } from "../../../features/areas/apiAreas";
 import { t } from "../../../utils/i18n";
+import { createLogger } from "../../../utils/logger";
+import { useAddressesAreaCustomers } from "./hooks/useAddressesAreaCustomers";
 
-interface Customer {
-  _id: string;
-  address: string;
-  name: string;
-  phone: string;
-  sequence?: number | null;
-  isActive?: boolean;
-}
+const logger = createLogger("addresses-reorder");
 
 export default function Addresses(): JSX.Element {
   const token = useSelector(selectUserToken);
   const companyId = useSelector(selectUserCompanyId);
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const { areaId } = useParams<{ areaId: string }>();
 
+  const {
+    customers,
+    setCustomers,
+    orderIds,
+    setOrderIds,
+    loading,
+    error,
+    reload,
+  } = useAddressesAreaCustomers(areaId, token);
+
   // Reorder mode
   const [reorderMode, setReorderMode] = useState(false);
-  const [orderIds, setOrderIds] = useState<string[]>([]);
 
   // DnD refs (desktop only)
   const dragIndex = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (!areaId || !token) return;
-
-    let cancelled = false;
-
-    (async () => {
-      setLoading(true);
-      setError(null);
-      const result = await fetchCustomersByArea(token, areaId);
-      if (cancelled) return;
-      if (result.error) {
-        setError(result.error);
-        setLoading(false);
-        return;
-      }
-      const sorted = sortCustomersBySequence(result.data || []);
-      setCustomers(sorted);
-      setOrderIds(sorted.map((c) => c._id));
-      setLoading(false);
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [areaId, token]);
 
   const filtered = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
@@ -164,6 +138,10 @@ export default function Addresses(): JSX.Element {
       startAt: 1,
     });
     if (result.error) {
+      logger.error("reorderCustomersInArea failed", {
+        areaId,
+        message: result.error,
+      });
       toast.error(result.error || t("addresses.reorder.connectionError"));
       return;
     }
@@ -178,139 +156,158 @@ export default function Addresses(): JSX.Element {
   };
 
   return (
-    <div className="address-card-body" dir="rtl">
-      <ToastContainer position="top-right" autoClose={1500} />
+    <div className="addresses-page addresses-page--shell" dir="rtl" lang="ar">
+      <div className="addresses-page__glow" aria-hidden />
+      <div className="addresses-page__inner">
+        <ToastContainer position="top-right" autoClose={1500} />
 
-      <div className="address-card-header">
-        <h2 className="address-card-title">{t("addresses.title")}</h2>
+        <div className="addresses-page__surface">
+          <div className="address-card-body">
+            <div className="address-card-header">
+              <h2 className="address-card-title">{t("addresses.title")}</h2>
 
-        <div className="address-toolbar">
-          <input
-            type="text"
-            placeholder={t("addresses.search.placeholder")}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="address-card-search-bar"
-            disabled={reorderMode}
-            aria-label={t("addresses.search.placeholder")}
-          />
-          <button
-            type="button"
-            className={`reorder-toggle ${reorderMode ? "on" : ""}`}
-            onClick={() => setReorderMode((v) => !v)}
-            aria-pressed={reorderMode}
-          >
-            {reorderMode ? t("addresses.reorder.end") : t("addresses.reorder.toggle")}
-          </button>
+              <div className="address-toolbar">
+                <input
+                  type="text"
+                  placeholder={t("addresses.search.placeholder")}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="address-card-search-bar"
+                  disabled={reorderMode}
+                  aria-label={t("addresses.search.placeholder")}
+                />
+                <button
+                  type="button"
+                  className={`reorder-toggle ${reorderMode ? "on" : ""}`}
+                  onClick={() => setReorderMode((v) => !v)}
+                  aria-pressed={reorderMode}
+                >
+                  {reorderMode ? t("addresses.reorder.end") : t("addresses.reorder.toggle")}
+                </button>
+              </div>
+            </div>
+
+            {loading ? (
+              <p className="address-card-loading" role="status" aria-live="polite">
+                {t("addresses.loading")}
+              </p>
+            ) : error ? (
+              <div className="addresses-error-panel" role="alert">
+                <p className="addresses-error-panel__text">
+                  {t("common.error")}: {error}
+                </p>
+                <button
+                  type="button"
+                  className="addresses-error-panel__retry"
+                  onClick={() => void reload()}
+                >
+                  {t("addresses.areas.retry")}
+                </button>
+              </div>
+            ) : filtered.length === 0 ? (
+              <p className="address-card-empty">{t("addresses.empty")}</p>
+            ) : (
+              <div className={`address-card-list ${reorderMode ? "reorder" : ""}`}>
+                {filtered.map((customer, i) => {
+                  const CardContent = (
+                    <>
+                      {reorderMode && (
+                        <div className="seq-col" aria-hidden>
+                          <div className="seq-num">{customer.sequence ?? "—"}</div>
+                          <div className="drag-handle">≡</div>
+                          <div className="move-buttons">
+                            <button
+                              type="button"
+                              className="mv-btn"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                moveItem(customer._id, "up");
+                              }}
+                              aria-label={t("addresses.customer.moveUp")}
+                            >
+                              ▲
+                            </button>
+                            <button
+                              type="button"
+                              className="mv-btn"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                moveItem(customer._id, "down");
+                              }}
+                              aria-label={t("addresses.customer.moveDown")}
+                            >
+                              ▼
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      <p>
+                        <span className="address-card-label">{t("addresses.customer.name")}:</span>{" "}
+                        {customer.name}
+                      </p>
+                      <p>
+                        <span className="address-card-label">{t("addresses.customer.phone")}:</span>{" "}
+                        {customer.phone}
+                      </p>
+                      <p>
+                        <span className="address-card-label">{t("addresses.customer.address")}:</span>{" "}
+                        {customer.address}
+                      </p>
+                      <p>
+                        <span className="address-card-label">{t("addresses.customer.status")}:</span>{" "}
+                        {customer.isActive
+                          ? t("addresses.customer.status.active")
+                          : t("addresses.customer.status.inactive")}
+                      </p>
+
+                      {!reorderMode && (
+                        <p className="address-card-seq">
+                          <span className="address-card-label">{t("addresses.customer.sequence")}:</span>{" "}
+                          {customer.sequence ?? "—"}
+                        </p>
+                      )}
+                    </>
+                  );
+
+                  return (
+                    <div
+                      key={customer._id}
+                      className={`address-card ${reorderMode ? "draggable" : ""}`}
+                      draggable={reorderMode && !("ontouchstart" in window)}
+                      onDragStart={onDragStart(i)}
+                      onDragOver={onDragOver(i)}
+                      onDragEnd={onDragEnd()}
+                      onDrop={onDrop(i)}
+                      title={
+                        reorderMode
+                          ? t("addresses.reorder.hint")
+                          : ""
+                      }
+                    >
+                      {reorderMode ? (
+                        <div className="address-card-link">{CardContent}</div>
+                      ) : (
+                        <Link
+                          to={`/updateCustomer/${customer._id}`}
+                          className="address-card-link"
+                        >
+                          {CardContent}
+                        </Link>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {reorderMode && (
+              <div style={{ height: 72 }} aria-hidden />
+            )}
+          </div>
         </div>
       </div>
 
-      {loading ? (
-        <p className="address-card-loading" role="status" aria-live="polite">
-          {t("addresses.loading")}
-        </p>
-      ) : error ? (
-        <p className="address-card-empty" role="alert">
-          {t("common.error")}: {error}
-        </p>
-      ) : filtered.length === 0 ? (
-        <p className="address-card-empty">{t("addresses.empty")}</p>
-      ) : (
-        <div className={`address-card-list ${reorderMode ? "reorder" : ""}`}>
-          {filtered.map((customer, i) => {
-            const CardContent = (
-              <>
-                {reorderMode && (
-                  <div className="seq-col" aria-hidden>
-                    <div className="seq-num">{customer.sequence ?? "—"}</div>
-                    <div className="drag-handle">≡</div>
-                    <div className="move-buttons">
-                      <button
-                        type="button"
-                        className="mv-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          moveItem(customer._id, "up");
-                        }}
-                        aria-label={t("addresses.customer.moveUp")}
-                      >
-                        ▲
-                      </button>
-                      <button
-                        type="button"
-                        className="mv-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          moveItem(customer._id, "down");
-                        }}
-                        aria-label={t("addresses.customer.moveDown")}
-                      >
-                        ▼
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                <p>
-                  <span className="address-card-label">{t("addresses.customer.name")}:</span>{" "}
-                  {customer.name}
-                </p>
-                <p>
-                  <span className="address-card-label">{t("addresses.customer.phone")}:</span>{" "}
-                  {customer.phone}
-                </p>
-                <p>
-                  <span className="address-card-label">{t("addresses.customer.address")}:</span>{" "}
-                  {customer.address}
-                </p>
-                <p>
-                  <span className="address-card-label">{t("addresses.customer.status")}:</span>{" "}
-                  {customer.isActive
-                    ? t("addresses.customer.status.active")
-                    : t("addresses.customer.status.inactive")}
-                </p>
-
-                {!reorderMode && (
-                  <p className="address-card-seq">
-                    <span className="address-card-label">{t("addresses.customer.sequence")}:</span>{" "}
-                    {customer.sequence ?? "—"}
-                  </p>
-                )}
-              </>
-            );
-
-            return (
-              <div
-                key={customer._id}
-                className={`address-card ${reorderMode ? "draggable" : ""}`}
-                draggable={reorderMode && !("ontouchstart" in window)}
-                onDragStart={onDragStart(i)}
-                onDragOver={onDragOver(i)}
-                onDragEnd={onDragEnd()}
-                onDrop={onDrop(i)}
-                title={
-                  reorderMode
-                    ? t("addresses.reorder.hint")
-                    : ""
-                }
-              >
-                {reorderMode ? (
-                  <div className="address-card-link">{CardContent}</div>
-                ) : (
-                  <Link
-                    to={`/updateCustomer/${customer._id}`}
-                    className="address-card-link"
-                  >
-                    {CardContent}
-                  </Link>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Fixed save bar to guarantee clicks land */}
       {reorderMode && (
         <form className="apply-bar" onSubmit={applyReorder}>
           <div className="apply-hint">{t("addresses.reorder.hint")}</div>
@@ -328,9 +325,6 @@ export default function Addresses(): JSX.Element {
           </div>
         </form>
       )}
-
-      {/* spacer so fixed bar doesn't cover content */}
-      {reorderMode && <div style={{ height: 72 }} aria-hidden />}
     </div>
   );
 }
