@@ -2,7 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { clearAreaId } from "../../../../redux/Order/action";
 import { getAreasByDayFromDB, getDayFromDB } from "../../../../utils/indexedDB";
+import { createLogger } from "../../../../utils/logger";
 import { t } from "../../../../utils/i18n";
+
+const logger = createLogger("areas-for-day-data");
 
 export type AreaRow = {
   _id: string;
@@ -56,7 +59,7 @@ export function useAreasForDayData(
       );
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      console.error("Failed to load from IndexedDB:", err);
+      logger.error("Failed to load areas/day from IndexedDB", err);
       setError(message);
       setDayNameRaw(t("addresses.areasForDay.loadError"));
       setAreas([]);
