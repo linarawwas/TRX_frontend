@@ -277,7 +277,7 @@ const translations: Record<TranslationKey, string> = {
   'emp.actions.addExpenses': 'إضافة مصاريف',
   'emp.actions.startShipment': 'بدء شحنة جديدة',
   'emp.actions.close': 'إغلاق النموذج',
-  'emp.footer.copyright': '© 2025 تيركس بواسطة لينة الرواّس. جميع الحقوق محفوظة.',
+  'emp.footer.copyright': '© 2026 TRX بواسطة لينة الرواّس. جميع الحقوق محفوظة.',
   'emp.status.online': 'متصل',
   'emp.status.offline': 'غير متصل — التعديلات تُحفظ محلياً',
   'emp.status.pendingSync': 'بانتظار الإرسال: {{count}}',

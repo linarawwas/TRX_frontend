@@ -323,8 +323,8 @@ TRX serves multiple user roles within distribution companies:
 **Morning Setup:**
 1. Driver opens TRX app on their mobile device
 2. Logs in with their employee credentials
-3. Sees home screen with today's date and quick actions
-4. Taps "Start Shipment" button
+3. Lands on **Employee Home**: connectivity strip (online/offline), optional pending-sync count, compact greeting + date, then **today’s delivery progress** (when a shipment exists) and **round** summary, with financial KPIs scoped correctly (today vs. this round). If there is no active shipment yet, an **empty state** explains next steps; **sticky actions** at the bottom offer **Continue to route** (when the day’s area is known) and **Start shipment** (opens the same flow as before).
+4. Taps **Start shipment** (from the dock or empty state) when beginning the day
 5. Enters the number of bottles loaded in the truck (e.g., 200 bottles)
 6. Confirms and submits
 7. System shows loading screen: "Preparing shipment for offline work..."
@@ -474,11 +474,18 @@ TRX serves multiple user roles within distribution companies:
 ### 6.2 Driver/Employee Screens
 
 #### Home & Navigation
-- **Employee Home Page**: 
-  - Today's date and greeting
-  - Today's snapshot (delivered, returned, payments)
-  - Current round snapshot (round-specific stats)
-  - Quick action buttons (Start Shipment, Go to Route)
+- **Employee Home Page** (`EmployeeHomePage`):  
+  - **System status**: online/offline + queued offline request count (IndexedDB), without blocking business KPIs  
+  - **Context**: greeting + today’s date (compact header)  
+  - **Empty state** when no `shipment._id`: copy + primary CTA to start a shipment  
+  - **Today snapshot** (when a shipment exists): collapsible card with **full progress** (goal, delivered, bar, %, returned) + today’s cash/expense/profit KPIs + rounds list for the shipment  
+  - **Round snapshot**: round-scoped progress and KPIs (labels use “round”, not “today”), or a muted message when no active round  
+  - **Sticky action dock**: text + icon — **Go to areas** (`/areas/:dayId` when available), **Start shipment** / close (modal with existing `StartShipment` flow)  
+  - **Footer**: copyright, separate from actions  
+  - **Loading**: skeleton while user name is not yet hydrated  
+  - **Error**: banner if the pending-queue read fails (rare); does not alter sync behavior  
+
+  *See also **Employee Home: design notes** and **Employee Home: components reference** in this document.*
 
 #### Shipment Management
 - **Start Shipment Screen**: 
@@ -673,6 +680,53 @@ TRX serves multiple user roles within distribution companies:
 - **Expenses**: View expense entries
 - **Profits**: View profit entries
 - **Distributors**: View distributors (if applicable)
+
+---
+
+## Employee Home: design notes
+
+**Why the layout changed**
+
+- Field users need **delivery progress and money context** before decorative chrome; the home screen was refocused around **operational status** and **correct KPI labeling** (today vs. current round).
+- **Offline-first** behavior must be **visible** (connectivity + pending queue size) without mixing that signal with shipment math.
+- **Primary actions** (continue route vs. start shipment) needed **explicit labels** and a **sticky dock** suited to one-handed mobile use.
+
+**UX principles applied**
+
+- **Progressive disclosure**: snapshots remain collapsible; today’s **progress summary is visible** when the panel is used (no hiding the main goal/delivered story behind a collapsed default without reason).
+- **Semantic clarity**: round financial rows use round-specific copy; today’s rows use today’s copy.
+- **System visibility**: loading (profile hydration), empty (no shipment), error (queue read), offline (browser + banner).
+- **Separation of concerns**: UI state (modal open) lives in the page; business state stays in Redux; queue depth is read-only from IndexedDB.
+
+---
+
+## Employee Home: components reference
+
+Reusable pieces live under `src/pages/EmployeePages/EmployeeHomePage/components/` unless noted.
+
+| Component | Purpose |
+|-----------|---------|
+| `EmployeeHomeStatusBar` | Shows online/offline and pending sync count; optional error if IndexedDB read fails |
+| `EmployeeHomeHeader` | Compact greeting + localized date |
+| `EmployeeHomeEmptyState` | No active shipment: explanation + CTA (opens same start flow as dock) |
+| `EmployeeHomeSkeleton` | Profile not ready (no username yet) |
+| `EmployeeActionDock` | Sticky primary actions + `StartShipment` modal (controlled by page) |
+| `EmployeeHomeFooter` | Copyright, visually separate from actions |
+
+**Hooks**
+
+| Hook | Purpose |
+|------|---------|
+| `useNavigatorOnline` | Subscribes to `online` / `offline` |
+| `usePendingRequestCount` | Reads `getPendingRequests()` length; refreshes on mount and when back online |
+
+**Shared snapshot**
+
+| Piece | Purpose |
+|-------|---------|
+| `ProgressSnapshot` (`kpiScope: 'today' \| 'round'`) | Shared card UI; KPI labels follow scope |
+
+*Detailed route data flow: [docs/pages/EmployeeHomePage.md](pages/EmployeeHomePage.md).*
 
 ---
 
