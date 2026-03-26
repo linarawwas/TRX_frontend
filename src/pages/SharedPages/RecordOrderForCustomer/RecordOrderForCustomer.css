@@ -1,64 +1,163 @@
-.discount-banner {
-  margin: 20px auto 0 auto;
-  width: 50%;
-  padding: 6px;
-  border: 1px solid rgb(9, 28, 43);
-  box-shadow: 1px 1px rgb(9, 28, 43);
-  border-radius: 9px;
-  background-color: red;
+/* Record order for customer — TRX field shell: connectivity, back, discount cache */
+
+.rofc-page {
+  text-align: right;
+  min-height: 100%;
+  box-sizing: border-box;
 }
 
-.discount-banner div {
-  text-align: center;
-  color: rgb(246, 242, 238);
-  font-weight: bold;
-  }
-  /* Row container */
-.back-row{
-  display:flex;
-  justify-content:flex-start;         /* put it near the logo */
-  padding:8px 12px;
-  padding-top: env(safe-area-inset-top);
+/* Offline strip — same intent as CustomersForArea pending banners */
+.rofc-connectivity-bar {
+  padding: 10px 14px;
+  padding-top: calc(8px + env(safe-area-inset-top, 0px));
+  background: linear-gradient(180deg, #fff8e6 0%, #fff3d6 100%);
+  border-bottom: 1px solid #f0d9a8;
+  color: #5c4a1a;
+  font-size: 0.875rem;
+  line-height: 1.35;
 }
 
-/* Pill button */
-.back-pill{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  min-height:44px;                     /* touch target */
-  padding:8px 14px;
-  border-radius:999px;                 /* iOS-style pill */
-  background:#fff;
-  border:1px solid #e5e7eb;            /* light gray border */
-  color:#111;
-  font-weight:700;
-  cursor:pointer;
-  box-shadow:0 2px 8px rgba(0,0,0,.08);
+.rofc-back-row {
+  display: flex;
+  justify-content: flex-start;
+  padding: 8px 12px;
+  padding-top: max(8px, env(safe-area-inset-top));
+}
+
+.rofc-back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  color: #111;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   -webkit-tap-highlight-color: transparent;
-  transition: box-shadow .15s ease, transform .08s ease, background .15s ease;
+  transition: box-shadow 0.15s ease, transform 0.08s ease, background 0.15s ease;
 }
 
-.back-pill:hover{ box-shadow:0 4px 12px rgba(0,0,0,.10); }
-.back-pill:active{ transform: translateY(1px); }
-.back-pill:focus-visible{
-  outline:none;
-  box-shadow:0 0 0 3px rgba(76,175,80,.3); /* green focus ring */
+.rofc-back-button:hover:not(:disabled) {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Icon flips automatically if you ever switch LTR */
-.back-icon{
-  width:20px; height:20px;
+.rofc-back-button:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
-/* Text */
-.back-text{
-  font-size:1rem;
-  line-height:1;
+.rofc-back-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
 }
 
-/* Compact on very small widths */
-@media (max-width:340px){
-  .back-text{ display:none; }          /* keep only the icon if space is tight */
-  .back-pill{ padding:8px; min-width:44px; justify-content:center; }
+.rofc-back-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.rofc-back-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.rofc-back-text {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+@media (max-width: 340px) {
+  .rofc-back-text {
+    display: none;
+  }
+
+  .rofc-back-button {
+    padding: 8px;
+    min-width: 44px;
+    justify-content: center;
+  }
+}
+
+/* Discount cache loading */
+.rofc-discount-skeleton {
+  margin: 12px 12px 0;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px dashed #e5e7eb;
+  background: #fafafa;
+}
+
+.rofc-discount-skeleton-line {
+  height: 14px;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    #eee 0%,
+    #f5f5f5 50%,
+    #eee 100%
+  );
+  background-size: 200% 100%;
+  animation: rofc-shimmer 1.2s ease-in-out infinite;
+}
+
+.rofc-discount-skeleton-line--short {
+  width: 55%;
+  margin-top: 10px;
+}
+
+@keyframes rofc-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+/* Discount load error */
+.rofc-discount-error {
+  margin: 12px 12px 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.rofc-discount-error-text {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.rofc-retry-button {
+  min-height: 44px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1px solid #dc2626;
+  background: #fff;
+  color: #b91c1c;
+  font-weight: 700;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rofc-retry-button:focus-visible {
+  outline: 2px solid #dc2626;
+  outline-offset: 2px;
+}
+
+.rofc-missing-customer {
+  margin: 16px;
+  padding: 14px;
+  border-radius: 12px;
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  color: #92400e;
+  font-size: 0.95rem;
 }

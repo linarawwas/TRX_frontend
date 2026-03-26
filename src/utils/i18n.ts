@@ -134,6 +134,11 @@ export type TranslationKey =
   | 'customersForArea.retry'
   | 'customersForArea.scrollTop'
   | 'customersForArea.pending.cardAriaLabel'
+  | 'recordOrderForCustomer.offlineHint'
+  | 'recordOrderForCustomer.retry'
+  | 'recordOrderForCustomer.missingCustomer'
+  | 'recordOrderForCustomer.discount.missing'
+  | 'recordOrderForCustomer.discount.loadFailed'
   | 'orders.title'
   | 'orders.table.customer'
   | 'orders.table.delivered'
@@ -355,6 +360,11 @@ const translations: Record<TranslationKey, string> = {
   'customersForArea.retry': 'إعادة المحاولة',
   'customersForArea.scrollTop': 'العودة إلى أعلى القائمة',
   'customersForArea.pending.cardAriaLabel': '{{name}} — طلب غير مرسل بعد',
+  'recordOrderForCustomer.offlineHint': 'أنت غير متصل — سيتم إرسال الطلب عند عودة الشبكة.',
+  'recordOrderForCustomer.retry': 'إعادة المحاولة',
+  'recordOrderForCustomer.missingCustomer': 'لم يتم تحديد زبون. ارجع واختر زبوناً ثم أعد المحاولة.',
+  'recordOrderForCustomer.discount.missing': '⚠️ لم يتم العثور على بيانات الخصم في وضع عدم الاتصال.',
+  'recordOrderForCustomer.discount.loadFailed': '⚠️ فشل تحميل بيانات الخصم من الذاكرة المؤقتة.',
   'orders.title': 'Orders',
   'orders.table.customer': 'الزبون',
   'orders.table.delivered': 'المُسلّمة',

@@ -256,25 +256,33 @@ This document describes the refactoring of all pages in the `src/pages/SharedPag
 
 ### 10. RecordOrderForCustomer (`src/pages/SharedPages/RecordOrderForCustomer/RecordOrderForCustomer.tsx`)
 
-**Purpose**: Container for recording an order for a specific customer.
+**Purpose**: Field shell for recording an order for the customer selected in Redux. Loads per-customer discount from IndexedDB and renders `RecordOrder` (business logic and submission live in `useRecordOrderController`).
 
 **Data Flow**:
-- Selectors: `selectOrderCustomerId`, `selectUserToken`
-- IndexedDB: `getCustomerDiscountFromDB`
-- Components: `DiscountCard`, `RecordOrder`
+- Selectors: `selectOrderCustomerId`
+- Location state: `isExternal` (passed to `RecordOrder`)
+- Hook: `useCustomerDiscountCache` → IndexedDB `getCustomerDiscountFromDB`
+- Components: `RecordOrderForCustomerConnectivityBar`, `RecordOrderForCustomerBackNav`, `RecordOrderForCustomerDiscountSection` (wraps local `DiscountCard`), `RecordOrder`
 
 **Features**:
-- Back button navigation
-- Discount card display (if applicable)
-- External order flag support
+- Offline connectivity strip (`useNavigatorOnline`)
+- Back navigation (pill button, safe-area aware)
+- Discount: loading skeleton, error + retry, card when `hasDiscount`
+- Alert when `customerId` is missing from Redux
+- External order flag support (unchanged)
 
 **i18n Keys Used**:
-- `common.back`
+- `common.back`, `common.loading`
+- `recordOrderForCustomer.offlineHint`, `recordOrderForCustomer.retry`, `recordOrderForCustomer.missingCustomer`
+- `recordOrderForCustomer.discount.missing`, `recordOrderForCustomer.discount.loadFailed`
 
 **Accessibility**:
-- `type="button"` on back button
-- `aria-label` on back button
-- `aria-hidden` on decorative SVG
+- `role="status"` / `aria-live` on connectivity strip
+- `role="alert"` on discount error and missing customer
+- `aria-busy` on discount loading skeleton
+- `type="button"` on back and retry; `aria-label` on back; decorative SVG `aria-hidden`
+
+*Details:* [RecordOrderForCustomer.md](RecordOrderForCustomer.md)
 
 ---
 

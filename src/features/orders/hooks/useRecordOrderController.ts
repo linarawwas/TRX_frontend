@@ -312,7 +312,8 @@ export function useRecordOrderController(props: RecordOrderProps) {
         }
 
         toast.info("📡 سيتم حفظ الطلب عند عودة الاتصال");
-        navigate(-1);
+        // Do not navigate here — handleSubmit navigates once after submit (same as online).
+        // A second navigate(-1) would skip past CustomersForArea to AreasForDay.
         return true;
       }
 

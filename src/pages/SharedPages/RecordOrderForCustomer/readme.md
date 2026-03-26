@@ -1,59 +1,18 @@
-# CustomersForArea Component
+# RecordOrderForCustomer
 
-## Overview
-The `CustomersForArea` component is responsible for displaying the list of customers within a specific area. It fetches customer data from an API when online and caches it in IndexedDB for offline access. When offline, it retrieves the cached data instead.
+Page shell for `/recordOrderforCustomer`: offline strip, back control, IndexedDB discount loading/error UI, and [`RecordOrder`](../../../components/Orders/RecordOrder/RecordOrder.tsx).
 
-## Features
-- Fetches customer data from the API when online.
-- Caches the customer data in IndexedDB for offline use.
-- Retrieves customer data from IndexedDB when offline.
-- Highlights customers with filled and empty orders.
-- Allows users to navigate to order recording for a specific customer.
+## Files
 
-## Dependencies
-- React (`useState`, `useEffect`)
-- React Router (`useParams`, `useNavigate`)
-- Redux (`useSelector`, `useDispatch`)
-- IndexedDB helper functions (`saveCustomersToDB`, `getCustomersFromDB`)
-- CSS styles (`CustomersForArea.css`)
+- `RecordOrderForCustomer.tsx` — Composes shell + passes `customerData` / `isExternal` to `RecordOrder`.
+- `RecordOrderForCustomer.css` — `rofc-*` layout and states (connectivity, back, skeleton, error).
+- `hooks/useCustomerDiscountCache.ts` — IDB discount read + i18n toasts + `reload`.
+- `customerDiscountTypes.ts` — Shape aligned with `saveCustomerDiscountToDB` / preload.
+- `components/RecordOrderForCustomerConnectivityBar.tsx` — Offline-only banner (`useNavigatorOnline`).
+- `components/RecordOrderForCustomerBackNav.tsx` — Back pill.
+- `components/RecordOrderForCustomerDiscountSection.tsx` — Skeleton / error / `DiscountCard`.
+- `DiscountCard.tsx` / `DiscountCard.css` — Discount presentation when `hasDiscount`.
 
-## Props & State
-### State Variables:
-- `customers`: Stores the list of customers.
-- `loading`: Tracks whether data is being fetched.
+## Product doc
 
-### Redux State:
-- `token`: Used for authorization.
-- `customersWithFilledOrders`: Customers who have placed orders.
-- `customersWithEmptyOrders`: Customers who haven't placed orders.
-
-## IndexedDB Integration
-- `saveCustomersToDB(areaId, data)`: Caches the fetched customer data.
-- `getCustomersFromDB(areaId)`: Retrieves cached data when offline.
-
-## API Interaction
-- Fetches customer data from `http://localhost:5000/api/customers/area/{areaId}`.
-- Includes authentication via a Bearer token.
-- Falls back to IndexedDB if network requests fail.
-
-## Functions
-### `fetchData()`
-- Fetches customer data from API.
-- Saves fetched data to IndexedDB.
-- Loads cached data if offline.
-
-### `handleOrderState(customerId)`
-- Dispatches selected customer ID to Redux.
-- Navigates to `/recordOrderforCustomer`.
-
-## UI Structure
-- Displays a table of customers with name, address, phone number.
-- Shows order status using conditional row styling.
-- Provides a button to record orders.
-
-## Usage
-```tsx
-import CustomersForArea from "./CustomersForArea";
-<CustomersForArea />
-```
-
+[docs/pages/RecordOrderForCustomer.md](../../../../docs/pages/RecordOrderForCustomer.md)

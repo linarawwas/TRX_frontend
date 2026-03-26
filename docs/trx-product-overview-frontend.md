@@ -513,13 +513,11 @@ TRX serves multiple user roles within distribution companies:
   - Tap customer → set order **id/name/phone** → **record order** route (`isExternal` from navigation state)
   - *See [docs/pages/CustomersForArea.md](pages/CustomersForArea.md)*
 
-- **Record Order Screen**: 
-  - Customer information display
-  - Form fields: delivered, returned, paid USD, paid LBP
-  - Shows customer discount if applicable
-  - Preview of balance after order
-  - Submit button (works offline)
+- **Record Order Screen** (`/recordOrderforCustomer`, `RecordOrderForCustomer` + `RecordOrder`): 
+  - **Shell:** back control (44px tap target), **connectivity strip** when offline (queues submit like before), **discount cache** from IndexedDB with loading skeleton, **error + retry** on IDB read failure, and **missing-customer** alert if Redux has no customer id
+  - **Embedded flow (`RecordOrder`):** customer name header, delivered/returned steppers, USD/LBP payments, discount-driven checkout when cache says `hasDiscount`, balance preview, submit (offline queue unchanged)
   - Optional WhatsApp message sending
+  - *See [docs/pages/RecordOrderForCustomer.md](pages/RecordOrderForCustomer.md)*
 
 #### Viewing & Reports
 - **Today's Orders Report**: 
