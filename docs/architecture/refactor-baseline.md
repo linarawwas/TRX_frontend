@@ -61,3 +61,7 @@ RecordOrderForCustomer (page)
 - **`RecordOrderForCustomer`:** Layout classes `rofc-page` / `rofc-inner`, `dir`/`lang` on the shell; passes `rateLBP` into `DiscountCard`; removed dead imports.
 - **i18n:** `recordOrderForCustomer.*` keys for cache toasts and `DiscountCard` copy (Arabic preserved).
 - **No change** to `useRecordOrderController` submit/offline behavior in this phase.
+
+---
+
+**See also:** [Customers for area — baseline](./refactor-baseline-customers-for-area.md) (`CustomersForArea` feature: IndexedDB-only list, segmentation, no `requestRaw`).
