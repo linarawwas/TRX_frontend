@@ -6,7 +6,10 @@ import {
   clearCustomerPhoneNb,
 } from "../../../../redux/Order/action";
 import { getCustomersFromDB } from "../../../../utils/indexedDB";
+import { createLogger } from "../../../../utils/logger";
 import type { CustomerRow } from "../customersForAreaTypes";
+
+const logger = createLogger("customers-for-area-cache");
 
 export type CustomersForAreaCacheState = {
   customers: CustomerRow[];
@@ -45,7 +48,7 @@ export function useCustomersForAreaCache(
       setCustomers(Array.isArray(cached) ? cached : []);
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
-      console.error("IndexedDB load error:", e);
+      logger.error("IndexedDB load error", e);
       setError(message);
       setCustomers([]);
     } finally {
