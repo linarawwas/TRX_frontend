@@ -1,119 +1,78 @@
-// AreasForDay.tsx
-import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+// AreasForDay — areas for the active delivery day (IndexedDB-backed, offline-safe)
+import React, { useCallback } from "react";
+import { useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { clearAreaId, setAreaId } from "../../../redux/Order/action";
-import { getAreasByDayFromDB, getDayFromDB } from "../../../utils/indexedDB";
-import "./AreasForDay.css";
-import RoundSnapshot from "../../../components/AsideMenu/Right/RoundSnapshot";
+import { setAreaId } from "../../../redux/Order/action";
+import { useNavigatorOnline } from "../../../hooks/useNavigatorOnline";
 import { t } from "../../../utils/i18n";
-
-interface Area {
-  _id: string;
-  name: string;
-}
-
-const arabicDayMap: Record<string, string> = {
-  Sunday: "الأحد",
-  Monday: "الإثنين",
-  Tuesday: "الثلاثاء",
-  Wednesday: "الأربعاء",
-  Thursday: "الخميس",
-  Friday: "الجمعة",
-  Saturday: "السبت",
-};
+import { ARABIC_DAY_NAME_MAP } from "./areasForDayConstants";
+import { useAreasForDayData } from "./hooks/useAreasForDayData";
+import { AreasForDayStatusBar } from "./components/AreasForDayStatusBar";
+import { AreasForDayAreaCard } from "./components/AreasForDayAreaCard";
+import { AreasForDaySkeleton } from "./components/AreasForDaySkeleton";
+import { AreasForDayBackLink } from "./components/AreasForDayBackLink";
+import "./AreasForDay.css";
 
 export default function AreasForDay(): JSX.Element {
   const dispatch = useDispatch();
   const { dayId } = useParams<{ dayId: string }>();
+  const isOnline = useNavigatorOnline();
+  const { areas, dayNameRaw, loading, error, reload } = useAreasForDayData(dayId);
 
-  const [dayAreas, setDayAreas] = useState<Area[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [dayName, setDayName] = useState<string>("");
+  const translatedDayName = ARABIC_DAY_NAME_MAP[dayNameRaw] || dayNameRaw;
 
-  useEffect(() => {
-    dispatch(clearAreaId());
-
-    const loadCachedData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        if (!dayId) {
-          setDayAreas([]);
-          setDayName(t("addresses.areasForDay.unknownDay"));
-          setLoading(false);
-          return;
-        }
-
-        const [byDay, cachedDay] = await Promise.all([
-          getAreasByDayFromDB(dayId),
-          getDayFromDB(dayId),
-        ]);
-
-        setDayAreas(Array.isArray(byDay) ? byDay : []);
-
-        if (cachedDay?.name) {
-          setDayName(cachedDay.name);
-        } else {
-          setDayName(t("addresses.areasForDay.unknownDay"));
-        }
-      } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.error("❌ Failed to load from IndexedDB:", err);
-        setError(message);
-        setDayName(t("addresses.areasForDay.loadError"));
-        setDayAreas([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadCachedData();
-  }, [dayId, dispatch]);
-
-  const translatedDayName = arabicDayMap[dayName] || dayName;
-
-  const renderAreaCard = (area: Area) => (
-    <Link
-      key={area._id}
-      to={`/customers/${area._id}`}
-      className="area-card-link"
-      onClick={() => dispatch(setAreaId(area._id))}
-    >
-      <div className="area-card">{area.name}</div>
-    </Link>
+  const onBeforeAreaNavigate = useCallback(
+    (areaId: string) => {
+      dispatch(setAreaId(areaId));
+    },
+    [dispatch]
   );
 
   return (
-    <div className="areas-container" dir="rtl">
-      <h2 className="areas-title">
-        {t("addresses.areasForDay.title", { dayName: translatedDayName })}
-      </h2>
+    <div className="areas-for-day-page" dir="rtl">
+      <AreasForDayStatusBar isOnline={isOnline} />
 
-      <div className="areas-list">
+      <header className="areas-for-day-header">
+        <h1 className="areas-for-day-title">
+          {t("addresses.areasForDay.title", { dayName: translatedDayName })}
+        </h1>
+      </header>
+
+      <main className="areas-for-day-main">
         {loading ? (
-          <p className="loading-text" role="status" aria-live="polite">
-            {t("addresses.areasForDay.loading")}
-          </p>
+          <AreasForDaySkeleton />
         ) : error ? (
-          <p className="no-areas-text" role="alert">
-            {t("common.error")}: {error}
-          </p>
-        ) : dayAreas.length > 0 ? (
-          dayAreas.map(renderAreaCard)
+          <div className="areas-for-day-error" role="alert">
+            <p className="areas-for-day-error__text">
+              {t("common.error")}: {error}
+            </p>
+            <button
+              type="button"
+              className="areas-for-day-btn areas-for-day-btn--primary"
+              onClick={() => void reload()}
+            >
+              {t("addresses.areasForDay.retry")}
+            </button>
+          </div>
+        ) : areas.length > 0 ? (
+          <ul className="areas-for-day-list">
+            {areas.map((area) => (
+              <li key={area._id} className="areas-for-day-list__item">
+                <AreasForDayAreaCard
+                  area={area}
+                  onBeforeNavigate={onBeforeAreaNavigate}
+                />
+              </li>
+            ))}
+          </ul>
         ) : (
-          <p className="no-areas-text">{t("addresses.areasForDay.empty")}</p>
+          <p className="areas-for-day-empty" role="status">
+            {t("addresses.areasForDay.empty")}
+          </p>
         )}
-      </div>
-      <Link to={"/areas"}>
-        <div className="other-areas-section" style={{ marginTop: "1rem" }}>
-          <button type="button" className="external-shipment-button">
-            {t("addresses.areasForDay.otherAreas")}
-          </button>
-        </div>
-      </Link>
+      </main>
+
+      <AreasForDayBackLink />
     </div>
   );
 }

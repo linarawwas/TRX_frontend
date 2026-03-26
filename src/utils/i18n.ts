@@ -103,6 +103,8 @@ export type TranslationKey =
   | 'addresses.areasForDay.unknownDay'
   | 'addresses.areasForDay.loadError'
   | 'addresses.areasForDay.otherAreas'
+  | 'addresses.areasForDay.offlineHint'
+  | 'addresses.areasForDay.retry'
   | 'customers.title'
   | 'customers.search.placeholder'
   | 'customers.addToggle'
@@ -318,6 +320,8 @@ const translations: Record<TranslationKey, string> = {
   'addresses.areasForDay.unknownDay': 'يوم غير معروف',
   'addresses.areasForDay.loadError': 'خطأ في التحميل',
   'addresses.areasForDay.otherAreas': 'مناطق أخرى: طلبات خارجية (تتطلب انترنت)',
+  'addresses.areasForDay.offlineHint': 'البيانات المعروضة من الذاكرة المحلية. تأكد من بدء الشحنة عند توفر الاتصال إذا كانت القائمة فارغة.',
+  'addresses.areasForDay.retry': 'إعادة المحاولة',
   'customers.title': 'الزبائن',
   'customers.search.placeholder': 'ابحث عن الزبائن (نشط وغير نشط)',
   'customers.addToggle': 'إضافة زبون؟',

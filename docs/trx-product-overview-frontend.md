@@ -495,10 +495,14 @@ TRX serves multiple user roles within distribution companies:
   - Preloads all data for offline operation
 
 #### Delivery Operations
-- **Areas for Day Screen**: 
-  - List of delivery areas assigned to today
-  - Links to customers within each area
-  - Shows day name (e.g., "Monday")
+- **Areas for Day Screen** (`/areas/:dayId`): 
+  - **Offline-first:** area list and day name are read from **IndexedDB** only (no network on this screen); data must already have been cached when the shipment was prepared.
+  - **System visibility:** a **connectivity strip** (online/offline) plus a short **offline hint** so drivers do not confuse “no network” with “no areas.”
+  - **Title:** weekday name (Arabic mapping when the cached name is English) + existing emoji title string from i18n.
+  - **Primary action:** tap an **area row** → navigate to `/customers/:areaId` and set **order `areaId`** in Redux (required for the record-order flow).
+  - **States:** loading skeleton, empty list, IndexedDB error with **retry**, same semantics as before refactor.
+  - **Secondary:** link to **`/areas`** for other delivery-day routes (unchanged intent).
+  - *Details:* [docs/pages/AreasForDay.md](pages/AreasForDay.md)
 
 - **Customers for Area Screen**: 
   - List of customers in selected area, sorted by delivery sequence

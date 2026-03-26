@@ -1,66 +1,268 @@
-.areas-container {
-  padding: 1rem;
-  max-width: 480px;
-  margin: 0 auto;
-  direction: rtl;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+/* Areas for day — TRX field layout (aligns with employee-home tokens) */
+:root {
+  --afd-space-3: 12px;
+  --afd-space-4: 16px;
+  --afd-space-6: 24px;
+  --afd-ink: #0a2538;
+  --afd-muted: #6b7280;
+  --afd-stroke: #e5e7eb;
+  --afd-card: #ffffff;
+  --afd-card-hover: #f0f9ff;
+  --afd-success-bg: #f0fdf4;
+  --afd-success-border: #bbf7d0;
+  --afd-success-text: #166534;
+  --afd-warning-bg: #fffbeb;
+  --afd-warning-border: #fcd34d;
+  --afd-warning-text: #92400e;
+  --afd-danger-bg: #fef2f2;
+  --afd-danger-border: #fecaca;
+  --afd-danger-text: #991b1b;
 }
 
-.areas-title {
-  font-size: 1.5rem;
-  text-align: center;
-  margin-bottom: 1rem;
-  color: #222;
+.areas-for-day-page {
+  box-sizing: border-box;
+  max-width: 640px;
+  margin-inline: auto;
+  padding-inline: var(--afd-space-4);
+  padding-bottom: calc(var(--afd-space-6) + env(safe-area-inset-bottom, 0px));
+  min-height: 100%;
+  color: var(--afd-ink);
 }
 
-.areas-list {
+/* Status */
+.areas-for-day-status {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 8px;
+  margin-bottom: var(--afd-space-3);
 }
 
-.area-card-link {
-  text-decoration: none;
-}
-
-.area-card {
-  background-color: #f4f4f4;
-  padding: 1rem;
+.areas-for-day-status__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
   border-radius: 12px;
-  font-size: 1.2rem;
-  text-align: right;
-  color: #333;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  transition: background 0.3s ease;
+  font-size: 13px;
+  font-weight: 700;
+  border: 1px solid var(--afd-stroke);
 }
 
-.area-card:hover {
-  background-color: #e0f7fa;
+.areas-for-day-status__row--online {
+  background: var(--afd-success-bg);
+  border-color: var(--afd-success-border);
+  color: var(--afd-success-text);
 }
 
-.loading-text,
-.no-areas-text {
+.areas-for-day-status__row--offline {
+  background: var(--afd-warning-bg);
+  border-color: var(--afd-warning-border);
+  color: var(--afd-warning-text);
+}
+
+.areas-for-day-status__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.areas-for-day-status__hint {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--afd-muted);
+  line-height: 1.45;
+  padding-inline-start: 4px;
+}
+
+/* Header */
+.areas-for-day-header {
+  margin-bottom: var(--afd-space-4);
+}
+
+.areas-for-day-title {
+  margin: 0;
+  font-size: clamp(1.1rem, 4vw, 1.35rem);
+  font-weight: 800;
   text-align: center;
-  color: #888;
-  font-size: 1rem;
+  line-height: 1.35;
+  color: var(--afd-ink);
 }
 
-.external-shipment-container {
-  margin-top: 2rem;
-  text-align: center;
+/* Main */
+.areas-for-day-main {
+  min-height: 120px;
 }
 
-.external-shipment-button {
-  display: inline-block;
-  background-color: #0d47a1;
-  color: white;
-  padding: 0.8rem 1.5rem;
-  border-radius: 8px;
-  font-size: 1.1rem;
+.areas-for-day-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.areas-for-day-list__item {
+  margin: 0;
+}
+
+/* Area cards */
+.areas-for-day-card-link {
   text-decoration: none;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  display: block;
+  color: inherit;
 }
 
-.external-shipment-button:hover {
-  background-color: #1565c0;
+.areas-for-day-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 52px;
+  padding: 14px 16px;
+  background: var(--afd-card);
+  border: 1px solid var(--afd-stroke);
+  border-radius: 14px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: background-color 0.15s ease, transform 0.08s ease;
+}
+
+.areas-for-day-card:active {
+  transform: scale(0.99);
+}
+
+.areas-for-day-card-link:hover .areas-for-day-card,
+.areas-for-day-card-link:focus-visible .areas-for-day-card {
+  background: var(--afd-card-hover);
+  border-color: #bae6fd;
+}
+
+.areas-for-day-card__name {
+  flex: 1;
+  text-align: right;
+}
+
+/* Empty / error */
+.areas-for-day-empty {
+  text-align: center;
+  color: var(--afd-muted);
+  font-size: 15px;
+  font-weight: 600;
+  margin: var(--afd-space-6) 0;
+  line-height: 1.5;
+}
+
+.areas-for-day-error {
+  padding: var(--afd-space-4);
+  border-radius: 14px;
+  background: var(--afd-danger-bg);
+  border: 1px solid var(--afd-danger-border);
+  text-align: center;
+}
+
+.areas-for-day-error__text {
+  margin: 0 0 var(--afd-space-3);
+  color: var(--afd-danger-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.areas-for-day-btn {
+  min-height: 48px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 15px;
+  cursor: pointer;
+  border: none;
+  width: 100%;
+}
+
+.areas-for-day-btn--primary {
+  background: linear-gradient(135deg, #0ea5e9, #6366f1);
+  color: #fff;
+}
+
+.areas-for-day-btn--primary:focus-visible {
+  outline: 3px solid #06355e;
+  outline-offset: 2px;
+}
+
+/* Skeleton */
+.areas-for-day-skeleton {
+  padding: var(--afd-space-3) 0;
+}
+
+.areas-for-day-skeleton__row {
+  height: 52px;
+  margin-bottom: 10px;
+  border-radius: 14px;
+  background: linear-gradient(90deg, #f0f0f0 0%, #f8f8f8 50%, #f0f0f0 100%);
+  background-size: 200% 100%;
+  animation: afd-shimmer 1.2s ease-in-out infinite;
+}
+
+.areas-for-day-skeleton__row--short {
+  width: 70%;
+  margin-inline: auto;
+}
+
+@keyframes afd-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+.areas-for-day-skeleton__label {
+  text-align: center;
+  color: var(--afd-muted);
+  font-size: 13px;
+  margin: var(--afd-space-4) 0 0;
+}
+
+/* Back link */
+.areas-for-day-back {
+  margin-top: var(--afd-space-6);
+  padding-top: var(--afd-space-4);
+  border-top: 1px solid var(--afd-stroke);
+}
+
+.areas-for-day-back__link {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  padding: 14px 16px;
+  box-sizing: border-box;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+  background: #0d47a1;
+  border-radius: 12px;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(13, 71, 161, 0.25);
+  transition: background 0.15s ease;
+}
+
+.areas-for-day-back__link:hover {
+  background: #1565c0;
+}
+
+.areas-for-day-back__link:focus-visible {
+  outline: 3px solid #06355e;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .areas-for-day-skeleton__row {
+    animation: none;
+    background: #f0f0f0;
+  }
 }
