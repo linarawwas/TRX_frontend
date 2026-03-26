@@ -19,13 +19,11 @@ function RecordOrderForCustomer(): JSX.Element {
   const isExternal = Boolean((state as { isExternal?: boolean })?.isExternal);
 
   return (
-    <div
-      className="rofc-page"
-      dir="rtl"
-      lang="ar"
-    >
+    <div className="rofc-page" dir="rtl" lang="ar">
+      <div className="rofc-page__glow" aria-hidden="true" />
       <div className="rofc-inner">
-        <div className="back-row">
+        <header className="rofc-top">
+          <span className="rofc-eyebrow">{t("recordOrderForCustomer.pageEyebrow")}</span>
           <button
             type="button"
             className="back-pill"
@@ -49,34 +47,36 @@ function RecordOrderForCustomer(): JSX.Element {
             </svg>
             <span className="back-text">{t("common.back")}</span>
           </button>
-        </div>
+        </header>
 
-        {discountLoading && (
-          <div
-            className="rofc-discount-skeleton"
-            role="status"
-            aria-busy="true"
-            aria-label={t("recordOrderForCustomer.discount.loadingHint")}
-          >
-            <div className="rofc-discount-skeleton__shine" />
-            <span className="rofc-discount-skeleton__text">
-              {t("recordOrderForCustomer.discount.loadingHint")}
-            </span>
-          </div>
-        )}
+        <div className="rofc-surface">
+          {discountLoading && (
+            <div
+              className="rofc-discount-skeleton"
+              role="status"
+              aria-busy="true"
+              aria-label={t("recordOrderForCustomer.discount.loadingHint")}
+            >
+              <div className="rofc-discount-skeleton__shine" />
+              <span className="rofc-discount-skeleton__text">
+                {t("recordOrderForCustomer.discount.loadingHint")}
+              </span>
+            </div>
+          )}
 
-        {!discountLoading && customerData?.hasDiscount && (
-          <DiscountCard
-            unitPriceUSD={customerData.valueAfterDiscount ?? 0}
-            note={customerData.noteAboutCustomer}
-            rateLBP={rateLBP}
+          {!discountLoading && customerData?.hasDiscount && (
+            <DiscountCard
+              unitPriceUSD={customerData.valueAfterDiscount ?? 0}
+              note={customerData.noteAboutCustomer}
+              rateLBP={rateLBP}
+            />
+          )}
+
+          <RecordOrder
+            customerData={customerData || null}
+            isExternal={isExternal}
           />
-        )}
-
-        <RecordOrder
-          customerData={customerData || null}
-          isExternal={isExternal}
-        />
+        </div>
       </div>
     </div>
   );

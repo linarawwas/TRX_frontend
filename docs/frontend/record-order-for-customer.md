@@ -26,7 +26,8 @@
 ## Migration notes (2026-03)
 
 - Replaced inline discount `useEffect` with `useCustomerDiscountFromCache` for clearer loading/error boundaries and dev-safe logging.
-- Page shell uses `.rofc-page` / `.rofc-inner` with an 8px-based layout and a non-blocking discount loading skeleton.
+- Page shell uses `.rofc-page` (atmospheric gradient + soft emerald glow), `.rofc-top` (eyebrow + glass back pill), and `.rofc-surface` (elevated card with top accent bar). `RecordOrder` is visually merged into the surface via scoped overrides in `RecordOrderForCustomer.css`.
+- Discount card uses layered gradient, icon badge, and stronger shadow for a premium banner.
 - Removed unused imports (`CustomerInvoices`, `saveCustomerDiscountToDB`, `selectUserToken`) from the page.
 
 See also: `docs/architecture/refactor-baseline.md`.

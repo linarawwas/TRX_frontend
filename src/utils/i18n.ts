@@ -230,7 +230,8 @@ export type TranslationKey =
   | 'recordOrderForCustomer.discount.referenceRate'
   | 'recordOrderForCustomer.discount.paymentNoteLabel'
   | 'recordOrderForCustomer.discount.footer'
-  | 'recordOrderForCustomer.discount.loadingHint';
+  | 'recordOrderForCustomer.discount.loadingHint'
+  | 'recordOrderForCustomer.pageEyebrow';
 
 const translations: Record<TranslationKey, string> = {
   'dashboard.hello': 'مرحباً',
@@ -466,6 +467,7 @@ const translations: Record<TranslationKey, string> = {
   'recordOrderForCustomer.discount.paymentNoteLabel': 'ملاحظة الدفع:',
   'recordOrderForCustomer.discount.footer': '* يُطبَّق تلقائيًا على الحساب',
   'recordOrderForCustomer.discount.loadingHint': 'جارٍ تحميل بيانات الخصم…',
+  'recordOrderForCustomer.pageEyebrow': 'تسجيل طلب',
 };
 
 export function t(
