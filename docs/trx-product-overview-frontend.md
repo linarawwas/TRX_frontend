@@ -504,12 +504,14 @@ TRX serves multiple user roles within distribution companies:
   - **Secondary:** link to **`/areas`** for other delivery-day routes (unchanged intent).
   - *Details:* [docs/pages/AreasForDay.md](pages/AreasForDay.md)
 
-- **Customers for Area Screen**: 
-  - List of customers in selected area, sorted by delivery sequence
-  - Visual status indicators (not visited, pending, completed)
-  - Search functionality
-  - Collapsible sections for completed/pending customers
-  - Tap customer to record order
+- **Customers for Area Screen** (`/customers/:areaId`): 
+  - Customer list from **IndexedDB** only (preload elsewhere); **no** API on this screen
+  - **Device connectivity** strip (live online/offline) plus, when relevant, a **“pending orders”** banner (customers with unsent/pending orders — count in copy)
+  - Segments: **pending** (accordion), **completed** (filled vs empty), **active**; **search** filters name/phone/address
+  - **SessionStorage** remembers accordion collapse **per area**
+  - **Error + retry** if IndexedDB read fails
+  - Tap customer → set order **id/name/phone** → **record order** route (`isExternal` from navigation state)
+  - *See [docs/pages/CustomersForArea.md](pages/CustomersForArea.md)*
 
 - **Record Order Screen**: 
   - Customer information display

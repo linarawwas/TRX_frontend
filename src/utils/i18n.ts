@@ -130,6 +130,10 @@ export type TranslationKey =
   | 'customersForArea.pending.banner.offline'
   | 'customersForArea.customer.address'
   | 'customersForArea.customer.phone'
+  | 'customersForArea.offlineHint'
+  | 'customersForArea.retry'
+  | 'customersForArea.scrollTop'
+  | 'customersForArea.pending.cardAriaLabel'
   | 'orders.title'
   | 'orders.table.customer'
   | 'orders.table.delivered'
@@ -347,6 +351,10 @@ const translations: Record<TranslationKey, string> = {
   'customersForArea.pending.banner.offline': 'وضع عدم الاتصال: يوجد {{count}} طلب بانتظار الإرسال.',
   'customersForArea.customer.address': '📍العنوان',
   'customersForArea.customer.phone': '📞',
+  'customersForArea.offlineHint': 'أنت غير متصل — يمكنك متابعة العمل؛ تُزامن الطلبات المعلّقة عند عودة الاتصال.',
+  'customersForArea.retry': 'إعادة المحاولة',
+  'customersForArea.scrollTop': 'العودة إلى أعلى القائمة',
+  'customersForArea.pending.cardAriaLabel': '{{name}} — طلب غير مرسل بعد',
   'orders.title': 'Orders',
   'orders.table.customer': 'الزبون',
   'orders.table.delivered': 'المُسلّمة',

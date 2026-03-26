@@ -109,24 +109,26 @@ This document describes the refactoring of all pages in the `src/pages/SharedPag
 **Purpose**: Display customers in an area, grouped by order status (pending, completed, active).
 
 **Data Flow**:
-- IndexedDB: `getCustomersFromDB`
+- IndexedDB: `getCustomersFromDB` (only; no network on this page)
 - Selectors: `selectCustomersWithFilledOrders`, `selectCustomersWithEmptyOrders`, `selectCustomersWithPendingOrders`
-- Redux: `setCustomerId`, `setCustomerName`, `setCustomerPhoneNb` actions
+- Redux order: clear customer fields on load; `setCustomerId`, `setCustomerName`, `setCustomerPhoneNb` before navigating to record order
 
 **Features**:
-- Collapsible sections (pending, completed, active)
-- Search functionality
-- Online/offline banner for pending orders
-- Scroll-to-top button
+- **Connectivity strip** (`useNavigatorOnline`) + optional offline hint
+- **Pending-order banner** when any customer is in the pending bucket (count + online/offline messaging)
+- Collapsible sections (pending, completed, active) with **sessionStorage** per `areaId`
+- Search; skeleton loading; **error + retry** for IndexedDB read failure
+- Scroll-to-top FAB (accessible label)
 
 **i18n Keys Used**:
-- `customersForArea.*` (title, search, loading, pending, completed, active, customer)
+- `customersForArea.*` (including `offlineHint`, `retry`, `scrollTop`, `pending.cardAriaLabel`)
 
 **Accessibility**:
 - `aria-expanded` and `aria-controls` on accordion headers
 - `role="button"` and keyboard handlers on customer cards
-- `role="status"` and `aria-live="polite"` on loading
-- `role="alert"` on error
+- Skeleton / loading `aria-busy`; error `role="alert"` with retry
+
+**See also**: [CustomersForArea.md](./CustomersForArea.md)
 
 ---
 
