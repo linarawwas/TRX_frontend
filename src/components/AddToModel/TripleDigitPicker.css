@@ -1,82 +1,90 @@
-.digit-carousel-container {
-  display: flex;
-  flex-direction: row-reverse;
-  justify-content: center;
-  gap: 10px;
-}
-
-.digit-scroll-wrapper {
-  width: 50px;
-  max-height: 120px;
-  padding: 10px;
-  overflow-y: auto;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-}
-
-.digit-scroll.no-scroll {
+.triple-digit-picker {
   display: flex;
   flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  max-width: 280px;
+  margin-inline: auto;
+}
+
+.triple-digit-readout {
+  /* Always LTR so digits match entry order inside RTL forms (flex row is not reversed). */
+  direction: ltr;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 16px;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  background: #f8f9fb;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(28px, 8vw, 36px);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #06355e;
+  min-height: 56px;
   align-items: center;
 }
 
-.digit-option {
-  padding: 12px;
+.triple-digit-readout-char {
+  min-width: 0.65em;
   text-align: center;
-  font-size: 20px;
-  transition: background-color 0.2s;
 }
 
-.digit-option:hover {
-  background-color: #f0f0f0;
+.triple-digit-numpad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
 }
 
-.digit-option.selected {
-  background-color: #06355e;
-  color: white;
-  font-weight: bold;
+.triple-digit-key {
+  min-height: 48px;
+  min-width: 48px;
+  padding: 12px 8px;
+  border: 1px solid #c8ced4;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 22px;
+  font-weight: 600;
+  color: #1a1a1a;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.08s ease;
 }
+
+.triple-digit-key:active {
+  transform: scale(0.97);
+}
+
+.triple-digit-key:focus-visible {
+  outline: 3px solid #06355e;
+  outline-offset: 2px;
+}
+
+.triple-digit-key:hover {
+  background-color: #f0f4f8;
+}
+
+.triple-digit-key--num:hover {
+  background-color: #e8eef4;
+}
+
+.triple-digit-key--action {
+  font-size: 18px;
+  color: #06355e;
+  background: #eef3f8;
+}
+
+.triple-digit-key--action:hover {
+  background: #e2eaf3;
+}
+
 @media (max-width: 600px) {
-  .digit-carousel-container {
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: center;
-    gap: 10px;
+  .triple-digit-key {
+    min-height: 52px;
+    padding: 14px 10px;
   }
 
-  .digit-scroll-wrapper {
-    /* width: 50px; */
-    max-height: 120px;
-    /* padding: 10px; */
-    overflow-y: auto;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-  }
-
-  .digit-scroll.no-scroll {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .digit-option {
-    text-align: center;
-    font-size: 20px;
-    padding: 15px;
-
-    transition: background-color 0.2s;
-  }
-
-  .digit-option:hover {
-    background-color: #f0f0f0;
-  }
-
-  .digit-option.selected {
-    background-color: #06355e;
-    padding: 15px;
-    box-shadow: 1px 1px 1px 1px black;
-    border-radius: 20px;
-    color: white;
-    font-weight: bold;
+  .triple-digit-readout {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   }
 }
