@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { getPendingRequests } from "../utils/indexedDB";
+import { createLogger } from "../utils/logger";
+
+const logger = createLogger("pending-request-count");
 
 export type PendingRequestCountState = {
   /** `null` until the first IndexedDB read completes */
@@ -23,6 +26,7 @@ export function usePendingRequestCount(): PendingRequestCountState {
       setCount(Array.isArray(pending) ? pending.length : 0);
       setError(null);
     } catch (e) {
+      logger.error("Failed to read offline queue from IndexedDB", e);
       setError(e instanceof Error ? e.message : "Failed to read offline queue");
       setCount(0);
     }

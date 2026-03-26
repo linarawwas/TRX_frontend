@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../../../redux/store";
+import type { RootState } from "../../../redux/store";
 import { selectShipmentMeta } from "../../../redux/selectors/shipment";
 import { useNavigatorOnline } from "../../../hooks/useNavigatorOnline";
 import { usePendingRequestCount } from "../../../hooks/usePendingRequestCount";
@@ -40,39 +40,49 @@ const EmployeeHomePage: React.FC = () => {
 
   if (!isUserReady) {
     return (
-      <div className="employee-home" dir="rtl">
-        <EmployeeHomeSkeleton />
+      <div className="employee-home employee-home--shell" dir="rtl" lang="ar">
+        <div className="employee-home__glow" aria-hidden />
+        <div className="employee-home__inner">
+          <div className="employee-home__surface employee-home__surface--loading">
+            <EmployeeHomeSkeleton />
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="employee-home" dir="rtl">
-      <EmployeeHomeStatusBar
-        isOnline={isOnline}
-        pendingCount={pendingCount}
-        pendingLoading={pendingLoading}
-        syncError={pendingError}
-      />
+    <div className="employee-home employee-home--shell" dir="rtl" lang="ar">
+      <div className="employee-home__glow" aria-hidden />
+      <div className="employee-home__inner">
+        <div className="employee-home__surface">
+          <EmployeeHomeStatusBar
+            isOnline={isOnline}
+            pendingCount={pendingCount}
+            pendingLoading={pendingLoading}
+            syncError={pendingError}
+          />
 
-      <EmployeeHomeHeader userName={username} />
+          <EmployeeHomeHeader userName={username} />
 
-      <main className="employee-home__main">
-        {!shipmentId ? (
-          <EmployeeHomeEmptyState onStartShipment={openStartShipment} />
-        ) : (
-          <TodaySnapshot />
-        )}
-        <RoundSnapshot />
-      </main>
+          <main className="employee-home__main">
+            {!shipmentId ? (
+              <EmployeeHomeEmptyState onStartShipment={openStartShipment} />
+            ) : (
+              <TodaySnapshot />
+            )}
+            <RoundSnapshot />
+          </main>
+        </div>
 
-      <EmployeeActionDock
-        dayId={dayId || null}
-        shipmentModalOpen={shipmentModalOpen}
-        onShipmentModalOpenChange={setShipmentModalOpen}
-      />
+        <EmployeeActionDock
+          dayId={dayId || null}
+          shipmentModalOpen={shipmentModalOpen}
+          onShipmentModalOpenChange={setShipmentModalOpen}
+        />
 
-      <EmployeeHomeFooter />
+        <EmployeeHomeFooter />
+      </div>
     </div>
   );
 };
