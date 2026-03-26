@@ -69,3 +69,5 @@ RecordOrderForCustomer (page)
 **See also:** [Employee home — baseline](./refactor-baseline-employee-home.md) (`EmployeeHomePage`: Redux snapshots, IndexedDB pending count, `StartShipment` modal).
 
 **See also:** [Today / Round snapshots — baseline](./refactor-baseline-snapshots.md) (`TodaySnapshot`, `RoundSnapshot`, `ProgressSnapshot`, `RoundsHistory`).
+
+**See also:** [Areas for day — baseline](./refactor-baseline-areas-for-day.md) (`AreasForDay`: IndexedDB-only areas list, order `areaId` wiring).
