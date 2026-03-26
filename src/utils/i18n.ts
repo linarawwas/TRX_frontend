@@ -63,6 +63,14 @@ export type TranslationKey =
   | 'emp.actions.startShipment'
   | 'emp.actions.close'
   | 'emp.footer.copyright'
+  | 'emp.status.online'
+  | 'emp.status.offline'
+  | 'emp.status.pendingSync'
+  | 'emp.home.loading'
+  | 'emp.home.empty.title'
+  | 'emp.home.empty.body'
+  | 'emp.home.syncError'
+  | 'emp.round.empty'
   | 'addresses.title'
   | 'addresses.search.placeholder'
   | 'addresses.reorder.toggle'
@@ -270,6 +278,14 @@ const translations: Record<TranslationKey, string> = {
   'emp.actions.startShipment': 'بدء شحنة جديدة',
   'emp.actions.close': 'إغلاق النموذج',
   'emp.footer.copyright': '© 2025 تيركس بواسطة لينة الرواّس. جميع الحقوق محفوظة.',
+  'emp.status.online': 'متصل',
+  'emp.status.offline': 'غير متصل — التعديلات تُحفظ محلياً',
+  'emp.status.pendingSync': 'بانتظار الإرسال: {{count}}',
+  'emp.home.loading': 'جارٍ التحميل…',
+  'emp.home.empty.title': 'لا توجد شحنة نشطة',
+  'emp.home.empty.body': 'ابدأ شحنة جديدة لمتابعة التسليم وتسجيل الطلبات.',
+  'emp.home.syncError': 'تعذّر قراءة قائمة الطلبات المؤجلة.',
+  'emp.round.empty': 'لا توجد جولة نشطة حالياً. ابدأ شحنة أو جولة عند الحاجة.',
   'addresses.title': 'عناوين الزبائن',
   'addresses.search.placeholder': 'بحث بالاسم',
   'addresses.reorder.toggle': 'إعادة الترتيب',

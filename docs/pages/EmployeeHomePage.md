@@ -8,11 +8,12 @@
 
 The Employee Home Page serves as the primary dashboard for employees, providing:
 
-- Welcome message with user name and current date
-- Today's shipment progress snapshot (collapsible)
-- Current round progress snapshot (collapsible)
-- Quick action buttons for common tasks (start shipment, view shipment)
-- Modal overlays for starting shipments
+- Connectivity / offline queue status (`EmployeeHomeStatusBar`; uses `navigator.onLine` + IndexedDB pending count)
+- Compact welcome + date (`EmployeeHomeHeader`)
+- Empty state when no active shipment (`EmployeeHomeEmptyState`) or today snapshot (`TodaySnapshot`) when `shipment._id` exists
+- Round snapshot (`RoundSnapshot`) or muted empty copy when no active round
+- Sticky action dock (`EmployeeActionDock`: continue to `/areas/:dayId`, start shipment modal with `StartShipment`)
+- Footer (`EmployeeHomeFooter`)
 
 ## Key Components & Links
 
@@ -26,9 +27,18 @@ The Employee Home Page serves as the primary dashboard for employees, providing:
 - **[RoundSnapshot.tsx](../../src/components/AsideMenu/Right/RoundSnapshot.tsx)** - Displays current round progress and financial KPIs
 - **[ProgressSnapshot.tsx](../../src/components/snapshots/ProgressSnapshot.tsx)** - Shared presentational component for both snapshots (progress bar, KPIs, collapsible panel)
 
-### Action Components
+### Action & shell components (under `EmployeeHomePage/`)
 
-- **[FeatureSection.tsx](../../src/components/LandingPage/FeatureSection.tsx)** - Quick action buttons with modal overlays for profits/expenses/shipment
+- **[EmployeeActionDock.tsx](../../src/pages/EmployeePages/EmployeeHomePage/components/EmployeeActionDock.tsx)** — Primary actions + `StartShipment` modal (controlled from the page for empty-state parity)
+- **[EmployeeHomeStatusBar.tsx](../../src/pages/EmployeePages/EmployeeHomePage/components/EmployeeHomeStatusBar.tsx)** — Online/offline + pending sync count
+- **[EmployeeHomeHeader.tsx](../../src/pages/EmployeePages/EmployeeHomePage/components/EmployeeHomeHeader.tsx)** — Greeting + date
+- **[EmployeeHomeEmptyState.tsx](../../src/pages/EmployeePages/EmployeeHomePage/components/EmployeeHomeEmptyState.tsx)** — No active shipment
+- **[EmployeeHomeFooter.tsx](../../src/pages/EmployeePages/EmployeeHomePage/components/EmployeeHomeFooter.tsx)** — Copyright
+
+### Hooks
+
+- **[useNavigatorOnline.ts](../../src/hooks/useNavigatorOnline.ts)** — Subscribes to browser online/offline events
+- **[usePendingRequestCount.ts](../../src/hooks/usePendingRequestCount.ts)** — Reads `getPendingRequests()` from IndexedDB (does not mutate the queue)
 
 ### Data & Selectors
 
@@ -63,7 +73,7 @@ EmployeeHomePage (layout)
 
 1. **selectShipmentMeta**
   - Returns `{ id: shipment._id, dayId: shipment.dayId }`
-  - Used by FeatureSection to link to current shipment
+  - Used by `EmployeeActionDock` to link to current shipment areas
 2. **selectTodayProgress**
   - Returns all today's shipment values:
     - `target, delivered, returned`
@@ -83,6 +93,8 @@ All user-facing Arabic strings are extracted to translation keys under the `emp.
 ### Home Page
 
 - `emp.home.hello` - "مرحبا"
+- `emp.status.online` / `emp.status.offline` / `emp.status.pendingSync` — connectivity strip
+- `emp.home.loading` / `emp.home.empty.*` / `emp.home.syncError` / `emp.round.empty` — loading, empty, sync error, no round
 
 ### Snapshots
 

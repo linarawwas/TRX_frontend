@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { memo, useState } from "react";
 import { useSelector } from "react-redux";
 import "./TodaySnapshot.css";
 import { selectRoundProgress } from "../../../redux/selectors/shipment";
@@ -6,7 +6,7 @@ import { computeProgress, formatMoneyPair } from "../../../features/shipments/ut
 import ProgressSnapshot from "../../snapshots/ProgressSnapshot";
 import { t } from "../../../utils/i18n";
 
-const RoundSnapshot: React.FC = () => {
+const RoundSnapshotComponent: React.FC = () => {
   const [open, setOpen] = useState(true);
 
   const {
@@ -22,8 +22,13 @@ const RoundSnapshot: React.FC = () => {
     profLbpThisRound,
   } = useSelector(selectRoundProgress);
 
-  // Empty state: no active round or no target for this round
-  if (!sequence || targetRound <= 0) return null;
+  if (!sequence || targetRound <= 0) {
+    return (
+      <section className="snap-card snap-card--muted" dir="rtl" aria-live="polite">
+        <p className="round-empty-message">{t("emp.round.empty")}</p>
+      </section>
+    );
+  }
 
   const { pctForBar, pctDisplay, overBy, reached } = computeProgress(deliveredThisRound, targetRound);
   const moneyRound = formatMoneyPair(usdThisRound, lbpThisRound);
@@ -57,9 +62,11 @@ const RoundSnapshot: React.FC = () => {
       moneyToday={moneyRound}
       moneyExp={moneyExpRound}
       moneyProf={moneyProfRound}
+      kpiScope="round"
       extraFoot={extraFoot}
     />
   );
 };
 
+const RoundSnapshot = memo(RoundSnapshotComponent);
 export default RoundSnapshot;

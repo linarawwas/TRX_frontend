@@ -1,5 +1,5 @@
 // TodaySnapshot.tsx
-import React, { useState } from "react";
+import React, { memo, useState } from "react";
 import { useSelector } from "react-redux";
 import "./TodaySnapshot.css";
 import RoundsHistory from "../../Shipments/RoundsHistory/RoundsHistory";
@@ -8,7 +8,7 @@ import { computeProgress, formatMoneyPair } from "../../../features/shipments/ut
 import ProgressSnapshot from "../../snapshots/ProgressSnapshot";
 import { t } from "../../../utils/i18n";
 
-const TodaySnapshot: React.FC = () => {
+const TodaySnapshotComponent: React.FC = () => {
   const [open, setOpen] = useState(false);
 
   const { id: shipmentId } = useSelector(selectShipmentMeta);
@@ -35,7 +35,8 @@ const TodaySnapshot: React.FC = () => {
       moneyToday={moneyToday}
       moneyExp={moneyExp}
       moneyProf={moneyProf}
-      showProgressSummary={false}
+      kpiScope="today"
+      showProgressSummary
     >
       {shipmentId && (
         <RoundsHistory
@@ -48,4 +49,5 @@ const TodaySnapshot: React.FC = () => {
   );
 };
 
+const TodaySnapshot = memo(TodaySnapshotComponent);
 export default TodaySnapshot;

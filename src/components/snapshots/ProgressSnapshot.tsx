@@ -20,6 +20,8 @@ interface Props {
   moneyToday?: Money;     // for TodaySnapshot
   moneyExp?: Money;
   moneyProf?: Money;
+  /** Which KPI labels to use — round metrics must not reuse “today” wording */
+  kpiScope?: "today" | "round";
   extraFoot?: React.ReactNode; // optional foot content (e.g., lock message)
   children?: React.ReactNode;  // optional extra sections (e.g., RoundsHistory)
   showProgressSummary?: boolean;
@@ -30,9 +32,20 @@ const ProgressSnapshot: React.FC<Props> = ({
   target, delivered, returned,
   pctForBar, pctDisplay, overBy, reached,
   moneyToday, moneyExp, moneyProf,
+  kpiScope = "today",
   extraFoot, children,
   showProgressSummary = true,
-}) => (
+}) => {
+  const cashLabel =
+    kpiScope === "round" ? t("emp.kpi.cashRound") : t("emp.kpi.cashToday");
+  const expLabel =
+    kpiScope === "round" ? t("emp.kpi.expensesRound") : t("emp.kpi.expenses");
+  const profLabel =
+    kpiScope === "round"
+      ? t("emp.kpi.extraProfitsRound")
+      : t("emp.kpi.extraProfits");
+
+  return (
   <section className="snap-card" dir="rtl">
     <button 
       className="snap-toggle" 
@@ -63,20 +76,21 @@ const ProgressSnapshot: React.FC<Props> = ({
 
       <div className="kpis">
         {moneyToday && (
-          <div className="kpi"><span className="kpi-label">{t("emp.kpi.cashToday")}</span><span className="kpi-value">{moneyToday.usd} • {moneyToday.lbp}</span></div>
+          <div className="kpi"><span className="kpi-label">{cashLabel}</span><span className="kpi-value">{moneyToday.usd} • {moneyToday.lbp}</span></div>
         )}
         {moneyExp && (
-          <div className="kpi"><span className="kpi-label">{t("emp.kpi.expenses")}</span><span className="kpi-value">{moneyExp.usd} • {moneyExp.lbp}</span></div>
+          <div className="kpi"><span className="kpi-label">{expLabel}</span><span className="kpi-value">{moneyExp.usd} • {moneyExp.lbp}</span></div>
         )}
         {moneyProf && (
-          <div className="kpi"><span className="kpi-label">{t("emp.kpi.extraProfits")}</span><span className="kpi-value">{moneyProf.usd} • {moneyProf.lbp}</span></div>
+          <div className="kpi"><span className="kpi-label">{profLabel}</span><span className="kpi-value">{moneyProf.usd} • {moneyProf.lbp}</span></div>
         )}
       </div>
 
       {children}
     </div>
   </section>
-);
+  );
+};
 
 export default ProgressSnapshot;
 
