@@ -42,7 +42,7 @@ const TodaySnapshotComponent: React.FC = () => {
         <RoundsHistory
           shipmentId={shipmentId}
           totalToday={target}
-          title="الجولات المُسجّلة اليوم"
+          title={t("emp.snap.roundsHistoryTitle")}
         />
       )}
     </ProgressSnapshot>

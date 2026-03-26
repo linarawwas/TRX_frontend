@@ -50,6 +50,15 @@ export type TranslationKey =
   | 'emp.snap.delivered'
   | 'emp.snap.returned'
   | 'emp.snap.percentOfGoal'
+  | 'emp.snap.roundsHistoryTitle'
+  | 'emp.snap.roundsHistory.defaultTitle'
+  | 'emp.snap.roundsHistory.loading'
+  | 'emp.snap.roundsHistory.empty'
+  | 'emp.snap.roundsHistory.bottle'
+  | 'emp.snap.roundsHistory.atTime'
+  | 'emp.snap.roundsHistory.totalLabel'
+  | 'emp.snap.roundsHistory.totalUnit'
+  | 'emp.snap.roundsHistory.error'
   | 'emp.kpi.cashToday'
   | 'emp.kpi.expenses'
   | 'emp.kpi.extraProfits'
@@ -283,6 +292,15 @@ const translations: Record<TranslationKey, string> = {
   'emp.snap.delivered': 'تم التسليم',
   'emp.snap.returned': 'المُعاد',
   'emp.snap.percentOfGoal': '% من الهدف',
+  'emp.snap.roundsHistoryTitle': 'الجولات المُسجّلة اليوم',
+  'emp.snap.roundsHistory.defaultTitle': 'جولات اليوم',
+  'emp.snap.roundsHistory.loading': 'جارٍ التحميل…',
+  'emp.snap.roundsHistory.empty': 'لا توجد جولات بعد.',
+  'emp.snap.roundsHistory.bottle': 'قنينة',
+  'emp.snap.roundsHistory.atTime': 'عند {{time}}',
+  'emp.snap.roundsHistory.totalLabel': 'الإجمالي اليوم:',
+  'emp.snap.roundsHistory.totalUnit': 'قنينة',
+  'emp.snap.roundsHistory.error': 'خطأ: {{message}}',
   'emp.kpi.cashToday': 'نقدية اليوم',
   'emp.kpi.expenses': 'المصاريف',
   'emp.kpi.extraProfits': 'الأرباح الإضافية',

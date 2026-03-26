@@ -46,7 +46,7 @@ const ProgressSnapshot: React.FC<Props> = ({
       : t("emp.kpi.extraProfits");
 
   return (
-  <section className="snap-card" dir="rtl">
+  <section className="snap-card--enterprise" dir="rtl">
     <button 
       className="snap-toggle" 
       onClick={onToggle} 

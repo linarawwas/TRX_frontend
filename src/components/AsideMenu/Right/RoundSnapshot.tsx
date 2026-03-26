@@ -24,7 +24,11 @@ const RoundSnapshotComponent: React.FC = () => {
 
   if (!sequence || targetRound <= 0) {
     return (
-      <section className="snap-card snap-card--muted" dir="rtl" aria-live="polite">
+      <section
+        className="snap-card--muted snap-card--enterprise"
+        dir="rtl"
+        aria-live="polite"
+      >
         <p className="round-empty-message">{t("emp.round.empty")}</p>
       </section>
     );
