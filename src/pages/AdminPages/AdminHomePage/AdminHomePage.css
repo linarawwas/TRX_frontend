@@ -1,0 +1,255 @@
+/* Admin home — premium shell (layers on LandingPage.css) */
+@import url("https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;700;800&display=swap");
+
+.admin-home.ahp-root {
+  font-family: "Tajawal", system-ui, -apple-system, "Segoe UI", Roboto,
+    "Noto Kufi Arabic", sans-serif;
+  max-width: 560px;
+  padding: 16px 14px 24px;
+  background: linear-gradient(165deg, #f1f5f9 0%, #e8f4f0 38%, #f8fafc 100%);
+  gap: 16px;
+}
+
+.admin-home.ahp-root .admin-hero.ahp-hero {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(15, 23, 42, 0.08);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.admin-home.ahp-root .hero-title {
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.admin-home.ahp-root .hero-sub.ahp-hero-sub {
+  color: #64748b;
+  font-size: 14px;
+  margin-top: 6px;
+}
+
+.admin-home.ahp-root .quick-actions.ahp-quick-actions {
+  margin-top: 14px;
+  gap: 10px;
+}
+
+.admin-home.ahp-root .qa-btn.ahp-qa-btn {
+  border-radius: 12px;
+  min-height: 44px;
+  touch-action: manipulation;
+  transition: box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.admin-home.ahp-root .qa-btn.ahp-qa-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.35);
+}
+
+.admin-home.ahp-root .qa-btn.outline.ahp-qa-btn:hover {
+  border-color: rgba(5, 150, 105, 0.35);
+  background: #f8fafc;
+}
+
+.ahp-qa-icon {
+  opacity: 0.92;
+}
+
+/* Snapshot skeleton */
+.ahp-skel-ring-card {
+  align-items: center;
+}
+
+.ahp-skel-circle {
+  width: 94px;
+  height: 94px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ahp-skel-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.ahp-skel-line {
+  max-width: 100%;
+}
+
+.ahp-skel-kpi-sub {
+  margin-top: 4px;
+}
+
+/* Snapshot error + retry */
+.ahp-snapshot-error {
+  grid-column: 1 / -1;
+  padding: 18px 16px !important;
+  text-align: center;
+  border: 1px solid rgba(220, 38, 38, 0.18) !important;
+  background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%) !important;
+}
+
+.ahp-snapshot-error__text {
+  margin: 0 0 12px;
+  color: #991b1b;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.ahp-retry {
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(5, 150, 105, 0.35);
+  background: #fff;
+  color: #047857;
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  touch-action: manipulation;
+}
+
+.ahp-retry:hover {
+  background: #ecfdf5;
+}
+
+.ahp-retry:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+}
+
+.admin-home.ahp-root .pane.ahp-pane {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(15, 23, 42, 0.08);
+}
+
+.admin-home.ahp-root .pane-title {
+  color: #0f172a;
+  font-size: 17px;
+  margin-bottom: 10px;
+}
+
+/* Finance lazy fallback */
+.ahp-finx-fallback {
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.05);
+  color: #64748b;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.ahp-finx-fallback__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 240px;
+}
+
+.ahp-finx-fallback__shimmer {
+  display: block;
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    #e2e8f0 0%,
+    #f1f5f9 50%,
+    #e2e8f0 100%
+  );
+  background-size: 200% 100%;
+  animation: ahp-finx-pulse 1.2s ease-in-out infinite;
+}
+
+.ahp-finx-fallback__text {
+  text-align: center;
+}
+
+@keyframes ahp-finx-pulse {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+/* Error boundary */
+.admin-home.ahp-root--error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 70dvh;
+}
+
+.ahp-error-card {
+  max-width: 400px;
+  padding: 24px 20px;
+  text-align: center;
+  border-radius: 16px;
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+}
+
+.ahp-error-title {
+  margin: 0 0 10px;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #991b1b;
+}
+
+.ahp-error-body {
+  margin: 0 0 18px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #64748b;
+}
+
+.ahp-error-reload {
+  padding: 12px 22px;
+  border-radius: 14px;
+  border: none;
+  font-weight: 800;
+  font-size: 15px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #047857 0%, #059669 100%);
+  color: #fff;
+  font-family: inherit;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25);
+}
+
+.ahp-error-reload:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.35), 0 4px 14px rgba(5, 150, 105, 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-home.ahp-root .skeleton {
+    animation: none !important;
+    background: #e9eef2 !important;
+  }
+
+  .ahp-finx-fallback__shimmer {
+    animation: none;
+    background: #e2e8f0;
+  }
+}
+
+@media print {
+  .admin-home.ahp-root .quick-actions.ahp-quick-actions {
+    display: none;
+  }
+}
