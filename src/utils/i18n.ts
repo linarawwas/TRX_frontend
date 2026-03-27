@@ -145,6 +145,14 @@ export type TranslationKey =
   | 'customerStatement.cards.remainingTotal'
   | 'customerStatement.cards.ordersDetailsToggle'
   | 'customerStatement.cards.ordersDetailsHint'
+  | 'customerStatement.summary.regionAria'
+  | 'customerStatement.summary.title'
+  | 'customerStatement.summary.tagline'
+  | 'customerStatement.summary.totalBalanceLabel'
+  | 'customerStatement.summary.bottlesTotalLabel'
+  | 'customerStatement.summary.breakdownHeading'
+  | 'customerStatement.summary.breakdownAria'
+  | 'customerStatement.summary.legend'
   | 'customersForArea.title'
   | 'customersForArea.search.placeholder'
   | 'customersForArea.loading'
@@ -511,6 +519,18 @@ const translations: Record<TranslationKey, string> = {
     'الطلبات ({{count}}) — الأحدث أولاً',
   'customerStatement.cards.ordersDetailsHint':
     'اضغط لعرض أو إخفاء تفاصيل كل طلب',
+  'customerStatement.summary.regionAria': 'ملخص الرصيد والزجاجات',
+  'customerStatement.summary.title': 'ملخص الرصيد',
+  'customerStatement.summary.tagline':
+    'الرقم المرجعي للتحصيل والمتابعة اليومية',
+  'customerStatement.summary.totalBalanceLabel':
+    'الرصيد الحالي الإجمالي (USD)',
+  'customerStatement.summary.bottlesTotalLabel': 'إجمالي الزجاجات الحالية',
+  'customerStatement.summary.breakdownHeading': 'تفصيل التكوين',
+  'customerStatement.summary.breakdownAria':
+    'الرصيد الافتتاحي ومساهمة الطلبات',
+  'customerStatement.summary.legend':
+    'الموجب = متبقٍ على الزبون • السالب = رصيد دائن',
   'customersForArea.title': 'الزبائن في هذه المنطقة',
   'customersForArea.search.placeholder': '🔍 ابحث عن اسم الزبون...',
   'customersForArea.loading': '⏳ جارٍ تحميل الزبائن...',

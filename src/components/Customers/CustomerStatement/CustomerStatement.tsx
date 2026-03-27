@@ -123,6 +123,89 @@ function CustomerStatementInner() {
                 ) : null}
               </section>
 
+              <section
+                className="st-summary st-summary--primary"
+                aria-label={t("customerStatement.summary.regionAria")}
+              >
+                <header className="st-summary__banner">
+                  <h2 className="st-summary__title">
+                    {t("customerStatement.summary.title")}
+                  </h2>
+                  <p className="st-summary__tagline muted">
+                    {t("customerStatement.summary.tagline")}
+                  </p>
+                </header>
+
+                <div
+                  className={`st-summary__hero ${
+                    ledger.meta.statementBalanceUSD >= 0
+                      ? "st-summary__hero--due"
+                      : "st-summary__hero--credit"
+                  }`}
+                >
+                  <span className="st-summary__hero-label">
+                    {t("customerStatement.summary.totalBalanceLabel")}
+                  </span>
+                  <span className="st-summary__hero-figure">
+                    {ledger.meta.statementBalanceUSD >= 0
+                      ? fmtUSD(ledger.meta.statementBalanceUSD)
+                      : fmtUSD(-ledger.meta.statementBalanceUSD)}
+                  </span>
+                </div>
+
+                <div className="st-summary__kpi-strip">
+                  <div className="st-summary__kpi">
+                    <span className="st-summary__kpi-label muted">
+                      {t("customerStatement.summary.bottlesTotalLabel")}
+                    </span>
+                    <span className="st-summary__kpi-value">
+                      {ledger.meta.statementBottlesLeft}
+                    </span>
+                  </div>
+                </div>
+
+                <h3 className="st-summary__breakdown-heading">
+                  {t("customerStatement.summary.breakdownHeading")}
+                </h3>
+                <div
+                  className="st-summary__breakdown"
+                  role="group"
+                  aria-label={t("customerStatement.summary.breakdownAria")}
+                >
+                  <div className="st-summary__row">
+                    <span className="muted">الرصيد الافتتاحي (USD):</span>
+                    <strong>{fmtUSD(ledger.meta.openingBalance)}</strong>
+                  </div>
+                  <div className="st-summary__row">
+                    <span className="muted">الزجاجات الافتتاحية:</span>
+                    <strong>{ledger.meta.openingBottles}</strong>
+                  </div>
+                  <div className="st-summary__row">
+                    <span className="muted">صافي الزجاجات من الطلبات:</span>
+                    <strong>
+                      {ledger.meta.ordersBottles >= 0 ? "+" : ""}
+                      {ledger.meta.ordersBottles}
+                    </strong>
+                  </div>
+                  <div className="st-summary__row">
+                    <span className="muted">الرصيد من الطلبات (متبقّي USD):</span>
+                    <strong
+                      className={
+                        ledger.totals.remaining >= 0 ? "due" : "credit"
+                      }
+                    >
+                      {ledger.totals.remaining >= 0
+                        ? fmtUSD(ledger.totals.remaining)
+                        : fmtUSD(-ledger.totals.remaining)}
+                    </strong>
+                  </div>
+                </div>
+
+                <p className="st-summary__hint muted">
+                  {t("customerStatement.summary.legend")}
+                </p>
+              </section>
+
               <StatementLedgerMobile ledger={ledger} />
 
               <div className="st-table-region st-ledger-table-desktop">
@@ -206,62 +289,6 @@ function CustomerStatementInner() {
                   </table>
                 </div>
               </div>
-
-              <footer className="st-summary" aria-label="ملخص الرصيد">
-                <div className="st-summary__row">
-                  <span className="muted">الرصيد الافتتاحي (USD):</span>
-                  <strong>{fmtUSD(ledger.meta.openingBalance)}</strong>
-                </div>
-                <div className="st-summary__row">
-                  <span className="muted">الزجاجات الافتتاحية:</span>
-                  <strong>{ledger.meta.openingBottles}</strong>
-                </div>
-
-                <hr className="st-hr" />
-
-                <div className="st-summary__row">
-                  <span className="muted">صافي الزجاجات من الطلبات:</span>
-                  <strong>
-                    {ledger.meta.ordersBottles >= 0 ? "+" : ""}
-                    {ledger.meta.ordersBottles}
-                  </strong>
-                </div>
-                <div className="st-summary__row">
-                  <span className="muted">الرصيد من الطلبات (متبقّي USD):</span>
-                  <strong
-                    className={
-                      ledger.totals.remaining >= 0 ? "due" : "credit"
-                    }
-                  >
-                    {ledger.totals.remaining >= 0
-                      ? fmtUSD(ledger.totals.remaining)
-                      : fmtUSD(-ledger.totals.remaining)}
-                  </strong>
-                </div>
-
-                <hr className="st-hr" />
-
-                <div className="st-summary__row">
-                  <span>إجمالي الزجاجات الحالية:</span>
-                  <strong>{ledger.meta.statementBottlesLeft}</strong>
-                </div>
-                <div className="st-summary__row">
-                  <span>الرصيد الحالي الإجمالي (USD):</span>
-                  <strong
-                    className={
-                      ledger.meta.statementBalanceUSD >= 0 ? "due" : "credit"
-                    }
-                  >
-                    {ledger.meta.statementBalanceUSD >= 0
-                      ? fmtUSD(ledger.meta.statementBalanceUSD)
-                      : fmtUSD(-ledger.meta.statementBalanceUSD)}
-                  </strong>
-                </div>
-
-                <p className="muted st-summary__hint">
-                  الموجب = متبقٍ على الزبون • السالب = رصيد دائن
-                </p>
-              </footer>
             </article>
           </div>
         ) : null}

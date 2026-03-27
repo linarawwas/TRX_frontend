@@ -17,6 +17,7 @@ Arabic RTL statement: order ledger, opening balance / bottles, print layout, and
 
 - **Enterprise shell:** Tajawal, emerald-aligned FAB and accents, card/table hierarchy, sticky thead on small viewports (horizontal scroll).
 - **Ledger (mobile):** [customer-statement-table-mobile.md](./customer-statement-table-mobile.md) — **cards ≤719px** (primary metric + invoice CTA + subtotal); **full table ≥720px + print** with `st-table-wrap`.
+- **Summary:** `st-summary--primary` sits **above** order detail (mobile cards + desktop table): hero **الرصيد الحالي الإجمالي**, KPI **الزجاجات**, then **تفصيل التكوين** (افتتاحي + طلبات). Copy in `customerStatement.summary.*`.
 - **Loading:** Skeleton block instead of a blank page.
 - **Errors:** Toast (existing) + inline banner with **إعادة المحاولة** calling `reload()`.
 - **Print:** Hides chrome, FAB, sheet, toasts; keeps `.print-area` content.

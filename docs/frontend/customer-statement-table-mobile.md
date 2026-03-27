@@ -4,9 +4,10 @@
 
 For **dense financial ledgers**, the optimal pattern is usually **not** a single solution for every viewport:
 
-1. **Phones (≤719px):** **إجمالي الطلبات** (subtotal) **first** — matches business need to see totals before drilling in. **Order rows are newest-first** (same sort as the desktop table). The **card list is inside `<details>`**, **collapsed by default** so the screen stays compact; expanding shows one card per order (hero remaining USD, invoice link, field grid).
-2. **Tablet / desktop (≥720px):** **Full 8-column table** inside `st-table-wrap` — comparison across columns and alignment with **print** output.
-3. **Print:** **Table only**; card layout hidden.
+1. **Page order (all viewports):** **`st-summary--primary`** (ملخص الرصيد — hero USD + KPI bottles + تفصيل التكوين) **above** order-level UI. Then **إجمالي الطلبات** (`st-ledger-cards-subtotal`) and collapsible cards on mobile, or the full table on desktop.
+2. **Phones (≤719px):** **Order rows are newest-first** (same sort as the desktop table). The **card list is inside `<details>`**, **collapsed by default**; expanding shows one card per order (hero remaining USD, invoice link, field grid).
+3. **Tablet / desktop (≥720px):** **Full 8-column table** inside `st-table-wrap` — comparison across columns and alignment with **print** output.
+4. **Print:** **Table only**; card layout hidden. Summary prints as a compact block (`break-inside: avoid`).
 
 Same source of truth: `buildStatementLedger()` in `customerStatementLedger.ts`. **`StatementLedgerMobile`** is presentational only.
 
