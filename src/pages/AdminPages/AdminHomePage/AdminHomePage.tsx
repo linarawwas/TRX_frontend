@@ -136,17 +136,7 @@ function AdminHomePageInner(): JSX.Element {
             </span>{" "}
             {t("dashboard.quickActions.viewShipments")}
           </button>
-          <button
-            type="button"
-            className="qa-btn outline ahp-qa-btn"
-            onClick={printToday}
-            aria-label={t("dashboard.quickActions.printToday")}
-          >
-            <span className="ahp-qa-icon" aria-hidden="true">
-              🖨️
-            </span>{" "}
-            {t("dashboard.quickActions.printToday")}
-          </button>
+         
         </div>
       </section>
 
