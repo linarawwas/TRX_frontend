@@ -99,3 +99,5 @@ RecordOrderForCustomer (page)
 **See also:** [Login page — baseline](./refactor-baseline-login-page.md) (`Login.tsx`: shell, `LoginForm`, `loginUser` / `rtkResult`).
 
 **See also:** [Orders of today — baseline](./refactor-baseline-orders-of-today.md) (`OrdersOfToday`: `shipmentsOrdersByDate` lazy query, type 2/3 sections).
+
+**See also:** [Distributors list — baseline](./refactor-baseline-distributors-page.md) (`/distributors`: `useCompanyDistributorData`, analytics, `AddToModel` create).
