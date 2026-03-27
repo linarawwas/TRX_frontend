@@ -135,7 +135,6 @@ function CustomerStatementInner() {
                 <div
                   className="st-table-wrap"
                   role="region"
-                  tabIndex={0}
                   aria-label={t("customerStatement.table.regionAriaLabel")}
                 >
                   <table className="st-table">

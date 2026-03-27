@@ -15,7 +15,7 @@ Same source of truth: `buildStatementLedger()` in `customerStatementLedger.ts`. 
 | Element | Role |
 |---------|------|
 | **`st-table-region`** | Wraps scroll hint + table on wide viewports only (whole block has `st-ledger-table-desktop`). |
-| **`st-table-wrap`** | Horizontal scroll when the table is shown; `aria-label`, `tabIndex`, sticky `thead`, etc. |
+| **`st-table-wrap`** | Horizontal scroll when the table is shown; `role="region"`, `aria-label`, sticky `thead`, etc. (no `tabIndex` — satisfies `jsx-a11y/no-noninteractive-tabindex`; focus moves via row links). |
 
 On narrow screens the **desktop block is `display: none`**; users interact with **cards** instead, so the horizontal scroll hint is not needed on mobile.
 
