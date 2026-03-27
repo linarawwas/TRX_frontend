@@ -79,3 +79,5 @@ RecordOrderForCustomer (page)
 **See also:** [Update customer — baseline](./refactor-baseline-update-customer.md) (`/updateCustomer/:id`, `useUpdateCustomerController`, `rtkResult`).
 
 **See also:** [Update customer — UI constituents](./refactor-baseline-update-customer-constituents.md) (render tree from `UpdateCustomer.tsx` only).
+
+**See also:** [Update customer header — baseline](./refactor-baseline-update-customer-header.md) (`UpdateCustomerHeader`: props-only, no fetch).
