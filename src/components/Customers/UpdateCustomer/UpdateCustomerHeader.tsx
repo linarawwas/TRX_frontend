@@ -46,13 +46,16 @@ export default function UpdateCustomerHeader({
 }: UpdateCustomerHeaderProps) {
   return (
     <>
-      <header className="ucx-hero">
+      <header
+        className="ucx-hero"
+        aria-label={t("updateCustomer.header.heroAriaLabel")}
+      >
         <div className="ucx-hero__left">
           <div className="ucx-avatar" aria-hidden="true">
             {avatarText}
           </div>
           <div className="ucx-hero__text">
-            <h1 className="ucx-title">
+            <h1 className="ucx-title" id="ucx-customer-heading">
               {customerData?.name || t("updateCustomer.header.customerFallback")}
             </h1>
             <div className="ucx-sub">
@@ -97,10 +100,14 @@ export default function UpdateCustomerHeader({
                     className="ucx-restoreInline"
                     onSubmit={onRestoreWithSequence}
                   >
-                    <label className="ucx-restoreLabel">
+                    <label
+                      className="ucx-restoreLabel"
+                      htmlFor="ucx-restore-sequence"
+                    >
                       {t("updateCustomer.header.sequenceLabel")}
                     </label>
                     <input
+                      id="ucx-restore-sequence"
                       className="ucx-input sm"
                       type="number"
                       min={1}
@@ -140,7 +147,10 @@ export default function UpdateCustomerHeader({
         )}
       </header>
 
-      <div className="ucx-actionsRow">
+      <nav
+        className="ucx-actionsRow"
+        aria-label={t("updateCustomer.header.actionsNavAriaLabel")}
+      >
         {customerData?.isActive && !isAdmin && (
           <button type="button" className="ucx-btn success" onClick={onRecordOrder}>
             {t("updateCustomer.header.recordOrderExternal")}
@@ -159,7 +169,7 @@ export default function UpdateCustomerHeader({
             ? t("updateCustomer.header.toggleEditHide")
             : t("updateCustomer.header.toggleEditShow")}
         </button>
-      </div>
+      </nav>
     </>
   );
 }

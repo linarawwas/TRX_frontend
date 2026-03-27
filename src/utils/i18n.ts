@@ -279,6 +279,8 @@ export type TranslationKey =
   | 'updateCustomer.form.placeholderNewName'
   | 'updateCustomer.form.placeholderNewPhone'
   | 'updateCustomer.form.placeholderNewAddress'
+  | 'updateCustomer.header.heroAriaLabel'
+  | 'updateCustomer.header.actionsNavAriaLabel'
   | 'updateCustomer.header.customerFallback'
   | 'updateCustomer.header.emDash'
   | 'updateCustomer.status.active'
@@ -621,6 +623,8 @@ const translations: Record<TranslationKey, string> = {
   'updateCustomer.form.placeholderNewName': 'الاسم الجديد',
   'updateCustomer.form.placeholderNewPhone': 'رقم الهاتف الجديد',
   'updateCustomer.form.placeholderNewAddress': 'العنوان الجديد',
+  'updateCustomer.header.heroAriaLabel': 'معلومات الزبون والحالة',
+  'updateCustomer.header.actionsNavAriaLabel': 'إجراءات سريعة للزبون',
   'updateCustomer.header.customerFallback': 'الزبون',
   'updateCustomer.header.emDash': '—',
   'updateCustomer.status.active': 'نشط',

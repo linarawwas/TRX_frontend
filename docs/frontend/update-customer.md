@@ -27,3 +27,5 @@ See [architecture baseline](../architecture/refactor-baseline-update-customer.md
 **Constituents map:** [refactor-baseline-update-customer-constituents.md](../architecture/refactor-baseline-update-customer-constituents.md).
 
 **Tabs & grid (mobile):** [update-customer-tabs-mobile.md](./update-customer-tabs-mobile.md).
+
+**Hero & actions toolbar (mobile):** [update-customer-hero-actions-mobile.md](./update-customer-hero-actions-mobile.md).

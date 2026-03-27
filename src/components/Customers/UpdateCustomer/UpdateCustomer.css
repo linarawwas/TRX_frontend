@@ -146,20 +146,28 @@
   padding: clamp(12px, 2vw, 22px) clamp(12px, 2.5vw, 24px);
 }
 
-/* Hero */
+/* Hero — identity + status + destructive / restore controls */
 .ucx-hero {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: clamp(10px, 2.5vw, 14px);
   margin-bottom: 12px;
+  min-width: 0;
+  padding-top: env(safe-area-inset-top, 0px);
 }
 .ucx-hero__left {
   display: flex;
   gap: 12px;
   align-items: center;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.ucx-hero__text {
+  min-width: 0;
 }
 .ucx-avatar {
+  flex-shrink: 0;
   inline-size: 56px;
   block-size: 56px;
   border-radius: 50%;
@@ -172,18 +180,25 @@
 }
 .ucx-title {
   margin: 0 0 2px;
-  font-size: 24px;
+  font-size: clamp(1.125rem, 2.8vw + 0.65rem, 1.5rem);
   font-weight: 800;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 .ucx-sub {
-  font-size: 14px;
+  font-size: clamp(13px, 1.2vw + 11px, 14px);
+  line-height: 1.45;
   color: var(--ucx-muted);
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 .ucx-hero__right {
   display: flex;
   gap: 8px;
   align-items: center;
   flex-wrap: wrap;
+  flex-shrink: 0;
+  min-width: 0;
 }
 
 .ucx-chip {
@@ -259,7 +274,7 @@
   border-color: #e5e7eb;
 }
 
-/* Horizontal actions row */
+/* Primary toolbar: statement, edit toggle, optional external order */
 .ucx-actionsRow {
   display: flex;
   gap: 10px;
@@ -267,6 +282,7 @@
   justify-content: center;
   flex-wrap: wrap;
   margin: 10px 0 14px;
+  min-width: 0;
 }
 
 /* Card */
@@ -519,18 +535,65 @@
   font-weight: 800;
 }
 
-/* Mobile */
+/* Mobile — hero & toolbar: full-width targets, stacked flows */
 @media (max-width: 640px) {
   .ucx-hero {
     flex-direction: column;
     align-items: stretch;
-    gap: 10px;
+    gap: 12px;
+  }
+  .ucx-hero__left {
+    align-items: flex-start;
   }
   .ucx-hero__right {
-    justify-content: center;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .ucx-hero__right .ucx-chip {
+    align-self: center;
+  }
+  .ucx-hero__right .ucx-btn {
+    width: 100%;
+    min-height: 44px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(5, 150, 105, 0.12);
+  }
+  .ucx-restoreBar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .ucx-restoreInline {
+    grid-template-columns: 1fr;
+    width: 100%;
+    gap: 10px;
+  }
+  .ucx-restoreInline .ucx-btn {
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+  .ucx-actionsRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .ucx-actionsRow .ucx-btn {
+    width: 100%;
+    min-height: 44px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(5, 150, 105, 0.12);
   }
   .ucx-form__grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .ucx-avatar {
+    inline-size: 52px;
+    block-size: 52px;
+    font-size: 15px;
   }
 }
 /* Minimal, centered edit form — all scoped */
