@@ -121,33 +121,55 @@ export default function UpdateCustomer() {
                   onSubmit={handleSubmit}
                 />
 
-                <div className="ucx-tabs">
-                  <button
-                    type="button"
-                    className={`ucx-tab ${tab === "info" ? "is-active" : ""}`}
-                    onClick={() => setTab("info")}
-                  >
-                    {t("updateCustomer.tab.info")}
-                  </button>
-                  <button
-                    type="button"
-                    className={`ucx-tab ${tab === "invoices" ? "is-active" : ""}`}
-                    onClick={() => setTab("invoices")}
-                  >
-                    {t("updateCustomer.tab.invoices")}
-                  </button>
-                  <button
-                    type="button"
-                    className={`ucx-tab ${tab === "area" ? "is-active" : ""}`}
-                    onClick={() => setTab("area")}
-                  >
-                    {t("updateCustomer.tab.area")}
-                  </button>
-                </div>
+                <nav
+                  className="ucx-tabs-wrap"
+                  aria-label={t("updateCustomer.tabs.navAriaLabel")}
+                >
+                  <div className="ucx-tabs" role="tablist">
+                    <button
+                      type="button"
+                      role="tab"
+                      id="ucx-tab-info"
+                      aria-selected={tab === "info"}
+                      aria-controls="ucx-panel-info"
+                      className={`ucx-tab ${tab === "info" ? "is-active" : ""}`}
+                      onClick={() => setTab("info")}
+                    >
+                      {t("updateCustomer.tab.info")}
+                    </button>
+                    <button
+                      type="button"
+                      role="tab"
+                      id="ucx-tab-invoices"
+                      aria-selected={tab === "invoices"}
+                      aria-controls="ucx-panel-invoices"
+                      className={`ucx-tab ${tab === "invoices" ? "is-active" : ""}`}
+                      onClick={() => setTab("invoices")}
+                    >
+                      {t("updateCustomer.tab.invoices")}
+                    </button>
+                    <button
+                      type="button"
+                      role="tab"
+                      id="ucx-tab-area"
+                      aria-selected={tab === "area"}
+                      aria-controls="ucx-panel-area"
+                      className={`ucx-tab ${tab === "area" ? "is-active" : ""}`}
+                      onClick={() => setTab("area")}
+                    >
+                      {t("updateCustomer.tab.area")}
+                    </button>
+                  </div>
+                </nav>
 
-                <main className="ucx-grid">
+                <main className="ucx-grid" id="ucx-tabpanels">
                   {tab === "info" && (
-                    <section className="ucx-card">
+                    <section
+                      className="ucx-card"
+                      role="tabpanel"
+                      id="ucx-panel-info"
+                      aria-labelledby="ucx-tab-info"
+                    >
                       <div className="ucx-card__header">{t("updateCustomer.card.infoTitle")}</div>
                       <div className="ucx-card__body">
                         <CustomerInfo customerData={customerData} loading={loading} />
@@ -167,6 +189,12 @@ export default function UpdateCustomer() {
                     </section>
                   )}
                   {tab === "invoices" && (
+                    <div
+                      className="ucx-tabpanel"
+                      role="tabpanel"
+                      id="ucx-panel-invoices"
+                      aria-labelledby="ucx-tab-invoices"
+                    >
                     <UpdateCustomerInvoicesPanel
                       customerData={customerData}
                       customerId={customerId || ""}
@@ -188,9 +216,15 @@ export default function UpdateCustomer() {
                       }}
                       onToggleOpeningEdit={() => setOpenEdit((v: boolean) => !v)}
                     />
+                    </div>
                   )}
                   {tab === "area" && hasAreaObject && (
-                    <section className="ucx-card">
+                    <section
+                      className="ucx-card"
+                      role="tabpanel"
+                      id="ucx-panel-area"
+                      aria-labelledby="ucx-tab-area"
+                    >
                       <div className="ucx-card__header">{t("updateCustomer.card.areaTitle")}</div>
                       <div className="ucx-card__body">
                         <AreaSequencePicker

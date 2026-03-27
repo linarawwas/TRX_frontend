@@ -234,6 +234,7 @@ export type TranslationKey =
   | 'updateCustomer.tab.info'
   | 'updateCustomer.tab.invoices'
   | 'updateCustomer.tab.area'
+  | 'updateCustomer.tabs.navAriaLabel'
   | 'updateCustomer.card.infoTitle'
   | 'updateCustomer.card.areaTitle'
   | 'updateCustomer.areaPicker.title'
@@ -574,6 +575,7 @@ const translations: Record<TranslationKey, string> = {
   'updateCustomer.tab.info': 'البيانات',
   'updateCustomer.tab.invoices': 'الرصيد',
   'updateCustomer.tab.area': 'الترتيب',
+  'updateCustomer.tabs.navAriaLabel': 'أقسام بيانات الزبون',
   'updateCustomer.card.infoTitle': 'البيانات',
   'updateCustomer.card.areaTitle': 'الترتيب في المنطقة',
   'updateCustomer.areaPicker.title': 'تغيير الترتيب داخل المنطقة',
