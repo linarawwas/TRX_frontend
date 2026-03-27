@@ -1,51 +1,82 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { FaTimes } from "react-icons/fa";
 import AddDiscount from "../AddDiscount/AddDiscount";
 import "./AdminFeatures.css";
 
 const AdminFeatures = () => {
-  const [showExchangeRate, setShowExchangeRate] = useState(false);
-  const [showAddDiscount, setShowAddDiscount] = useState(false);
+  const [showAddDiscount, setShowAddDiscount] = React.useState(false);
 
-  const handleToggleExchangeRate = () => {
-    setShowExchangeRate((prev) => {
-      if (!prev) setShowAddDiscount(false);
-      return !prev;
-    });
-  };
+  const handleToggleAddDiscount = useCallback(() => {
+    setShowAddDiscount((prev) => !prev);
+  }, []);
 
-  const handleToggleAddDiscount = () => {
-    setShowAddDiscount((prev) => {
-      if (!prev) setShowExchangeRate(false);
-      return !prev;
-    });
-  };
+  useEffect(() => {
+    if (!showAddDiscount) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") handleToggleAddDiscount();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [showAddDiscount, handleToggleAddDiscount]);
+
+  const discountModal =
+    showAddDiscount &&
+    createPortal(
+      <div
+        className="admfeat-overlay"
+        role="presentation"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) handleToggleAddDiscount();
+        }}
+      >
+        <div
+          className="admfeat-panel"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="admfeat-discount-title"
+        >
+          <div className="admfeat-panel__head">
+            <h2 id="admfeat-discount-title" className="admfeat-panel__title">
+              منح خصم للعميل
+            </h2>
+            <button
+              type="button"
+              className="admfeat-panel__close"
+              onClick={handleToggleAddDiscount}
+              aria-label="إغلاق"
+            >
+              <FaTimes aria-hidden />
+            </button>
+          </div>
+          <div className="admfeat-panel__body">
+            <AddDiscount embedded />
+          </div>
+        </div>
+      </div>,
+      document.body
+    );
 
   return (
     <div className="admin-feature-section" dir="rtl">
-     
+      <button
+        type="button"
+        className="admfeat-trigger"
+        onClick={handleToggleAddDiscount}
+        aria-expanded={showAddDiscount}
+        aria-haspopup="dialog"
+      >
+        {showAddDiscount ? (
+          <>
+            <FaTimes className="admfeat-trigger__icon" aria-hidden />
+            <span>إغلاق</span>
+          </>
+        ) : (
+          "منح خصم للعميل"
+        )}
+      </button>
 
-      {/* Add Discount Modal Trigger */}
-      <div className="modal-trigger" onClick={handleToggleAddDiscount}>
-        {showAddDiscount ? <FaTimes /> : "منح خصم للعميل"}
-      </div>
-
-      {/* Overlay and Modal for Add Discount */}
-      {showAddDiscount && (
-        <div className="modal-overlay" onClick={handleToggleAddDiscount}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <AddDiscount />
-          </div>
-        </div>
-      )}
-
-      {/* Overlay and Modal for Exchange Rate */}
-      {showExchangeRate && (
-        <div className="modal-overlay" onClick={handleToggleExchangeRate}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-          </div>
-        </div>
-      )}
+      {discountModal}
     </div>
   );
 };

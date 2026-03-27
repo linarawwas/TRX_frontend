@@ -1,6 +1,6 @@
-import React, { useState, useEffect, ChangeEvent } from "react";
+import React, { useState, useEffect, type ChangeEvent } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
+import type { RootState } from "../../redux/store";
 import { toast } from "react-toastify";
 import "./AddDiscount.css";
 import { useCompanyAreas } from "../../features/customers/hooks/useCompanyAreas";
@@ -24,7 +24,12 @@ interface FormData {
   valueAfterDiscount: number | ""; // user input
 }
 
-const AddDiscount: React.FC = () => {
+type AddDiscountProps = {
+  /** When true, omit page title and use full-width layout for use inside a dialog. */
+  embedded?: boolean;
+};
+
+const AddDiscount: React.FC<AddDiscountProps> = ({ embedded = false }) => {
   const companyId = useSelector((state: RootState) => state.user.companyId);
   const token = useSelector((state: RootState) => state.user.token);
 
@@ -154,8 +159,13 @@ const AddDiscount: React.FC = () => {
   };
 
   return (
-    <div className="add-discount-container" dir="rtl">
-      <h1 className="title">إضافة خصم للعميل</h1>
+    <div
+      className={`add-discount-container${embedded ? " add-discount-container--embedded" : ""}`}
+      dir="rtl"
+    >
+      {!embedded ? (
+        <h1 className="title">إضافة خصم للعميل</h1>
+      ) : null}
       <form onSubmit={handleSubmit}>
         <label>
           المنطقة:

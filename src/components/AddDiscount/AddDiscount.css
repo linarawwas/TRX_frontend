@@ -1,62 +1,175 @@
-
 .add-discount-container {
-    padding: 10px;
-    border: 1px solid rgb(8, 20, 43);
-    width: 20%;
-    box-shadow: 1px 1px 2px #06355e;
-    margin: 10px auto;
-    border-radius: 7px;
+  padding: 10px;
+  border: 1px solid rgb(8, 20, 43);
+  width: 20%;
+  box-shadow: 1px 1px 2px #06355e;
+  margin: 10px auto;
+  border-radius: 7px;
 }
 
 .add-discount-container .title {
-    text-align: center;
+  text-align: center;
 }
 
 .add-discount-container form {
-    display: flex;
-    flex-flow: column nowrap;
-    align-items: center;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
 }
 
 .add-discount-container form input,
 .add-discount-container form select {
-    padding: 10px;
-    margin: 5px;
-
+  padding: 10px;
+  margin: 5px;
 }
 
 .add-discount-container form button {
-    padding: 10px;
-    margin: 5px;
-    border-radius: 7px;
-    box-shadow: 1px 1px 2px #06355e;
-    color: black;
-    background-color: #06355e;
+  padding: 10px;
+  margin: 5px;
+  border-radius: 7px;
+  box-shadow: 1px 1px 2px #06355e;
+  color: black;
+  background-color: #06355e;
 }
 
 .add-discount-container form button:hover {
-    color: white;
-    background-color: #0d94dd;
-    cursor: pointer;
+  color: white;
+  background-color: #0d94dd;
+  cursor: pointer;
+}
+
+/* Embedded in AdminFeatures modal */
+.add-discount-container--embedded {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.add-discount-container--embedded form {
+  align-items: stretch;
+  gap: 12px;
+}
+
+.add-discount-container--embedded form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  text-align: right;
+  font-weight: 700;
+  font-size: 13px;
+  color: #334155;
+}
+
+.add-discount-container--embedded form input,
+.add-discount-container--embedded form select,
+.add-discount-container--embedded form textarea {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 12px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  font-size: 15px;
+  font-family: inherit;
+  color: #0f172a;
+  background: #fff;
+}
+
+.add-discount-container--embedded form textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.add-discount-container--embedded form input:focus-visible,
+.add-discount-container--embedded form select:focus-visible,
+.add-discount-container--embedded form textarea:focus-visible {
+  outline: none;
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.22);
+}
+
+.add-discount-container--embedded .row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+  align-items: flex-end;
+}
+
+.add-discount-container--embedded .row .grow {
+  flex: 1 1 160px;
+  min-width: 0;
+}
+
+.add-discount-container--embedded .hint {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  font-size: 13px;
+  color: #475569;
+  line-height: 1.5;
+  text-align: right;
+}
+
+.add-discount-container--embedded .hint strong {
+  color: #0f172a;
+  font-weight: 800;
+}
+
+.add-discount-container--embedded form button[type="submit"] {
+  width: 100%;
+  margin-top: 4px;
+  padding: 14px 18px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 15px;
+  font-family: inherit;
+  cursor: pointer;
+  color: #fff;
+  background: linear-gradient(135deg, #047857 0%, #059669 100%);
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.2);
+  transition: filter 0.15s ease;
+}
+
+.add-discount-container--embedded form button[type="submit"]:hover:not(:disabled) {
+  filter: brightness(1.04);
+}
+
+.add-discount-container--embedded form button[type="submit"]:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  filter: grayscale(0.2);
+}
+
+.add-discount-container--embedded form button[type="submit"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.35), 0 4px 14px rgba(5, 150, 105, 0.2);
 }
 
 @media (max-width: 600px) {
+  .add-discount-container {
+    padding: 4px;
+    width: 70%;
+    box-shadow: 1px 1px 2px #06355e;
+  }
 
-    .add-discount-container {
-        padding: 4px;
-        width: 70%;
-        box-shadow: 1px 1px 2px #06355e
-    }
+  .add-discount-container .title {
+    font-size: 30px;
+  }
 
-    .add-discount-container .title {
-        font-size: 30px;
-    }
-
-    .add-discount-container form input,
-    .add-discount-container form select {
-        padding: 9px;
-        margin: 6px;
-        width: fit-content;
-    }
-
+  .add-discount-container form input,
+  .add-discount-container form select {
+    padding: 9px;
+    margin: 6px;
+    width: fit-content;
+  }
 }
