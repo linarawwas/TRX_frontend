@@ -81,3 +81,5 @@ RecordOrderForCustomer (page)
 **See also:** [Update customer — UI constituents](./refactor-baseline-update-customer-constituents.md) (render tree from `UpdateCustomer.tsx` only).
 
 **See also:** [Update customer header — baseline](./refactor-baseline-update-customer-header.md) (`UpdateCustomerHeader`: props-only, no fetch).
+
+**See also:** [Customer statement — baseline](./refactor-baseline-customer-statement.md) (`CustomerStatement`, ledger pure module, `useCustomerStatement`).
