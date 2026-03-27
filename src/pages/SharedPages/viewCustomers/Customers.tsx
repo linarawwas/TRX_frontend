@@ -17,7 +17,6 @@ import {
   type Customer,
 } from "../../../features/customers/apiCustomers";
 import AddCustomer from "../../../components/Customers/AddCustomer/AddCustomer";
-import SpinLoader from "../../../components/UI reusables/SpinLoader/SpinLoader";
 import { t } from "../../../utils/i18n";
 import { createLogger } from "../../../utils/logger";
 
@@ -36,6 +35,34 @@ type CustomerRowProps = {
   customer: Customer;
   inactive?: boolean;
 };
+
+const CustomersListSkeleton = memo(function CustomersListSkeleton() {
+  return (
+    <div
+      className="vc-skeleton-root"
+      role="status"
+      aria-busy="true"
+      aria-label={t("common.loading")}
+    >
+      <div className="vc-skeleton-accordion">
+        <section className="vc-skeleton-section" aria-hidden="true">
+          <div className="vc-skeleton-acc-header" />
+          <div className="vc-skeleton-cards">
+            {Array.from({ length: 5 }, (_, i) => (
+              <div key={i} className="vc-skeleton-card">
+                <div className="vc-skeleton-line vc-skeleton-line--name" />
+                <div className="vc-skeleton-icon" />
+              </div>
+            ))}
+          </div>
+        </section>
+        <section className="vc-skeleton-section vc-skeleton-section--collapsed" aria-hidden="true">
+          <div className="vc-skeleton-acc-header vc-skeleton-acc-header--muted" />
+        </section>
+      </div>
+    </div>
+  );
+});
 
 const CustomerRow = memo(function CustomerRow({
   customer,
@@ -181,9 +208,7 @@ function CustomersInner(): JSX.Element {
       </header>
 
       {loading ? (
-        <div className="vc-loading" aria-busy="true" aria-live="polite">
-          <SpinLoader />
-        </div>
+        <CustomersListSkeleton />
       ) : error ? (
         <div className="vc-inline-error" role="alert">
           <p className="vc-inline-error__text">

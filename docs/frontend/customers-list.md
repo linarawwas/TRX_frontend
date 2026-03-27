@@ -12,6 +12,7 @@ Dual classes keep legacy hooks (`customers-body`, `accordion-header`, …) while
 
 ## Behavior
 
+- While the list is loading, `CustomersListSkeleton` mirrors the accordion + card layout (shimmer; respects `prefers-reduced-motion`).
 - Refetch when `token`, `showInsertOne`, or `loadCustomers` changes; `dispatch(clearCustomerId())` on each run.
 - RTK Query / API cache is not controlled from this file.
 
