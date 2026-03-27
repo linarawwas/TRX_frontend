@@ -1,111 +1,261 @@
-/* Unified Aside Menu CSS */
+@import url("https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;700;800&display=swap");
 
-/* Top Navbar */
-.top-navbar {
+/* ——— Root ——— */
+.uam-root {
+  font-family: "Tajawal", system-ui, -apple-system, "Segoe UI", Roboto,
+    "Noto Kufi Arabic", sans-serif;
+}
+
+.uam-root--error {
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 56px;
+}
+
+.uam-error-card {
+  text-align: center;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  background: #fff;
+  max-width: 320px;
+}
+
+.uam-error-text {
+  margin: 0 0 12px;
+  font-weight: 700;
+  color: #991b1b;
+  font-size: 14px;
+}
+
+.uam-error-reload {
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  background: linear-gradient(135deg, #047857 0%, #059669 100%);
+  color: #fff;
+}
+
+/* ——— Top bar ——— */
+.top-navbar.uam-topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  background-color: #fff;
-  border-bottom: 1px solid #eee;
+  background: rgba(255, 255, 255, 0.92);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
   position: sticky;
   top: 0;
   z-index: 100;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .page-title {
   font-size: 18px;
   font-weight: 600;
-  color: #00203f;
+  color: #0f172a;
   text-align: center;
   flex: 1;
 }
 
-.menu-toggle {
-  font-size: 24px;
-  background: none;
-  border: none;
-  color: #00203f;
+.menu-toggle.uam-menu-toggle {
+  font-size: 22px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: #f1f5f9;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 12px;
+  color: #0f172a;
   cursor: pointer;
+  touch-action: manipulation;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
 }
 
-.logo-icon {
+.menu-toggle.uam-menu-toggle:hover {
+  background: #e2e8f0;
+}
+
+.menu-toggle.uam-menu-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.35);
+}
+
+.uam-logo-btn {
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 10px;
+  line-height: 0;
+}
+
+.uam-logo-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.35);
+}
+
+.logo-icon.uam-logo {
   width: 40px;
   height: 40px;
-  border-radius: 6px;
+  border-radius: 10px;
   object-fit: contain;
-  cursor: pointer;
+  display: block;
 }
 
-/* Sidebar Drawer */
-.sidebar-drawer {
+/* ——— Overlay ——— */
+.menu-overlay.uam-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 998;
+}
+
+/* ——— Drawer ——— */
+.sidebar-drawer.uam-drawer {
   position: fixed;
   top: 0;
   right: -100%;
-  width: 60%;
+  width: min(78vw, 300px);
   height: 100%;
-  background-color: white;
-  box-shadow: -4px 0 8px rgba(0, 0, 0, 0.15);
-  transition: right 0.3s ease-in-out;
+  height: 100dvh;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  box-shadow: -8px 0 32px rgba(15, 23, 42, 0.12);
+  transition: right 0.28s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 999;
-  padding: 24px 16px;
-  border-top-left-radius: 16px;
-  border-bottom-left-radius: 16px;
+  padding: 20px 16px 24px;
+  border-top-left-radius: 18px;
+  border-bottom-left-radius: 18px;
   display: flex;
   flex-direction: column;
-  /* justify-content: space-between; */
+  border-inline-start: 1px solid rgba(15, 23, 42, 0.06);
+  box-sizing: border-box;
 }
 
-.sidebar-drawer.open {
+.sidebar-drawer.uam-drawer.open {
   right: 0;
 }
 
-.menu-section a {
-  display: block;
-  font-size: 16px;
-  padding: 14px 0;
-  color: #00203f;
-  border-bottom: 1px solid #f0f0f0;
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-drawer.uam-drawer {
+    transition: none;
+  }
+}
+
+.menu-section.uam-nav {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-top: 8px;
+}
+
+.menu-section-link.uam-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 14px 12px;
+  margin-bottom: 4px;
+  color: #0f172a;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
   text-decoration: none;
-  transition: background 0.2s;
+  border-radius: 12px;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
-.menu-section a:hover {
-  background-color: #f7f7f7;
-  border-radius: 8px;
-  color: #007bff;
+.menu-section-link.uam-nav-link:hover {
+  background: #ecfdf5;
+  color: #047857;
 }
 
-.menu-footer {
-  margin-top: 24px;
+.menu-section-link.uam-nav-link:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+}
+
+.uam-nav-link__icon {
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.uam-nav-link__label {
+  flex: 1;
+  text-align: right;
+}
+
+.menu-footer.uam-footer {
+  margin-top: auto;
+  padding-top: 20px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
+  flex-shrink: 0;
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
 }
 
-.logout-btn {
+.logout-btn.uam-logout {
   width: 100%;
-  padding: 12px;
-  background-color: #d9534f;
-  color: white;
-  font-weight: bold;
+  min-height: 48px;
+  padding: 12px 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%);
+  color: #fff;
+  font-weight: 800;
+  font-size: 15px;
+  font-family: inherit;
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: background 0.2s;
+  touch-action: manipulation;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.2);
+  transition: filter 0.15s ease;
 }
 
-.logout-btn:hover {
-  background-color: #c9302c;
+.logout-btn.uam-logout:hover {
+  filter: brightness(1.05);
 }
 
-.menu-overlay {
-  position: fixed;
-  top: 0;
-  right: 0;
+.logout-btn.uam-logout:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.45), 0 4px 14px rgba(220, 38, 38, 0.2);
+}
+
+.logout-btn.uam-secondary-btn {
   width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.3);
-  z-index: 998;
+  min-height: 48px;
+  padding: 12px 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-weight: 800;
+  font-size: 15px;
+  font-family: inherit;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 12px;
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+.uam-btn-icon {
+  font-size: 16px;
+  line-height: 1;
 }

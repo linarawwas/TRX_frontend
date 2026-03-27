@@ -1,118 +1,242 @@
-import React, { useState } from "react";
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import logo from "../../../images/logo.jpeg";
-import {
-  clearCompanyId,
-  clearToken,
-  clearIsAdmin,
-} from "../../../redux/UserInfo/action";
 import { setShipmentFromPrev } from "../../../redux/Shipment/action";
+import type { RootState } from "../../../redux/store";
+import { clearAuth } from "../../../features/auth/authStorage";
+import { createLogger } from "../../../utils/logger";
 import "../UnifiedAsideMenu.css";
-const AsideMenu: React.FC = () => {
+
+const logger = createLogger("unified-aside-menu");
+
+type NavItem = {
+  to: string;
+  label: string;
+  icon: string;
+};
+
+const STATIC_NAV_ITEMS: NavItem[] = [
+  { to: "/areas", label: "المناطق", icon: "🌍" },
+  { to: "/customers", label: "الزبائن", icon: "👥" },
+  { to: "/currentShipment", label: "بيانات الشحنة", icon: "📦" },
+  { to: "/reports/orders-today", label: "طلبات شحنات اليوم", icon: "🧾" },
+  { to: "/Expenses", label: "المصاريف", icon: "🧾" },
+  { to: "/Profits", label: "الأرباح", icon: "💰" },
+];
+
+const ADMIN_NAV_ITEMS: NavItem[] = [
+  { to: "/distributors", label: "الموزعين", icon: "👥" },
+  { to: "/Products", label: "المنتجات", icon: "📦" },
+];
+
+const NavMenuLink = memo(function NavMenuLink({
+  item,
+  onNavigate,
+}: {
+  item: NavItem;
+  onNavigate: () => void;
+}) {
+  return (
+    <Link
+      to={item.to}
+      className="menu-section-link uam-nav-link"
+      onClick={onNavigate}
+    >
+      <span className="uam-nav-link__icon" aria-hidden="true">
+        {item.icon}
+      </span>
+      <span className="uam-nav-link__label">{item.label}</span>
+    </Link>
+  );
+});
+
+function UnifiedAsideMenuInner(): JSX.Element {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const drawerId = useId();
 
-  const isAdmin = useSelector((state: any) => state.user.isAdmin);
-  const shipmentId = useSelector((state: any) => state.shipment._id);
-  const dayId = useSelector((state: any) => state.shipment.dayId);
-  const shipmentDefined = !!shipmentId;
+  const isAdmin = useSelector((s: RootState) => s.user.isAdmin);
+  const shipmentId = useSelector((s: RootState) => s.shipment._id);
+  const dayId = useSelector((s: RootState) => s.shipment.dayId);
+  const shipmentDefined = Boolean(shipmentId);
 
-  const handleLogout = () => {
+  const closeMenu = useCallback(() => setIsMenuOpen(false), []);
+  const toggleMenu = useCallback(() => setIsMenuOpen((v) => !v), []);
+
+  const mainLinks = useMemo(() => {
+    const items: NavItem[] = [];
+    if (shipmentDefined && !isAdmin && dayId) {
+      items.push({ to: `/areas/${dayId}`, label: "المسار", icon: "🛣️" });
+    }
+    items.push(...STATIC_NAV_ITEMS);
+    return items;
+  }, [shipmentDefined, isAdmin, dayId]);
+
+  const handleLogout = useCallback(() => {
     toast.success("تم تسجيل الخروج بنجاح");
-    localStorage.removeItem("token");
+    clearAuth(dispatch);
     window.location.reload();
-    dispatch(clearToken());
-    dispatch(clearCompanyId());
-    dispatch(clearIsAdmin());
-  };
+  }, [dispatch]);
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeMenu();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isMenuOpen, closeMenu]);
+
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [isMenuOpen]);
 
   return (
-    <div dir="rtl">
+    <div className="uam-root" dir="rtl" lang="ar">
       <ToastContainer position="top-right" autoClose={1000} />
 
-      {/* Top Nav */}
-      <div className="top-navbar">
-        <button className="menu-toggle" onClick={toggleMenu}>
-          {isMenuOpen ? <FaTimes /> : <FaBars />}
+      <header className="top-navbar uam-topbar">
+        <button
+          type="button"
+          className="menu-toggle uam-menu-toggle"
+          onClick={toggleMenu}
+          aria-expanded={isMenuOpen}
+          aria-controls={drawerId}
+          aria-label={isMenuOpen ? "إغلاق القائمة" : "فتح القائمة"}
+        >
+          {isMenuOpen ? <FaTimes aria-hidden /> : <FaBars aria-hidden />}
         </button>
-        <img
-          className="logo-icon"
-          src={logo}
-          alt="الشعار"
+        <button
+          type="button"
+          className="uam-logo-btn"
           onClick={() => navigate("/")}
+          aria-label="الصفحة الرئيسية"
+        >
+          <img className="logo-icon uam-logo" src={logo} alt="" />
+        </button>
+      </header>
+
+      {isMenuOpen ? (
+        <div
+          className="menu-overlay uam-overlay"
+          role="presentation"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) closeMenu();
+          }}
         />
-      </div>
+      ) : null}
 
-      {isMenuOpen && <div className="menu-overlay" onClick={toggleMenu}></div>}
-
-      {/* Sidebar Drawer */}
-      <aside className={`sidebar-drawer ${isMenuOpen ? "open" : ""}`} dir="rtl">
-        <nav className="menu-section">
-          {/* Common Links */}
-          {shipmentDefined && !isAdmin && (
-            <Link to={`/areas/${dayId}`} onClick={toggleMenu}>
-              🛣️ المسار
-            </Link>
-          )}
-          <Link to="/areas" onClick={toggleMenu}>
-            🌍 المناطق
-          </Link>
-          <Link to="/customers" onClick={toggleMenu}>
-            👥 الزبائن
-          </Link>
-          <Link to="/currentShipment" onClick={toggleMenu}>
-            📦 بيانات الشحنة
-          </Link>
-          <Link to="/reports/orders-today" onClick={toggleMenu}>
-            🧾 طلبات شحنات اليوم
-          </Link>
-
-          <Link to="/Expenses" onClick={toggleMenu}>
-            🧾 المصاريف
-          </Link>
-          <Link to="/Profits" onClick={toggleMenu}>
-            💰 الأرباح
-          </Link>
-          {/* Admin-only Links */}
-          {isAdmin && (
-            <>
-              {" "}
-              <Link to="/distributors" onClick={toggleMenu}>
-                👥 الموزعين
-              </Link>
-              <Link to="/Products" onClick={toggleMenu}>
-                📦 المنتجات
-              </Link>
-            </>
-          )}
+      <aside
+        id={drawerId}
+        className={`sidebar-drawer uam-drawer ${isMenuOpen ? "open" : ""}`}
+        dir="rtl"
+        aria-hidden={!isMenuOpen}
+        {...(isMenuOpen ? { "aria-modal": true as const } : {})}
+      >
+        <nav className="menu-section uam-nav" aria-label="القائمة الرئيسية">
+          {mainLinks.map((item) => (
+            <NavMenuLink key={item.to} item={item} onNavigate={closeMenu} />
+          ))}
+          {isAdmin
+            ? ADMIN_NAV_ITEMS.map((item) => (
+                <NavMenuLink key={item.to} item={item} onNavigate={closeMenu} />
+              ))
+            : null}
         </nav>
 
-        <div className="menu-footer">
-          <button className="logout-btn" onClick={handleLogout}>
-            🔓 تسجيل الخروج
+        <div className="menu-footer uam-footer">
+          <button
+            type="button"
+            className="logout-btn uam-logout"
+            onClick={handleLogout}
+          >
+            <span className="uam-btn-icon" aria-hidden="true">
+              🔓
+            </span>
+            تسجيل الخروج
           </button>
-          {!isAdmin && (
+          {!isAdmin ? (
             <button
-              className="logout-btn"
+              type="button"
+              className="logout-btn uam-secondary-btn"
               onClick={() => dispatch(setShipmentFromPrev())}
               disabled
             >
-              🔁 الشحنة السابقة
+              <span className="uam-btn-icon" aria-hidden="true">
+                🔁
+              </span>
+              الشحنة السابقة
             </button>
-          )}
+          ) : null}
         </div>
       </aside>
     </div>
   );
-};
+}
 
-export default AsideMenu;
+type BoundaryState = { hasError: boolean };
+
+class UnifiedAsideMenuErrorBoundary extends React.Component<
+  { children: ReactNode },
+  BoundaryState
+> {
+  state: BoundaryState = { hasError: false };
+
+  static getDerivedStateFromError(): BoundaryState {
+    return { hasError: true };
+  }
+
+  componentDidCatch(err: Error, info: React.ErrorInfo): void {
+    logger.error("UnifiedAsideMenu crashed", {
+      message: err.message,
+      stack: err.stack,
+      componentStack: info.componentStack,
+    });
+  }
+
+  render(): ReactNode {
+    if (this.state.hasError) {
+      return (
+        <div className="uam-root uam-root--error" dir="rtl" lang="ar" role="alert">
+          <div className="uam-error-card">
+            <p className="uam-error-text">تعذّر تحميل القائمة الجانبية.</p>
+            <button
+              type="button"
+              className="uam-error-reload"
+              onClick={() => window.location.reload()}
+            >
+              إعادة تحميل
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+export default function UnifiedAsideMenu(): JSX.Element {
+  return (
+    <UnifiedAsideMenuErrorBoundary>
+      <UnifiedAsideMenuInner />
+    </UnifiedAsideMenuErrorBoundary>
+  );
+}
