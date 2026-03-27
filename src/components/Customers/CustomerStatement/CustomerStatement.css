@@ -499,11 +499,85 @@
 }
 
 .st-ledger-cards-subtotal {
-  margin-top: 16px;
+  margin: 0 0 12px;
   padding: 14px 16px;
   border-radius: 14px;
   border: 1px solid rgba(5, 150, 105, 0.22);
   background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+}
+
+/* Collapsible order cards (default closed — saves vertical space) */
+.st-ledger-orders-details {
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 14px;
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.st-ledger-orders-details__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 16px;
+  min-height: 48px;
+  box-sizing: border-box;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 14px;
+  color: #0f172a;
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  list-style: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(5, 150, 105, 0.1);
+}
+
+.st-ledger-orders-details__summary::-webkit-details-marker {
+  display: none;
+}
+
+.st-ledger-orders-details__summary-text {
+  flex: 1;
+  text-align: right;
+  line-height: 1.35;
+}
+
+.st-ledger-orders-details__chevron {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.06);
+}
+
+.st-ledger-orders-details__chevron::after {
+  content: "▼";
+  font-size: 11px;
+  line-height: 1;
+  color: #64748b;
+}
+
+.st-ledger-orders-details[open] .st-ledger-orders-details__chevron::after {
+  content: "▲";
+}
+
+.st-ledger-orders-details__body {
+  padding: 10px 12px 14px;
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.st-ledger-orders-details__hint {
+  margin: 0 0 10px;
+  line-height: 1.45;
+}
+
+.st-ledger-orders-details__body .st-ledger-cards__list {
+  gap: 10px;
 }
 
 .st-ledger-cards-subtotal__title {

@@ -89,9 +89,10 @@ export function buildStatementLedger(
   let sumDelivered = 0;
   let sumReturned = 0;
 
+  /* Newest first: aligns with how users scan recent activity on mobile and desktop. */
   const sorted = [...orders].sort(
     (a, b) =>
-      new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
   );
 
   for (const o of sorted) {

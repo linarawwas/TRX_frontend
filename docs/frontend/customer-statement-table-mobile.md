@@ -4,7 +4,7 @@
 
 For **dense financial ledgers**, the optimal pattern is usually **not** a single solution for every viewport:
 
-1. **Phones (≤719px):** **One order = one card** — vertical scan, no horizontal pan, **primary metric** (الباقي رصيد مالي) highlighted, supporting fields in a **2-column label grid**, **44px+** invoice CTA, then an **orders subtotal** block matching the table footer.
+1. **Phones (≤719px):** **إجمالي الطلبات** (subtotal) **first** — matches business need to see totals before drilling in. **Order rows are newest-first** (same sort as the desktop table). The **card list is inside `<details>`**, **collapsed by default** so the screen stays compact; expanding shows one card per order (hero remaining USD, invoice link, field grid).
 2. **Tablet / desktop (≥720px):** **Full 8-column table** inside `st-table-wrap` — comparison across columns and alignment with **print** output.
 3. **Print:** **Table only**; card layout hidden.
 

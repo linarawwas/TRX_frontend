@@ -143,6 +143,8 @@ export type TranslationKey =
   | 'customerStatement.cards.checkoutTotal'
   | 'customerStatement.cards.paidTotal'
   | 'customerStatement.cards.remainingTotal'
+  | 'customerStatement.cards.ordersDetailsToggle'
+  | 'customerStatement.cards.ordersDetailsHint'
   | 'customersForArea.title'
   | 'customersForArea.search.placeholder'
   | 'customersForArea.loading'
@@ -505,6 +507,10 @@ const translations: Record<TranslationKey, string> = {
   'customerStatement.cards.checkoutTotal': 'إجمالي الحساب',
   'customerStatement.cards.paidTotal': 'إجمالي المدفوع',
   'customerStatement.cards.remainingTotal': 'إجمالي المتبقّي',
+  'customerStatement.cards.ordersDetailsToggle':
+    'الطلبات ({{count}}) — الأحدث أولاً',
+  'customerStatement.cards.ordersDetailsHint':
+    'اضغط لعرض أو إخفاء تفاصيل كل طلب',
   'customersForArea.title': 'الزبائن في هذه المنطقة',
   'customersForArea.search.placeholder': '🔍 ابحث عن اسم الزبون...',
   'customersForArea.loading': '⏳ جارٍ تحميل الزبائن...',

@@ -58,7 +58,7 @@ describe("customerStatementLedger", () => {
       orderId: null,
     };
     const ledger = buildStatementLedger(orders, opening);
-    expect(ledger.rows.map((r) => r.orderId)).toEqual(["a", "b"]);
+    expect(ledger.rows.map((r) => r.orderId)).toEqual(["b", "a"]);
     expect(ledger.meta.openingBottles).toBe(1);
     expect(ledger.meta.ordersBottles).toBe(4);
     expect(ledger.meta.statementBottlesLeft).toBe(5);

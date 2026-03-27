@@ -15,8 +15,8 @@ function remainingClass(remainingUSD: number): string {
 }
 
 /**
- * Narrow-viewport ledger: one card per order row + orders subtotal.
- * Data mirrors the desktop table; print and ≥720px use the full table instead.
+ * Narrow-viewport ledger: subtotal first, then collapsible card list (newest-first).
+ * Desktop/table uses the same row order from buildStatementLedger.
  */
 export const StatementLedgerMobile = memo(function StatementLedgerMobile({
   ledger,
@@ -35,93 +35,108 @@ export const StatementLedgerMobile = memo(function StatementLedgerMobile({
 
   return (
     <div className="st-ledger-mobile-root">
-    <div
-      className="st-ledger-cards"
-      role="region"
-      aria-label={t("customerStatement.cards.listAriaLabel")}
-    >
-      <ul className="st-ledger-cards__list">
-        {rows.map((r) => (
-          <li key={r.orderId} className="st-ledger-cards__item">
-            <article className="st-ledger-card">
-              <header className="st-ledger-card__head">
-                <span className="st-ledger-card__date">{r.date}</span>
-                <Link
-                  to={`/updateOrder/${r.orderId}`}
-                  className="st-ledger-card__link"
-                  title={`فتح الفاتورة ${r.orderId}`}
-                >
-                  {t("customerStatement.cards.invoiceLink")}
-                </Link>
-              </header>
-
-              <div
-                className={`st-ledger-card__hero ${remainingClass(r.remainingUSD)}`}
-              >
-                <span className="st-ledger-card__hero-label">
-                  {t("customerStatement.cards.remainingUsd")}
-                </span>
-                <span className="st-ledger-card__hero-value">
-                  {fmtUSD(Math.abs(r.remainingUSD))}
-                </span>
-              </div>
-
-              <dl className="st-ledger-card__grid">
-                <div className="st-ledger-card__pair">
-                  <dt>{t("customerStatement.cards.delivered")}</dt>
-                  <dd>{r.delivered}</dd>
-                </div>
-                <div className="st-ledger-card__pair">
-                  <dt>{t("customerStatement.cards.returned")}</dt>
-                  <dd>{r.returned}</dd>
-                </div>
-                <div className="st-ledger-card__pair">
-                  <dt>{t("customerStatement.cards.bottlesNet")}</dt>
-                  <dd>{r.bottlesLeft}</dd>
-                </div>
-                <div className="st-ledger-card__pair">
-                  <dt>{t("customerStatement.cards.checkout")}</dt>
-                  <dd>{fmtUSD(r.totalUSD)}</dd>
-                </div>
-                <div className="st-ledger-card__pair">
-                  <dt>{t("customerStatement.cards.paid")}</dt>
-                  <dd>{fmtUSD(r.paidUSD)}</dd>
-                </div>
-              </dl>
-            </article>
-          </li>
-        ))}
-      </ul>
-
-      <section
-        className="st-ledger-cards-subtotal"
-        aria-label={t("customerStatement.cards.subtotalAria")}
+      <div
+        className="st-ledger-cards"
+        role="region"
+        aria-label={t("customerStatement.cards.listAriaLabel")}
       >
-        <h2 className="st-ledger-cards-subtotal__title">
-          {t("customerStatement.cards.subtotalTitle")}
-        </h2>
-        <dl className="st-ledger-cards-subtotal__grid">
-          <div className="st-ledger-card__pair">
-            <dt>{t("customerStatement.cards.bottlesOrdersTotal")}</dt>
-            <dd>{meta.ordersBottles}</dd>
+        <section
+          className="st-ledger-cards-subtotal"
+          aria-label={t("customerStatement.cards.subtotalAria")}
+        >
+          <h2 className="st-ledger-cards-subtotal__title">
+            {t("customerStatement.cards.subtotalTitle")}
+          </h2>
+          <dl className="st-ledger-cards-subtotal__grid">
+            <div className="st-ledger-card__pair">
+              <dt>{t("customerStatement.cards.bottlesOrdersTotal")}</dt>
+              <dd>{meta.ordersBottles}</dd>
+            </div>
+            <div className="st-ledger-card__pair">
+              <dt>{t("customerStatement.cards.checkoutTotal")}</dt>
+              <dd>{fmtUSD(totals.total)}</dd>
+            </div>
+            <div className="st-ledger-card__pair">
+              <dt>{t("customerStatement.cards.paidTotal")}</dt>
+              <dd>{fmtUSD(totals.paid)}</dd>
+            </div>
+            <div className="st-ledger-card__pair">
+              <dt>{t("customerStatement.cards.remainingTotal")}</dt>
+              <dd className={remainingClass(totals.remaining)}>
+                {fmtUSD(Math.abs(totals.remaining))}
+              </dd>
+            </div>
+          </dl>
+        </section>
+
+        <details className="st-ledger-orders-details">
+          <summary className="st-ledger-orders-details__summary">
+            <span className="st-ledger-orders-details__summary-text">
+              {t("customerStatement.cards.ordersDetailsToggle", {
+                count: rows.length,
+              })}
+            </span>
+            <span className="st-ledger-orders-details__chevron" aria-hidden="true" />
+          </summary>
+          <div className="st-ledger-orders-details__body">
+            <p className="st-ledger-orders-details__hint muted">
+              {t("customerStatement.cards.ordersDetailsHint")}
+            </p>
+            <ul className="st-ledger-cards__list">
+              {rows.map((r) => (
+                <li key={r.orderId} className="st-ledger-cards__item">
+                  <article className="st-ledger-card">
+                    <header className="st-ledger-card__head">
+                      <span className="st-ledger-card__date">{r.date}</span>
+                      <Link
+                        to={`/updateOrder/${r.orderId}`}
+                        className="st-ledger-card__link"
+                        title={`فتح الفاتورة ${r.orderId}`}
+                      >
+                        {t("customerStatement.cards.invoiceLink")}
+                      </Link>
+                    </header>
+
+                    <div
+                      className={`st-ledger-card__hero ${remainingClass(r.remainingUSD)}`}
+                    >
+                      <span className="st-ledger-card__hero-label">
+                        {t("customerStatement.cards.remainingUsd")}
+                      </span>
+                      <span className="st-ledger-card__hero-value">
+                        {fmtUSD(Math.abs(r.remainingUSD))}
+                      </span>
+                    </div>
+
+                    <dl className="st-ledger-card__grid">
+                      <div className="st-ledger-card__pair">
+                        <dt>{t("customerStatement.cards.delivered")}</dt>
+                        <dd>{r.delivered}</dd>
+                      </div>
+                      <div className="st-ledger-card__pair">
+                        <dt>{t("customerStatement.cards.returned")}</dt>
+                        <dd>{r.returned}</dd>
+                      </div>
+                      <div className="st-ledger-card__pair">
+                        <dt>{t("customerStatement.cards.bottlesNet")}</dt>
+                        <dd>{r.bottlesLeft}</dd>
+                      </div>
+                      <div className="st-ledger-card__pair">
+                        <dt>{t("customerStatement.cards.checkout")}</dt>
+                        <dd>{fmtUSD(r.totalUSD)}</dd>
+                      </div>
+                      <div className="st-ledger-card__pair">
+                        <dt>{t("customerStatement.cards.paid")}</dt>
+                        <dd>{fmtUSD(r.paidUSD)}</dd>
+                      </div>
+                    </dl>
+                  </article>
+                </li>
+              ))}
+            </ul>
           </div>
-          <div className="st-ledger-card__pair">
-            <dt>{t("customerStatement.cards.checkoutTotal")}</dt>
-            <dd>{fmtUSD(totals.total)}</dd>
-          </div>
-          <div className="st-ledger-card__pair">
-            <dt>{t("customerStatement.cards.paidTotal")}</dt>
-            <dd>{fmtUSD(totals.paid)}</dd>
-          </div>
-          <div className="st-ledger-card__pair">
-            <dt>{t("customerStatement.cards.remainingTotal")}</dt>
-            <dd className={remainingClass(totals.remaining)}>
-              {fmtUSD(Math.abs(totals.remaining))}
-            </dd>
-          </div>
-        </dl>
-      </section>
-    </div>
+        </details>
+      </div>
     </div>
   );
 });
