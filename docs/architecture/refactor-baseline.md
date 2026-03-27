@@ -91,3 +91,5 @@ RecordOrderForCustomer (page)
 **See also:** [Current shipment stat — baseline](./refactor-baseline-current-shipment-stat.md) (`CurrentShipmentStat`: `useTodayShipmentTotals`, `computeNetTotals`, RTK range query).
 
 **See also:** [Admin home — baseline](./refactor-baseline-admin-home-page.md) (`AdminHomePage`: snapshot KPIs, `FinanceDashboard` lazy, `useTodayShipmentTotals`).
+
+**See also:** [Shipments list — baseline](./refactor-baseline-shipments-list.md) (`ShipmentsList`: lazy range query, KPI totals, shipment cards).
