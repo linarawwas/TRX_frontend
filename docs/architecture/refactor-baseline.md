@@ -89,3 +89,5 @@ RecordOrderForCustomer (page)
 **See also:** [Customers list — baseline](./refactor-baseline-customers-list.md) (`Customers.tsx`: `fetchCustomersByCompany`, accordions, `AddCustomer`).
 
 **See also:** [Current shipment stat — baseline](./refactor-baseline-current-shipment-stat.md) (`CurrentShipmentStat`: `useTodayShipmentTotals`, `computeNetTotals`, RTK range query).
+
+**See also:** [Admin home — baseline](./refactor-baseline-admin-home-page.md) (`AdminHomePage`: snapshot KPIs, `FinanceDashboard` lazy, `useTodayShipmentTotals`).
