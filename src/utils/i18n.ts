@@ -128,6 +128,21 @@ export type TranslationKey =
   | 'customers.noResults'
   | 'customerStatement.table.regionAriaLabel'
   | 'customerStatement.table.scrollHint'
+  | 'customerStatement.cards.listAriaLabel'
+  | 'customerStatement.cards.empty'
+  | 'customerStatement.cards.invoiceLink'
+  | 'customerStatement.cards.remainingUsd'
+  | 'customerStatement.cards.delivered'
+  | 'customerStatement.cards.returned'
+  | 'customerStatement.cards.bottlesNet'
+  | 'customerStatement.cards.checkout'
+  | 'customerStatement.cards.paid'
+  | 'customerStatement.cards.subtotalAria'
+  | 'customerStatement.cards.subtotalTitle'
+  | 'customerStatement.cards.bottlesOrdersTotal'
+  | 'customerStatement.cards.checkoutTotal'
+  | 'customerStatement.cards.paidTotal'
+  | 'customerStatement.cards.remainingTotal'
   | 'customersForArea.title'
   | 'customersForArea.search.placeholder'
   | 'customersForArea.loading'
@@ -475,6 +490,21 @@ const translations: Record<TranslationKey, string> = {
     'جدول حركة الطلبات والأرصدة؛ يمكن التمرير أفقياً لعرض جميع الأعمدة',
   'customerStatement.table.scrollHint':
     'مرّر أفقياً لعرض كافة أعمدة الحساب',
+  'customerStatement.cards.listAriaLabel': 'حركة الطلبات (عرض بطاقات)',
+  'customerStatement.cards.empty': 'لا توجد طلبات في هذا الكشف',
+  'customerStatement.cards.invoiceLink': 'تفاصيل الفاتورة',
+  'customerStatement.cards.remainingUsd': 'الباقي (رصيد مالي)',
+  'customerStatement.cards.delivered': 'المُسلَّم',
+  'customerStatement.cards.returned': 'المُرْجَع',
+  'customerStatement.cards.bottlesNet': 'الباقي (حاويات)',
+  'customerStatement.cards.checkout': 'الحساب (USD)',
+  'customerStatement.cards.paid': 'المدفوع (USD)',
+  'customerStatement.cards.subtotalAria': 'إجمالي من جمع الطلبات',
+  'customerStatement.cards.subtotalTitle': 'إجمالي الطلبات',
+  'customerStatement.cards.bottlesOrdersTotal': 'صافي الحاويات',
+  'customerStatement.cards.checkoutTotal': 'إجمالي الحساب',
+  'customerStatement.cards.paidTotal': 'إجمالي المدفوع',
+  'customerStatement.cards.remainingTotal': 'إجمالي المتبقّي',
   'customersForArea.title': 'الزبائن في هذه المنطقة',
   'customersForArea.search.placeholder': '🔍 ابحث عن اسم الزبون...',
   'customersForArea.loading': '⏳ جارٍ تحميل الزبائن...',

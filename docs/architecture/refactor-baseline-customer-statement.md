@@ -10,7 +10,7 @@
 CustomerStatement (default export, error boundary)
 └── CustomerStatementInner
     ├── useCustomerStatement(customerId, token)
-    ├── Ledger UI (table + summary) from buildStatementLedger(...)
+    ├── Ledger UI: StatementLedgerMobile (≤719px) + table in st-table-wrap (≥720px, print) + summary
     ├── CustomerStatementPaymentSheet (optional)
     │   └── AddPaymentForm (when order selected)
     └── ToastContainer

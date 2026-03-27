@@ -1,32 +1,38 @@
-# Customer statement — ledger table & `st-table-wrap` (mobile UX)
+# Customer statement — ledger on mobile (hybrid table + cards)
 
-## Business / functional role
+## Product decision (senior mobile UX)
 
-The statement **ledger** is an eight-column table: **date**, **order link** (open invoice), **delivered**, **returned**, **net bottles per row**, **checkout USD**, **paid USD**, **remaining balance USD**, plus a **footer** with column totals and bottle subtotals.
+For **dense financial ledgers**, the optimal pattern is usually **not** a single solution for every viewport:
 
-On a phone, eight numeric/text columns cannot fit without becoming unreadable. **`st-table-wrap`** is therefore the **horizontal scroll viewport**: the table keeps a **`min-width`** (~640px) so columns stay legible, while the wrapper provides **`overflow-x: auto`** and momentum scrolling on iOS.
+1. **Phones (≤719px):** **One order = one card** — vertical scan, no horizontal pan, **primary metric** (الباقي رصيد مالي) highlighted, supporting fields in a **2-column label grid**, **44px+** invoice CTA, then an **orders subtotal** block matching the table footer.
+2. **Tablet / desktop (≥720px):** **Full 8-column table** inside `st-table-wrap` — comparison across columns and alignment with **print** output.
+3. **Print:** **Table only**; card layout hidden.
 
-**`st-table-region`** groups that scroll port with a **short hint** shown only on narrow screens so users know to pan horizontally.
+Same source of truth: `buildStatementLedger()` in `customerStatementLedger.ts`. **`StatementLedgerMobile`** is presentational only.
 
-## Current design (after mobile pass)
+## Desktop table region (`st-table-wrap`)
+
+| Element | Role |
+|---------|------|
+| **`st-table-region`** | Wraps scroll hint + table on wide viewports only (whole block has `st-ledger-table-desktop`). |
+| **`st-table-wrap`** | Horizontal scroll when the table is shown; `aria-label`, `tabIndex`, sticky `thead`, etc. |
+
+On narrow screens the **desktop block is `display: none`**; users interact with **cards** instead, so the horizontal scroll hint is not needed on mobile.
+
+## Mobile root (`st-ledger-mobile-root`)
 
 | Practice | Implementation |
 |----------|----------------|
-| **Scroll without layout break** | `.st-table-wrap { overflow-x: auto; min-width` on `.st-table }` — same model as before, with stronger mobile polish. |
-| **Discoverability** | `.st-table-scroll-hint` visible for `max-width: 720px`, `aria-hidden` (redundant with spoken `aria-label` on the region). |
-| **Screen readers** | `role="region"`, `tabIndex={0}`, `aria-label` from `customerStatement.table.regionAriaLabel` (i18n). |
-| **Focus** | `:focus-visible` ring on the scroll region for keyboard users. |
-| **Touch** | `-webkit-overflow-scrolling: touch`, `overscroll-behavior-x: contain` (reduces scroll chaining into the page). |
-| **Edge affordance** | Inset box-shadow on the wrap hints that more columns exist off-screen. |
-| **Tap targets** | For `max-width: 640px`, `.st-order-link` uses `min-height/min-width: 44px`, `touch-action: manipulation`, tap highlight. |
-| **Density** | Slightly tighter cell padding and font size on small screens. |
-| **Sticky header** | `thead th` stays `position: sticky; top: 0` inside the scroll container; `z-index` + bottom shadow for separation while scrolling. |
-| **Print** | Hint hidden; wrap loses inset shadow/border so the printed ledger is flat and fully visible. |
-| **Motion** | `scroll-behavior: smooth` disabled under `prefers-reduced-motion: reduce`. |
+| **Progressive disclosure** | Hero strip = remaining USD; other amounts in compact `dl` grid. |
+| **Business priority** | Outstanding balance per row is **largest / tinted** (due vs credit). |
+| **Actions** | **تفاصيل الفاتورة** as a full touch target. |
+| **Parity** | **إجمالي الطلبات** card = same numbers as table `<tfoot>`. |
+| **Empty** | i18n empty message only on mobile (desktop still shows empty tbody). |
+| **a11y** | `role="region"` on card list; `h2` + `aria-label` on subtotal; list `ul`/`li` for order cards. |
 
 ## Extension
 
-- **Card/list layout** for phones (one row → one card) would be a larger product change; keep ledger math in `customerStatementLedger.ts` and map `rows` to a new presentational component if added.
-- New columns: adjust `min-width` on `.st-table` and footer `colSpan` to stay aligned.
+- **Toggle “جدول / بطاقات”** on mobile: add `localStorage` + class on `body` or container; default stays **cards** on ≤719px.
+- **Virtualize** the `ul` if row count grows very large (separate from layout choice).
 
 See [customer-statement.md](./customer-statement.md).

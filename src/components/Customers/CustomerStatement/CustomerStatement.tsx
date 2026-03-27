@@ -14,6 +14,7 @@ import {
   fmtUSD,
 } from "./customerStatementLedger";
 import { useCustomerStatement } from "./useCustomerStatement";
+import { StatementLedgerMobile } from "./StatementLedgerMobile";
 import "./CustomerStatement.css";
 
 function CustomerStatementInner() {
@@ -122,7 +123,9 @@ function CustomerStatementInner() {
                 ) : null}
               </section>
 
-              <div className="st-table-region">
+              <StatementLedgerMobile ledger={ledger} />
+
+              <div className="st-table-region st-ledger-table-desktop">
                 <p
                   className="st-table-scroll-hint"
                   aria-hidden="true"
