@@ -1,4 +1,10 @@
-import React, { useMemo, useState } from "react";
+import React, {
+  Component,
+  useMemo,
+  useState,
+  type ComponentProps,
+  type ReactNode,
+} from "react";
 import "./Distributors.css";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../../redux/store";
@@ -18,12 +24,22 @@ import DistributorListSkeleton from "./skeletons/DistributorListSkeleton";
 import LoadingMessage from "./components/LoadingMessage";
 import { useLoadingMessage } from "./hooks/useLoadingMessage";
 import ProductSelectionPrompt from "./components/ProductSelectionPrompt";
+import { createLogger } from "../../utils/logger";
 
-const DistributorsPage: React.FC = () => {
-  const token = useSelector((s: RootState) => s.user.token) as string;
-  const companyId = useSelector((s: RootState) => s.user.companyId) as string;
+const logger = createLogger("distributors-page");
+
+type AddToModelFields = ComponentProps<typeof AddToModel>["modelFields"];
+
+const createFields: AddToModelFields = {
+  name: { label: "اسم الموزّع", "input-type": "text" },
+  commissionPct: { label: "نسبة العمولة (%)", "input-type": "number" },
+};
+
+function DistributorsPageInner(): JSX.Element {
+  const token = useSelector((s: RootState) => s.user.token) ?? "";
+  const companyId = useSelector((s: RootState) => s.user.companyId) ?? "";
   const selectedProductId = useSelector(
-    (s: RootState) => (s as any)?.default?.default_product || ""
+    (s: RootState) => s.default.default_product
   );
   const dispatch = useDispatch();
 
@@ -50,14 +66,10 @@ const DistributorsPage: React.FC = () => {
     refreshCustomers,
   } = useCompanyDistributorData(token, companyId);
 
-  /** UI: search & create modal */
   const [search, setSearch] = useState("");
   const [showCreate, setShowCreate] = useState(false);
-  const [isAdminView, setIsAdminView] = useState(true); // true = admin view (shows revenueUSD), false = distributor view (hides revenueUSD)
+  const [isAdminView, setIsAdminView] = useState(true);
 
-  // Removed auto-selection - user must explicitly choose a product
-
-  /** Filter by search (name/phone) */
   const filtered = useMemo(() => {
     const arr = Array.isArray(distributors) ? distributors : [];
     const q = search.trim().toLowerCase();
@@ -75,7 +87,6 @@ const DistributorsPage: React.FC = () => {
   );
   const pricePerBottle = selectedProduct?.priceInDollars ?? 0;
 
-  // Only calculate analytics if product is selected
   const analytics = useMemo(() => {
     if (!selectedProductId || pricePerBottle === 0) {
       return { distributors: new Map(), customersByDistributor: new Map() };
@@ -87,11 +98,17 @@ const DistributorsPage: React.FC = () => {
       range,
       pricePerBottle,
     });
-  }, [distributors, customers, orders, range, pricePerBottle, selectedProductId]);
+  }, [
+    distributors,
+    customers,
+    orders,
+    range,
+    pricePerBottle,
+    selectedProductId,
+  ]);
 
   const enriched = useMemo(() => {
     if (!selectedProductId) {
-      // Return distributors without sales/commission data
       return filtered.map((distributor) => ({
         ...distributor,
         customersCount: 0,
@@ -109,23 +126,19 @@ const DistributorsPage: React.FC = () => {
         deliveredSum: metrics?.deliveredSum ?? 0,
         revenueUSD: metrics?.revenueUSD ?? 0,
         commissionUSD: metrics?.commissionUSD ?? 0,
-        commissionPct: metrics?.commissionPct ?? distributor.commissionPct ?? 0,
+        commissionPct:
+          metrics?.commissionPct ?? distributor.commissionPct ?? 0,
       };
     });
   }, [analytics.distributors, filtered, selectedProductId]);
 
-  /** Create distributor modal fields */
-  const createFields = {
-    name: { label: "اسم الموزّع", "input-type": "text" },
-    commissionPct: { label: "نسبة العمولة (%)", "input-type": "number" },
-  } as const;
-
-  /** Unified loading/empty handling */
   const loading =
-    distributorsLoading || customersLoading || ordersLoading || productsLoading;
+    distributorsLoading ||
+    customersLoading ||
+    ordersLoading ||
+    productsLoading;
   const isEmpty = !loading && enriched.length === 0;
 
-  /** Context-aware loading message */
   const loadingMessage = useLoadingMessage({
     distributorsLoading,
     customersLoading,
@@ -134,14 +147,16 @@ const DistributorsPage: React.FC = () => {
   });
 
   return (
-    <div className="dist-wrap" dir="rtl">
+    <div className="dist-wrap" dir="rtl" lang="ar">
       <ToastContainer position="top-right" autoClose={1200} />
 
       <header className="dist-head">
         <h2 className="dist-title">الموزّعون</h2>
+        <p className="dist-lede">
+          متابعة العملاء، التسليم، المبيعات والعمولات حسب المنتج والفترة
+        </p>
 
         <div className="dist-actions" aria-busy={loading}>
-          {/* Date range chips + manual pickers */}
           {loading ? (
             <MonthPickerSkeleton />
           ) : (
@@ -155,7 +170,6 @@ const DistributorsPage: React.FC = () => {
             />
           )}
 
-          {/* Product select controls sales calculation - always visible for quick switching */}
           {productsLoading ? (
             <ProductSelectSkeleton />
           ) : (
@@ -185,10 +199,9 @@ const DistributorsPage: React.FC = () => {
             </div>
           )}
 
-          {/* Search (wired to filter) */}
           <div className="search">
             <input
-              type="text"
+              type="search"
               placeholder="🔎 ابحث عن موزّع…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -197,9 +210,9 @@ const DistributorsPage: React.FC = () => {
             />
           </div>
 
-          {/* View Toggle */}
           <button
-            className="btn secondary"
+            type="button"
+            className="btn secondary dist-btn-ghost"
             onClick={() => setIsAdminView(!isAdminView)}
             disabled={loading}
             aria-disabled={loading}
@@ -208,9 +221,9 @@ const DistributorsPage: React.FC = () => {
             {isAdminView ? "عرض للموزّع" : "عرض للإدارة"}
           </button>
 
-          {/* Create */}
           <button
-            className="btn primary"
+            type="button"
+            className="btn primary dist-btn-primary"
             onClick={() => setShowCreate(true)}
             disabled={loading}
             aria-disabled={loading}
@@ -220,7 +233,6 @@ const DistributorsPage: React.FC = () => {
         </div>
       </header>
 
-      {/* Product selection prompt - shown when no product is selected */}
       {!productsLoading && products.length > 0 && !selectedProductId && (
         <ProductSelectionPrompt
           products={products}
@@ -230,31 +242,30 @@ const DistributorsPage: React.FC = () => {
         />
       )}
 
-      {/* Body states */}
       {loading ? (
         <>
-          {loadingMessage && (
+          {loadingMessage ? (
             <LoadingMessage
               message={loadingMessage.message}
               submessage={loadingMessage.submessage}
               icon={loadingMessage.icon}
             />
-          )}
+          ) : null}
           <DistributorListSkeleton itemCount={6} />
         </>
       ) : !selectedProductId && !productsLoading ? (
-        <div className="empty" role="status">
-          <p style={{ fontSize: "1.1rem", marginBottom: "8px" }}>
-            ⚠️ يرجى اختيار منتج أولاً
-          </p>
-          <p style={{ color: "#64748b" }}>
+        <div className="dist-empty dist-empty--warning" role="status">
+          <p className="dist-empty__title">يرجى اختيار منتج أولاً</p>
+          <p className="dist-empty__text">
             اختر منتجاً من الأعلى لعرض بيانات المبيعات والعمولات
           </p>
         </div>
       ) : isEmpty ? (
-        <div className="empty" role="status">لا يوجد موزّعون</div>
+        <div className="dist-empty" role="status">
+          لا يوجد موزّعون
+        </div>
       ) : (
-        <div className="dist-grid" aria-busy="false">
+        <div className="dist-grid" aria-busy={false}>
           {enriched.map((d) => (
             <Link
               to={`/distributors/${d._id}?from=${range.from}&to=${range.to}`}
@@ -271,12 +282,12 @@ const DistributorsPage: React.FC = () => {
                   <div className="k">المسلّم</div>
                   <div className="v">{d.deliveredSum}</div>
                 </div>
-                {isAdminView && (
+                {isAdminView ? (
                   <div className="metric">
                     <div className="k">المبيعات $</div>
                     <div className="v">{d.revenueUSD.toFixed(2)}</div>
                   </div>
-                )}
+                ) : null}
                 <div className="metric">
                   <div className="k">العمولة $</div>
                   <div className="v">
@@ -292,13 +303,12 @@ const DistributorsPage: React.FC = () => {
         </div>
       )}
 
-      {/* Create Distributor Modal */}
-      {showCreate && (
+      {showCreate ? (
         <AddToModel
           modelName="الموزّع"
           title="إضافة موزّع"
           buttonLabel="حفظ"
-          modelFields={createFields as any}
+          modelFields={createFields}
           onSubmit={(payload) =>
             createDistributor(token, {
               name: String(payload.name || "").trim(),
@@ -311,7 +321,6 @@ const DistributorsPage: React.FC = () => {
           onSuccess={async () => {
             toast.success("تمت الإضافة");
             setShowCreate(false);
-            // Refresh both lists so card appears with correct KPIs
             await refreshDistributors();
             await refreshCustomers();
           }}
@@ -334,9 +343,64 @@ const DistributorsPage: React.FC = () => {
             ),
           })}
         />
-      )}
+      ) : null}
     </div>
   );
-};
+}
 
-export default DistributorsPage;
+type BoundaryState = { hasError: boolean };
+
+class DistributorsErrorBoundary extends Component<
+  { children: ReactNode },
+  BoundaryState
+> {
+  state: BoundaryState = { hasError: false };
+
+  static getDerivedStateFromError(): BoundaryState {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, info: React.ErrorInfo): void {
+    logger.error("DistributorsPage crashed", {
+      message: error.message,
+      stack: error.stack,
+      componentStack: info.componentStack,
+    });
+  }
+
+  render(): ReactNode {
+    if (this.state.hasError) {
+      return (
+        <div
+          className="dist-wrap dist-wrap--error"
+          dir="rtl"
+          lang="ar"
+          role="alert"
+        >
+          <div className="dist-error-card">
+            <h2 className="dist-error-card__title">تعذّر تحميل صفحة الموزّعين</h2>
+            <p className="dist-error-card__text">
+              حدث خطأ غير متوقع. أعد تحميل الصفحة أو عد لاحقاً.
+            </p>
+            <button
+              type="button"
+              className="dist-error-card__btn"
+              onClick={() => window.location.reload()}
+            >
+              إعادة تحميل
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+export default function DistributorsPage(): JSX.Element {
+  return (
+    <DistributorsErrorBoundary>
+      <DistributorsPageInner />
+    </DistributorsErrorBoundary>
+  );
+}
