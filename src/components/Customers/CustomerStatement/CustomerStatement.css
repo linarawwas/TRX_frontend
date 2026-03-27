@@ -256,12 +256,61 @@
   overflow-wrap: anywhere;
 }
 
-/* ——— Table ——— */
+/* ——— Table ———
+   st-table-region: groups hint + scroll port (business: full order ledger).
+   st-table-wrap: horizontal scroll container so 8 columns stay readable without squashing. */
+.st-table-region {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+/* Visible only on narrow viewports — reduces surprise when table overflows */
+.st-table-scroll-hint {
+  display: none;
+  margin: 0;
+  padding: 0 4px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #64748b;
+}
+
+@media (max-width: 720px) {
+  .st-table-scroll-hint {
+    display: block;
+  }
+}
+
 .st-table-wrap {
+  position: relative;
   overflow-x: auto;
+  overflow-y: visible;
   margin-inline: -4px;
   padding-inline: 4px;
+  padding-bottom: 2px;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scroll-behavior: smooth;
+  border-radius: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  background: rgba(248, 250, 252, 0.65);
+  /* Edge cue: suggests more columns off-screen (subtle on mobile scroll) */
+  box-shadow:
+    inset 10px 0 14px -12px rgba(15, 23, 42, 0.07),
+    inset -10px 0 14px -12px rgba(15, 23, 42, 0.07);
+}
+
+.st-table-wrap:focus-visible {
+  outline: 2px solid rgba(5, 150, 105, 0.55);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .st-table-wrap {
+    scroll-behavior: auto;
+  }
 }
 
 .st-table {
@@ -287,7 +336,8 @@
   font-size: 12px;
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 2;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.08);
 }
 
 .st-table tbody tr:nth-child(even) {
@@ -501,10 +551,41 @@
   color: #059669;
   font-weight: 800;
   text-decoration: none;
+  border-radius: 8px;
+  -webkit-tap-highlight-color: rgba(5, 150, 105, 0.15);
+  touch-action: manipulation;
 }
 
 .st-order-link:hover {
   text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .st-table th,
+  .st-table td {
+    padding: 8px 6px;
+    font-size: 12px;
+  }
+
+  .st-table thead th {
+    font-size: 11px;
+  }
+
+  .st-table .mono {
+    font-size: 11px;
+  }
+
+  /* ≥44px tap target for order deep link */
+  .st-table .st-order-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 6px 10px;
+    margin: -4px 0;
+    box-sizing: border-box;
+  }
 }
 
 /* ——— Print ——— */
@@ -537,6 +618,23 @@
     border: none;
     box-shadow: none;
     padding: 0;
+  }
+
+  .st-table-scroll-hint {
+    display: none !important;
+  }
+
+  .st-table-wrap {
+    overflow: visible;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    margin-inline: 0;
+    padding-inline: 0;
+  }
+
+  .st-table-wrap:focus-visible {
+    outline: none;
   }
 
   body {

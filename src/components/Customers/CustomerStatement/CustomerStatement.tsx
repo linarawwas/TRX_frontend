@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import type { RootState } from "../../../redux/store";
+import { t } from "../../../utils/i18n";
 import AddPaymentForm from "../../Orders/UpdateOrder/AddPaymentForm/AddPaymentForm";
 import { CustomerStatementErrorBoundary } from "./CustomerStatementErrorBoundary";
 import { CustomerStatementPaymentSheet } from "./CustomerStatementPaymentSheet";
@@ -121,74 +122,87 @@ function CustomerStatementInner() {
                 ) : null}
               </section>
 
-              <div className="st-table-wrap">
-                <table className="st-table">
-                  <thead>
-                    <tr>
-                      <th scope="col">التاريخ</th>
-                      <th scope="col">الطلب</th>
-                      <th scope="col">المُسلَّم</th>
-                      <th scope="col">المُرْجَع</th>
-                      <th scope="col">الباقي (حاويات)</th>
-                      <th scope="col">الحساب</th>
-                      <th scope="col">المدفوع</th>
-                      <th scope="col">الباقي (رصيد مالي)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {ledger.rows.map((r) => (
-                      <tr key={r.orderId}>
-                        <td>{r.date}</td>
-                        <td className="mono">
-                          <Link
-                            to={`/updateOrder/${r.orderId}`}
-                            className="st-order-link"
-                            title={`فتح الفاتورة ${r.orderId}`}
+              <div className="st-table-region">
+                <p
+                  className="st-table-scroll-hint"
+                  aria-hidden="true"
+                >
+                  {t("customerStatement.table.scrollHint")}
+                </p>
+                <div
+                  className="st-table-wrap"
+                  role="region"
+                  tabIndex={0}
+                  aria-label={t("customerStatement.table.regionAriaLabel")}
+                >
+                  <table className="st-table">
+                    <thead>
+                      <tr>
+                        <th scope="col">التاريخ</th>
+                        <th scope="col">الطلب</th>
+                        <th scope="col">المُسلَّم</th>
+                        <th scope="col">المُرْجَع</th>
+                        <th scope="col">الباقي (حاويات)</th>
+                        <th scope="col">الحساب</th>
+                        <th scope="col">المدفوع</th>
+                        <th scope="col">الباقي (رصيد مالي)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {ledger.rows.map((r) => (
+                        <tr key={r.orderId}>
+                          <td>{r.date}</td>
+                          <td className="mono">
+                            <Link
+                              to={`/updateOrder/${r.orderId}`}
+                              className="st-order-link"
+                              title={`فتح الفاتورة ${r.orderId}`}
+                            >
+                              تفاصيل
+                            </Link>
+                          </td>
+                          <td>{r.delivered}</td>
+                          <td>{r.returned}</td>
+                          <td>{r.bottlesLeft}</td>
+                          <td>{fmtUSD(r.totalUSD)}</td>
+                          <td>{fmtUSD(r.paidUSD)}</td>
+                          <td
+                            className={
+                              r.remainingUSD > 0
+                                ? "due"
+                                : r.remainingUSD < 0
+                                  ? "credit"
+                                  : ""
+                            }
                           >
-                            تفاصيل
-                          </Link>
+                            {fmtUSD(Math.abs(r.remainingUSD))}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot>
+                      <tr>
+                        <td colSpan={4}>
+                          <strong>الإجمالي</strong>
                         </td>
-                        <td>{r.delivered}</td>
-                        <td>{r.returned}</td>
-                        <td>{r.bottlesLeft}</td>
-                        <td>{fmtUSD(r.totalUSD)}</td>
-                        <td>{fmtUSD(r.paidUSD)}</td>
-                        <td
-                          className={
-                            r.remainingUSD > 0
-                              ? "due"
-                              : r.remainingUSD < 0
-                                ? "credit"
-                                : ""
-                          }
-                        >
-                          {fmtUSD(Math.abs(r.remainingUSD))}
+                        <td>
+                          <strong>{ledger.meta.ordersBottles}</strong>
+                        </td>
+                        <td>
+                          <strong>{fmtUSD(ledger.totals.total)}</strong>
+                        </td>
+                        <td>
+                          <strong>{fmtUSD(ledger.totals.paid)}</strong>
+                        </td>
+                        <td>
+                          <strong>
+                            {fmtUSD(Math.abs(ledger.totals.remaining))}
+                          </strong>
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
-                  <tfoot>
-                    <tr>
-                      <td colSpan={4}>
-                        <strong>الإجمالي</strong>
-                      </td>
-                      <td>
-                        <strong>{ledger.meta.ordersBottles}</strong>
-                      </td>
-                      <td>
-                        <strong>{fmtUSD(ledger.totals.total)}</strong>
-                      </td>
-                      <td>
-                        <strong>{fmtUSD(ledger.totals.paid)}</strong>
-                      </td>
-                      <td>
-                        <strong>
-                          {fmtUSD(Math.abs(ledger.totals.remaining))}
-                        </strong>
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
+                    </tfoot>
+                  </table>
+                </div>
               </div>
 
               <footer className="st-summary" aria-label="ملخص الرصيد">

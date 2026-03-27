@@ -126,6 +126,8 @@ export type TranslationKey =
   | 'customers.active.empty'
   | 'customers.inactive.empty'
   | 'customers.noResults'
+  | 'customerStatement.table.regionAriaLabel'
+  | 'customerStatement.table.scrollHint'
   | 'customersForArea.title'
   | 'customersForArea.search.placeholder'
   | 'customersForArea.loading'
@@ -469,6 +471,10 @@ const translations: Record<TranslationKey, string> = {
   'customers.active.empty': 'لا نتائج ضمن الناشطين',
   'customers.inactive.empty': 'لا نتائج ضمن غير الناشطين',
   'customers.noResults': 'لا توجد نتائج للبحث الحالي',
+  'customerStatement.table.regionAriaLabel':
+    'جدول حركة الطلبات والأرصدة؛ يمكن التمرير أفقياً لعرض جميع الأعمدة',
+  'customerStatement.table.scrollHint':
+    'مرّر أفقياً لعرض كافة أعمدة الحساب',
   'customersForArea.title': 'الزبائن في هذه المنطقة',
   'customersForArea.search.placeholder': '🔍 ابحث عن اسم الزبون...',
   'customersForArea.loading': '⏳ جارٍ تحميل الزبائن...',

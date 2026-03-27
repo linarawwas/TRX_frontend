@@ -16,6 +16,7 @@ Arabic RTL statement: order ledger, opening balance / bottles, print layout, and
 ## UX notes
 
 - **Enterprise shell:** Tajawal, emerald-aligned FAB and accents, card/table hierarchy, sticky thead on small viewports (horizontal scroll).
+- **Ledger table (mobile):** [customer-statement-table-mobile.md](./customer-statement-table-mobile.md) — `st-table-wrap`, scroll hint, a11y region, 44px order links.
 - **Loading:** Skeleton block instead of a blank page.
 - **Errors:** Toast (existing) + inline banner with **إعادة المحاولة** calling `reload()`.
 - **Print:** Hides chrome, FAB, sheet, toasts; keeps `.print-area` content.
