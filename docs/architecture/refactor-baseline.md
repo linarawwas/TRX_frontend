@@ -77,3 +77,5 @@ RecordOrderForCustomer (page)
 **See also:** [Addresses (customers by area) — baseline](./refactor-baseline-addresses.md) (`/addresses/:areaId`, reorder, `fetchCustomersByArea`).
 
 **See also:** [Update customer — baseline](./refactor-baseline-update-customer.md) (`/updateCustomer/:id`, `useUpdateCustomerController`, `rtkResult`).
+
+**See also:** [Update customer — UI constituents](./refactor-baseline-update-customer-constituents.md) (render tree from `UpdateCustomer.tsx` only).

@@ -18,3 +18,5 @@ Edit customer profile, view balance/invoices, adjust area sequence, assign distr
 - Prefer new side effects in the hook, not in `UpdateCustomer.tsx`.
 
 See [architecture baseline](../architecture/refactor-baseline-update-customer.md).
+
+**Constituents map:** [refactor-baseline-update-customer-constituents.md](../architecture/refactor-baseline-update-customer-constituents.md).
