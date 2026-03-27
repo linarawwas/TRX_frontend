@@ -97,3 +97,5 @@ RecordOrderForCustomer (page)
 **See also:** [Unified aside menu — baseline](./refactor-baseline-unified-aside-menu.md) (`UnifiedAsideMenu`: drawer nav, `clearAuth`, shipment-gated link).
 
 **See also:** [Login page — baseline](./refactor-baseline-login-page.md) (`Login.tsx`: shell, `LoginForm`, `loginUser` / `rtkResult`).
+
+**See also:** [Orders of today — baseline](./refactor-baseline-orders-of-today.md) (`OrdersOfToday`: `shipmentsOrdersByDate` lazy query, type 2/3 sections).
