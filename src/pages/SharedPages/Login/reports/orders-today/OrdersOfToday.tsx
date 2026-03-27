@@ -112,37 +112,40 @@ const OrderCard = memo(function OrderCard({ order: o }: { order: Order }) {
   const routeId = o.customerObjId || o.customerid;
 
   return (
-    <article className="ooty-reflowCard">
-      <header className="ooty-reflowHeader">
-        <Link
-          className="ooty-customer-link ooty-reflowName"
-          to={`/updateCustomer/${routeId}`}
-        >
-          {o.customerName || o.customerid}
-        </Link>
+    <article className="ooty-reflowCard" dir="rtl">
+      <div className="ooty-reflowCard__row">
+        <header className="ooty-reflowNameCell">
+          <Link
+            className="ooty-customer-link ooty-reflowName"
+            to={`/updateCustomer/${routeId}`}
+          >
+            {o.customerName || o.customerid}
+          </Link>
+        </header>
+
+        <dl className="ooty-reflowMetrics">
+          <div className="ooty-reflowStat">
+            <dt>مسلّم</dt>
+            <dd>{o.delivered || 0}</dd>
+          </div>
+          <div className="ooty-reflowStat">
+            <dt>مرجّع</dt>
+            <dd>{o.returned || 0}</dd>
+          </div>
+          <div className="ooty-reflowStat">
+            <dt>$</dt>
+            <dd>{usd || 0}</dd>
+          </div>
+          <div className="ooty-reflowStat">
+            <dt>ل.ل</dt>
+            <dd>{lbp ? lbp.toLocaleString("ar-LB") : 0}</dd>
+          </div>
+        </dl>
+
         <time className="ooty-reflowTime" dateTime={o.orderTime || o.createdAt}>
           {time}
         </time>
-      </header>
-
-      <dl className="ooty-reflowGrid" dir="rtl">
-        <div>
-          <dt>مسلّم</dt>
-          <dd>{o.delivered || 0}</dd>
-        </div>
-        <div>
-          <dt>مرجّع</dt>
-          <dd>{o.returned || 0}</dd>
-        </div>
-        <div>
-          <dt>$</dt>
-          <dd>{usd || 0}</dd>
-        </div>
-        <div>
-          <dt>ل.ل</dt>
-          <dd>{lbp ? lbp.toLocaleString("ar-LB") : 0}</dd>
-        </div>
-      </dl>
+      </div>
     </article>
   );
 });

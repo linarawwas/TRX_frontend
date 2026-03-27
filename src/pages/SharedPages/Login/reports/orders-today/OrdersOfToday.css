@@ -261,7 +261,7 @@
 }
 
 .ooty-skeleton__card {
-  min-height: 120px;
+  min-height: 52px;
   border-radius: var(--ooty-radius-md);
   border: 1px solid var(--ooty-border);
   background: linear-gradient(
@@ -317,7 +317,7 @@
 
 .ooty__content {
   display: grid;
-  gap: var(--ooty-space-4);
+  gap: var(--ooty-space-3);
 }
 
 /* —— Collapsible sections —— */
@@ -390,7 +390,7 @@
 }
 
 .ooty-section__body {
-  padding: var(--ooty-space-4);
+  padding: var(--ooty-space-3);
   background: #fff;
 }
 
@@ -407,19 +407,18 @@
   text-align: center;
 }
 
-/* —— Order cards —— */
+/* —— Order cards (dense: maximize rows per viewport) —— */
 .ooty-reflowList {
-  display: grid;
-  gap: var(--ooty-space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ooty-space-2);
 }
-
-/* Intentionally no breakpoint that hides the list — cards work at all widths */
 
 .ooty-reflowCard {
   border: 1px solid var(--ooty-border);
-  border-radius: var(--ooty-radius-md);
+  border-radius: var(--ooty-radius-sm);
   background: var(--ooty-surface-elevated);
-  padding: var(--ooty-space-4);
+  padding: var(--ooty-space-2) var(--ooty-space-3);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -428,31 +427,53 @@
   box-shadow: var(--ooty-shadow-md);
 }
 
-.ooty-reflowHeader {
-  display: flex;
+/* Mobile: name + time on one row, metrics full width below (2 logical rows) */
+.ooty-reflowCard__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "name time"
+    "stats stats";
+  gap: var(--ooty-space-2) var(--ooty-space-3);
   align-items: center;
-  justify-content: space-between;
-  gap: var(--ooty-space-3);
-  margin-bottom: var(--ooty-space-3);
+}
+
+.ooty-reflowNameCell {
+  grid-area: name;
+  margin: 0;
+  min-width: 0;
+  padding: 0;
+  border: none;
 }
 
 .ooty-reflowName {
   font-weight: 800;
-  font-size: 1rem;
+  font-size: 0.9375rem;
+  line-height: 1.2;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .ooty-reflowTime {
+  grid-area: time;
+  justify-self: end;
   font-variant-numeric: tabular-nums;
   color: var(--ooty-text-muted);
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .ooty-customer-link {
   text-decoration: none;
   color: var(--ooty-text);
-  border-radius: var(--ooty-radius-sm);
+  border-radius: 4px;
   transition: color 0.15s ease;
+  display: block;
+  min-width: 0;
 }
 
 .ooty-customer-link:hover {
@@ -464,40 +485,70 @@
   box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.28);
 }
 
-.ooty-reflowGrid {
-  display: grid;
-  gap: var(--ooty-space-2);
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.ooty-reflowMetrics {
+  grid-area: stats;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: var(--ooty-space-1) var(--ooty-space-2);
+  margin: 0;
 }
 
-.ooty-reflowGrid > div {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: var(--ooty-space-3);
-  padding: var(--ooty-space-3);
+.ooty-reflowStat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--ooty-space-1);
+  padding: 1px var(--ooty-space-2);
+  min-height: 22px;
   background: var(--ooty-surface);
-  border-radius: var(--ooty-radius-sm);
-  border: 1px solid transparent;
+  border-radius: 6px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  flex: 0 1 auto;
 }
 
-.ooty-reflowGrid dt {
+.ooty-reflowStat dt {
   margin: 0;
   color: var(--ooty-text-muted);
-  font-size: 0.8125rem;
+  font-size: 0.6875rem;
   font-weight: 700;
+  line-height: 1.15;
+  text-transform: none;
 }
 
-.ooty-reflowGrid dd {
+.ooty-reflowStat dd {
   margin: 0;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
-  text-align: end;
-  font-size: 0.9375rem;
+  font-size: 0.8125rem;
+  line-height: 1.15;
+  color: var(--ooty-text);
 }
 
-@media (max-width: 520px) {
-  .ooty-reflowGrid {
-    grid-template-columns: 1fr;
+/* Tablet+: single physical row — maximum density per viewport */
+@media (min-width: 640px) {
+  .ooty-reflowCard__row {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas: "name stats time";
+    column-gap: var(--ooty-space-3);
+    row-gap: 0;
+  }
+
+  .ooty-reflowMetrics {
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    padding-bottom: 1px;
+    max-width: 100%;
+  }
+
+  .ooty-reflowStat {
+    flex: 0 0 auto;
+  }
+
+  .ooty-reflowTime {
+    justify-self: center;
   }
 }
 
