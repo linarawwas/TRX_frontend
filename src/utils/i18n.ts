@@ -240,6 +240,9 @@ export type TranslationKey =
   | 'updateCustomer.invoiceSavedToast'
   | 'updateCustomer.loadError'
   | 'updateCustomer.retry'
+  | 'updateCustomer.errorBoundary.title'
+  | 'updateCustomer.errorBoundary.body'
+  | 'updateCustomer.errorBoundary.reload'
   | 'updateCustomer.toast.placementLoadFailed'
   | 'updateCustomer.toast.phoneDigitsOnly'
   | 'updateCustomer.toast.setPlacementBeforeSave'
@@ -577,6 +580,10 @@ const translations: Record<TranslationKey, string> = {
   'updateCustomer.invoiceSavedToast': 'تم الحفظ وتحديث الأرقام',
   'updateCustomer.loadError': 'تعذّر تحميل بيانات الزبون',
   'updateCustomer.retry': 'إعادة المحاولة',
+  'updateCustomer.errorBoundary.title': 'تعذّر عرض هذه الصفحة',
+  'updateCustomer.errorBoundary.body':
+    'حدث خطأ غير متوقع. يمكنك إعادة تحميل الصفحة للمحاولة من جديد.',
+  'updateCustomer.errorBoundary.reload': 'إعادة تحميل الصفحة',
   'updateCustomer.toast.placementLoadFailed': 'تعذر تحميل زبائن المنطقة للترتيب',
   'updateCustomer.toast.phoneDigitsOnly': 'أدخل أرقام فقط',
   'updateCustomer.toast.setPlacementBeforeSave': 'عيّن ترتيبًا جديدًا داخل المنطقة قبل الحفظ',

@@ -35,6 +35,11 @@
 /* TRX enterprise shell (align with Areas / Addresses) */
 .ucx.ucx--shell {
   --ucx-shell-stroke: rgba(15, 23, 42, 0.1);
+  /* Align interactive tokens with TRX emerald shell */
+  --ucx-primary: #059669;
+  --ucx-primary-ink: #ffffff;
+  --ucx-ring: rgba(16, 185, 129, 0.32);
+  --ucx-border: rgba(15, 23, 42, 0.1);
   position: relative;
   isolation: isolate;
   background: linear-gradient(165deg, #f1f5f9 0%, #e8f4f0 42%, #f8fafc 100%);
@@ -273,7 +278,9 @@
 .ucx-card__header {
   padding: 12px 16px;
   font-weight: 800;
-  background: #f3f4f6;
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  letter-spacing: -0.01em;
 }
 .ucx-card__body {
   padding: 14px 16px;
@@ -285,27 +292,44 @@
   gap: 12px;
 }
 
-/* Tabs */
+/* Tabs — segment control */
 .ucx-tabs {
   display: flex;
-  gap: 6px;
-  margin-bottom: 10px;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 4px;
   justify-content: center;
   flex-wrap: wrap;
+  background: rgba(15, 23, 42, 0.04);
+  border-radius: 16px;
+  max-width: 440px;
+  margin-inline: auto;
 }
+
 .ucx-tab {
   background: #fff;
   color: var(--ucx-ink);
-  border: 1px solid var(--ucx-border);
-  padding: 8px 12px;
-  border-radius: 999px;
+  border: 1px solid transparent;
+  padding: 10px 14px;
+  border-radius: 12px;
   cursor: pointer;
   font-weight: 700;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease;
 }
+
+.ucx-tab:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--ucx-ring);
+}
+
 .ucx-tab.is-active {
   background: var(--ucx-primary);
   color: #fff;
   border-color: var(--ucx-primary);
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.18);
 }
 
 /* Edit form */
@@ -544,5 +568,172 @@
 @media (max-width: 640px) {
   .ucx-fields {
     grid-template-columns: 1fr;
+  }
+}
+
+/* --- Error boundary (main column) --- */
+.ucx-error-boundary {
+  max-width: 420px;
+  margin: 32px auto;
+  padding: 24px 20px;
+  text-align: center;
+  border-radius: 16px;
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
+}
+
+.ucx-error-boundary__title {
+  margin: 0 0 10px;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #991b1b;
+}
+
+.ucx-error-boundary__body {
+  margin: 0 0 18px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ucx-muted);
+}
+
+.ucx-error-boundary__reload {
+  padding: 12px 22px;
+  border-radius: 14px;
+  border: none;
+  font-weight: 800;
+  font-size: 15px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #047857 0%, #059669 100%);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25);
+  transition: filter 0.15s ease;
+}
+
+.ucx-error-boundary__reload:hover {
+  filter: brightness(1.04);
+}
+
+/* --- Embedded leaves: only under .ucx (standalone /customerInfo unchanged) --- */
+.ucx .customer-info-card {
+  margin-top: 0;
+  font-family: inherit;
+  border: 1px solid var(--ucx-border);
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  padding: 16px 18px;
+}
+
+.ucx .customer-info-label {
+  color: #475569;
+  font-weight: 800;
+}
+
+.ucx .customer-info-value {
+  color: var(--ucx-ink);
+}
+
+.ucx .customer-info-row {
+  border-bottom-color: rgba(15, 23, 42, 0.08);
+}
+
+.ucx .customer-info-error {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.ucx .assign-dist {
+  border: 1px solid var(--ucx-border);
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  padding: 14px 16px;
+  margin-top: 12px;
+}
+
+.ucx .assign-dist .ad-title {
+  color: var(--ucx-ink);
+}
+
+.ucx .assign-dist select {
+  border-color: #cbd5e1;
+  border-radius: 12px;
+}
+
+.ucx .assign-dist .btn.primary {
+  background: linear-gradient(135deg, #047857 0%, #059669 100%);
+  border-radius: 12px;
+  font-weight: 800;
+}
+
+.ucx .sequence-form {
+  margin: 0;
+  border: 1px solid rgba(5, 150, 105, 0.22);
+  border-radius: 16px;
+  padding: 14px 16px;
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+}
+
+.ucx .sequence-form__title {
+  color: var(--ucx-ink);
+}
+
+.ucx .sequence-form__select {
+  border-radius: 12px;
+  border-color: #cbd5e1;
+}
+
+.ucx .sequence-form__btn {
+  background: linear-gradient(135deg, #047857 0%, #059669 100%);
+  border-radius: 12px;
+}
+
+.ucx .customer-receipt {
+  width: 100%;
+  max-width: 100%;
+  margin: 8px 0;
+  font-family: inherit;
+  border-radius: 14px;
+  border: 1px solid var(--ucx-border);
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
+}
+
+.ucx .receipt-detail {
+  background: #f8fafc;
+  border-radius: 10px;
+}
+
+.ucx .ucx-note--warn {
+  border-radius: 12px;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  background: linear-gradient(135deg, #fffbeb 0%, #fefce8 100%);
+  line-height: 1.55;
+}
+
+.ucx .ucx-open {
+  border-radius: 14px;
+  border-color: var(--ucx-border);
+  background: #fafafa;
+}
+
+/* --- Modal --- */
+.ucx-modal {
+  backdrop-filter: blur(6px);
+}
+
+.ucx-modal__panel {
+  border-radius: 18px;
+  box-shadow:
+    0 24px 48px -12px rgba(15, 23, 42, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+}
+
+.ucx-modal__header {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ucx-skeleton {
+    animation: none;
+    background: #f1f5f9;
   }
 }

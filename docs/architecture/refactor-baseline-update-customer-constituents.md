@@ -49,3 +49,13 @@ UpdateCustomer
 - `CustomerInfo` is also mounted on `/customerInfo` without `.ucx`; scoped CSS must use `.ucx …` selectors only.
 
 See [update customer frontend doc](../frontend/update-customer.md).
+
+---
+
+## Implementation (Phases 1 / 3 / 4)
+
+- **`UpdateCustomerLoadError`:** Extracted load-failure panel.
+- **`UpdateCustomerErrorBoundary`:** Wraps main column; `componentDidCatch` + `createLogger("update-customer-boundary")`; recovery = **full page reload**.
+- **Shell tokens:** `.ucx.ucx--shell` sets emerald `--ucx-primary` / `--ucx-ring` for in-page controls.
+- **Scoped embed CSS:** `.ucx` descendants only — `CustomerInfo`, `AssignDistributorInline` (`.assign-dist`), `AreaSequencePicker` (`.sequence-form`), `CustomerInvoices` (`.customer-receipt`), opening editor (`.ucx-note`, `.ucx-open`).
+- **Tabs / modals / cards:** Segment-style tabs, modal `backdrop-filter`, card header gradient; `prefers-reduced-motion` for `.ucx-skeleton`.

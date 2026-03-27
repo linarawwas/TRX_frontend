@@ -12,6 +12,8 @@ import UpdateCustomerHeader from "./UpdateCustomerHeader";
 import UpdateCustomerInvoicesPanel from "./UpdateCustomerInvoicesPanel";
 import UpdateCustomerModals from "./UpdateCustomerModals";
 import { UpdateCustomerPageSkeleton } from "./UpdateCustomerPageSkeleton";
+import { UpdateCustomerLoadError } from "./UpdateCustomerLoadError";
+import { UpdateCustomerErrorBoundary } from "./UpdateCustomerErrorBoundary";
 import type { CustomerDetail } from "../../../features/customers/apiCustomers";
 import { useUpdateCustomerController } from "../../../features/customers/hooks/useUpdateCustomerController";
 import { t } from "../../../utils/i18n";
@@ -81,20 +83,12 @@ export default function UpdateCustomer() {
           {loading ? (
             <UpdateCustomerPageSkeleton />
           ) : fetchError ? (
-            <div className="ucx-load-error" role="alert">
-              <p className="ucx-load-error__text">
-                {t("common.error")}: {fetchError}
-              </p>
-              <button
-                type="button"
-                className="ucx-load-error__retry"
-                onClick={() => void reload()}
-              >
-                {t("updateCustomer.retry")}
-              </button>
-            </div>
+            <UpdateCustomerLoadError
+              message={fetchError}
+              onRetry={() => void reload()}
+            />
           ) : (
-            <>
+            <UpdateCustomerErrorBoundary>
               <div className="ucx__container">
                 <UpdateCustomerHeader
                   avatarText={avatarText}
@@ -214,7 +208,7 @@ export default function UpdateCustomer() {
                   )}
                 </main>
               </div>
-            </>
+            </UpdateCustomerErrorBoundary>
           )}
         </div>
       </div>
