@@ -11,7 +11,13 @@ import UpdateCustomerForm from "./UpdateCustomerForm";
 import UpdateCustomerHeader from "./UpdateCustomerHeader";
 import UpdateCustomerInvoicesPanel from "./UpdateCustomerInvoicesPanel";
 import UpdateCustomerModals from "./UpdateCustomerModals";
+import { UpdateCustomerPageSkeleton } from "./UpdateCustomerPageSkeleton";
+import type { CustomerDetail } from "../../../features/customers/apiCustomers";
 import { useUpdateCustomerController } from "../../../features/customers/hooks/useUpdateCustomerController";
+import { t } from "../../../utils/i18n";
+import { createLogger } from "../../../utils/logger";
+
+const logger = createLogger("update-customer-page");
 
 export default function UpdateCustomer() {
   const navigate = useNavigate();
@@ -25,6 +31,7 @@ export default function UpdateCustomer() {
     deleteStep,
     editOpen,
     fetchCustomer,
+    fetchError,
     handleChange,
     handleDeactivate,
     handleRecordOrder,
@@ -41,6 +48,7 @@ export default function UpdateCustomer() {
     performHardDelete,
     placementLoading,
     placementOptions,
+    reload,
     restoreSequence,
     setConfirmOpen,
     setDeleteStep,
@@ -59,132 +67,175 @@ export default function UpdateCustomer() {
     closeDeleteModal,
   } = useUpdateCustomerController();
 
+  const hasAreaObject =
+    typeof customerData?.areaId === "object" &&
+    customerData?.areaId != null &&
+    "_id" in customerData.areaId;
+
   return (
-    <div className="ucx" dir="rtl">
+    <div className="ucx ucx--shell" dir="rtl" lang="ar">
+      <div className="ucx__glow" aria-hidden />
       <ToastContainer position="top-right" autoClose={1000} />
-      <div className="ucx__container">
-        <UpdateCustomerHeader
-          avatarText={avatarText}
-          customerData={customerData}
-          customerId={customerId}
-          editOpen={editOpen}
-          isAdmin={isAdmin}
-          isMutating={isMutating}
-          restoreSequence={restoreSequence}
-          showRestoreOptions={showRestoreOptions}
-          onDeactivate={handleDeactivate}
-          onOpenDeleteModal={openDeleteModal}
-          onRecordOrder={handleRecordOrder}
-          onRestoreAuto={handleRestoreAuto}
-          onRestoreSequenceChange={setRestoreSequence}
-          onRestoreWithSequence={handleRestoreWithSequence}
-          onToggleEdit={() => setEditOpen((v) => !v)}
-          onViewStatement={() => navigate(`/customers/${customerId}/statement`)}
-        />
-
-        <UpdateCustomerForm
-          areas={areas}
-          customerData={customerData}
-          editOpen={editOpen}
-          placementLoading={placementLoading}
-          placementOptions={placementOptions}
-          targetAreaId={targetAreaId}
-          updatedInfo={updatedInfo}
-          onChange={handleChange}
-          onSubmit={handleSubmit}
-        />
-
-        <div className="ucx-tabs">
-          <button
-            className={`ucx-tab ${tab === "info" ? "is-active" : ""}`}
-            onClick={() => setTab("info")}
-          >
-            البيانات
-          </button>
-          <button
-            className={`ucx-tab ${tab === "invoices" ? "is-active" : ""}`}
-            onClick={() => setTab("invoices")}
-          >
-            الرصيد{" "}
-          </button>
-          <button
-            className={`ucx-tab ${tab === "area" ? "is-active" : ""}`}
-            onClick={() => setTab("area")}
-          >
-            الترتيب
-          </button>
-        </div>
-
-        <main className="ucx-grid">
-          {tab === "info" && (
-            <section className="ucx-card">
-              <div className="ucx-card__header">البيانات</div>
-              <div className="ucx-card__body">
-                <CustomerInfo customerData={customerData} loading={loading} />
-                {customerData && (
-                  <AssignDistributorInline
-                    customerId={customerId}
-                    currentDistributorId={customerData?.distributorId || null}
-                  />
-                )}
-              </div>
-            </section>
-          )}
-          {tab === "invoices" && (
-            <UpdateCustomerInvoicesPanel
-              customerData={customerData}
-              customerId={customerId || ""}
-              invoiceReady={invoiceReady}
-              isAdmin={isAdmin}
-              openEdit={openEdit}
-              token={token || ""}
-              onDoneOpeningEdit={async () => {
-                try {
-                  await fetchAndCacheCustomerInvoice(customerId || "", token || "");
-                } catch {
-                  return undefined;
-                }
-                toast.success("تم الحفظ وتحديث الأرقام");
-                setOpenEdit(false);
-              }}
-              onToggleOpeningEdit={() => setOpenEdit((v: boolean) => !v)}
-            />
-          )}
-          {tab === "area" && customerData?.areaId?._id && (
-            <section className="ucx-card">
-              <div className="ucx-card__header">الترتيب في المنطقة</div>
-              <div className="ucx-card__body">
-                <AreaSequencePicker
-                  token={token || ""}
-                  companyId={companyId}
-                  areaId={customerData.areaId._id}
-                  currentCustomerId={customerId || ""}
-                  mode="apply"
-                  title="تغيير الترتيب داخل المنطقة"
-                  onChange={() => undefined} // No-op for apply mode
-                  onApplied={fetchCustomer}
+      <div className="ucx__inner">
+        <div className="ucx__surface">
+          {loading ? (
+            <UpdateCustomerPageSkeleton />
+          ) : fetchError ? (
+            <div className="ucx-load-error" role="alert">
+              <p className="ucx-load-error__text">
+                {t("common.error")}: {fetchError}
+              </p>
+              <button
+                type="button"
+                className="ucx-load-error__retry"
+                onClick={() => void reload()}
+              >
+                {t("updateCustomer.retry")}
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="ucx__container">
+                <UpdateCustomerHeader
+                  avatarText={avatarText}
+                  customerData={customerData}
+                  customerId={customerId}
+                  editOpen={editOpen}
+                  isAdmin={isAdmin}
+                  isMutating={isMutating}
+                  restoreSequence={restoreSequence}
+                  showRestoreOptions={showRestoreOptions}
+                  onDeactivate={handleDeactivate}
+                  onOpenDeleteModal={openDeleteModal}
+                  onRecordOrder={handleRecordOrder}
+                  onRestoreAuto={handleRestoreAuto}
+                  onRestoreSequenceChange={setRestoreSequence}
+                  onRestoreWithSequence={handleRestoreWithSequence}
+                  onToggleEdit={() => setEditOpen((v) => !v)}
+                  onViewStatement={() => navigate(`/customers/${customerId}/statement`)}
                 />
+
+                <UpdateCustomerForm
+                  areas={areas}
+                  customerData={customerData}
+                  editOpen={editOpen}
+                  placementLoading={placementLoading}
+                  placementOptions={placementOptions}
+                  targetAreaId={targetAreaId}
+                  updatedInfo={updatedInfo}
+                  onChange={handleChange}
+                  onSubmit={handleSubmit}
+                />
+
+                <div className="ucx-tabs">
+                  <button
+                    type="button"
+                    className={`ucx-tab ${tab === "info" ? "is-active" : ""}`}
+                    onClick={() => setTab("info")}
+                  >
+                    {t("updateCustomer.tab.info")}
+                  </button>
+                  <button
+                    type="button"
+                    className={`ucx-tab ${tab === "invoices" ? "is-active" : ""}`}
+                    onClick={() => setTab("invoices")}
+                  >
+                    {t("updateCustomer.tab.invoices")}
+                  </button>
+                  <button
+                    type="button"
+                    className={`ucx-tab ${tab === "area" ? "is-active" : ""}`}
+                    onClick={() => setTab("area")}
+                  >
+                    {t("updateCustomer.tab.area")}
+                  </button>
+                </div>
+
+                <main className="ucx-grid">
+                  {tab === "info" && (
+                    <section className="ucx-card">
+                      <div className="ucx-card__header">{t("updateCustomer.card.infoTitle")}</div>
+                      <div className="ucx-card__body">
+                        <CustomerInfo customerData={customerData} loading={loading} />
+                        {customerData && (
+                          <AssignDistributorInline
+                            customerId={customerId}
+                            currentDistributorId={
+                              (
+                                customerData as CustomerDetail & {
+                                  distributorId?: string | null;
+                                }
+                              ).distributorId ?? null
+                            }
+                          />
+                        )}
+                      </div>
+                    </section>
+                  )}
+                  {tab === "invoices" && (
+                    <UpdateCustomerInvoicesPanel
+                      customerData={customerData}
+                      customerId={customerId || ""}
+                      invoiceReady={invoiceReady}
+                      isAdmin={isAdmin}
+                      openEdit={openEdit}
+                      token={token || ""}
+                      onDoneOpeningEdit={async () => {
+                        try {
+                          await fetchAndCacheCustomerInvoice(customerId || "", token || "");
+                        } catch (e) {
+                          logger.error("fetchAndCacheCustomerInvoice after opening edit failed", {
+                            message: e instanceof Error ? e.message : String(e),
+                          });
+                          return undefined;
+                        }
+                        toast.success(t("updateCustomer.invoiceSavedToast"));
+                        setOpenEdit(false);
+                      }}
+                      onToggleOpeningEdit={() => setOpenEdit((v: boolean) => !v)}
+                    />
+                  )}
+                  {tab === "area" && hasAreaObject && (
+                    <section className="ucx-card">
+                      <div className="ucx-card__header">{t("updateCustomer.card.areaTitle")}</div>
+                      <div className="ucx-card__body">
+                        <AreaSequencePicker
+                          token={token || ""}
+                          companyId={companyId}
+                          areaId={(customerData!.areaId as { _id: string })._id}
+                          currentCustomerId={customerId || ""}
+                          mode="apply"
+                          title={t("updateCustomer.areaPicker.title")}
+                          onChange={() => undefined}
+                          onApplied={fetchCustomer}
+                        />
+                      </div>
+                    </section>
+                  )}
+                </main>
               </div>
-            </section>
+            </>
           )}
-        </main>
+        </div>
       </div>
 
-      <UpdateCustomerModals
-        areas={areas}
-        closeDeleteModal={closeDeleteModal}
-        confirmOpen={confirmOpen}
-        deleteStep={deleteStep}
-        isMutating={isMutating}
-        pendingChanges={pendingChanges}
-        placementOptions={placementOptions}
-        performHardDelete={performHardDelete}
-        setConfirmOpen={setConfirmOpen}
-        setDeleteStep={setDeleteStep}
-        setPendingChanges={setPendingChanges}
-        showDeleteModal={showDeleteModal}
-        submitUpdate={submitUpdate}
-      />
+      {!loading && !fetchError && (
+        <UpdateCustomerModals
+          areas={areas}
+          closeDeleteModal={closeDeleteModal}
+          confirmOpen={confirmOpen}
+          deleteStep={deleteStep}
+          isMutating={isMutating}
+          pendingChanges={pendingChanges}
+          placementOptions={placementOptions}
+          performHardDelete={performHardDelete}
+          setConfirmOpen={setConfirmOpen}
+          setDeleteStep={setDeleteStep}
+          setPendingChanges={setPendingChanges}
+          showDeleteModal={showDeleteModal}
+          submitUpdate={submitUpdate}
+        />
+      )}
     </div>
   );
 }

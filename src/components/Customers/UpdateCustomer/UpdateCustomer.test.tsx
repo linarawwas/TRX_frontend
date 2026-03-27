@@ -68,6 +68,8 @@ function buildControllerState(overrides?: Record<string, unknown>) {
     deleteStep: 1,
     editOpen: false,
     fetchCustomer: jest.fn(),
+    fetchError: null,
+    reload: jest.fn(),
     handleChange: jest.fn(),
     handleDeactivate: jest.fn(),
     handleRecordOrder: jest.fn(),

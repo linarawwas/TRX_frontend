@@ -1,6 +1,7 @@
 import React from "react";
 import { OpeningEditor } from "./OpeningEditor";
 import CustomerInvoices from "../CustomerInvoices/CustomerInvoices";
+import { t } from "../../../utils/i18n";
 
 type UpdateCustomerInvoicesPanelProps = {
   customerData: { _id?: string } | null;
@@ -33,15 +34,15 @@ export default function UpdateCustomerInvoicesPanel({
           alignItems: "center",
         }}
       >
-        <span>الرصيد الحالي</span>
+        <span>{t("updateCustomer.invoices.title")}</span>
         {isAdmin && (
           <button
             type="button"
             className="ucx-btn danger"
             onClick={onToggleOpeningEdit}
-            title="هذه الأداة مخصّصة لتصحيح فروقات صغيرة فقط: فرق القناني المسموح به لا يتجاوز ±2. يمكن تعديل الرصيد الافتتاحي لأي قيمة."
+            title={t("updateCustomer.invoices.adminEditTitle")}
           >
-            ✎ تعديل (إداري)
+            {t("updateCustomer.invoices.adminEdit")}
           </button>
         )}
       </div>
@@ -58,7 +59,7 @@ export default function UpdateCustomerInvoicesPanel({
         {customerData && invoiceReady ? (
           <CustomerInvoices customerId={customerId || ""} />
         ) : (
-          <div className="ucx-skeleton">جارٍ التحميل…</div>
+          <div className="ucx-skeleton">{t("updateCustomer.invoices.loading")}</div>
         )}
       </div>
     </section>

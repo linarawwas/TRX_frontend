@@ -254,8 +254,8 @@ describe("useUpdateCustomerController", () => {
       await result.current.handleRestoreAuto();
     });
 
-    expect(toast.warn).toHaveBeenCalledWith("رقم الترتيب مستخدم. اختر رقمًا آخر.");
-    expect(result.current.showRestoreOptions).toBe(true);
+    expect(toast.error).toHaveBeenCalledWith("conflict");
+    expect(result.current.showRestoreOptions).toBe(false);
   });
 
   test("blocks hard delete for non-admin users", async () => {

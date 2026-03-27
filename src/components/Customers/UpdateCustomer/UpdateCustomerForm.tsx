@@ -1,4 +1,5 @@
 import React from "react";
+import { t } from "../../../utils/i18n";
 
 type Area = { _id: string; name: string };
 type PlacementOption = { value: string; label: string };
@@ -49,12 +50,12 @@ export default function UpdateCustomerForm({
 
   return (
     <form className="ucx-formCard" onSubmit={onSubmit}>
-      <h3 className="ucx-formCard__title">تعديل بيانات الزبون</h3>
+      <h3 className="ucx-formCard__title">{t("updateCustomer.form.title")}</h3>
 
       <div className="ucx-fields">
         <div className="ucx-field">
           <label htmlFor="ucx-name" className="ucx-label">
-            الاسم
+            {t("updateCustomer.form.name")}
           </label>
           <input
             id="ucx-name"
@@ -62,14 +63,14 @@ export default function UpdateCustomerForm({
             type="text"
             name="name"
             value={updatedInfo.name}
-            placeholder={customerData?.name || "الاسم الجديد"}
+            placeholder={customerData?.name || t("updateCustomer.form.placeholderNewName")}
             onChange={onChange}
           />
         </div>
 
         <div className="ucx-field">
           <label htmlFor="ucx-phone" className="ucx-label">
-            الهاتف
+            {t("updateCustomer.form.phone")}
           </label>
           <input
             id="ucx-phone"
@@ -77,14 +78,14 @@ export default function UpdateCustomerForm({
             type="text"
             name="phone"
             value={updatedInfo.phone}
-            placeholder={customerData?.phone || "رقم الهاتف الجديد"}
+            placeholder={customerData?.phone || t("updateCustomer.form.placeholderNewPhone")}
             onChange={onChange}
           />
         </div>
 
         <div className="ucx-field ucx-field--full">
           <label htmlFor="ucx-address" className="ucx-label">
-            العنوان
+            {t("updateCustomer.form.address")}
           </label>
           <input
             id="ucx-address"
@@ -92,14 +93,14 @@ export default function UpdateCustomerForm({
             type="text"
             name="address"
             value={updatedInfo.address}
-            placeholder={customerData?.address || "العنوان الجديد"}
+            placeholder={customerData?.address || t("updateCustomer.form.placeholderNewAddress")}
             onChange={onChange}
           />
         </div>
 
         <div className="ucx-field ucx-field--full">
           <label htmlFor="ucx-area" className="ucx-label">
-            المنطقة
+            {t("updateCustomer.form.area")}
           </label>
           <select
             id="ucx-area"
@@ -108,7 +109,7 @@ export default function UpdateCustomerForm({
             value={updatedInfo.areaId || ""}
             onChange={onChange}
           >
-            <option value="">اختر المنطقة…</option>
+            <option value="">{t("updateCustomer.form.selectArea")}</option>
             {areas.map((area) => (
               <option key={area._id} value={area._id}>
                 {area.name}
@@ -119,7 +120,7 @@ export default function UpdateCustomerForm({
 
         <div className="ucx-field ucx-field--full">
           <label htmlFor="ucx-placement" className="ucx-label">
-            الموضع داخل المنطقة
+            {t("updateCustomer.form.placement")}
           </label>
           <select
             id="ucx-placement"
@@ -130,7 +131,9 @@ export default function UpdateCustomerForm({
             disabled={placementLoading || !targetAreaId}
           >
             <option value="">
-              {targetAreaId ? "(احتفظ بالموضع الحالي)" : "اختر منطقة أولاً"}
+              {targetAreaId
+                ? t("updateCustomer.form.keepPlacement")
+                : t("updateCustomer.form.chooseAreaFirst")}
             </option>
             {placementOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -140,14 +143,14 @@ export default function UpdateCustomerForm({
           </select>
           <small className="ucx-hint">
             {placementLoading
-              ? "جارٍ تحميل مواقع الزبائن…"
-              : "يمكنك تحديد موقع الزبون بالنسبة لباقي زبائن المنطقة."}
+              ? t("updateCustomer.form.placementLoading")
+              : t("updateCustomer.form.placementHint")}
           </small>
         </div>
 
         {customerData?.sequence != null && (
           <div className="ucx-field ucx-field--full">
-            <label className="ucx-label">الترتيب الحالي</label>
+            <label className="ucx-label">{t("updateCustomer.form.currentSequence")}</label>
             <div className="ucx-readonly">#{customerData.sequence}</div>
           </div>
         )}
@@ -155,7 +158,7 @@ export default function UpdateCustomerForm({
 
       <div className="ucx-formCard__actions">
         <button className="ucx-btn primary ucx-btn--sm" type="submit">
-          حفظ التعديلات
+          {t("updateCustomer.form.submit")}
         </button>
       </div>
     </form>

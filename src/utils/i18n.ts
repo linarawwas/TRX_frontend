@@ -231,6 +231,100 @@ export type TranslationKey =
   | 'common.moreOptions'
   | 'common.noChanges'
   | 'common.edit'
+  | 'updateCustomer.tab.info'
+  | 'updateCustomer.tab.invoices'
+  | 'updateCustomer.tab.area'
+  | 'updateCustomer.card.infoTitle'
+  | 'updateCustomer.card.areaTitle'
+  | 'updateCustomer.areaPicker.title'
+  | 'updateCustomer.invoiceSavedToast'
+  | 'updateCustomer.loadError'
+  | 'updateCustomer.retry'
+  | 'updateCustomer.toast.placementLoadFailed'
+  | 'updateCustomer.toast.phoneDigitsOnly'
+  | 'updateCustomer.toast.setPlacementBeforeSave'
+  | 'updateCustomer.toast.noChanges'
+  | 'updateCustomer.toast.missingToken'
+  | 'updateCustomer.toast.updateFailed'
+  | 'updateCustomer.toast.updateSuccess'
+  | 'updateCustomer.toast.customerMissing'
+  | 'updateCustomer.toast.startShipmentFirst'
+  | 'updateCustomer.toast.operationFailed'
+  | 'updateCustomer.toast.deactivateSuccess'
+  | 'updateCustomer.confirm.deactivate'
+  | 'updateCustomer.toast.restoreSuccess'
+  | 'updateCustomer.toast.invalidSequence'
+  | 'updateCustomer.toast.restoreWithSequenceSuccess'
+  | 'updateCustomer.toast.adminOnly'
+  | 'updateCustomer.toast.deleteSuccess'
+  | 'updateCustomer.placement.listStart'
+  | 'updateCustomer.placement.listEnd'
+  | 'updateCustomer.form.title'
+  | 'updateCustomer.form.name'
+  | 'updateCustomer.form.phone'
+  | 'updateCustomer.form.address'
+  | 'updateCustomer.form.area'
+  | 'updateCustomer.form.placement'
+  | 'updateCustomer.form.selectArea'
+  | 'updateCustomer.form.keepPlacement'
+  | 'updateCustomer.form.chooseAreaFirst'
+  | 'updateCustomer.form.placementLoading'
+  | 'updateCustomer.form.placementHint'
+  | 'updateCustomer.form.currentSequence'
+  | 'updateCustomer.form.submit'
+  | 'updateCustomer.form.placeholderNewName'
+  | 'updateCustomer.form.placeholderNewPhone'
+  | 'updateCustomer.form.placeholderNewAddress'
+  | 'updateCustomer.header.customerFallback'
+  | 'updateCustomer.header.emDash'
+  | 'updateCustomer.status.active'
+  | 'updateCustomer.status.inactive'
+  | 'updateCustomer.header.deactivate'
+  | 'updateCustomer.header.restore'
+  | 'updateCustomer.header.sequenceLabel'
+  | 'updateCustomer.header.restorePlaceholder'
+  | 'updateCustomer.header.restoreSave'
+  | 'updateCustomer.header.hardDelete'
+  | 'updateCustomer.header.hardDeleteTitleEnabled'
+  | 'updateCustomer.header.hardDeleteTitleDisabled'
+  | 'updateCustomer.header.recordOrderExternal'
+  | 'updateCustomer.header.statement'
+  | 'updateCustomer.header.toggleEditHide'
+  | 'updateCustomer.header.toggleEditShow'
+  | 'updateCustomer.modal.confirmUpdateTitle'
+  | 'updateCustomer.modal.close'
+  | 'updateCustomer.modal.reviewHint'
+  | 'updateCustomer.modal.fieldName'
+  | 'updateCustomer.modal.fieldPhone'
+  | 'updateCustomer.modal.fieldAddress'
+  | 'updateCustomer.modal.fieldNewArea'
+  | 'updateCustomer.modal.fieldPlacement'
+  | 'updateCustomer.modal.backEdit'
+  | 'updateCustomer.modal.saving'
+  | 'updateCustomer.modal.confirmSave'
+  | 'updateCustomer.modal.deleteTitle'
+  | 'updateCustomer.modal.deleteStep1'
+  | 'updateCustomer.modal.cancel'
+  | 'updateCustomer.modal.continue'
+  | 'updateCustomer.modal.deleteStep2'
+  | 'updateCustomer.modal.deleting'
+  | 'updateCustomer.modal.deleteConfirm'
+  | 'updateCustomer.invoices.title'
+  | 'updateCustomer.invoices.adminEdit'
+  | 'updateCustomer.invoices.adminEditTitle'
+  | 'updateCustomer.invoices.loading'
+  | 'updateCustomer.opening.note'
+  | 'updateCustomer.opening.labelBottles'
+  | 'updateCustomer.opening.labelBalance'
+  | 'updateCustomer.opening.phBottles'
+  | 'updateCustomer.opening.phBalance'
+  | 'updateCustomer.opening.busy'
+  | 'updateCustomer.opening.save'
+  | 'updateCustomer.opening.toastNeedValue'
+  | 'updateCustomer.opening.confirm1'
+  | 'updateCustomer.opening.confirm2'
+  | 'updateCustomer.opening.success'
+  | 'updateCustomer.opening.failed'
   | 'recordOrderForCustomer.cache.noDiscountOffline'
   | 'recordOrderForCustomer.cache.loadError'
   | 'recordOrderForCustomer.discount.title'
@@ -474,6 +568,106 @@ const translations: Record<TranslationKey, string> = {
   'common.moreOptions': 'المزيد من الخيارات لـ {{name}}',
   'common.noChanges': 'لا يوجد تغييرات للحفظ',
   'common.edit': 'تعديل',
+  'updateCustomer.tab.info': 'البيانات',
+  'updateCustomer.tab.invoices': 'الرصيد',
+  'updateCustomer.tab.area': 'الترتيب',
+  'updateCustomer.card.infoTitle': 'البيانات',
+  'updateCustomer.card.areaTitle': 'الترتيب في المنطقة',
+  'updateCustomer.areaPicker.title': 'تغيير الترتيب داخل المنطقة',
+  'updateCustomer.invoiceSavedToast': 'تم الحفظ وتحديث الأرقام',
+  'updateCustomer.loadError': 'تعذّر تحميل بيانات الزبون',
+  'updateCustomer.retry': 'إعادة المحاولة',
+  'updateCustomer.toast.placementLoadFailed': 'تعذر تحميل زبائن المنطقة للترتيب',
+  'updateCustomer.toast.phoneDigitsOnly': 'أدخل أرقام فقط',
+  'updateCustomer.toast.setPlacementBeforeSave': 'عيّن ترتيبًا جديدًا داخل المنطقة قبل الحفظ',
+  'updateCustomer.toast.noChanges': 'لا توجد تغييرات لإرسالها',
+  'updateCustomer.toast.missingToken': 'Missing auth token',
+  'updateCustomer.toast.updateFailed': 'فشل التحديث',
+  'updateCustomer.toast.updateSuccess': 'تم التحديث بنجاح',
+  'updateCustomer.toast.customerMissing': 'بيانات الزبون غير متوفرة',
+  'updateCustomer.toast.startShipmentFirst': 'ابدأ الشحنة أولاً قبل تسجيل الطلب',
+  'updateCustomer.toast.operationFailed': 'فشل العملية',
+  'updateCustomer.toast.deactivateSuccess': 'تم إيقاف الزبون',
+  'updateCustomer.confirm.deactivate': 'هل تريد إيقاف هذا الزبون؟',
+  'updateCustomer.toast.restoreSuccess': 'تم تنشيط الزبون',
+  'updateCustomer.toast.invalidSequence': 'أدخل رقم ترتيب صحيح (1 أو أكبر)',
+  'updateCustomer.toast.restoreWithSequenceSuccess': 'تم تنشيط الزبون وتعيين الترتيب',
+  'updateCustomer.toast.adminOnly': 'هذه العملية للمشرف فقط',
+  'updateCustomer.toast.deleteSuccess': 'تم حذف الزبون نهائيًا',
+  'updateCustomer.placement.listStart': 'في بداية القائمة',
+  'updateCustomer.placement.listEnd': 'في نهاية القائمة',
+  'updateCustomer.form.title': 'تعديل بيانات الزبون',
+  'updateCustomer.form.name': 'الاسم',
+  'updateCustomer.form.phone': 'الهاتف',
+  'updateCustomer.form.address': 'العنوان',
+  'updateCustomer.form.area': 'المنطقة',
+  'updateCustomer.form.placement': 'الموضع داخل المنطقة',
+  'updateCustomer.form.selectArea': 'اختر المنطقة…',
+  'updateCustomer.form.keepPlacement': '(احتفظ بالموضع الحالي)',
+  'updateCustomer.form.chooseAreaFirst': 'اختر منطقة أولاً',
+  'updateCustomer.form.placementLoading': 'جارٍ تحميل مواقع الزبائن…',
+  'updateCustomer.form.placementHint': 'يمكنك تحديد موقع الزبون بالنسبة لباقي زبائن المنطقة.',
+  'updateCustomer.form.currentSequence': 'الترتيب الحالي',
+  'updateCustomer.form.submit': 'حفظ التعديلات',
+  'updateCustomer.form.placeholderNewName': 'الاسم الجديد',
+  'updateCustomer.form.placeholderNewPhone': 'رقم الهاتف الجديد',
+  'updateCustomer.form.placeholderNewAddress': 'العنوان الجديد',
+  'updateCustomer.header.customerFallback': 'الزبون',
+  'updateCustomer.header.emDash': '—',
+  'updateCustomer.status.active': 'نشط',
+  'updateCustomer.status.inactive': 'غير نشط',
+  'updateCustomer.header.deactivate': 'إيقاف',
+  'updateCustomer.header.restore': 'تنشيط',
+  'updateCustomer.header.sequenceLabel': 'الترتيب:',
+  'updateCustomer.header.restorePlaceholder': 'مثال: 25',
+  'updateCustomer.header.restoreSave': 'حفظ',
+  'updateCustomer.header.hardDelete': 'حذف نهائي',
+  'updateCustomer.header.hardDeleteTitleEnabled': 'حذف نهائي',
+  'updateCustomer.header.hardDeleteTitleDisabled': 'للمشرف فقط',
+  'updateCustomer.header.recordOrderExternal': 'تسجيل طلب خارجي',
+  'updateCustomer.header.statement': 'كشف الحساب / إضافة دفعة',
+  'updateCustomer.header.toggleEditHide': 'إخفاء التعديل',
+  'updateCustomer.header.toggleEditShow': 'تعديل معلومات الزبون',
+  'updateCustomer.modal.confirmUpdateTitle': 'تأكيد تحديث الزبون',
+  'updateCustomer.modal.close': 'إغلاق',
+  'updateCustomer.modal.reviewHint': 'راجع التعديلات التالية قبل حفظها:',
+  'updateCustomer.modal.fieldName': 'الاسم:',
+  'updateCustomer.modal.fieldPhone': 'الهاتف:',
+  'updateCustomer.modal.fieldAddress': 'العنوان:',
+  'updateCustomer.modal.fieldNewArea': 'المنطقة الجديدة:',
+  'updateCustomer.modal.fieldPlacement': 'الموضع داخل المنطقة:',
+  'updateCustomer.modal.backEdit': 'تعديل',
+  'updateCustomer.modal.saving': 'جارٍ الحفظ…',
+  'updateCustomer.modal.confirmSave': 'تأكيد الحفظ',
+  'updateCustomer.modal.deleteTitle': 'حذف نهائي للزبون',
+  'updateCustomer.modal.deleteStep1':
+    'هذا الإجراء <strong>لا يمكن التراجع عنه</strong>. سيتم حذف الزبون نهائيًا من النظام.',
+  'updateCustomer.modal.cancel': 'إلغاء',
+  'updateCustomer.modal.continue': 'متابعة',
+  'updateCustomer.modal.deleteStep2':
+    'تأكيد أخير: قد يكون لدى الزبون <strong>طلبات مرتبطة</strong>. إن وُجدت سيُرفض الحذف.',
+  'updateCustomer.modal.deleting': 'جارٍ الحذف...',
+  'updateCustomer.modal.deleteConfirm': 'حذف نهائي',
+  'updateCustomer.invoices.title': 'الرصيد الحالي',
+  'updateCustomer.invoices.adminEdit': '✎ تعديل (إداري)',
+  'updateCustomer.invoices.adminEditTitle':
+    'هذه الأداة مخصّصة لتصحيح فروقات صغيرة فقط: فرق القناني المسموح به لا يتجاوز ±2. يمكن تعديل الرصيد الافتتاحي لأي قيمة.',
+  'updateCustomer.invoices.loading': 'جارٍ التحميل…',
+  'updateCustomer.opening.note':
+    'هذه الأداة مخصّصة لتصحيح فروقات صغيرة فقط: فرق القناني المسموح به لا يتجاوز قنّتين (±2). يمكن تعديل الرصيد الافتتاحي (USD) لأي قيمة. لا يمكن التعديل على الرصيد العام، فقط على الرصيد الإفتتاحي، لأن الرصيد العام مجموع طلبات الزبون، إذا كان هناك خطأ في تسجيل أي طلب، الرجاء التوجه لكشف الحساب وتعديل الطلب الذي يحتوي الخطأ. من خلال صفحة تعديل الطلب والتفاصيل. بإمكانك التعديل على الرصيد الإفتتاحي والإطلاع عليه من خلال صفحة كشف الحساب.',
+  'updateCustomer.opening.labelBottles': 'القناني المتبقية (الرقم المطلوب إظهاره)',
+  'updateCustomer.opening.labelBalance': 'الرصيد المستحق USD (الرقم المطلوب إظهاره)',
+  'updateCustomer.opening.phBottles': 'مثال: 3',
+  'updateCustomer.opening.phBalance': 'مثال: 8.00',
+  'updateCustomer.opening.busy': 'جارٍ الحفظ…',
+  'updateCustomer.opening.save': 'حفظ',
+  'updateCustomer.opening.toastNeedValue': 'أدخل قيمة واحدة على الأقل',
+  'updateCustomer.opening.confirm1':
+    'تنبيه: سيتم تعديل الأمر الافتتاحي لهذا الزبون حسب القيم المدخلة. هل أنت متأكد/ة؟',
+  'updateCustomer.opening.confirm2':
+    'تأكيد أخير: هذه العملية لا تؤثر على الطلبات الحقيقية ولكنها تغيّر الرصيد/القناني الافتتاحية. متابعة؟',
+  'updateCustomer.opening.success': 'تم تعديل الرصيد/القناني الافتتاحية',
+  'updateCustomer.opening.failed': 'فشل العملية',
   'recordOrderForCustomer.cache.noDiscountOffline':
     '⚠️ لم يتم العثور على بيانات الخصم في وضع عدم الاتصال.',
   'recordOrderForCustomer.cache.loadError':

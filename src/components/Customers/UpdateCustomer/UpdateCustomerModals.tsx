@@ -1,8 +1,9 @@
 import React from "react";
+import type { UpdateCustomerPayload } from "../../../features/customers/apiCustomers";
+import { t } from "../../../utils/i18n";
 
 type Area = { _id: string; name: string };
 type PlacementOption = { value: string; label: string };
-type PendingChanges = Record<string, string> | null;
 
 type UpdateCustomerModalsProps = {
   areas: Area[];
@@ -10,12 +11,12 @@ type UpdateCustomerModalsProps = {
   confirmOpen: boolean;
   deleteStep: 1 | 2;
   isMutating: boolean;
-  pendingChanges: PendingChanges;
+  pendingChanges: UpdateCustomerPayload | null;
   placementOptions: PlacementOption[];
   performHardDelete: () => void;
   setConfirmOpen: (open: boolean) => void;
   setDeleteStep: (step: 1 | 2) => void;
-  setPendingChanges: (changes: PendingChanges) => void;
+  setPendingChanges: (changes: UpdateCustomerPayload | null) => void;
   showDeleteModal: boolean;
   submitUpdate: () => void;
 };
@@ -41,8 +42,9 @@ export default function UpdateCustomerModals({
         <div className="ucx-modal" role="dialog" aria-modal="true">
           <div className="ucx-modal__panel">
             <div className="ucx-modal__header">
-              <h3>تأكيد تحديث الزبون</h3>
+              <h3>{t("updateCustomer.modal.confirmUpdateTitle")}</h3>
               <button
+                type="button"
                 className="ucx-iconBtn"
                 onClick={() => {
                   if (!isMutating) {
@@ -50,40 +52,43 @@ export default function UpdateCustomerModals({
                     setPendingChanges(null);
                   }
                 }}
-                aria-label="إغلاق"
+                aria-label={t("updateCustomer.modal.close")}
                 disabled={isMutating}
               >
                 ✕
               </button>
             </div>
             <div className="ucx-modal__body">
-              <p className="ucx-hint">راجع التعديلات التالية قبل حفظها:</p>
+              <p className="ucx-hint">{t("updateCustomer.modal.reviewHint")}</p>
               <ul className="ucx-summary">
                 {pendingChanges.name && (
                   <li>
-                    <strong>الاسم:</strong> {pendingChanges.name}
+                    <strong>{t("updateCustomer.modal.fieldName")}</strong>{" "}
+                    {pendingChanges.name}
                   </li>
                 )}
                 {pendingChanges.phone && (
                   <li>
-                    <strong>الهاتف:</strong> {pendingChanges.phone}
+                    <strong>{t("updateCustomer.modal.fieldPhone")}</strong>{" "}
+                    {pendingChanges.phone}
                   </li>
                 )}
                 {pendingChanges.address && (
                   <li>
-                    <strong>العنوان:</strong> {pendingChanges.address}
+                    <strong>{t("updateCustomer.modal.fieldAddress")}</strong>{" "}
+                    {pendingChanges.address}
                   </li>
                 )}
                 {pendingChanges.areaId && (
                   <li>
-                    <strong>المنطقة الجديدة:</strong>{" "}
+                    <strong>{t("updateCustomer.modal.fieldNewArea")}</strong>{" "}
                     {areas.find((area) => area._id === pendingChanges.areaId)?.name ||
                       pendingChanges.areaId}
                   </li>
                 )}
                 {pendingChanges.placement && (
                   <li>
-                    <strong>الموضع داخل المنطقة:</strong>{" "}
+                    <strong>{t("updateCustomer.modal.fieldPlacement")}</strong>{" "}
                     {
                       placementOptions.find(
                         (opt) => String(opt.value) === String(pendingChanges.placement)
@@ -95,6 +100,7 @@ export default function UpdateCustomerModals({
             </div>
             <div className="ucx-modal__actions">
               <button
+                type="button"
                 className="ucx-btn secondary"
                 onClick={() => {
                   if (!isMutating) {
@@ -104,14 +110,17 @@ export default function UpdateCustomerModals({
                 }}
                 disabled={isMutating}
               >
-                تعديل
+                {t("updateCustomer.modal.backEdit")}
               </button>
               <button
+                type="button"
                 className="ucx-btn primary"
                 onClick={submitUpdate}
                 disabled={isMutating}
               >
-                {isMutating ? "جارٍ الحفظ…" : "تأكيد الحفظ"}
+                {isMutating
+                  ? t("updateCustomer.modal.saving")
+                  : t("updateCustomer.modal.confirmSave")}
               </button>
             </div>
           </div>
@@ -127,11 +136,12 @@ export default function UpdateCustomerModals({
         >
           <div className="ucx-modal__panel">
             <div className="ucx-modal__header">
-              <h3 id="delTitle">حذف نهائي للزبون</h3>
+              <h3 id="delTitle">{t("updateCustomer.modal.deleteTitle")}</h3>
               <button
+                type="button"
                 className="ucx-iconBtn"
                 onClick={closeDeleteModal}
-                aria-label="إغلاق"
+                aria-label={t("updateCustomer.modal.close")}
               >
                 ✕
               </button>
@@ -139,19 +149,21 @@ export default function UpdateCustomerModals({
 
             {deleteStep === 1 && (
               <div className="ucx-modal__body">
-                <p>
-                  هذا الإجراء <strong>لا يمكن التراجع عنه</strong>. سيتم حذف
-                  الزبون نهائيًا من النظام.
-                </p>
+                <p
+                  dangerouslySetInnerHTML={{
+                    __html: t("updateCustomer.modal.deleteStep1"),
+                  }}
+                />
                 <div className="ucx-modal__actions">
-                  <button className="ucx-btn secondary" onClick={closeDeleteModal}>
-                    إلغاء
+                  <button type="button" className="ucx-btn secondary" onClick={closeDeleteModal}>
+                    {t("updateCustomer.modal.cancel")}
                   </button>
                   <button
+                    type="button"
                     className="ucx-btn danger"
                     onClick={() => setDeleteStep(2)}
                   >
-                    متابعة
+                    {t("updateCustomer.modal.continue")}
                   </button>
                 </div>
               </div>
@@ -159,20 +171,25 @@ export default function UpdateCustomerModals({
 
             {deleteStep === 2 && (
               <div className="ucx-modal__body">
-                <p className="ucx-dangerText">
-                  تأكيد أخير: قد يكون لدى الزبون <strong>طلبات مرتبطة</strong>.
-                  إن وُجدت سيُرفض الحذف.
-                </p>
+                <p
+                  className="ucx-dangerText"
+                  dangerouslySetInnerHTML={{
+                    __html: t("updateCustomer.modal.deleteStep2"),
+                  }}
+                />
                 <div className="ucx-modal__actions">
-                  <button className="ucx-btn secondary" onClick={closeDeleteModal}>
-                    إلغاء
+                  <button type="button" className="ucx-btn secondary" onClick={closeDeleteModal}>
+                    {t("updateCustomer.modal.cancel")}
                   </button>
                   <button
+                    type="button"
                     className="ucx-btn hard"
                     onClick={performHardDelete}
                     disabled={isMutating}
                   >
-                    {isMutating ? "جارٍ الحذف..." : "حذف نهائي"}
+                    {isMutating
+                      ? t("updateCustomer.modal.deleting")
+                      : t("updateCustomer.modal.deleteConfirm")}
                   </button>
                 </div>
               </div>

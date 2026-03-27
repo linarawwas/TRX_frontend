@@ -1,4 +1,5 @@
 import React from "react";
+import { t } from "../../../utils/i18n";
 
 type CustomerData = {
   name?: string;
@@ -51,9 +52,13 @@ export default function UpdateCustomerHeader({
             {avatarText}
           </div>
           <div className="ucx-hero__text">
-            <h1 className="ucx-title">{customerData?.name || "الزبون"}</h1>
+            <h1 className="ucx-title">
+              {customerData?.name || t("updateCustomer.header.customerFallback")}
+            </h1>
             <div className="ucx-sub">
-              {customerData?.phone ? `📞 ${customerData.phone}` : "—"}
+              {customerData?.phone
+                ? `📞 ${customerData.phone}`
+                : t("updateCustomer.header.emDash")}
               {customerData?.address ? ` · 📍 ${customerData.address}` : ""}
             </div>
           </div>
@@ -64,31 +69,37 @@ export default function UpdateCustomerHeader({
             <span
               className={`ucx-chip ${customerData.isActive ? "ok" : "off"}`}
             >
-              {customerData.isActive ? "نشط" : "غير نشط"}
+              {customerData.isActive
+                ? t("updateCustomer.status.active")
+                : t("updateCustomer.status.inactive")}
             </span>
             {customerData.isActive ? (
               <button
+                type="button"
                 className="ucx-btn danger sm"
                 onClick={onDeactivate}
                 disabled={isMutating}
               >
-                إيقاف
+                {t("updateCustomer.header.deactivate")}
               </button>
             ) : (
               <div className="ucx-restoreBar">
                 <button
+                  type="button"
                   className="ucx-btn primary sm"
                   onClick={onRestoreAuto}
                   disabled={isMutating}
                 >
-                  تنشيط
+                  {t("updateCustomer.header.restore")}
                 </button>
                 {showRestoreOptions && (
                   <form
                     className="ucx-restoreInline"
                     onSubmit={onRestoreWithSequence}
                   >
-                    <label className="ucx-restoreLabel">الترتيب:</label>
+                    <label className="ucx-restoreLabel">
+                      {t("updateCustomer.header.sequenceLabel")}
+                    </label>
                     <input
                       className="ucx-input sm"
                       type="number"
@@ -99,26 +110,31 @@ export default function UpdateCustomerHeader({
                           e.target.value === "" ? "" : Number(e.target.value)
                         )
                       }
-                      placeholder="مثال: 25"
+                      placeholder={t("updateCustomer.header.restorePlaceholder")}
                     />
                     <button
                       className="ucx-btn secondary sm"
                       type="submit"
                       disabled={isMutating}
                     >
-                      حفظ
+                      {t("updateCustomer.header.restoreSave")}
                     </button>
                   </form>
                 )}
               </div>
             )}
             <button
+              type="button"
               className={`ucx-btn ${isAdmin ? "hard sm" : "hardDisabled sm"}`}
               onClick={onOpenDeleteModal}
               disabled={!isAdmin || isMutating}
-              title={isAdmin ? "حذف نهائي" : "للمشرف فقط"}
+              title={
+                isAdmin
+                  ? t("updateCustomer.header.hardDeleteTitleEnabled")
+                  : t("updateCustomer.header.hardDeleteTitleDisabled")
+              }
             >
-              حذف نهائي
+              {t("updateCustomer.header.hardDelete")}
             </button>
           </div>
         )}
@@ -126,19 +142,22 @@ export default function UpdateCustomerHeader({
 
       <div className="ucx-actionsRow">
         {customerData?.isActive && !isAdmin && (
-          <button className="ucx-btn success" onClick={onRecordOrder}>
-            تسجيل طلب خارجي
+          <button type="button" className="ucx-btn success" onClick={onRecordOrder}>
+            {t("updateCustomer.header.recordOrderExternal")}
           </button>
         )}
-        <button className="ucx-btn primary outline" onClick={onViewStatement}>
-          كشف الحساب / إضافة دفعة
+        <button type="button" className="ucx-btn primary outline" onClick={onViewStatement}>
+          {t("updateCustomer.header.statement")}
         </button>
         <button
+          type="button"
           className="ucx-btn secondary"
           onClick={onToggleEdit}
           aria-expanded={editOpen}
         >
-          {editOpen ? "إخفاء التعديل" : "تعديل معلومات الزبون"}
+          {editOpen
+            ? t("updateCustomer.header.toggleEditHide")
+            : t("updateCustomer.header.toggleEditShow")}
         </button>
       </div>
     </>

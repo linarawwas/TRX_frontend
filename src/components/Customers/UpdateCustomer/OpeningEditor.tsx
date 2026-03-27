@@ -1,8 +1,15 @@
-// OpeningEditor.tsx (or inline above UpdateCustomer)
 import * as React from "react";
 import { toast } from "react-toastify";
 import "./OpeningEditor.css";
-import { updateCustomerOpening } from "../../../features/customers/apiCustomers";
+import {
+  updateCustomerOpening,
+  type OpeningEditorPayload,
+} from "../../../features/customers/apiCustomers";
+import { createLogger } from "../../../utils/logger";
+import { t } from "../../../utils/i18n";
+
+const logger = createLogger("update-customer-opening");
+
 export function OpeningEditor({
   customerId,
   token,
@@ -12,7 +19,7 @@ export function OpeningEditor({
   token: string;
   onDone: () => void;
 }) {
-  const [bottles, setBottles] = React.useState<string>(""); // leave empty; admin types desired final values
+  const [bottles, setBottles] = React.useState<string>("");
   const [balance, setBalance] = React.useState<string>("");
   const allowBump = true;
   const [busy, setBusy] = React.useState(false);
@@ -20,35 +27,30 @@ export function OpeningEditor({
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!bottles && !balance) {
-      toast.info("أدخل قيمة واحدة على الأقل");
+      toast.info(t("updateCustomer.opening.toastNeedValue"));
       return;
     }
 
-    // double confirm
-    if (
-      !window.confirm(
-        "تنبيه: سيتم تعديل الأمر الافتتاحي لهذا الزبون حسب القيم المدخلة. هل أنت متأكد/ة؟"
-      )
-    )
-      return;
-    if (
-      !window.confirm(
-        "تأكيد أخير: هذه العملية لا تؤثر على الطلبات الحقيقية ولكنها تغيّر الرصيد/القناني الافتتاحية. متابعة؟"
-      )
-    )
-      return;
+    if (!window.confirm(t("updateCustomer.opening.confirm1"))) return;
+    if (!window.confirm(t("updateCustomer.opening.confirm2"))) return;
 
     setBusy(true);
     try {
-      const body: any = {};
+      const body: OpeningEditorPayload = { allowCheckoutBump: !!allowBump };
       if (bottles !== "") body.bottlesLeft = Number(bottles);
       if (balance !== "") body.balanceUSD = Number(balance);
-      body.allowCheckoutBump = !!allowBump;
-      await updateCustomerOpening(token, customerId, body);
-      toast.success("تم تعديل الرصيد/القناني الافتتاحية");
+      const result = await updateCustomerOpening(token, customerId, body);
+      if (result.error) {
+        logger.error("updateCustomerOpening failed", { message: result.error });
+        toast.error(result.error || t("updateCustomer.opening.failed"));
+        return;
+      }
+      toast.success(t("updateCustomer.opening.success"));
       onDone();
-    } catch (err: any) {
-      toast.error(err?.message || "فشل العملية");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      logger.error("updateCustomerOpening threw", { message });
+      toast.error(message || t("updateCustomer.opening.failed"));
     } finally {
       setBusy(false);
     }
@@ -61,43 +63,36 @@ export function OpeningEditor({
         role="note"
         id="opening-edit-note"
       >
-        هذه الأداة مخصّصة لتصحيح فروقات صغيرة فقط:
-        <strong> فرق القناني المسموح به لا يتجاوز قنّتين (±2)</strong>. يمكن
-        تعديل <strong>الرصيد الافتتاحي (USD)</strong> لأي قيمة. لا يمكن التعديل
-        على الرصيد العام، فقط على الرصيد الإفتتاحي، لأن الرصيد العام مجموع طلبات
-        الزبون، إذا كان هناك خطأ في تسجيل أي طلب، الرجاء التوجه لكشف الحساب
-        وتعديل الطلب الذي يحتوي الخطأ. من خلال صفحة تعديل الطلب والتفاصيل.
-        بإمكانك التعديل على الرصيد الإفتتاحي والإطلاع عليه من خلال{" "}
-        <strong>صفحة كشف الحساب.</strong>
+        {t("updateCustomer.opening.note")}
       </div>
       <form className="ucx-open" onSubmit={submit}>
         <div className="ucx-open__grid">
           <label className="ucx-open__label">
-            القناني المتبقية (الرقم المطلوب إظهاره)
+            {t("updateCustomer.opening.labelBottles")}
             <input
               className="ucx-open__input"
               type="number"
               min={0}
               value={bottles}
               onChange={(e) => setBottles(e.target.value)}
-              placeholder="مثال: 3"
+              placeholder={t("updateCustomer.opening.phBottles")}
             />
           </label>
           <label className="ucx-open__label">
-            الرصيد المستحق USD (الرقم المطلوب إظهاره)
+            {t("updateCustomer.opening.labelBalance")}
             <input
               className="ucx-open__input"
               type="number"
               step="0.01"
               value={balance}
               onChange={(e) => setBalance(e.target.value)}
-              placeholder="مثال: 8.00"
+              placeholder={t("updateCustomer.opening.phBalance")}
             />
           </label>
         </div>
         <div className="ucx-open__actions">
-          <button className="ucx-btn primary" disabled={busy}>
-            {busy ? "جارٍ الحفظ…" : "حفظ"}
+          <button type="submit" className="ucx-btn primary" disabled={busy}>
+            {busy ? t("updateCustomer.opening.busy") : t("updateCustomer.opening.save")}
           </button>
         </div>
       </form>

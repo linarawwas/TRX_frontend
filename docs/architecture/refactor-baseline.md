@@ -75,3 +75,5 @@ RecordOrderForCustomer (page)
 **See also:** [Areas (company list) — baseline](./refactor-baseline-areas.md) (`/areas` Addresses hub: `fetchAreasByCompany`, `AddArea`).
 
 **See also:** [Addresses (customers by area) — baseline](./refactor-baseline-addresses.md) (`/addresses/:areaId`, reorder, `fetchCustomersByArea`).
+
+**See also:** [Update customer — baseline](./refactor-baseline-update-customer.md) (`/updateCustomer/:id`, `useUpdateCustomerController`, `rtkResult`).

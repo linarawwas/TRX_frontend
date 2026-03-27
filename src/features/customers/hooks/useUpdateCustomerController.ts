@@ -22,14 +22,20 @@ import {
   restoreCustomer,
   type ActiveAreaCustomer,
   type CustomerDetail,
+  type RestoreCustomerPayload,
   updateCustomerById,
+  type UpdateCustomerPayload,
 } from "../apiCustomers";
 import { fetchAreasByCompany } from "../../areas/apiAreas";
 import { sortCustomersBySequence } from "../../areas/utils/sortCustomers";
 import type { RootState } from "../../../redux/store";
+import { createLogger } from "../../../utils/logger";
+import { t } from "../../../utils/i18n";
 
 type Area = { _id: string; name: string };
 type CustomerLite = ActiveAreaCustomer;
+
+const logger = createLogger("update-customer");
 
 const trimValue = (value: unknown) =>
   typeof value === "string" ? value.trim() : "";
@@ -56,8 +62,9 @@ export function useUpdateCustomerController() {
 
   const [openEdit, setOpenEdit] = useState(false);
   const [areas, setAreas] = useState<Area[]>([]);
-  const [customerData, setCustomerData] = useState<any>(null);
+  const [customerData, setCustomerData] = useState<CustomerDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [invoiceReady, setInvoiceReady] = useState(false);
   const [isMutating, setIsMutating] = useState(false);
   const [showRestoreOptions, setShowRestoreOptions] = useState(false);
@@ -82,7 +89,7 @@ export function useUpdateCustomerController() {
   const [areaCustomers, setAreaCustomers] = useState<CustomerLite[]>([]);
   const [placementLoading, setPlacementLoading] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [pendingChanges, setPendingChanges] = useState<Record<string, any> | null>(
+  const [pendingChanges, setPendingChanges] = useState<UpdateCustomerPayload | null>(
     null
   );
 
@@ -91,15 +98,20 @@ export function useUpdateCustomerController() {
     fetchAreasByCompany(token)
       .then((result) => {
         if (result.error) {
-          console.error("Areas load failed:", result.error);
+          logger.error("fetchAreasByCompany failed", { message: result.error });
           return;
         }
         setAreas((result.data || []) as Area[]);
       })
-      .catch((e) => console.error("Areas load failed:", e));
+      .catch((e) => {
+        logger.error("fetchAreasByCompany failed", {
+          message: e instanceof Error ? e.message : String(e),
+        });
+      });
   }, [token]);
 
   const fetchCustomer = useCallback(async () => {
+    setFetchError(null);
     setLoading(true);
     if (!token) {
       setLoading(false);
@@ -107,12 +119,17 @@ export function useUpdateCustomerController() {
     }
     const result = await fetchCustomerById(token, customerId);
     if (result.error || !result.data) {
-      console.error("Fetch error:", result.error);
+      logger.error("fetchCustomerById failed", {
+        customerId,
+        message: result.error,
+      });
+      setFetchError(result.error || t("updateCustomer.loadError"));
+      setCustomerData(null);
       setInvoiceReady(true);
       setLoading(false);
       return;
     }
-    setCustomerData(result.data as CustomerDetail);
+    setCustomerData(result.data);
     await fetchAndCacheCustomerInvoice(customerId || "", token || "");
     setInvoiceReady(true);
     setLoading(false);
@@ -127,7 +144,10 @@ export function useUpdateCustomerController() {
     fetchCustomer();
   }, [fetchAreas, fetchCustomer]);
 
-  const currentAreaId = customerData?.areaId?._id || "";
+  const currentAreaId =
+    typeof customerData?.areaId === "object" && customerData?.areaId
+      ? customerData.areaId._id
+      : "";
   const areaChanged = !!updatedInfo.areaId && updatedInfo.areaId !== currentAreaId;
   const targetAreaId = updatedInfo.areaId || currentAreaId;
 
@@ -147,9 +167,12 @@ export function useUpdateCustomerController() {
       const result = await fetchActiveCustomersByArea(token, targetAreaId);
       if (cancelled) return;
       if (result.error) {
-        console.error("Unable to load placement options", result.error);
+        logger.error("fetchActiveCustomersByArea failed", {
+          targetAreaId,
+          message: result.error,
+        });
         setAreaCustomers([]);
-        toast.error("تعذر تحميل زبائن المنطقة للترتيب");
+        toast.error(t("updateCustomer.toast.placementLoadFailed"));
         setPlacementLoading(false);
         return;
       }
@@ -168,8 +191,8 @@ export function useUpdateCustomerController() {
 
   const placementOptions = useMemo(() => {
     const base = [
-      { value: "__START__", label: "في بداية القائمة" },
-      { value: "__END__", label: "في نهاية القائمة" },
+      { value: "__START__", label: t("updateCustomer.placement.listStart") },
+      { value: "__END__", label: t("updateCustomer.placement.listEnd") },
     ];
     if (!targetAreaId || areaCustomers.length === 0) return base;
     return [
@@ -186,14 +209,14 @@ export function useUpdateCustomerController() {
   ) => {
     const { name, value } = e.target;
     if (name === "phone" && !/^\d*$/.test(value)) {
-      return toast.error("أدخل أرقام فقط");
+      return toast.error(t("updateCustomer.toast.phoneDigitsOnly"));
     }
     if (name === "areaId") {
       setUpdatedInfo((prev) => ({
         ...prev,
         areaId: value,
         placement:
-          value && customerData?.areaId?._id === value ? prev.placement : "__END__",
+          value && currentAreaId === value ? prev.placement : "__END__",
       }));
       return;
     }
@@ -206,7 +229,7 @@ export function useUpdateCustomerController() {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    const changes: Record<string, any> = {};
+    const changes: UpdateCustomerPayload = {};
 
     if (trimValue(updatedInfo.name)) changes.name = trimValue(updatedInfo.name);
     if (trimValue(updatedInfo.phone)) changes.phone = trimValue(updatedInfo.phone);
@@ -214,7 +237,7 @@ export function useUpdateCustomerController() {
       changes.address = trimValue(updatedInfo.address);
     }
     if (areaChanged && !updatedInfo.placement) {
-      return toast.error("عيّن ترتيبًا جديدًا داخل المنطقة قبل الحفظ");
+      return toast.error(t("updateCustomer.toast.setPlacementBeforeSave"));
     }
     if (trimValue(updatedInfo.areaId) && areaChanged) {
       changes.areaId = trimValue(updatedInfo.areaId);
@@ -223,7 +246,7 @@ export function useUpdateCustomerController() {
       changes.placement = updatedInfo.placement;
     }
     if (Object.keys(changes).length === 0) {
-      return toast.info("لا توجد تغييرات لإرسالها");
+      return toast.info(t("updateCustomer.toast.noChanges"));
     }
 
     setPendingChanges(changes);
@@ -234,17 +257,17 @@ export function useUpdateCustomerController() {
     if (!pendingChanges) return;
     setIsMutating(true);
     if (!token) {
-      toast.error("Missing auth token");
+      toast.error(t("updateCustomer.toast.missingToken"));
       setIsMutating(false);
       return;
     }
     const result = await updateCustomerById(token, customerId, pendingChanges);
     if (result.error) {
-      toast.error(result.error || "فشل التحديث");
+      toast.error(result.error || t("updateCustomer.toast.updateFailed"));
       setIsMutating(false);
       return;
     }
-    toast.success("تم التحديث بنجاح");
+    toast.success(t("updateCustomer.toast.updateSuccess"));
     setEditOpen(false);
     setUpdatedInfo((prev) => ({
       ...prev,
@@ -261,8 +284,12 @@ export function useUpdateCustomerController() {
   };
 
   const handleRecordOrder = () => {
-    if (!customerData?._id) return toast.error("بيانات الزبون غير متوفرة");
-    if (!shipmentId) return toast.error("ابدأ الشحنة أولاً قبل تسجيل الطلب");
+    if (!customerData?._id) {
+      return toast.error(t("updateCustomer.toast.customerMissing"));
+    }
+    if (!shipmentId) {
+      return toast.error(t("updateCustomer.toast.startShipmentFirst"));
+    }
     dispatch(setCustomerId(customerData._id));
     dispatch(setCustomerName(customerData.name || ""));
     dispatch(setCustomerPhoneNb(customerData.phone || ""));
@@ -271,42 +298,45 @@ export function useUpdateCustomerController() {
 
   const handleDeactivate = async () => {
     if (!customerId) return;
-    if (!window.confirm("هل تريد إيقاف هذا الزبون؟")) return;
+    if (!window.confirm(t("updateCustomer.confirm.deactivate"))) return;
     setIsMutating(true);
     if (!token) {
-      toast.error("Missing auth token");
+      toast.error(t("updateCustomer.toast.missingToken"));
       setIsMutating(false);
       return;
     }
     const result = await deactivateCustomer(token, customerId);
     if (result.error) {
-      toast.error(result.error || "فشل العملية");
+      toast.error(result.error || t("updateCustomer.toast.operationFailed"));
       setIsMutating(false);
       return;
     }
-    toast.success("تم إيقاف الزبون");
+    toast.success(t("updateCustomer.toast.deactivateSuccess"));
     setShowRestoreOptions(false);
     setRestoreSequence("");
     fetchCustomer();
     setIsMutating(false);
   };
 
-  const restoreRequest = async (body: any) => {
-    if (!token) return { data: null, error: "Missing auth token" };
-    return restoreCustomer(token, customerId, body || {});
+  const restoreRequest = async (body: RestoreCustomerPayload) => {
+    if (!token) return { data: null, error: t("updateCustomer.toast.missingToken") };
+    return restoreCustomer(token, customerId, body);
   };
 
   const handleRestoreAuto = async () => {
     if (!customerId) return;
     setIsMutating(true);
-    const areaId = customerData?.areaId?._id;
+    const areaId =
+      typeof customerData?.areaId === "object" && customerData?.areaId
+        ? customerData.areaId._id
+        : undefined;
     const result = await restoreRequest({ areaId });
     if (result.error) {
-      toast.error(result.error || "فشل العملية");
+      toast.error(result.error || t("updateCustomer.toast.operationFailed"));
       setIsMutating(false);
       return;
     }
-    toast.success("تم تنشيط الزبون");
+    toast.success(t("updateCustomer.toast.restoreSuccess"));
     setShowRestoreOptions(false);
     setRestoreSequence("");
     fetchCustomer();
@@ -316,21 +346,24 @@ export function useUpdateCustomerController() {
   const handleRestoreWithSequence = async (e: FormEvent) => {
     e.preventDefault();
     if (restoreSequence === "" || Number(restoreSequence) <= 0) {
-      toast.error("أدخل رقم ترتيب صحيح (1 أو أكبر)");
+      toast.error(t("updateCustomer.toast.invalidSequence"));
       return;
     }
     setIsMutating(true);
-    const areaId = customerData?.areaId?._id;
+    const areaId =
+      typeof customerData?.areaId === "object" && customerData?.areaId
+        ? customerData.areaId._id
+        : undefined;
     const result = await restoreRequest({
       areaId,
       sequence: Number(restoreSequence),
     });
     if (result.error) {
-      toast.error(result.error || "فشل العملية");
+      toast.error(result.error || t("updateCustomer.toast.operationFailed"));
       setIsMutating(false);
       return;
     }
-    toast.success("تم تنشيط الزبون وتعيين الترتيب");
+    toast.success(t("updateCustomer.toast.restoreWithSequenceSuccess"));
     setShowRestoreOptions(false);
     setRestoreSequence("");
     fetchCustomer();
@@ -338,7 +371,7 @@ export function useUpdateCustomerController() {
   };
 
   const openDeleteModal = () => {
-    if (!isAdmin) return toast.warn("هذه العملية للمشرف فقط");
+    if (!isAdmin) return toast.warn(t("updateCustomer.toast.adminOnly"));
     setDeleteStep(1);
     setShowDeleteModal(true);
   };
@@ -348,17 +381,17 @@ export function useUpdateCustomerController() {
   const performHardDelete = async () => {
     setIsMutating(true);
     if (!token) {
-      toast.error("Missing auth token");
+      toast.error(t("updateCustomer.toast.missingToken"));
       setIsMutating(false);
       return;
     }
     const result = await hardDeleteCustomer(token, customerId);
     if (result.error) {
-      toast.error(result.error || "فشل العملية");
+      toast.error(result.error || t("updateCustomer.toast.operationFailed"));
       setIsMutating(false);
       return;
     }
-    toast.success("تم حذف الزبون نهائيًا");
+    toast.success(t("updateCustomer.toast.deleteSuccess"));
     setShowDeleteModal(false);
     setTimeout(() => navigate(-1), 300);
     setIsMutating(false);
@@ -379,6 +412,7 @@ export function useUpdateCustomerController() {
     deleteStep,
     editOpen,
     fetchCustomer,
+    fetchError,
     handleChange,
     handleDeactivate,
     handleRecordOrder,
@@ -395,6 +429,7 @@ export function useUpdateCustomerController() {
     performHardDelete,
     placementLoading,
     placementOptions,
+    reload: fetchCustomer,
     restoreSequence,
     setConfirmOpen,
     setDeleteStep,
