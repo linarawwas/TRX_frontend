@@ -2,7 +2,6 @@ import {
   selectCustomersWithFilledOrders,
   selectShipmentLiveTotals,
   selectShipmentMeta,
-  selectShipmentPreviousSnapshot,
   selectRoundProgress,
   selectTodayProgress,
 } from "./shipment";
@@ -37,34 +36,17 @@ function makeState(overrides?: Partial<RootState>): RootState {
       day: 13,
       exchangeRateLBP: 89000,
       target: 20,
-      prev_id: "",
-      prev_dayId: "",
-      prev_year: null,
-      prev_month: null,
-      prev_day: null,
-      prev_target: 0,
       delivered: 12,
-      prev_delivered: 0,
       returned: 2,
-      prev_returned: 0,
       dollarPayments: 30,
-      prev_dollarPayments: 0,
       liraPayments: 1500000,
-      prev_liraPayments: 0,
       expensesInLiras: 100000,
       profitsInLiras: 50000,
       expensesInUSD: 5,
       profitsInUSD: 3,
-      prev_expensesInLiras: 0,
-      prev_profitsInLiras: 0,
-      prev_profitsInUSD: 0,
-      prev_expensesInUSD: 0,
       CustomersWithFilledOrders: ["customer-1"],
       CustomersWithEmptyOrders: [],
       CustomersWithPendingOrders: ["customer-2"],
-      prev_CustomersWithFilledOrder: [],
-      prev_CustomersWithEmptyOrders: [],
-      prev_CustomersWithPendingOrders: [],
       payments: 0,
       round: {
         sequence: 2,
@@ -195,27 +177,6 @@ describe("memoized redux selectors", () => {
     const second = selectCustomersWithFilledOrders(state);
 
     expect(first).toEqual([]);
-    expect(second).toBe(first);
-  });
-
-  test("previous snapshot selector exposes a stable restore boundary", () => {
-    const state = makeState({
-      shipment: {
-        ...makeState().shipment,
-        prev_id: "prev-shipment",
-        prev_dayId: "prev-day",
-        prev_delivered: 3,
-        prev_CustomersWithPendingOrders: ["customer-9"],
-      },
-    });
-
-    const first = selectShipmentPreviousSnapshot(state);
-    const second = selectShipmentPreviousSnapshot(state);
-
-    expect(first.id).toBe("prev-shipment");
-    expect(first.dayId).toBe("prev-day");
-    expect(first.delivered).toBe(3);
-    expect(first.pendingOrders).toEqual(["customer-9"]);
     expect(second).toBe(first);
   });
 });

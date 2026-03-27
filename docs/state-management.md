@@ -9,10 +9,9 @@ Located in `src/redux/`.
 - **Slices**
   - `UserInfo` — authentication token, companyId, isAdmin, username.
   - `Order` — current area, customer, product, and price selection.
-  - `Shipment` — current shipment and round state. The persisted shape remains flat for compatibility, but it is now treated as five internal regions:
+  - `Shipment` — current shipment and round state. The persisted shape remains flat for compatibility, but it is now treated as four internal regions:
     - live shipment meta/date (`_id`, `dayId`, `year/month/day`, `exchangeRateLBP`, `target`)
     - live totals (`delivered`, `returned`, currency-specific payments, profits, expenses)
-    - previous snapshot fields (`prev_*`) for restore flows
     - customer progress buckets (`CustomersWithFilledOrders`, `CustomersWithEmptyOrders`, `CustomersWithPendingOrders`)
     - round baseline state (`round`) used to derive “this round only” deltas
   - `Defaults` — configuration values and defaults.
@@ -26,7 +25,7 @@ Located in `src/redux/`.
 - **Selectors**
   - `src/redux/selectors/user.ts` — `selectUserToken`, `selectUserCompanyId`, `selectUserIsAdmin`, etc.; `selectUser` is memoized with `createSelector`.
   - `src/redux/selectors/order.ts` — `selectOrderCustomerId`, `selectOrderProductId`, etc.; `selectOrder` is memoized.
-  - `src/redux/selectors/shipment.ts` — Shipment boundary selectors for meta, date, exchange rate, live totals, round progress, customer buckets, and previous snapshot data. Prefer these selectors over direct `state.shipment.*` reads, especially in business-critical flows. All selectors that return objects or arrays use `createSelector` to avoid unnecessary rerenders. See [technical-debt.md § Architecture conventions](technical-debt.md#architecture-conventions-ongoing).
+  - `src/redux/selectors/shipment.ts` — Shipment boundary selectors for meta, date, exchange rate, live totals, round progress, and customer buckets. Prefer these selectors over direct `state.shipment.*` reads, especially in business-critical flows. All selectors that return objects or arrays use `createSelector` to avoid unnecessary rerenders. See [technical-debt.md § Architecture conventions](technical-debt.md#architecture-conventions-ongoing).
 
 New global concerns that need to be shared across multiple features should usually be added as a new slice plus selectors.
 
@@ -144,11 +143,9 @@ This hook is the main bridge between **persistent offline data** and **in‑memo
    - Identity and date fields used when starting a shipment or recording orders.
 2. **Live totals**
    - Day-level delivery, return, payment, profit, and expense totals.
-3. **Previous snapshot**
-   - `prev_*` fields captured by `clearShipmentInfo()` and restored by `setShipmentFromPrev()`.
-4. **Customer buckets**
+3. **Customer buckets**
    - Progress lists for filled, empty, and pending customer orders.
-5. **Round baseline**
+4. **Round baseline**
    - `round` stores the baseline totals needed for `selectRoundProgress` to derive round-only deltas.
 
 Preferred access pattern:

@@ -7,7 +7,6 @@ export const {
   addPendingOrder,
   removePendingOrder,
   setDayId,
-  setShipmentFromPrev,
   addCustomerWithFilledOrder,
   addCustomerWithEmptyOrder,
   setShipmentProfitsInLiras,

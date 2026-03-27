@@ -13,7 +13,6 @@ import { FaBars, FaTimes } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import logo from "../../../images/logo.jpeg";
-import { setShipmentFromPrev } from "../../../redux/Shipment/action";
 import type { RootState } from "../../../redux/store";
 import { clearAuth } from "../../../features/auth/authStorage";
 import { createLogger } from "../../../utils/logger";
@@ -173,19 +172,6 @@ function UnifiedAsideMenuInner(): JSX.Element {
             </span>
             تسجيل الخروج
           </button>
-          {!isAdmin ? (
-            <button
-              type="button"
-              className="logout-btn uam-secondary-btn"
-              onClick={() => dispatch(setShipmentFromPrev())}
-              disabled
-            >
-              <span className="uam-btn-icon" aria-hidden="true">
-                🔁
-              </span>
-              الشحنة السابقة
-            </button>
-          ) : null}
         </div>
       </aside>
     </div>

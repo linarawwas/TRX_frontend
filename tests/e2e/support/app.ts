@@ -30,34 +30,17 @@ type AppState = {
     month: number | null;
     day: number | null;
     target: number;
-    prev_id: string;
-    prev_dayId: string;
-    prev_year: number | null;
-    prev_month: number | null;
-    prev_day: number | null;
-    prev_target: number;
     delivered: number;
-    prev_delivered: number;
     returned: number;
-    prev_returned: number;
     dollarPayments: number;
-    prev_dollarPayments: number;
     liraPayments: number;
-    prev_liraPayments: number;
     expensesInLiras: number;
     profitsInLiras: number;
     expensesInUSD: number;
     profitsInUSD: number;
-    prev_expensesInLiras: number;
-    prev_profitsInLiras: number;
-    prev_profitsInUSD: number;
-    prev_expensesInUSD: number;
     CustomersWithFilledOrders: string[];
     CustomersWithEmptyOrders: string[];
     CustomersWithPendingOrders: string[];
-    prev_CustomersWithFilledOrder: string[];
-    prev_CustomersWithEmptyOrders: string[];
-    prev_CustomersWithPendingOrders: string[];
     payments: number;
     round: {
       sequence: number | null;
@@ -111,34 +94,17 @@ const baseState: AppState = {
     month: null,
     day: null,
     target: 0,
-    prev_id: "",
-    prev_dayId: "",
-    prev_year: null,
-    prev_month: null,
-    prev_day: null,
-    prev_target: 0,
     delivered: 0,
-    prev_delivered: 0,
     returned: 0,
-    prev_returned: 0,
     dollarPayments: 0,
-    prev_dollarPayments: 0,
     liraPayments: 0,
-    prev_liraPayments: 0,
     expensesInLiras: 0,
     profitsInLiras: 0,
     expensesInUSD: 0,
     profitsInUSD: 0,
-    prev_expensesInLiras: 0,
-    prev_profitsInLiras: 0,
-    prev_profitsInUSD: 0,
-    prev_expensesInUSD: 0,
     CustomersWithFilledOrders: [],
     CustomersWithEmptyOrders: [],
     CustomersWithPendingOrders: [],
-    prev_CustomersWithFilledOrder: [],
-    prev_CustomersWithEmptyOrders: [],
-    prev_CustomersWithPendingOrders: [],
     payments: 0,
     round: {
       sequence: null,

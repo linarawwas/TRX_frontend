@@ -22,12 +22,11 @@ UnifiedAsideMenu (default: error boundary)
 | **Role** | Redux `user.isAdmin` |
 | **Shipment context** | Redux `shipment._id`, `shipment.dayId` — gates “المسار” link |
 | **Logout** | Pre-refactor: `toast`, `localStorage.removeItem("token")`, `reload()`, then `dispatch` clears (unreachable after reload). |
-| **Prev shipment** | `dispatch(setShipmentFromPrev())` — button **disabled** for non-admin |
 
 ## 3. State management
 
 - **Local:** `isMenuOpen` drawer.
-- **Redux:** read-only except logout / prev-shipment button.
+- **Redux:** read-only except logout.
 
 ## 4. Async / offline
 

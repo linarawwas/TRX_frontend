@@ -25,39 +25,20 @@ export const initialState: ShipmentState = {
   day: null,
   target: 0,
 
-  // Region: previous shipment snapshot.
-  prev_id: "",
-  prev_dayId: "",
-  prev_year: null,
-  prev_month: null,
-  prev_day: null,
-  prev_target: 0,
-
   // Region: live shipment totals.
   delivered: 0,
-  prev_delivered: 0,
   returned: 0,
-  prev_returned: 0,
   dollarPayments: 0,
-  prev_dollarPayments: 0,
   liraPayments: 0,
-  prev_liraPayments: 0,
   expensesInLiras: 0,
   profitsInLiras: 0,
   expensesInUSD: 0,
   profitsInUSD: 0,
-  prev_expensesInLiras: 0,
-  prev_profitsInLiras: 0,
-  prev_profitsInUSD: 0,
-  prev_expensesInUSD: 0,
 
   // Region: customer progress buckets.
   CustomersWithFilledOrders: [],
   CustomersWithEmptyOrders: [],
   CustomersWithPendingOrders: [],
-  prev_CustomersWithFilledOrder: [],
-  prev_CustomersWithEmptyOrders: [],
-  prev_CustomersWithPendingOrders: [],
 
   // Region: legacy compatibility total.
   payments: 0,
@@ -127,25 +108,6 @@ export const shipmentSlice = createSlice({
       state.CustomersWithPendingOrders =
         state.CustomersWithPendingOrders.filter((x) => String(x) !== id);
     },
-    setShipmentFromPrev(state) {
-      state._id = state.prev_id;
-      state.dayId = state.prev_dayId;
-      state.year = state.prev_year;
-      state.month = state.prev_month;
-      state.day = state.prev_day;
-      state.target = state.prev_target;
-      state.delivered = state.prev_delivered;
-      state.returned = state.prev_returned;
-      state.dollarPayments = state.prev_dollarPayments;
-      state.liraPayments = state.prev_liraPayments;
-      state.profitsInUSD = state.prev_profitsInUSD;
-      state.expensesInUSD = state.prev_expensesInUSD;
-      state.expensesInLiras = state.prev_expensesInLiras;
-      state.profitsInLiras = state.prev_profitsInLiras;
-      state.CustomersWithFilledOrders = [...state.prev_CustomersWithFilledOrder];
-      state.CustomersWithEmptyOrders = [...state.prev_CustomersWithEmptyOrders];
-      state.CustomersWithPendingOrders = [...state.prev_CustomersWithPendingOrders];
-    },
     setUsdPayments(state, action: PayloadAction<number>) {
       state.dollarPayments = action.payload;
     },
@@ -210,25 +172,6 @@ export const shipmentSlice = createSlice({
       state.expensesInUSD = 0;
     },
     clearAllShipmentInfo(state) {
-      // Snapshot the live shipment before clearing so legacy restore flows
-      // can recover the previous shipment exactly, including zero values.
-      state.prev_id = state._id;
-      state.prev_dayId = state.dayId;
-      state.prev_year = state.year;
-      state.prev_month = state.month;
-      state.prev_day = state.day;
-      state.prev_target = state.target;
-      state.prev_delivered = state.delivered;
-      state.prev_returned = state.returned;
-      state.prev_dollarPayments = state.dollarPayments;
-      state.prev_liraPayments = state.liraPayments;
-      state.prev_expensesInLiras = state.expensesInLiras;
-      state.prev_profitsInLiras = state.profitsInLiras;
-      state.prev_profitsInUSD = state.profitsInUSD;
-      state.prev_expensesInUSD = state.expensesInUSD;
-      state.prev_CustomersWithFilledOrder = [...state.CustomersWithFilledOrders];
-      state.prev_CustomersWithEmptyOrders = [...state.CustomersWithEmptyOrders];
-      state.prev_CustomersWithPendingOrders = [...state.CustomersWithPendingOrders];
       state._id = "";
       state.dayId = "";
       state.year = null;
