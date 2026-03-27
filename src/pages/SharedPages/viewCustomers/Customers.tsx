@@ -1,83 +1,138 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import { Link } from "react-router-dom";
 import "./Customers.css";
 import { useDispatch, useSelector } from "react-redux";
 import { clearCustomerId } from "../../../redux/Order/action";
 import { selectUserToken } from "../../../redux/selectors/user";
-import { fetchCustomersByCompany } from "../../../features/customers/apiCustomers";
+import {
+  fetchCustomersByCompany,
+  type Customer,
+} from "../../../features/customers/apiCustomers";
 import AddCustomer from "../../../components/Customers/AddCustomer/AddCustomer";
 import SpinLoader from "../../../components/UI reusables/SpinLoader/SpinLoader";
 import { t } from "../../../utils/i18n";
+import { createLogger } from "../../../utils/logger";
 
-interface Customer {
-  _id: string;
-  name: string;
-  phone?: string;
-  address?: string;
+const logger = createLogger("customers-list");
+
+function matchesSearch(c: Customer, qLower: string): boolean {
+  if (!qLower) return true;
+  return (
+    Boolean(c.name && c.name.toLowerCase().includes(qLower)) ||
+    Boolean(c.phone && c.phone.toLowerCase().includes(qLower)) ||
+    Boolean(c.address && c.address.toLowerCase().includes(qLower))
+  );
 }
 
-const Customers: React.FC = () => {
+type CustomerRowProps = {
+  customer: Customer;
+  inactive?: boolean;
+};
+
+const CustomerRow = memo(function CustomerRow({
+  customer,
+  inactive = false,
+}: CustomerRowProps) {
+  return (
+    <Link
+      to={`/updateCustomer/${customer._id}`}
+      className="customer-card-link vc-card-link"
+      title={`${t("common.edit")} ${customer.name}`}
+    >
+      <article
+        className={`customer-card vc-customer-card${inactive ? " inactive-card" : ""}`}
+      >
+        <div className="customer-card-content">
+          <span className="customer-name vc-customer-name">{customer.name}</span>
+          {inactive ? (
+            <span className="status-chip">
+              {t("addresses.customer.status.inactive")}
+            </span>
+          ) : null}
+          <span className="edit-customer-icon vc-edit-icon" aria-hidden="true">
+            📝
+          </span>
+        </div>
+      </article>
+    </Link>
+  );
+});
+
+function CustomersInner(): JSX.Element {
   const token = useSelector(selectUserToken);
   const [activeCustomers, setActiveCustomers] = useState<Customer[]>([]);
   const [inactiveCustomers, setInactiveCustomers] = useState<Customer[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [showInsertOne, setShowInsertOne] = useState<boolean>(false);
-  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [showInsertOne, setShowInsertOne] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const [openActive, setOpenActive] = useState<boolean>(true);
-  const [openInactive, setOpenInactive] = useState<boolean>(false);
+  const [openActive, setOpenActive] = useState(true);
+  const [openInactive, setOpenInactive] = useState(false);
 
   const dispatch = useDispatch();
+  const activePanelId = useId();
+  const inactivePanelId = useId();
+
+  const loadCustomers = useCallback(async (signal: AbortSignal) => {
+    if (!token) {
+      setLoading(false);
+      setActiveCustomers([]);
+      setInactiveCustomers([]);
+      setError(null);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    const result = await fetchCustomersByCompany(token);
+
+    if (signal.aborted) return;
+
+    if (result.error || !result.data) {
+      const msg = result.error || "Failed to fetch customers";
+      logger.warn("fetchCustomersByCompany failed", { message: msg });
+      setError(msg);
+      setLoading(false);
+      return;
+    }
+
+    setActiveCustomers(
+      Array.isArray(result.data.active) ? result.data.active : []
+    );
+    setInactiveCustomers(
+      Array.isArray(result.data.inactive) ? result.data.inactive : []
+    );
+    setLoading(false);
+  }, [token]);
 
   useEffect(() => {
     dispatch(clearCustomerId());
+    const ac = new AbortController();
+    void loadCustomers(ac.signal);
+    return () => ac.abort();
+  }, [dispatch, showInsertOne, loadCustomers]);
 
-    if (!token) return;
-
-    let cancelled = false;
-
-    (async () => {
-      setLoading(true);
-      setError(null);
-      const result = await fetchCustomersByCompany(token);
-      if (cancelled) return;
-      if (result.error || !result.data) {
-        setError(result.error || "Failed to fetch customers");
-        setLoading(false);
-        return;
-      }
-      setActiveCustomers(Array.isArray(result.data.active) ? result.data.active : []);
-      setInactiveCustomers(
-        Array.isArray(result.data.inactive) ? result.data.inactive : []
-      );
-      setLoading(false);
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [token, showInsertOne, dispatch]);
-
-  // one filter function applied to BOTH lists
-  const matches = (c: Customer) => {
-    const q = searchTerm.trim().toLowerCase();
-    if (!q) return true;
-    return (
-      c.name?.toLowerCase().includes(q) ||
-      c.phone?.toLowerCase().includes(q) ||
-      c.address?.toLowerCase().includes(q)
-    );
-  };
+  const qLower = useMemo(() => searchTerm.trim().toLowerCase(), [searchTerm]);
 
   const filteredActive = useMemo(
-    () => activeCustomers.filter(matches),
-    [activeCustomers, searchTerm]
+    () => activeCustomers.filter((c) => matchesSearch(c, qLower)),
+    [activeCustomers, qLower]
   );
+
   const filteredInactive = useMemo(
-    () => inactiveCustomers.filter(matches),
-    [inactiveCustomers, searchTerm]
+    () => inactiveCustomers.filter((c) => matchesSearch(c, qLower)),
+    [inactiveCustomers, qLower]
   );
 
   const noResults =
@@ -87,14 +142,14 @@ const Customers: React.FC = () => {
     filteredInactive.length === 0;
 
   return (
-    <div className="customers-body" dir="rtl">
-      <div className="customer-header">
-        <h2 className="customers-title">{t("customers.title")}</h2>
+    <div className="customers-body vc-shell" dir="rtl" lang="ar">
+      <header className="customer-header vc-header">
+        <h1 className="customers-title vc-title">{t("customers.title")}</h1>
 
-        <div className="customer-adding-options">
+        <div className="customer-adding-options vc-toolbar">
           <button
             type="button"
-            className="customer-adding-option"
+            className="customer-adding-option vc-btn vc-btn--primary"
             onClick={() => setShowInsertOne(!showInsertOne)}
             aria-expanded={showInsertOne}
             aria-controls="add-customer-form"
@@ -102,129 +157,191 @@ const Customers: React.FC = () => {
             {showInsertOne ? t("customers.showCustomers") : t("customers.addToggle")}
           </button>
 
-          {showInsertOne && (
-            <div id="add-customer-form" className="customer-form-wrapper">
+          <div className="search-bar vc-search">
+            <label className="vc-search__label" htmlFor="customers-search-input">
+              {t("customers.search.placeholder")}
+            </label>
+            <input
+              id="customers-search-input"
+              type="search"
+              placeholder={t("customers.search.placeholder")}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input vc-search__input"
+              autoComplete="off"
+            />
+          </div>
+
+          {showInsertOne ? (
+            <div id="add-customer-form" className="customer-form-wrapper vc-form-wrap">
               <AddCustomer />
             </div>
-          )}
+          ) : null}
         </div>
-
-        <div className="search-bar">
-          <input
-            type="text"
-            placeholder={t("customers.search.placeholder")}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-            aria-label={t("customers.search.placeholder")}
-          />
-        </div>
-      </div>
+      </header>
 
       {loading ? (
-        <SpinLoader />
+        <div className="vc-loading" aria-busy="true" aria-live="polite">
+          <SpinLoader />
+        </div>
       ) : error ? (
-        <p role="alert">{t("common.error")}: {error}</p>
+        <div className="vc-inline-error" role="alert">
+          <p className="vc-inline-error__text">
+            {t("common.error")}: {error}
+          </p>
+          <button
+            type="button"
+            className="vc-retry"
+            onClick={() => {
+              const ac = new AbortController();
+              void loadCustomers(ac.signal);
+            }}
+          >
+            {t("updateCustomer.retry")}
+          </button>
+        </div>
       ) : (
         !showInsertOne && (
-          <div className="accordion">
-            {/* ACTIVE */}
-            <section className="accordion-section">
+          <div className="accordion vc-accordion">
+            <section className="accordion-section vc-acc-section">
               <button
                 type="button"
-                className="accordion-header"
+                className="accordion-header vc-acc-header"
                 aria-expanded={openActive}
-                aria-controls="active-panel"
+                aria-controls={activePanelId}
                 onClick={() => setOpenActive((s) => !s)}
               >
-                <span className={`chev ${openActive ? "open" : ""}`}>▸</span>
+                <span
+                  className={`chev vc-chev ${openActive ? "open" : ""}`}
+                  aria-hidden="true"
+                >
+                  ▸
+                </span>
                 <span className="acc-title">{t("customers.active.title")}</span>
-                <span className="badge">
+                <span className="badge vc-badge">
                   {filteredActive.length}/{activeCustomers.length}
                 </span>
               </button>
 
-              {openActive && (
-                <div id="active-panel" className="accordion-body">
+              {openActive ? (
+                <div id={activePanelId} className="accordion-body vc-acc-body">
                   {filteredActive.length ? (
-                    <div className="customer-card-list">
+                    <div className="customer-card-list vc-card-list">
                       {filteredActive.map((customer) => (
-                        <Link
-                          key={customer._id}
-                          to={`/updateCustomer/${customer._id}`}
-                          className="customer-card-link"
-                          title={`${t("common.edit")} ${customer.name}`}
-                        >
-                          <div className="customer-card">
-                            <div className="customer-card-content">
-                              <span className="customer-name">{customer.name}</span>
-                              <span className="edit-customer-icon">📝</span>
-                            </div>
-                          </div>
-                        </Link>
+                        <CustomerRow key={customer._id} customer={customer} />
                       ))}
                     </div>
                   ) : (
-                    <p className="muted-center">{t("customers.active.empty")}</p>
+                    <p className="muted-center vc-muted">{t("customers.active.empty")}</p>
                   )}
                 </div>
-              )}
+              ) : null}
             </section>
 
-            {/* INACTIVE */}
-            <section className="accordion-section">
+            <section className="accordion-section vc-acc-section">
               <button
                 type="button"
-                className="accordion-header inactive"
+                className="accordion-header inactive vc-acc-header vc-acc-header--muted"
                 aria-expanded={openInactive}
-                aria-controls="inactive-panel"
+                aria-controls={inactivePanelId}
                 onClick={() => setOpenInactive((s) => !s)}
               >
-                <span className={`chev ${openInactive ? "open" : ""}`}>▸</span>
+                <span
+                  className={`chev vc-chev ${openInactive ? "open" : ""}`}
+                  aria-hidden="true"
+                >
+                  ▸
+                </span>
                 <span className="acc-title">{t("customers.inactive.title")}</span>
-                <span className="badge gray">
+                <span className="badge gray vc-badge vc-badge--gray">
                   {filteredInactive.length}/{inactiveCustomers.length}
                 </span>
               </button>
 
-              {openInactive && (
-                <div id="inactive-panel" className="accordion-body">
+              {openInactive ? (
+                <div id={inactivePanelId} className="accordion-body vc-acc-body">
                   {filteredInactive.length ? (
-                    <div className="customer-card-list">
+                    <div className="customer-card-list vc-card-list">
                       {filteredInactive.map((customer) => (
-                        <Link
+                        <CustomerRow
                           key={customer._id}
-                          to={`/updateCustomer/${customer._id}`}
-                          className="customer-card-link"
-                          title={`${t("common.edit")} ${customer.name}`}
-                        >
-                          <div className="customer-card inactive-card">
-                            <div className="customer-card-content">
-                              <span className="customer-name">{customer.name}</span>
-                              <span className="status-chip">{t("addresses.customer.status.inactive")}</span>
-                              <span className="edit-customer-icon">📝</span>
-                            </div>
-                          </div>
-                        </Link>
+                          customer={customer}
+                          inactive
+                        />
                       ))}
                     </div>
                   ) : (
-                    <p className="muted-center">{t("customers.inactive.empty")}</p>
+                    <p className="muted-center vc-muted">
+                      {t("customers.inactive.empty")}
+                    </p>
                   )}
                 </div>
-              )}
+              ) : null}
             </section>
 
-            {noResults && (
-              <p className="muted-center" style={{ marginTop: 8 }}>
+            {noResults ? (
+              <p className="muted-center vc-muted vc-no-results">
                 {t("customers.noResults")}
               </p>
-            )}
+            ) : null}
           </div>
         )
       )}
     </div>
   );
-};
+}
 
-export default Customers;
+type BoundaryState = { hasError: boolean };
+
+class CustomersErrorBoundary extends React.Component<
+  { children: ReactNode },
+  BoundaryState
+> {
+  state: BoundaryState = { hasError: false };
+
+  static getDerivedStateFromError(): BoundaryState {
+    return { hasError: true };
+  }
+
+  componentDidCatch(err: Error, info: React.ErrorInfo): void {
+    logger.error("Customers view crashed", {
+      message: err.message,
+      stack: err.stack,
+      componentStack: info.componentStack,
+    });
+  }
+
+  render(): ReactNode {
+    if (this.state.hasError) {
+      return (
+        <div
+          className="customers-body vc-shell vc-shell--error"
+          dir="rtl"
+          lang="ar"
+          role="alert"
+        >
+          <div className="vc-error-card">
+            <h2 className="vc-error-title">{t("updateCustomer.errorBoundary.title")}</h2>
+            <p className="vc-error-body">{t("updateCustomer.errorBoundary.body")}</p>
+            <button
+              type="button"
+              className="vc-error-reload"
+              onClick={() => window.location.reload()}
+            >
+              {t("updateCustomer.errorBoundary.reload")}
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+export default function Customers(): JSX.Element {
+  return (
+    <CustomersErrorBoundary>
+      <CustomersInner />
+    </CustomersErrorBoundary>
+  );
+}
