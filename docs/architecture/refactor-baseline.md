@@ -95,3 +95,5 @@ RecordOrderForCustomer (page)
 **See also:** [Shipments list — baseline](./refactor-baseline-shipments-list.md) (`ShipmentsList`: lazy range query, KPI totals, shipment cards).
 
 **See also:** [Unified aside menu — baseline](./refactor-baseline-unified-aside-menu.md) (`UnifiedAsideMenu`: drawer nav, `clearAuth`, shipment-gated link).
+
+**See also:** [Login page — baseline](./refactor-baseline-login-page.md) (`Login.tsx`: shell, `LoginForm`, `loginUser` / `rtkResult`).
