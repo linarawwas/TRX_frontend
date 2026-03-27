@@ -93,3 +93,5 @@ RecordOrderForCustomer (page)
 **See also:** [Admin home — baseline](./refactor-baseline-admin-home-page.md) (`AdminHomePage`: snapshot KPIs, `FinanceDashboard` lazy, `useTodayShipmentTotals`).
 
 **See also:** [Shipments list — baseline](./refactor-baseline-shipments-list.md) (`ShipmentsList`: lazy range query, KPI totals, shipment cards).
+
+**See also:** [Unified aside menu — baseline](./refactor-baseline-unified-aside-menu.md) (`UnifiedAsideMenu`: drawer nav, `clearAuth`, shipment-gated link).
