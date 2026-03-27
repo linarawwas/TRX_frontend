@@ -1,125 +1,206 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "../../UI reusables/UpdateSingleRecord/UpdateSingleRecord.css";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
-import "./UpdateOrder.css";
+import type { RootState } from "../../../redux/store";
 import {
   deleteOrderById,
   fetchOrderById,
   updateOrderById,
+  type Order,
+  type Payment,
 } from "../../../features/orders/apiOrders";
+import { createLogger } from "../../../utils/logger";
 import AddPaymentForm from "./AddPaymentForm/AddPaymentForm";
 import OrderReceipt from "./OrderReceipt/OrderReceipt";
+import "./UpdateOrder.css";
 
-/** Lightweight bottom-sheet (already present) */
-const PaymentSheet: React.FC<{
+const logger = createLogger("update-order");
+
+function sumPaymentsByCurrency(
+  payments: Payment[] | undefined,
+  currency: "USD" | "LBP"
+): number {
+  return (payments || [])
+    .filter((p) => p.currency === currency)
+    .reduce((s, p) => s + (p.amount || 0), 0);
+}
+
+type PaymentSheetProps = {
   title?: string;
   onClose: () => void;
-  children: React.ReactNode;
-}> = ({ title = "إضافة دفعة", onClose, children }) => {
-  React.useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+  children: ReactNode;
+};
+
+const PaymentSheet = memo(function PaymentSheet({
+  title = "إضافة دفعة",
+  onClose,
+  children,
+}: PaymentSheetProps) {
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
+  useEffect(() => {
+    panelRef.current?.focus();
+  }, []);
+
   return (
-    <div className="sheet-backdrop" role="presentation" onClick={onClose}>
+    <div
+      className="sheet-backdrop"
+      role="presentation"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") onClose();
+      }}
+    >
       <div
+        ref={panelRef}
         className="sheet-panel"
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        onClick={(e) => e.stopPropagation()}
+        tabIndex={-1}
       >
         <div className="sheet-handle" aria-hidden="true" />
         <div className="sheet-head">
           <div className="sheet-title">{title}</div>
-          <button className="sheet-close" onClick={onClose} aria-label="إغلاق">
-            ✕
+          <button
+            type="button"
+            className="sheet-close"
+            onClick={onClose}
+            aria-label="إغلاق"
+          >
+            <span aria-hidden="true">×</span>
           </button>
         </div>
         <div className="sheet-body">{children}</div>
       </div>
     </div>
   );
-};
+});
 
-/** Tiny centered modal */
-const Modal: React.FC<{
+type ModalProps = {
   title: string;
   onClose: () => void;
-  children: React.ReactNode;
-}> = ({ title, onClose, children }) => (
-  <div
-    className="uo-modal"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="uoModalTitle"
-  >
-    <div className="uo-modal__panel">
-      <div className="uo-modal__head">
-        <h3 id="uoModalTitle">{title}</h3>
-        <button className="uo-iconBtn" onClick={onClose} aria-label="إغلاق">
-          ✕
-        </button>
-      </div>
-      <div className="uo-modal__body">{children}</div>
-    </div>
-  </div>
-);
+  children: ReactNode;
+};
 
-function UpdateOrder(): JSX.Element {
-  const token = useSelector((state: any) => state.user.token);
-  const isAdmin = useSelector((s: any) => s.user?.isAdmin);
+const Modal = memo(function Modal({ title, onClose, children }: ModalProps) {
+  const titleId = useId();
+
+  return (
+    <div
+      className="uo-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+    >
+      <div className="uo-modal__panel">
+        <div className="uo-modal__head">
+          <h3 id={titleId} className="uo-modal__title">
+            {title}
+          </h3>
+          <button
+            type="button"
+            className="uo-iconBtn"
+            onClick={onClose}
+            aria-label="إغلاق"
+          >
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div className="uo-modal__body">{children}</div>
+      </div>
+    </div>
+  );
+});
+
+type EditFormState = {
+  delivered: string;
+  returned: string;
+  usd: string;
+  lbp: string;
+};
+
+function UpdateOrderInner(): JSX.Element {
+  const token = useSelector((s: RootState) => s.user.token);
+  const isAdmin = useSelector((s: RootState) => Boolean(s.user?.isAdmin));
   const navigate = useNavigate();
   const { orderId } = useParams();
-  const [orderData, setOrderData] = useState<any>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+
+  const [orderData, setOrderData] = useState<Order | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [showSheet, setShowSheet] = useState(false);
 
-  // admin edit modal state
   const [showEdit, setShowEdit] = useState(false);
-  const [edit, setEdit] = useState({
+  const [edit, setEdit] = useState<EditFormState>({
     delivered: "",
     returned: "",
     usd: "",
     lbp: "",
   });
 
-  // delete confirm modal
   const [showDelete, setShowDelete] = useState(false);
   const [deleteStep, setDeleteStep] = useState<1 | 2>(1);
 
-  useEffect(() => {
-    (async () => {
-      if (!orderId || !token) return;
-      const result = await fetchOrderById(token, orderId);
-      if (result.error || !result.data) {
-        toast.error(result.error || "تعذر تحميل الطلب");
-        setLoading(false);
-        return;
-      }
-      setOrderData(result.data);
+  const loadOrder = useCallback(async () => {
+    setLoading(true);
+    setLoadError(null);
+    if (!orderId || !token) {
       setLoading(false);
-    })();
+      setOrderData(null);
+      setLoadError(
+        !orderId ? "معرّف الطلب غير متوفر" : "يجب تسجيل الدخول لعرض الطلب"
+      );
+      return;
+    }
+    const result = await fetchOrderById(token, orderId);
+    if (result.error || !result.data) {
+      const msg = result.error || "تعذر تحميل الطلب";
+      toast.error(msg);
+      logger.warn("fetchOrderById failed", { orderId, message: msg });
+      setLoadError(msg);
+      setOrderData(null);
+      setLoading(false);
+      return;
+    }
+    setOrderData(result.data);
+    setLoadError(null);
+    setLoading(false);
   }, [orderId, token]);
 
-  // current totals (for prefill)
+  useEffect(() => {
+    void loadOrder();
+  }, [loadOrder]);
+
   const usdTotal = useMemo(
-    () =>
-      (orderData?.payments || [])
-        .filter((p: any) => p.currency === "USD")
-        .reduce((s: number, p: any) => s + (p.amount || 0), 0),
+    () => sumPaymentsByCurrency(orderData?.payments, "USD"),
     [orderData]
   );
   const lbpTotal = useMemo(
-    () =>
-      (orderData?.payments || [])
-        .filter((p: any) => p.currency === "LBP")
-        .reduce((s: number, p: any) => s + (p.amount || 0), 0),
+    () => sumPaymentsByCurrency(orderData?.payments, "LBP"),
     [orderData]
   );
 
@@ -131,8 +212,11 @@ function UpdateOrder(): JSX.Element {
     [orderData]
   );
 
-  const openEdit = () => {
-    if (!isAdmin) return toast.warn("هذه العملية للمشرف فقط");
+  const openEdit = useCallback(() => {
+    if (!isAdmin) {
+      toast.warn("هذه العملية للمشرف فقط");
+      return;
+    }
     setEdit({
       delivered: String(orderData?.delivered ?? ""),
       returned: String(orderData?.returned ?? ""),
@@ -140,12 +224,20 @@ function UpdateOrder(): JSX.Element {
       lbp: String(lbpTotal ?? ""),
     });
     setShowEdit(true);
-  };
+  }, [isAdmin, orderData?.delivered, orderData?.returned, usdTotal, lbpTotal]);
 
-  const submitEdit = async (e: React.FormEvent) => {
+  const submitEdit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!orderId) return;
-    const body: any = {};
+    if (!orderId || !token) {
+      toast.error("Missing auth token");
+      return;
+    }
+    const body: {
+      delivered?: number;
+      returned?: number;
+      usdTotal?: number;
+      lbpTotal?: number;
+    } = {};
     const n = (v: string) => (v === "" ? undefined : Number(v));
 
     const d = n(edit.delivered);
@@ -157,10 +249,6 @@ function UpdateOrder(): JSX.Element {
     const l = n(edit.lbp);
     if (l !== undefined) body.lbpTotal = l;
 
-    if (!token) {
-      toast.error("Missing auth token");
-      return;
-    }
     const result = await updateOrderById(token, orderId, body);
     if (result.error || !result.data) {
       toast.error(result.error || "فشل العملية");
@@ -171,15 +259,17 @@ function UpdateOrder(): JSX.Element {
     setShowEdit(false);
   };
 
-  const askDelete = () => {
-    if (!isAdmin) return toast.warn("هذه العملية للمشرف فقط");
+  const askDelete = useCallback(() => {
+    if (!isAdmin) {
+      toast.warn("هذه العملية للمشرف فقط");
+      return;
+    }
     setDeleteStep(1);
     setShowDelete(true);
-  };
+  }, [isAdmin]);
 
   const performDelete = async () => {
-    if (!orderId) return;
-    if (!token) {
+    if (!orderId || !token) {
       toast.error("Missing auth token");
       return;
     }
@@ -194,29 +284,36 @@ function UpdateOrder(): JSX.Element {
   };
 
   return (
-    <div className="update-order-container" dir="rtl">
+    <div className="update-order-container uo-shell" dir="rtl" lang="ar">
       <ToastContainer position="top-right" autoClose={1200} />
 
-      <div className="uo-header">
+      <header className="uo-header" aria-label="أدوات الفاتورة">
         <button
+          type="button"
           className="uo-back"
           onClick={() => navigate(-1)}
           aria-label="رجوع"
         >
-          ↩︎
+          <span className="uo-header__icon" aria-hidden="true">
+            ←
+          </span>
         </button>
-        <h2 className="uo-title">{title}</h2>
+        <h1 className="uo-title">{title}</h1>
         <div className="uo-actions">
           <button
+            type="button"
             className="uo-print"
             onClick={() => window.print()}
             aria-label="طباعة"
           >
-            🖨️ طباعة
+            <span className="uo-header__icon" aria-hidden="true">
+              ⎙
+            </span>
+            <span className="uo-print__label">طباعة</span>
           </button>
 
-          {/* Admin tools */}
           <button
+            type="button"
             className={`uo-btn ${isAdmin ? "" : "uo-btn--disabled"}`}
             onClick={openEdit}
             disabled={!isAdmin}
@@ -225,6 +322,7 @@ function UpdateOrder(): JSX.Element {
             تعديل
           </button>
           <button
+            type="button"
             className={`uo-btn uo-btn--danger ${
               isAdmin ? "" : "uo-btn--disabled"
             }`}
@@ -235,20 +333,30 @@ function UpdateOrder(): JSX.Element {
             حذف
           </button>
         </div>
-      </div>
+      </header>
+
+      {!loading && loadError ? (
+        <div className="uo-inline-error" role="alert">
+          <p className="uo-inline-error__text">{loadError}</p>
+          <button type="button" className="uo-retry" onClick={() => void loadOrder()}>
+            إعادة المحاولة
+          </button>
+        </div>
+      ) : null}
 
       <OrderReceipt orderData={orderData} loading={loading} />
 
-      {/* FAB for payments */}
       <button
+        type="button"
         className="uo-fab"
         onClick={() => setShowSheet(true)}
         aria-label="إضافة دفعة"
+        disabled={!orderId || !orderData}
       >
         +
       </button>
 
-      {showSheet && orderId && (
+      {showSheet && orderId && orderData ? (
         <PaymentSheet onClose={() => setShowSheet(false)}>
           <AddPaymentForm
             orderData={orderData}
@@ -257,10 +365,9 @@ function UpdateOrder(): JSX.Element {
             onSuccess={() => setShowSheet(false)}
           />
         </PaymentSheet>
-      )}
+      ) : null}
 
-      {/* Edit modal */}
-      {showEdit && (
+      {showEdit ? (
         <Modal title="تعديل الطلب" onClose={() => setShowEdit(false)}>
           <form className="uo-form" onSubmit={submitEdit}>
             <div className="uo-grid">
@@ -329,19 +436,25 @@ function UpdateOrder(): JSX.Element {
             </div>
           </form>
         </Modal>
-      )}
+      ) : null}
 
-      {/* Delete double-confirm */}
-      {showDelete && (
+      {showDelete ? (
         <Modal title="حذف الطلب" onClose={() => setShowDelete(false)}>
           {deleteStep === 1 ? (
             <>
-              <p>سيتم حذف الطلب نهائيًا. هل تريد المتابعة؟</p>
+              <p className="uo-modal__text">
+                سيتم حذف الطلب نهائيًا. هل تريد المتابعة؟
+              </p>
               <div className="uo-modal__actions">
-                <button className="uo-btn" onClick={() => setShowDelete(false)}>
+                <button
+                  type="button"
+                  className="uo-btn"
+                  onClick={() => setShowDelete(false)}
+                >
                   إلغاء
                 </button>
                 <button
+                  type="button"
                   className="uo-btn uo-btn--danger"
                   onClick={() => setDeleteStep(2)}
                 >
@@ -351,14 +464,19 @@ function UpdateOrder(): JSX.Element {
             </>
           ) : (
             <>
-              <p>
+              <p className="uo-modal__text">
                 <strong>تأكيد أخير:</strong> لا يمكن التراجع بعد الحذف.
               </p>
               <div className="uo-modal__actions">
-                <button className="uo-btn" onClick={() => setShowDelete(false)}>
+                <button
+                  type="button"
+                  className="uo-btn"
+                  onClick={() => setShowDelete(false)}
+                >
                   إلغاء
                 </button>
                 <button
+                  type="button"
                   className="uo-btn uo-btn--danger"
                   onClick={performDelete}
                 >
@@ -368,9 +486,59 @@ function UpdateOrder(): JSX.Element {
             </>
           )}
         </Modal>
-      )}
+      ) : null}
     </div>
   );
 }
 
-export default UpdateOrder;
+type BoundaryState = { hasError: boolean };
+
+class UpdateOrderErrorBoundary extends React.Component<
+  { children: ReactNode },
+  BoundaryState
+> {
+  state: BoundaryState = { hasError: false };
+
+  static getDerivedStateFromError(): BoundaryState {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, info: React.ErrorInfo): void {
+    logger.error("UpdateOrder render failed", {
+      message: error.message,
+      stack: error.stack,
+      componentStack: info.componentStack,
+    });
+  }
+
+  render(): ReactNode {
+    if (this.state.hasError) {
+      return (
+        <div className="update-order-container uo-shell uo-shell--error" dir="rtl" lang="ar">
+          <div className="uo-error-card" role="alert">
+            <h2 className="uo-error-title">تعذّر عرض الفاتورة</h2>
+            <p className="uo-error-body">
+              حدث خطأ غير متوقع. يمكنك إعادة تحميل الصفحة أو الرجوع.
+            </p>
+            <button
+              type="button"
+              className="uo-error-reload"
+              onClick={() => window.location.reload()}
+            >
+              إعادة تحميل
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+export default function UpdateOrder(): JSX.Element {
+  return (
+    <UpdateOrderErrorBoundary>
+      <UpdateOrderInner />
+    </UpdateOrderErrorBoundary>
+  );
+}

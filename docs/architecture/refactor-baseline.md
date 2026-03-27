@@ -83,3 +83,5 @@ RecordOrderForCustomer (page)
 **See also:** [Update customer header — baseline](./refactor-baseline-update-customer-header.md) (`UpdateCustomerHeader`: props-only, no fetch).
 
 **See also:** [Customer statement — baseline](./refactor-baseline-customer-statement.md) (`CustomerStatement`, ledger pure module, `useCustomerStatement`).
+
+**See also:** [Update order — baseline](./refactor-baseline-update-order.md) (`UpdateOrder`: `fetchOrderById`, receipt, payment sheet, admin edit/delete).
