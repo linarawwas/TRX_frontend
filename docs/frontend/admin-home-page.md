@@ -1,6 +1,6 @@
 # Admin home (`AdminHomePage.tsx`)
 
-**CSS:** `LandingPage.css` (grid, cards, skeleton keyframes) + `AdminHomePage.css` (TRX shell, error, suspense fallback).
+**CSS:** `LandingPage.css` (grid, cards, skeleton keyframes) + `AdminHomePage.css` (TRX shell, error, suspense fallback). **Print:** `AdminHomePage.css` hides `.quick-actions` when printing.
 
 ## Sections
 
