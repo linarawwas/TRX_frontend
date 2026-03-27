@@ -1,139 +1,559 @@
-/* src/pages/Reports/OrdersOfToday.css */
-/* All classes start with .ooty to avoid leaking styles to other pages */
+/* OrdersOfToday — scoped (.ooty*) enterprise report shell */
 
 .ooty {
-  padding: 1rem;
-  max-width: 1100px;
+  --ooty-space-1: 4px;
+  --ooty-space-2: 8px;
+  --ooty-space-3: 12px;
+  --ooty-space-4: 16px;
+  --ooty-space-5: 24px;
+  --ooty-space-6: 32px;
+  --ooty-radius-sm: 8px;
+  --ooty-radius-md: 12px;
+  --ooty-radius-lg: 16px;
+  --ooty-surface: #f8fafc;
+  --ooty-surface-elevated: #ffffff;
+  --ooty-border: rgba(15, 23, 42, 0.08);
+  --ooty-border-strong: rgba(15, 23, 42, 0.12);
+  --ooty-text: #0f172a;
+  --ooty-text-muted: #64748b;
+  --ooty-accent: #0d9488;
+  --ooty-accent-hover: #0f766e;
+  --ooty-danger-bg: #fef2f2;
+  --ooty-danger-text: #991b1b;
+  --ooty-danger-border: #fecaca;
+  --ooty-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --ooty-shadow-md: 0 4px 16px rgba(15, 23, 42, 0.08);
+  --ooty-font: "Tajawal", "Segoe UI", system-ui, sans-serif;
+
+  box-sizing: border-box;
+  padding: var(--ooty-space-5);
+  max-width: 1120px;
   margin: 0 auto;
   font-size: 16px;
-  background: #fff; /* keep neutral background inside page scope */
+  line-height: 1.5;
+  font-family: var(--ooty-font);
+  color: var(--ooty-text);
+  background: linear-gradient(180deg, var(--ooty-surface) 0%, #fff 48%);
+  min-height: 100%;
 }
 
+.ooty *,
+.ooty *::before,
+.ooty *::after {
+  box-sizing: border-box;
+}
+
+.ooty-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* —— Header —— */
 .ooty__header {
-  margin-bottom: 0.75rem;
+  margin-bottom: var(--ooty-space-5);
+}
+
+.ooty__titleRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ooty-space-4);
+  margin-bottom: var(--ooty-space-5);
+}
+
+.ooty__titleIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--ooty-radius-md);
+  background: var(--ooty-surface-elevated);
+  border: 1px solid var(--ooty-border);
+  box-shadow: var(--ooty-shadow-sm);
+  font-size: 1.35rem;
+  flex-shrink: 0;
 }
 
 .ooty__title {
-  margin: 0 0 0.5rem 0;
-  font-weight: 700;
+  margin: 0 0 var(--ooty-space-2) 0;
+  font-size: 1.375rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ooty-text);
 }
 
-.ooty__dateRow {
+.ooty__subtitle {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--ooty-text-muted);
+  font-weight: 500;
+  max-width: 42ch;
+}
+
+.ooty__toolbar {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0.25rem 0 0.75rem 0;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--ooty-space-3);
+  padding: var(--ooty-space-4);
+  background: var(--ooty-surface-elevated);
+  border: 1px solid var(--ooty-border);
+  border-radius: var(--ooty-radius-lg);
+  box-shadow: var(--ooty-shadow-sm);
+  margin-bottom: var(--ooty-space-4);
+}
+
+.ooty__dateField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ooty-space-2);
+  min-width: min(100%, 200px);
 }
 
 .ooty__dateLabel {
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  color: var(--ooty-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .ooty__dateInput {
-  padding: 0.25rem 0.5rem;
+  padding: var(--ooty-space-3) var(--ooty-space-4);
+  border-radius: var(--ooty-radius-sm);
+  border: 1px solid var(--ooty-border-strong);
+  background: #fff;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ooty-text);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ooty__dateInput:hover:not(:disabled) {
+  border-color: rgba(13, 148, 136, 0.35);
+}
+
+.ooty__dateInput:focus {
+  outline: none;
+}
+
+.ooty__dateInput:focus-visible {
+  border-color: var(--ooty-accent);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.22);
+}
+
+.ooty__dateInput:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 
 .ooty__dateBtn {
-  padding: 0.35rem 0.75rem;
-  border-radius: 0.5rem;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
+  padding: var(--ooty-space-3) var(--ooty-space-5);
+  min-height: 44px;
+  border-radius: var(--ooty-radius-sm);
+  border: none;
+  background: linear-gradient(135deg, var(--ooty-accent) 0%, var(--ooty-accent-hover) 100%);
+  color: #fff;
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 0.9375rem;
   cursor: pointer;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.25);
+  transition: filter 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+.ooty__dateBtn:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+.ooty__dateBtn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.ooty__dateBtn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.35), 0 2px 8px rgba(13, 148, 136, 0.25);
+}
+
+.ooty__dateBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.2);
 }
 
 .ooty__stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, auto));
-  gap: 0.5rem;
-  margin-top: 0.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--ooty-space-3);
 }
 
 .ooty__stat {
-  background: #f7fafc;
-  border: 1px solid #e2e8f0;
-  padding: 0.6rem 0.75rem;
-  border-radius: 10px;
+  background: var(--ooty-surface-elevated);
+  border: 1px solid var(--ooty-border);
+  padding: var(--ooty-space-4);
+  border-radius: var(--ooty-radius-md);
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: var(--ooty-space-2);
+  box-shadow: var(--ooty-shadow-sm);
 }
 
 .ooty__statLabel {
-  color: #374151;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--ooty-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .ooty__statValue {
-  font-weight: 700;
+  font-size: 1.125rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--ooty-text);
 }
 
+.ooty__main {
+  min-height: 120px;
+}
+
+/* —— Loading skeleton —— */
+.ooty-skeleton {
+  padding: var(--ooty-space-2) 0;
+}
+
+.ooty-skeleton__bar {
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    #e2e8f0 0%,
+    #f1f5f9 45%,
+    #e2e8f0 90%
+  );
+  background-size: 200% 100%;
+  animation: ooty-shimmer 1.2s ease-in-out infinite;
+  margin-bottom: var(--ooty-space-3);
+}
+
+.ooty-skeleton__bar--lg {
+  width: 55%;
+  height: 14px;
+}
+
+.ooty-skeleton__bar--md {
+  width: 35%;
+}
+
+.ooty-skeleton__grid {
+  display: grid;
+  gap: var(--ooty-space-3);
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  margin-top: var(--ooty-space-4);
+}
+
+.ooty-skeleton__card {
+  min-height: 120px;
+  border-radius: var(--ooty-radius-md);
+  border: 1px solid var(--ooty-border);
+  background: linear-gradient(
+    90deg,
+    #f1f5f9 0%,
+    #f8fafc 50%,
+    #f1f5f9 100%
+  );
+  background-size: 200% 100%;
+  animation: ooty-shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes ooty-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+/* —— Messages —— */
 .ooty__msg {
-  padding: 0.75rem;
+  padding: var(--ooty-space-4);
+  border-radius: var(--ooty-radius-md);
+  font-weight: 600;
 }
 
 .ooty__msg--error {
-  color: #991b1b;
-  background: #fee2e2;
-  border: 1px solid #fecaca;
-  border-radius: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ooty-space-3);
+  color: var(--ooty-danger-text);
+  background: var(--ooty-danger-bg);
+  border: 1px solid var(--ooty-danger-border);
+  box-shadow: var(--ooty-shadow-sm);
+}
+
+.ooty__msgIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--ooty-danger-text);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .ooty__content {
   display: grid;
-  gap: 0.75rem;
+  gap: var(--ooty-space-4);
 }
 
-/* Collapsible sections (page-level) */
+/* —— Collapsible sections —— */
 .ooty-section {
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  background: #fff;
+  border: 1px solid var(--ooty-border);
+  border-radius: var(--ooty-radius-lg);
+  background: var(--ooty-surface-elevated);
+  box-shadow: var(--ooty-shadow-sm);
+  overflow: hidden;
 }
 
 .ooty-section__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 0.9rem;
+  gap: var(--ooty-space-3);
+  padding: var(--ooty-space-4) var(--ooty-space-4);
   cursor: pointer;
-  background: #f9fafb;
-  font-weight: 700;
+  background: linear-gradient(180deg, #fafbfc 0%, #f1f5f9 100%);
+  font-weight: 800;
+  list-style: none;
+  transition: background 0.15s ease;
+}
+
+.ooty-section__header::-webkit-details-marker {
+  display: none;
+}
+
+.ooty-section__header::after {
+  content: "▾";
+  font-size: 0.75rem;
+  color: var(--ooty-text-muted);
+  transition: transform 0.2s ease;
+}
+
+.ooty-section[open] .ooty-section__header::after {
+  transform: rotate(-180deg);
+}
+
+.ooty-section__header:hover {
+  background: #eef2f7;
+}
+
+.ooty-section__header:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--ooty-accent);
 }
 
 .ooty-section[open] .ooty-section__header {
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--ooty-border);
 }
 
 .ooty-section__title {
-  font-weight: 700;
+  font-size: 1rem;
 }
 
 .ooty-section__count {
-  display: inline-block;
-  min-width: 1.5rem;
-  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  padding: 2px 10px;
   border-radius: 999px;
-  border: 1px solid #e5e7eb;
-  font-size: 0.85rem;
-  background: #f3f4f6;
-  padding: 0.1rem 0.45rem;
+  border: 1px solid var(--ooty-border-strong);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  background: #fff;
+  color: var(--ooty-text-muted);
 }
 
 .ooty-section__body {
-  padding: 0.6rem 0.9rem 0.9rem;
+  padding: var(--ooty-space-4);
+  background: #fff;
 }
 
 .ooty-section--empty {
   background: #fafafa;
   border-style: dashed;
+  box-shadow: none;
 }
 
 .ooty-section__empty {
-  padding: 0.9rem;
-  color: #6b7280;
+  padding: var(--ooty-space-5);
+  color: var(--ooty-text-muted);
+  font-weight: 600;
+  text-align: center;
 }
 
-/* Table */
+/* —— Order cards —— */
+.ooty-reflowList {
+  display: grid;
+  gap: var(--ooty-space-3);
+}
+
+/* Intentionally no breakpoint that hides the list — cards work at all widths */
+
+.ooty-reflowCard {
+  border: 1px solid var(--ooty-border);
+  border-radius: var(--ooty-radius-md);
+  background: var(--ooty-surface-elevated);
+  padding: var(--ooty-space-4);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ooty-reflowCard:hover {
+  border-color: rgba(13, 148, 136, 0.25);
+  box-shadow: var(--ooty-shadow-md);
+}
+
+.ooty-reflowHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ooty-space-3);
+  margin-bottom: var(--ooty-space-3);
+}
+
+.ooty-reflowName {
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+.ooty-reflowTime {
+  font-variant-numeric: tabular-nums;
+  color: var(--ooty-text-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.ooty-customer-link {
+  text-decoration: none;
+  color: var(--ooty-text);
+  border-radius: var(--ooty-radius-sm);
+  transition: color 0.15s ease;
+}
+
+.ooty-customer-link:hover {
+  color: var(--ooty-accent-hover);
+}
+
+.ooty-customer-link:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.28);
+}
+
+.ooty-reflowGrid {
+  display: grid;
+  gap: var(--ooty-space-2);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ooty-reflowGrid > div {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--ooty-space-3);
+  padding: var(--ooty-space-3);
+  background: var(--ooty-surface);
+  border-radius: var(--ooty-radius-sm);
+  border: 1px solid transparent;
+}
+
+.ooty-reflowGrid dt {
+  margin: 0;
+  color: var(--ooty-text-muted);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.ooty-reflowGrid dd {
+  margin: 0;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+  font-size: 0.9375rem;
+}
+
+@media (max-width: 520px) {
+  .ooty-reflowGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* —— Error boundary fallback —— */
+.ooty--error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  background: var(--ooty-surface);
+}
+
+.ooty-error-card {
+  max-width: 400px;
+  padding: var(--ooty-space-6);
+  text-align: center;
+  background: var(--ooty-surface-elevated);
+  border-radius: var(--ooty-radius-lg);
+  border: 1px solid var(--ooty-border);
+  box-shadow: var(--ooty-shadow-md);
+}
+
+.ooty-error-card__title {
+  margin: 0 0 var(--ooty-space-3);
+  font-size: 1.125rem;
+  font-weight: 800;
+}
+
+.ooty-error-card__text {
+  margin: 0 0 var(--ooty-space-5);
+  color: var(--ooty-text-muted);
+  font-size: 0.9375rem;
+}
+
+.ooty-error-card__btn {
+  padding: var(--ooty-space-3) var(--ooty-space-5);
+  border-radius: var(--ooty-radius-sm);
+  border: 1px solid var(--ooty-border-strong);
+  background: #fff;
+  font-family: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.ooty-error-card__btn:hover {
+  background: var(--ooty-surface);
+  border-color: var(--ooty-accent);
+}
+
+.ooty-error-card__btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.28);
+}
+
+/* Legacy table classes (unused in current TSX; kept for safe rollback) */
 .ooty-table {
   width: 100%;
   border-collapse: collapse;
@@ -149,43 +569,4 @@
 .ooty-table td {
   padding: 0.5rem 0.75rem;
   border-top: 1px solid #eee;
-}
-
-.ooty-customer-link {
-  text-decoration: none;
-  color: #1f2937;
-}
-.ooty-customer-link:hover {
-  text-decoration: underline;
-}
-/* Reflow list */
-.ooty-reflowList { display: grid; gap: 0.6rem; }
-
-.ooty-reflowCard {
-  border: 1px solid #e5e7eb; border-radius: 12px; background: #fff;
-  padding: 0.6rem 0.75rem;
-}
-
-.ooty-reflowHeader {
-  display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
-  margin-bottom: 0.35rem;
-}
-.ooty-reflowName { font-weight: 700; }
-.ooty-reflowTime { font-variant-numeric: tabular-nums; color: #374151; }
-
-.ooty-reflowGrid {
-  display: grid; gap: 0.35rem;
-  grid-template-columns: 1fr 1fr; /* two key/value rows per line */
-}
-.ooty-reflowGrid > div {
-  display: grid; grid-template-columns: auto 1fr; gap: 0.4rem;
-  padding: 0.4rem 0.5rem; background: #f9fafb; border-radius: 10px;
-}
-.ooty-reflowGrid dt { color:#6b7280; }
-.ooty-reflowGrid dd { margin: 0; font-weight: 700; text-align: end; }
-
-/* At tablet+, fall back to your original table look (optional) */
-@media (min-width: 768px) {
-  .ooty-reflowList { display: none; }
-  /* You can keep your existing .ooty-table for desktop */
 }

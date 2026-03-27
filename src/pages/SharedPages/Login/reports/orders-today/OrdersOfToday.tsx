@@ -1,16 +1,30 @@
-// src/pages/Reports/OrdersOfToday.tsx
-import React, { useEffect, useMemo, useState } from "react";
+// src/pages/SharedPages/Login/reports/orders-today/OrdersOfToday.tsx
+import type { SerializedError } from "@reduxjs/toolkit";
+import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { useSelector } from "react-redux";
-import type { RootState } from "../../../../../redux/store";
-import "./OrdersOfToday.css";
 import { Link } from "react-router-dom";
 import {
   ShipmentOrder as Order,
   ShipmentWithOrders,
   useLazyShipmentsOrdersByDateQuery,
 } from "../../../../../features/api/trxApi";
+import type { RootState } from "../../../../../redux/store";
+import { createLogger } from "../../../../../utils/logger";
+import "./OrdersOfToday.css";
 
-function yyyyMmDdInBeirut(dateLike?: string | number | Date) {
+const logger = createLogger("orders-of-today");
+
+function yyyyMmDdInBeirut(dateLike?: string | number | Date): string {
   const d = dateLike ? new Date(dateLike) : new Date();
   const y = d.toLocaleString("en-CA", {
     timeZone: "Asia/Beirut",
@@ -27,57 +41,216 @@ function yyyyMmDdInBeirut(dateLike?: string | number | Date) {
   return `${y}-${m}-${day}`;
 }
 
-export default function OrdersOfToday(): JSX.Element {
+function formatApiDateParts(
+  year?: number,
+  month?: number,
+  day?: number
+): string | null {
+  if (!year || !month || !day) return null;
+  return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(
+    2,
+    "0"
+  )}`;
+}
+
+function getQueryErrorMessage(err: unknown): string {
+  if (err && typeof err === "object") {
+    const maybe = err as SerializedError;
+    if (typeof maybe.message === "string" && maybe.message.trim()) {
+      return maybe.message;
+    }
+    const fb = err as FetchBaseQueryError;
+    if (typeof fb.status === "number" && fb.data !== undefined) {
+      const data = fb.data as unknown;
+      if (typeof data === "string" && data.trim()) return data;
+      if (
+        data !== null &&
+        typeof data === "object" &&
+        "message" in data &&
+        typeof (data as { message: unknown }).message === "string"
+      ) {
+        return (data as { message: string }).message;
+      }
+    }
+  }
+  if (err instanceof Error && err.message) return err.message;
+  return "خطأ في التحميل";
+}
+
+function orderUsdTotal(o: Order): number {
+  if (o.sumUSD != null) return o.sumUSD;
+  return (o.payments || [])
+    .filter((p) => p.currency === "USD")
+    .reduce((s, p) => s + (p.amount || 0), 0);
+}
+
+function orderLbpTotal(o: Order): number {
+  if (o.sumLBP != null) return o.sumLBP;
+  return (o.payments || [])
+    .filter((p) => p.currency === "LBP")
+    .reduce((s, p) => s + (p.amount || 0), 0);
+}
+
+function formatOrderTime(o: Order): string {
+  const isoTime = o.orderTime || o.createdAt || o.payments?.[0]?.date;
+  if (!isoTime) return "—";
+  try {
+    return new Date(isoTime).toLocaleTimeString("ar", {
+      timeZone: "Asia/Beirut",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return "—";
+  }
+}
+
+const OrderCard = memo(function OrderCard({ order: o }: { order: Order }) {
+  const usd = orderUsdTotal(o);
+  const lbp = orderLbpTotal(o);
+  const time = formatOrderTime(o);
+  const routeId = o.customerObjId || o.customerid;
+
+  return (
+    <article className="ooty-reflowCard">
+      <header className="ooty-reflowHeader">
+        <Link
+          className="ooty-customer-link ooty-reflowName"
+          to={`/updateCustomer/${routeId}`}
+        >
+          {o.customerName || o.customerid}
+        </Link>
+        <time className="ooty-reflowTime" dateTime={o.orderTime || o.createdAt}>
+          {time}
+        </time>
+      </header>
+
+      <dl className="ooty-reflowGrid" dir="rtl">
+        <div>
+          <dt>مسلّم</dt>
+          <dd>{o.delivered || 0}</dd>
+        </div>
+        <div>
+          <dt>مرجّع</dt>
+          <dd>{o.returned || 0}</dd>
+        </div>
+        <div>
+          <dt>$</dt>
+          <dd>{usd || 0}</dd>
+        </div>
+        <div>
+          <dt>ل.ل</dt>
+          <dd>{lbp ? lbp.toLocaleString("ar-LB") : 0}</dd>
+        </div>
+      </dl>
+    </article>
+  );
+});
+
+const ReportSection = memo(function ReportSection({
+  title,
+  count,
+  children,
+  defaultOpen = false,
+}: {
+  title: string;
+  count: number;
+  children: ReactNode;
+  defaultOpen?: boolean;
+}) {
+  if (count > 0) {
+    return (
+      <details className="ooty-section" open={defaultOpen}>
+        <summary className="ooty-section__header">
+          <span className="ooty-section__title">{title}</span>
+          <span className="ooty-section__count" aria-label={`العدد ${count}`}>
+            {count}
+          </span>
+        </summary>
+        <div className="ooty-section__body">{children}</div>
+      </details>
+    );
+  }
+  return (
+    <div className="ooty-section ooty-section--empty">
+      <div className="ooty-section__empty">لا يوجد بيانات لهذا القسم.</div>
+    </div>
+  );
+});
+
+function OrdersOfTodaySkeleton(): JSX.Element {
+  return (
+    <div className="ooty-skeleton" aria-hidden="true">
+      <div className="ooty-skeleton__bar ooty-skeleton__bar--lg" />
+      <div className="ooty-skeleton__bar ooty-skeleton__bar--md" />
+      <div className="ooty-skeleton__grid">
+        <div className="ooty-skeleton__card" />
+        <div className="ooty-skeleton__card" />
+      </div>
+    </div>
+  );
+}
+
+function OrdersOfTodayInner(): JSX.Element {
   const token = useSelector((s: RootState) => s.user.token);
   const [triggerOrdersByDate] = useLazyShipmentsOrdersByDateQuery();
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
-  const [dateStr, setDateStr] = useState<string>("");
+  const [dateStr, setDateStr] = useState("");
   const [rows, setRows] = useState<ShipmentWithOrders[]>([]);
-
-  async function load(date?: string) {
-    if (!token) {
-      setErr("لا يوجد رمز مصادقة");
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    setErr(null);
-    try {
-      const data = await triggerOrdersByDate({
-        date,
-        includeExternal: true,
-      }).unwrap();
-      setRows(Array.isArray(data.shipments) ? data.shipments : []);
-      const y = data?.date?.year,
-        m = data?.date?.month,
-        d = data?.date?.day;
-      if (y && m && d) {
-        setDateStr(
-          `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`
-        );
-      } else if (!dateStr) {
-        setDateStr(yyyyMmDdInBeirut());
-      }
-    } catch (e: any) {
-      setErr(e?.message || "خطأ في التحميل");
-    } finally {
-      setLoading(false);
-    }
-  }
+  const mountedRef = useRef(true);
+  const dateFieldId = useId();
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      if (!cancelled) await load();
-    })();
+    mountedRef.current = true;
     return () => {
-      cancelled = true;
+      mountedRef.current = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+  }, []);
 
-  // Flatten all orders once; then split into type 2 (normal) and type 3 (external)
+  const load = useCallback(
+    async (date?: string) => {
+      if (!token) {
+        setErr("لا يوجد رمز مصادقة");
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      setErr(null);
+      try {
+        const data = await triggerOrdersByDate({
+          date,
+          includeExternal: true,
+        }).unwrap();
+        if (!mountedRef.current) return;
+
+        setRows(Array.isArray(data.shipments) ? data.shipments : []);
+        const formatted = formatApiDateParts(
+          data?.date?.year,
+          data?.date?.month,
+          data?.date?.day
+        );
+        if (formatted) {
+          setDateStr(formatted);
+        } else {
+          setDateStr((prev) => prev || yyyyMmDdInBeirut());
+        }
+      } catch (e: unknown) {
+        if (!mountedRef.current) return;
+        const msg = getQueryErrorMessage(e);
+        setErr(msg);
+        logger.warn("shipmentsOrdersByDate failed", { message: msg });
+      } finally {
+        if (mountedRef.current) setLoading(false);
+      }
+    },
+    [token, triggerOrdersByDate]
+  );
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
   const { type2Orders, type3Orders, totalCount } = useMemo(() => {
     const allOrders = rows.flatMap((s) => s.orders || []);
     const type2 = allOrders.filter((o) => o.type === 2);
@@ -89,78 +262,40 @@ export default function OrdersOfToday(): JSX.Element {
     };
   }, [rows]);
 
-const renderStacked = (orders: Order[]) => (
-  <div className="ooty-reflowList">
-    {orders.map((o) => {
-      const usd = o.sumUSD ?? (o.payments||[]).filter(p=>p.currency==="USD").reduce((s,p)=>s+(p.amount||0),0);
-      const lbp = o.sumLBP ?? (o.payments||[]).filter(p=>p.currency==="LBP").reduce((s,p)=>s+(p.amount||0),0);
-      const isoTime = o.orderTime || o.createdAt || (o.payments?.[0]?.date);
-      let time = "—";
-      try { if (isoTime) time = new Date(isoTime).toLocaleTimeString("ar",{ timeZone:"Asia/Beirut", hour:"2-digit", minute:"2-digit" }); } catch {}
-      const routeId = o.customerObjId || o.customerid;
-
-      return (
-        <article className="ooty-reflowCard" key={o._id}>
-          <header className="ooty-reflowHeader">
-            <Link className="ooty-customer-link ooty-reflowName" to={`/updateCustomer/${routeId}`}>
-              {o.customerName || o.customerid}
-            </Link>
-            <time className="ooty-reflowTime">{time}</time>
-          </header>
-
-          <dl className="ooty-reflowGrid" dir="rtl">
-            <div><dt>مسلّم</dt><dd>{o.delivered || 0}</dd></div>
-            <div><dt>مرجّع</dt><dd>{o.returned || 0}</dd></div>
-            <div><dt>$</dt><dd>{usd || 0}</dd></div>
-            <div><dt>ل.ل</dt><dd>{lbp ? lbp.toLocaleString() : 0}</dd></div>
-          </dl>
-        </article>
-      );
-    })}
-  </div>
-);
-
-
-  const Section = ({
-    title,
-    count,
-    children,
-    defaultOpen = false,
-  }: {
-    title: string;
-    count: number;
-    children: React.ReactNode;
-    defaultOpen?: boolean;
-  }) =>
-    count > 0 ? (
-      <details className="ooty-section" open={defaultOpen}>
-        <summary className="ooty-section__header">
-          <span className="ooty-section__title">{title}</span>
-          <span className="ooty-section__count">{count}</span>
-        </summary>
-        <div className="ooty-section__body">{children}</div>
-      </details>
-    ) : (
-      <div className="ooty-section ooty-section--empty">
-        <div className="ooty-section__empty">لا يوجد بيانات لهذا القسم.</div>
-      </div>
-    );
+  const maxDate = useMemo(() => yyyyMmDdInBeirut(), []);
 
   return (
-    <div className="ooty" dir="rtl">
+    <div className="ooty" dir="rtl" lang="ar">
       <header className="ooty__header">
-        <h2 className="ooty__title">🧾 الطلبات حسب التاريخ</h2>
+        <div className="ooty__titleRow">
+          <span className="ooty__titleIcon" aria-hidden="true">
+            🧾
+          </span>
+          <div>
+            <h2 className="ooty__title">الطلبات حسب التاريخ</h2>
+            <p className="ooty__subtitle">
+              عرض طلبات الشحن والطلبات الخارجية لليوم أو تاريخ محدد
+            </p>
+          </div>
+        </div>
 
-        <div className="ooty__dateRow">
-          <label className="ooty__dateLabel">التاريخ:</label>
-          <input
-            className="ooty__dateInput"
-            type="date"
-            value={dateStr || ""}
-            max={yyyyMmDdInBeirut()}
-            onChange={(e) => setDateStr(e.target.value)}
-          />
+        <div className="ooty__toolbar">
+          <div className="ooty__dateField">
+            <label className="ooty__dateLabel" htmlFor={dateFieldId}>
+              التاريخ
+            </label>
+            <input
+              id={dateFieldId}
+              className="ooty__dateInput"
+              type="date"
+              value={dateStr || ""}
+              max={maxDate}
+              onChange={(e) => setDateStr(e.target.value)}
+              disabled={loading}
+            />
+          </div>
           <button
+            type="button"
             className="ooty__dateBtn"
             onClick={() => load(dateStr || undefined)}
             disabled={loading || !dateStr}
@@ -169,34 +304,111 @@ const renderStacked = (orders: Order[]) => (
           </button>
         </div>
 
-        <div className="ooty__stats">
+        <div className="ooty__stats" role="region" aria-label="ملخص سريع">
           <div className="ooty__stat">
-            <span className="ooty__statLabel">عدد الطلبات:</span>
+            <span className="ooty__statLabel">عدد الطلبات</span>
             <strong className="ooty__statValue">{totalCount}</strong>
           </div>
           <div className="ooty__stat">
-            <span className="ooty__statLabel">التاريخ:</span>
+            <span className="ooty__statLabel">التاريخ المعروض</span>
             <strong className="ooty__statValue">{dateStr || "—"}</strong>
           </div>
         </div>
       </header>
 
-      {loading && <div className="ooty__msg">⏳ جارٍ التحميل...</div>}
-      {err && <div className="ooty__msg ooty__msg--error">❌ {err}</div>}
+      <div
+        className="ooty__main"
+        aria-busy={loading}
+        aria-live={err ? "assertive" : "polite"}
+      >
+        {loading ? (
+          <>
+            <p className="ooty-sr-only">جارٍ التحميل</p>
+            <OrdersOfTodaySkeleton />
+          </>
+        ) : null}
 
-      {!loading && !err && (
-        <main className="ooty__content">
-          {/* Orders (type 2) */}
-          <Section title="طلبات اليوم" count={type2Orders.length} defaultOpen>
-            {renderStacked(type2Orders)}
-          </Section>
+        {!loading && err ? (
+          <div className="ooty__msg ooty__msg--error" role="alert">
+            <span className="ooty__msgIcon" aria-hidden="true">
+              !
+            </span>
+            <span>{err}</span>
+          </div>
+        ) : null}
 
-          {/* External orders (type 3) */}
-          <Section title="طلبات خارجية" count={type3Orders.length}>
-            {renderStacked(type3Orders)}
-          </Section>
-        </main>
-      )}
+        {!loading && !err ? (
+          <main className="ooty__content">
+            <ReportSection title="طلبات اليوم" count={type2Orders.length} defaultOpen>
+              <div className="ooty-reflowList">
+                {type2Orders.map((o) => (
+                  <OrderCard key={o._id} order={o} />
+                ))}
+              </div>
+            </ReportSection>
+
+            <ReportSection title="طلبات خارجية" count={type3Orders.length}>
+              <div className="ooty-reflowList">
+                {type3Orders.map((o) => (
+                  <OrderCard key={o._id} order={o} />
+                ))}
+              </div>
+            </ReportSection>
+          </main>
+        ) : null}
+      </div>
     </div>
+  );
+}
+
+type BoundaryState = { hasError: boolean };
+
+class OrdersOfTodayErrorBoundary extends React.Component<
+  { children: ReactNode },
+  BoundaryState
+> {
+  state: BoundaryState = { hasError: false };
+
+  static getDerivedStateFromError(): BoundaryState {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, info: React.ErrorInfo): void {
+    logger.error("OrdersOfToday crashed", {
+      message: error.message,
+      stack: error.stack,
+      componentStack: info.componentStack,
+    });
+  }
+
+  render(): ReactNode {
+    if (this.state.hasError) {
+      return (
+        <div className="ooty ooty--error" dir="rtl" lang="ar" role="alert">
+          <div className="ooty-error-card">
+            <h2 className="ooty-error-card__title">تعذّر عرض التقرير</h2>
+            <p className="ooty-error-card__text">
+              حدث خطأ غير متوقع. يمكنك إعادة تحميل الصفحة.
+            </p>
+            <button
+              type="button"
+              className="ooty-error-card__btn"
+              onClick={() => window.location.reload()}
+            >
+              إعادة تحميل
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+export default function OrdersOfToday(): JSX.Element {
+  return (
+    <OrdersOfTodayErrorBoundary>
+      <OrdersOfTodayInner />
+    </OrdersOfTodayErrorBoundary>
   );
 }
