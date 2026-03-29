@@ -41,6 +41,21 @@ PageName/
 
 **Coverage goal:** Every **I/O boundary** (service) and every **user-visible branch** of the shell should have at least one test; pure layers should be fully covered.
 
+## Commit contract
+
+Work on page modules and related docs **must** be committed with **clear, comprehensive** messages—aligned with `Frontend_contract.md` Part 8 and the blueprint.
+
+| Rule | Detail |
+|------|--------|
+| **Format** | Conventional Commits: `type(scope): imperative subject` (`feat`, `fix`, `refactor`, `docs`, `test`, …). Scope = page slug or area (`employee-home`, `view-customers`, `router`, `docs`). |
+| **Subject** | One line, ~72 characters, imperative, no trailing period. |
+| **Body** | For non-trivial changes: blank line, then bullets for **what** (concrete files/areas), **why**, **risk/validation** (offline, routes), optional **follow-ups**. |
+| **Granularity** | Prefer **one logical change per commit**; split documentation, code moves, and tests when the diff is large. |
+| **Forbidden** | Vague subjects (“update”, “fix stuff”, “WIP”) or huge unrelated mixes in a single commit. |
+| **Completion** | Do not treat work as finished while meaningful changes remain **uncommitted**; agents should commit or supply ready-to-paste messages per commit. |
+
+See **[frontend project blueprint §5](../architecture/frontend-project-blueprint.md#5-commit-conventions-page--architecture-work)** for examples and overlap with repo-wide rules.
+
 ## Layer rules
 
 | Layer | Responsibility | Must not |

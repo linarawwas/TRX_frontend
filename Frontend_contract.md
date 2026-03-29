@@ -7,13 +7,13 @@ Before making any changes:
 - Understand that the Data Access Layer (DAL) is currently under active development and NOT finalized
 - Your work MUST NOT break or bypass future DAL abstraction
 
-Your task is to use the "Employee Home Page" as the reference implementation to define and enforce a scalable, consistent frontend architecture contract.
+Your task is to use the "Page" as the reference implementation to define and enforce a scalable, consistent frontend architecture contract.
 
 ---
 
 # 🎯 OBJECTIVE
 
-Refactor the Employee Home Page so that it becomes:
+Refactor the Page so that it becomes:
 
 1. The **reference implementation** of a strict frontend folder structure contract
 2. A **blueprint** for how ALL pages in the app should be organized
@@ -46,7 +46,7 @@ Each page MUST follow this contract:
   ├── test-utils/              // Fixtures, store factories (NOT named *.test.* — Jest would run them)
   └── __tests__/               // Only *.test.ts / *.test.tsx
 
-**Canonical docs in repo:** `docs/frontend/page-architecture-contract.md` (layers + **Testing contract**), `docs/architecture/frontend-project-blueprint.md` (whole `src/` map, test tiers, docs checklist, Conventional Commits).
+**Canonical docs in repo:** `docs/frontend/page-architecture-contract.md` (layers + **Testing contract** + **Commit contract**), `docs/architecture/frontend-project-blueprint.md` (whole `src/` map, test tiers, docs checklist, expanded commit rules).
 
 Define CLEAR rules for each layer:
 
@@ -60,9 +60,9 @@ Define CLEAR rules for each layer:
 
 ---
 
-# ⚙️ PART 2 — REFACTOR EMPLOYEE HOME PAGE
+# ⚙️ PART 2 — REFACTOR  
 
-Refactor the existing Employee Home Page to strictly comply with this contract.
+Refactor the existing Page to strictly comply with this contract.
 
 While refactoring:
 
@@ -118,7 +118,7 @@ Each should:
 
 # 🧠 PART 4 — STATE MANAGEMENT ALIGNMENT
 
-- Identify all state used in Employee Home Page
+- Identify all state used in Page
 - Separate:
   - UI state (local)
   - server state (remote)
@@ -148,14 +148,14 @@ Update or create documentation for:
 1. Frontend Architecture Contract
    - Explain folder structure
    - Explain responsibilities of each layer
-   - Provide examples from Employee Home Page
+   - Provide examples from Page
 
 2. Data Access Pattern (Interim)
    - Explain how services layer works
    - Explain how it will integrate with DAL later
 
 3. Refactor Notes
-   - What changed in Employee Home Page
+   - What changed in Page
    - Why these decisions were made
    - What patterns should be reused
 
@@ -185,7 +185,56 @@ Ensure:
 
 ---
 
-# 📦 PART 8 — FINAL OUTPUT
+# 📌 PART 8 — GIT COMMITS (MANDATORY)
+
+Architectural and contract work **must** land in version control as **clear, comprehensive commits**—not a single vague “update” or long-lived uncommitted tree.
+
+## 8.1 Format (Conventional Commits)
+
+Use: **`type(scope): imperative subject`**
+
+| `type` | When |
+|--------|------|
+| `feat` | User-visible behavior or new capability |
+| `fix` | Bug fix |
+| `refactor` | Internal structure without intended behavior change |
+| `docs` | Documentation only |
+| `test` | Tests only |
+| `chore` / `ci` / `perf` | Tooling, deps, perf, CI |
+
+**Scope** (pick one): page slug (`employee-home`, `view-customers`), area (`router`, `redux`, `docs`), or `frontend` when cross-cutting.
+
+**Subject line:** imperative mood (“add”, “extract”, “align”), **~72 characters**, **no trailing period**, states **what** changed in one scan.
+
+## 8.2 Body (comprehensive and clear)
+
+After a blank line below the subject, use a **body** whenever the change is non-trivial:
+
+- **What** — bullets mapping to real areas (e.g. “split `Customers.tsx` into `hooks/`, `services/`, `CustomersShell`”).
+- **Why** — intent (contract compliance, DAL boundary, bug, perf).
+- **Risk / validation** — offline behavior, routes, anything reviewers should manually check.
+- **Follow-ups** — optional, only if intentionally out of scope.
+
+Write in **complete sentences** or tight phrase-bullets; avoid “misc fixes”, “updates”, “WIP”, or subject-only commits for large diffs.
+
+## 8.3 Granularity
+
+- **One logical change per commit** when practical: e.g. (1) docs + contract, (2) move/extract code, (3) tests.
+- Do **not** mix unrelated refactors, unrelated pages, or doc rewrites with feature code in the same commit unless the change set is tiny.
+
+## 8.4 Breaking changes
+
+If consumers must change: add a footer line **`BREAKING CHANGE:`** with what breaks and how to migrate.
+
+## 8.5 Agent / human obligation
+
+Before considering work **done**, **create the commits** (or provide copy-paste-ready messages per commit if the workflow requires human `git push`). Silent stop with uncommitted files violates this contract.
+
+**Canonical detail:** `docs/frontend/page-architecture-contract.md#commit-contract` and `docs/architecture/frontend-project-blueprint.md` §5.
+
+---
+
+# 📦 PART 9 — FINAL OUTPUT
 
 After completing everything, provide:
 
@@ -201,22 +250,21 @@ After completing everything, provide:
 - What should be refactored next
 - Risks to watch for
 
-## 5. COMMIT MESSAGE
+## 5. COMMIT MESSAGES
 
-Write a professional, detailed commit message:
+Provide **copy-paste-ready** commit message(s) that satisfy **Part 8** (subject + body). If multiple commits are appropriate, list them in **apply order** (e.g. docs first, then code, then tests).
 
-Format:
+Example single commit (illustrative only—tailor to actual diff):
 
+```
 feat(frontend): establish page architecture contract via Employee Home refactor
 
-- Introduced standardized page folder structure
-- Refactored Employee Home Page to follow strict separation of concerns
-- Extracted data access into services layer (DAL-ready)
-- Introduced adapters for data normalization
-- Improved state management boundaries
-- Preserved offline-first behavior
-- Updated frontend architecture documentation
-- Added migration guide for other pages
+- Introduced standardized page folder structure under EmployeeHomePage.
+- Refactored composition to hook plus presentational shell.
+- Extracted data access into services and adapters (DAL-ready boundaries).
+- Preserved offline-first behavior for queue reads and navigation.
+- Updated architecture and migration documentation.
+```
 
 ---
 

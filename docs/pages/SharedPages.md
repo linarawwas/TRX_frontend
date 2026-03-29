@@ -179,13 +179,13 @@ This document describes the refactoring of all pages in the `src/pages/SharedPag
 
 ---
 
-### 7. viewCustomers (`src/pages/SharedPages/viewCustomers/Customers.tsx`)
+### 7. viewCustomers (`src/pages/SharedPages/viewCustomers/` — page contract)
 
 **Purpose**: Display all customers (active and inactive) with search and add functionality.
 
 **Data Flow**:
-- Selectors: `selectUserToken`
-- API: `fetchCustomersByCompany`
+- Selectors: `selectCustomersPageToken` (`state/customersPageState.ts`, wraps `selectUserToken`)
+- Service: `readCompanyCustomersSnapshot` → `fetchCustomersByCompany`
 - Redux: `clearCustomerId` action
 
 **Features**:

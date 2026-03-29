@@ -31,7 +31,7 @@ This document explains how the frontend codebase is organized and where new code
   - Shared flows used by both roles:
     - `Addresses/` — Customers within an area and sequence management.
     - `Areas/`, `AreasForDay/` — Area and route organization.
-    - `CustomersForArea/`, `viewCustomers/` — Customer listings.
+    - `CustomersForArea/`, `viewCustomers/` — Customer listings (`viewCustomers/` follows the [page architecture contract](frontend/page-architecture-contract.md): `CustomersPage.tsx`, `hooks/`, `state/`, `services/`, `adapters/`, `components/CustomersShell.tsx`).
     - `Shipment/ShipmentsList.tsx` — Shipments over time.
     - `OrdersTable/`, `RecordOrderForCustomer/` — Orders and order recording.
     - `UpdateCustomer/`, `UpdateOrder/` — Route-entry wrappers for update flows.

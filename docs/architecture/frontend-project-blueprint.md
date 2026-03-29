@@ -83,16 +83,45 @@ Cross-link **[page architecture contract](../frontend/page-architecture-contract
 
 ## 5. Commit conventions (page / architecture work)
 
-Use **Conventional Commits** with a scope:
+Commits are part of the **contract**: they must be **comprehensive** (reviewer can understand the diff from the message) and **clear** (accurate type/scope/subject). This matches **`Frontend_contract.md` Part 8** and the [page architecture commit contract](../frontend/page-architecture-contract.md#commit-contract).
+
+### 5.1 Subject line
+
+- **Conventional Commits:** `type(scope): imperative description`
+- **Types:** `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf`, `ci` (see Conventional Commits spec).
+- **Scope:** Prefer a **page slug** (`employee-home`, `view-customers`) or **subsystem** (`router`, `redux`, `docs`, `frontend`).
+- **Style:** Imperative mood (“add”, “extract”, “align”), **~50–72 characters**, **no trailing period**.
+
+Examples:
 
 - `feat(employee-home): add pending queue service tests`
 - `docs(frontend): add project structure blueprint`
 - `test(employee-home): cover view model and shell`
-- `refactor(pages): align X with page contract`
+- `refactor(pages): align view customers with page contract`
 
-**One logical change per commit** when possible: (1) docs contract, (2) code move, (3) tests.
+### 5.2 Body (required for non-trivial changes)
 
-**Body:** What changed, why, risk (e.g. offline queue behavior), follow-ups (e.g. dedupe global hook with service).
+After a blank line below the subject, include bullets or short paragraphs for:
+
+1. **What** — Concrete areas (e.g. “new `services/companyCustomersRead.service.ts`, `CustomersShell`, router import path”).
+2. **Why** — Contract compliance, bug, performance, DAL boundary, etc.
+3. **Risk / how to verify** — Offline behavior, critical routes, manual QA notes.
+4. **Follow-ups** — Only if intentionally deferred.
+
+Avoid bodies that only repeat the subject or say “various improvements.”
+
+### 5.3 Granularity
+
+- **One logical change per commit** when practical—for example: (1) documentation and contract text, (2) structural code move, (3) tests.
+- Avoid mixing **unrelated** pages, unrelated refactors, or large doc rewrites with production logic in a single commit unless the change is intentionally atomic and small.
+
+### 5.4 Breaking changes
+
+If the change breaks callers or public routes, add a footer: **`BREAKING CHANGE:`** plus migration notes.
+
+### 5.5 Completion criterion
+
+Meaningful work is **not** considered complete if it remains only in the working tree: **commit** with messages that satisfy this section, or (in agent workflows) provide **copy-paste-ready** messages for each commit in apply order.
 
 ---
 

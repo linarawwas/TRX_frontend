@@ -13,7 +13,7 @@ Use **Employee Home** (`src/pages/EmployeePages/EmployeeHomePage/`) as the templ
 7. **Thin page file** — `PageName.tsx` imports CSS, calls the hook, spreads props into the shell.
 8. **Optional `index.tsx`** — `export { default } from "./PageName"` so the router can `import Page from "../pages/.../FeatureFolder"`.
 9. **Tests** — Follow the [page architecture contract § Testing](./page-architecture-contract.md#testing-contract): adapters → services → state → hooks → shell. Place fixtures in **`test-utils/`**, not arbitrary `__tests__/*.ts` (CRA may run them as suites).
-10. **Docs + commit** — Update `docs/INDEX.md` and use Conventional Commits; see [frontend project blueprint](../architecture/frontend-project-blueprint.md).
+10. **Docs + commit** — Update `docs/INDEX.md` when adding canonical docs. **Commit** with [clear, comprehensive messages](../frontend/page-architecture-contract.md#commit-contract): Conventional Commits, informative body for non-trivial diffs, split commits when logical boundaries differ. See [blueprint §5](../architecture/frontend-project-blueprint.md#5-commit-conventions-page--architecture-work) and `Frontend_contract.md` Part 8.
 
 ## Pitfalls
 

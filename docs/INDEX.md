@@ -32,7 +32,7 @@ Single entry point for all project documentation. For a curated high-level map, 
 | [page-architecture-contract.md](frontend/page-architecture-contract.md) | Standard page folder layers (`services/`, `adapters/`, `state/`, `hooks/`); Employee Home reference. |
 | [migration-page-contract.md](frontend/migration-page-contract.md) | How to migrate other pages to the contract. |
 | [employee-home.md](frontend/employee-home.md) | Employee home data flow and extension notes. |
-| [frontend-project-blueprint.md](architecture/frontend-project-blueprint.md) | Whole-repo structure map, testing tiers, docs + commit checklist. |
+| [frontend-project-blueprint.md](architecture/frontend-project-blueprint.md) | Whole-repo structure map, testing tiers, docs checklist, **commit conventions** (Conventional Commits, body, granularity). |
 
 ### `docs/components/`
 

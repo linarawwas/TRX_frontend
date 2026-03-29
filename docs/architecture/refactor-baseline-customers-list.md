@@ -1,20 +1,21 @@
 # Customers list page — refactor baseline (Phase 0)
 
-**Scope:** `src/pages/SharedPages/viewCustomers/Customers.tsx`, `Customers.css`. Cross-imports: `redux/Order/action` (`clearCustomerId`), `selectUserToken`, `features/customers/apiCustomers` (`fetchCustomersByCompany`, `Customer` type), `AddCustomer`, `SpinLoader`, `t()`.
+**Scope:** `src/pages/SharedPages/viewCustomers/` page module (`CustomersPage.tsx`, `Customers.css`, `hooks/`, `state/`, `services/`, `adapters/`, `components/`). Cross-imports: `redux/Order/action` (`clearCustomerId`), `selectUserToken` via `state/`, `features/customers/apiCustomers` (via `companyCustomersRead.service`), `AddCustomer`, `t()`.
 
 **Date:** 2026-03-27
 
 ## 1. Component hierarchy
 
 ```
-Customers (default: error boundary)
-└── CustomersInner
-    ├── header: title, add toggle + AddCustomer, search
-    ├── loading: SpinLoader
-    ├── error: message (+ retry post-refactor)
-    └── accordion (when !loading && !error && !showInsertOne)
-        ├── active section (collapsible list → Link /updateCustomer/:id)
-        └── inactive section (same + status chip)
+CustomersPage (default: CustomersErrorBoundary)
+└── CustomersPageContent (useCustomersViewModel)
+    └── CustomersShell
+        ├── header: title, add toggle + AddCustomer, search
+        ├── loading: CustomersListSkeleton
+        ├── error: message + retry
+        └── accordion (when !loading && !error && !showInsertOne)
+            ├── active section (collapsible list → Link /updateCustomer/:id)
+            └── inactive section (same + status chip)
 ```
 
 ## 2. Data flow (API → store → UI)

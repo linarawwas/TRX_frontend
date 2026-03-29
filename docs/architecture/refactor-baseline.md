@@ -86,7 +86,7 @@ RecordOrderForCustomer (page)
 
 **See also:** [Update order — baseline](./refactor-baseline-update-order.md) (`UpdateOrder`: `fetchOrderById`, receipt, payment sheet, admin edit/delete).
 
-**See also:** [Customers list — baseline](./refactor-baseline-customers-list.md) (`Customers.tsx`: `fetchCustomersByCompany`, accordions, `AddCustomer`).
+**See also:** [Customers list — baseline](./refactor-baseline-customers-list.md) (`viewCustomers` page: `readCompanyCustomersSnapshot`, accordions, `AddCustomer`).
 
 **See also:** [Current shipment stat — baseline](./refactor-baseline-current-shipment-stat.md) (`CurrentShipmentStat`: `useTodayShipmentTotals`, `computeNetTotals`, RTK range query).
 

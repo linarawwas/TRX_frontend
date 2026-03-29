@@ -1,6 +1,6 @@
-# Customers list (`Customers.tsx`)
+# Customers list (`viewCustomers` page module)
 
-**Files:** `src/pages/SharedPages/viewCustomers/Customers.tsx`, `Customers.css`
+**Files:** `src/pages/SharedPages/viewCustomers/` — `CustomersPage.tsx`, `Customers.css`, `index.tsx`, `hooks/`, `state/`, `services/companyCustomersRead.service.ts`, `adapters/companyCustomersAdapter.ts`, `utils/customersPageSearch.ts`, `types/`, `components/CustomersShell.tsx`, `__tests__/`.
 
 ## Purpose
 
@@ -13,9 +13,9 @@ Dual classes keep legacy hooks (`customers-body`, `accordion-header`, …) while
 ## Behavior
 
 - While the list is loading, `CustomersListSkeleton` mirrors the accordion + card layout (shimmer; respects `prefers-reduced-motion`).
-- Refetch when `token`, `showInsertOne`, or `loadCustomers` changes; `dispatch(clearCustomerId())` on each run.
-- RTK Query / API cache is not controlled from this file.
+- Refetch when `showInsertOne` or `loadCustomers` changes (via `useCustomersViewModel`); `dispatch(clearCustomerId())` on each run.
+- HTTP goes through `readCompanyCustomersSnapshot` → `fetchCustomersByCompany`; normalization in `adaptCompanyCustomersApiResult`.
 
 ## Extending
 
-Add API behavior in `apiCustomers`; keep toolbar and list semantics in this page unless extracting a shared “customer directory” layout later.
+Add API behavior in `apiCustomers` or extend the page `services/` / `adapters/`; keep the shell presentational.

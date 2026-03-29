@@ -4,7 +4,7 @@ import { Route } from "react-router-dom";
 import Login from "../pages/SharedPages/Login/Login";
 import Register from "../components/Auth/Register";
 import Areas from "../pages/SharedPages/Areas/Areas";
-import Customers from "../pages/SharedPages/viewCustomers/Customers";
+import Customers from "../pages/SharedPages/viewCustomers";
 import Addresses from "../pages/SharedPages/Addresses/Addresses";
 import AreasForDay from "../pages/SharedPages/AreasForDay/AreasForDay";
 import CustomersForArea from "../pages/SharedPages/CustomersForArea/CustomersForArea";
