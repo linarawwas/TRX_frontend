@@ -7,7 +7,7 @@ import ProgressSnapshot from "../../snapshots/ProgressSnapshot";
 import { t } from "../../../utils/i18n";
 
 const RoundSnapshotComponent: React.FC = () => {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   const {
     sequence,

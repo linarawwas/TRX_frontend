@@ -21,8 +21,25 @@ PageName/
   ├── types/                    # TypeScript types for the page domain
   ├── constants/                # Static config, log scopes, magic strings
   ├── features/                 # Optional named workflows when hooks grow large
-  └── __tests__/                # Colocated tests (pure adapters/utils first)
+  ├── test-utils/               # Fixtures & store factories (NOT `*.test.*` — see below)
+  └── __tests__/                # Only `*.test.ts` / `*.test.tsx` (Jest picks up all .ts/.tsx here)
 ```
+
+## Testing contract
+
+| Layer | What to test | How |
+|-------|----------------|-----|
+| **adapters** | Normalization, edge cases | Unit tests, no mocks |
+| **utils / guards** | Pure logic | Unit tests |
+| **services** | Success + error paths | Mock `fetch` / IndexedDB / module boundary at **one** level |
+| **state** | Selectors | Immutable `RootState` fixtures (`test-utils/` recommended) |
+| **hooks** | View model / subscriptions | `renderHook`, `waitFor`, scoped mocks |
+| **components (shell)** | Major UI branches | RTL + `MemoryRouter` when `Link` is used |
+| **PageName.tsx** | Optional smoke | Usually covered by shell + hook tests |
+
+**Fixture location:** Put `makeXRootState` and similar helpers in **`test-utils/`** beside the page, **not** loose `__tests__/helper.ts`, because Create React App’s Jest config may execute every `*.ts` under `__tests__/` as a suite.
+
+**Coverage goal:** Every **I/O boundary** (service) and every **user-visible branch** of the shell should have at least one test; pure layers should be fully covered.
 
 ## Layer rules
 
@@ -58,3 +75,4 @@ Shared widgets (`TodaySnapshot`, `RoundSnapshot`, `StartShipment`) stay in their
 
 - [Migration guide](./migration-page-contract.md)
 - [Employee home feature doc](./employee-home.md)
+- [Project structure blueprint (tests, commits, docs)](../architecture/frontend-project-blueprint.md)

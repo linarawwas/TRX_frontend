@@ -17,8 +17,10 @@
 | Adapters | `adapters/pendingQueueAdapter.ts` — queue length normalization |
 | Hooks | `useEmployeeHomeViewModel.ts`, `useEmployeeHomeSyncQueue.ts` |
 | Features | `features/index.ts` — re-exports types; extend for workflows later |
+| Test utils | `test-utils/makeEmployeeHomeRootState.ts` — Redux fixtures for hooks |
+| Tests | `__tests__/` — adapters, guards, service, state, sync hook, view model, shell |
 
-See **[page architecture contract](./page-architecture-contract.md)** and **[migration guide](./migration-page-contract.md)**.
+See **[page architecture contract](./page-architecture-contract.md)**, **[migration guide](./migration-page-contract.md)**, and **[project blueprint](../architecture/frontend-project-blueprint.md)**.
 
 ## Data flow
 

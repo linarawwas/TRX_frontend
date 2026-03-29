@@ -12,7 +12,8 @@ Use **Employee Home** (`src/pages/EmployeePages/EmployeeHomePage/`) as the templ
 6. **Shell component** — Move layout JSX from the page file into `components/<Page>Shell.tsx` with a typed props interface in `types/`.
 7. **Thin page file** — `PageName.tsx` imports CSS, calls the hook, spreads props into the shell.
 8. **Optional `index.tsx`** — `export { default } from "./PageName"` so the router can `import Page from "../pages/.../FeatureFolder"`.
-9. **Tests** — Start with pure `adapters` and `utils`; add hook tests when Jest env is stable.
+9. **Tests** — Follow the [page architecture contract § Testing](./page-architecture-contract.md#testing-contract): adapters → services → state → hooks → shell. Place fixtures in **`test-utils/`**, not arbitrary `__tests__/*.ts` (CRA may run them as suites).
+10. **Docs + commit** — Update `docs/INDEX.md` and use Conventional Commits; see [frontend project blueprint](../architecture/frontend-project-blueprint.md).
 
 ## Pitfalls
 
