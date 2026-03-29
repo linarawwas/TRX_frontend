@@ -1,6 +1,6 @@
 # Employee Home Page
 
-**Path:** [src/pages/EmployeePages/EmployeeHomePage/EmployeeHomePage.tsx](../../src/pages/EmployeePages/EmployeeHomePage/EmployeeHomePage.tsx)  
+**Path:** [src/pages/EmployeePages/EmployeeHomePage/](../../src/pages/EmployeePages/EmployeeHomePage/) (route imports `index.tsx`; composition in [EmployeeHomePage.tsx](../../src/pages/EmployeePages/EmployeeHomePage/EmployeeHomePage.tsx))  
 **Role:** Main landing page for employees displaying today's shipment progress, round statistics, and quick action buttons.  
 **Owner/Area:** Employee Pages
 
@@ -19,7 +19,8 @@ The Employee Home Page serves as the primary dashboard for employees, providing:
 
 ### Main Container
 
-- **[EmployeeHomePage.tsx](../../src/pages/EmployeePages/EmployeeHomePage/EmployeeHomePage.tsx)** - Main page component orchestrating all sections
+- **[EmployeeHomePage.tsx](../../src/pages/EmployeePages/EmployeeHomePage/EmployeeHomePage.tsx)** — Thin composition: `useEmployeeHomeViewModel` → **[EmployeeHomeShell.tsx](../../src/pages/EmployeePages/EmployeeHomePage/components/EmployeeHomeShell.tsx)**
+- **[Architecture contract](../frontend/page-architecture-contract.md)** — Folder layers (`services/`, `adapters/`, `state/`, `hooks/`)
 
 ### Snapshot Components
 
@@ -35,17 +36,19 @@ The Employee Home Page serves as the primary dashboard for employees, providing:
 - **[EmployeeHomeEmptyState.tsx](../../src/pages/EmployeePages/EmployeeHomePage/components/EmployeeHomeEmptyState.tsx)** — No active shipment
 - **[EmployeeHomeFooter.tsx](../../src/pages/EmployeePages/EmployeeHomePage/components/EmployeeHomeFooter.tsx)** — Copyright
 
-### Hooks
+### Hooks (page-local)
 
-- **[useNavigatorOnline.ts](../../src/hooks/useNavigatorOnline.ts)** — Subscribes to browser online/offline events
-- **[usePendingRequestCount.ts](../../src/hooks/usePendingRequestCount.ts)** — Reads `getPendingRequests()` from IndexedDB (does not mutate the queue)
+- **[useEmployeeHomeViewModel.ts](../../src/pages/EmployeePages/EmployeeHomePage/hooks/useEmployeeHomeViewModel.ts)** — View model for the shell
+- **[useEmployeeHomeSyncQueue.ts](../../src/pages/EmployeePages/EmployeeHomePage/hooks/useEmployeeHomeSyncQueue.ts)** — Pending queue count via **[pendingQueueRead.service.ts](../../src/pages/EmployeePages/EmployeeHomePage/services/pendingQueueRead.service.ts)**
 
-### Data & Selectors
+### Shared hooks
 
-- **[shipment.ts](../../src/redux/selectors/shipment.ts)** - Typed Redux selectors:
-  - `selectShipmentMeta` - Returns shipment ID and dayId
-  - `selectTodayProgress` - Returns today's target, delivered, returned, and financial values
-  - `selectRoundProgress` - Returns current round progress and financial deltas
+- **[useNavigatorOnline.ts](../../src/hooks/useNavigatorOnline.ts)** — Browser online/offline events
+
+### Data & selectors
+
+- **[employeeHomeState.ts](../../src/pages/EmployeePages/EmployeeHomePage/state/employeeHomeState.ts)** — `selectEmployeeHomeUsername`, `selectEmployeeHomeShipmentContext` (re-exports `selectShipmentMeta`)
+- **[shipment.ts](../../src/redux/selectors/shipment.ts)** — `selectTodayProgress`, `selectRoundProgress` (used inside snapshot components)
 
 ### Utilities
 
@@ -66,7 +69,7 @@ ProgressSnapshot Component (shared UI)
     ↓
 TodaySnapshot / RoundSnapshot (wrappers)
     ↓
-EmployeeHomePage (layout)
+EmployeeHomeShell (layout) ← view model from `useEmployeeHomeViewModel`
 ```
 
 ### Selector Responsibilities

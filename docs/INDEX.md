@@ -25,6 +25,14 @@ Single entry point for all project documentation. For a curated high-level map, 
 | [ProductsList.md](pages/ProductsList.md) | Products management page. |
 | [SharedPages.md](pages/SharedPages.md) | Shared pages: addresses, areas, shipments list, customers, orders, expenses, profits, etc. |
 
+### `docs/frontend/`
+
+| Document | Description |
+|----------|-------------|
+| [page-architecture-contract.md](frontend/page-architecture-contract.md) | Standard page folder layers (`services/`, `adapters/`, `state/`, `hooks/`); Employee Home reference. |
+| [migration-page-contract.md](frontend/migration-page-contract.md) | How to migrate other pages to the contract. |
+| [employee-home.md](frontend/employee-home.md) | Employee home data flow and extension notes. |
+
 ### `docs/components/`
 
 | Document | Description |

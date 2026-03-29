@@ -22,7 +22,7 @@ Primary transport is RTK Query (`trxApi`) via feature endpoints and shared `rtkR
 | `src/pages/SharedPages/Login/LoginForm.tsx` | `loginUser` -> `POST /api/auth/login` (`ApiResult`) |
 | `src/pages/AdminPages/ProductsList/Products.tsx` | via `useProducts` -> `/api/products/company/${companyId}`, `/api/products/${productId}` and direct `updateProduct` -> `/api/products/${productId}` |
 | `src/pages/AdminPages/FinanceDashboard/FinanceDashboard.tsx` | `useFinanceCategories` -> `/api/finance-categories`; `useDailySummary` -> `/api/finances/summary/daily`; `useMonthlySummary` -> `/api/finances/summary/monthly`; `useFinanceEntries` -> `/api/finances?...`; mutations via `createFinance/updateFinance/deleteFinance` |
-| `src/pages/EmployeePages/EmployeeHomePage/EmployeeHomePage.tsx` | no direct transport (composes children) |
+| `src/pages/EmployeePages/EmployeeHomePage/` | no HTTP in page shell; offline queue via `services/pendingQueueRead.service.ts` → IndexedDB `getPendingRequests`; KPIs in child snapshots (Redux) |
 
 ## Components (domain dependency from component file)
 

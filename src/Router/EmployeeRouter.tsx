@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 
-import EmployeeHomePage from "../pages/EmployeePages/EmployeeHomePage/EmployeeHomePage";
+import EmployeeHomePage from "../pages/EmployeePages/EmployeeHomePage";
 import StartShipment from "../pages/EmployeePages/StartShipment/StartShipmentPage";
 import { CommonRoutes } from "./CommonRoutes";
 

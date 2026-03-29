@@ -24,7 +24,7 @@ This document explains how the frontend codebase is organized and where new code
   - `Distributors/` — Thin route-entry pages for distributor list/details.
 
 - `src/pages/EmployeePages/`
-  - `EmployeeHomePage/` — Employee dashboard and quick actions.
+  - `EmployeeHomePage/` — Employee dashboard (**reference page contract**: `index.tsx`, `hooks/`, `state/`, `services/`, `adapters/`, `types/`, `components/EmployeeHomeShell.tsx`). See `docs/frontend/page-architecture-contract.md`.
   - `StartShipment/` — Thin route-entry page for shipment start.
 
 - `src/pages/SharedPages/`

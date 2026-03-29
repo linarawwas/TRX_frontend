@@ -11,7 +11,7 @@ This document defines where server communication belongs in the frontend and whi
 
 ### Folder responsibility model
 
-- **`pages/`** — Route-entry files and route-level composition. They should stay thin and prefer delegating detailed behavior to feature hooks and UI sections.
+- **`pages/`** — Route-entry files and route-level composition. They should stay thin and prefer delegating detailed behavior to feature hooks and UI sections. For **in-folder page modules** (e.g. Employee Home), follow **[page architecture contract](frontend/page-architecture-contract.md)** (`services/`, `adapters/`, `state/`, `hooks/`, presentational shell).
 - **`components/`** — Shared/reusable UI and clearly scoped feature UI building blocks. They are not the primary home for cross-file workflow controllers.
 - **`features/`** — Domain logic: APIs, controller hooks, selectors, validation, and feature-owned utilities.
 - **`utils/`** — Generic non-domain infrastructure only.

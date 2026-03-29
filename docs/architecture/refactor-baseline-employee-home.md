@@ -26,7 +26,7 @@ Loading (no username yet): EmployeeHomeSkeleton only
 | **User** | `useSelector` → `state.user.username`; skeleton until truthy. |
 | **Shipment context** | `selectShipmentMeta` (`shipmentId`, `dayId`) drives empty vs `TodaySnapshot` and area link. |
 | **KPIs** | `TodaySnapshot` / `RoundSnapshot` use Redux selectors (`selectTodayProgress`, `selectRoundProgress`, etc.) — **not** fetched inside `EmployeeHomePage.tsx`. |
-| **Offline queue count** | `usePendingRequestCount` → IndexedDB `getPendingRequests()`; refreshes on mount and `window` `online`. |
+| **Offline queue count** | `useEmployeeHomeSyncQueue` → `readPendingQueueSnapshot()` → IndexedDB `getPendingRequests()`; refreshes on mount and `window` `online`. |
 | **Start shipment** | `StartShipment` inside modal (separate component tree; may dispatch / API — unchanged by page shell). |
 
 ## 3. State management
@@ -55,5 +55,13 @@ Loading (no username yet): EmployeeHomeSkeleton only
 
 ## 7. Follow-up (optional)
 
-- `createLogger` in `usePendingRequestCount` catch path (shared hook).
-- Visual alignment with `CustomersForArea` / `RecordOrderForCustomer` shells (gradient + surface card).
+- Align other pages with [page architecture contract](../frontend/page-architecture-contract.md).
+- Optionally dedupe `usePendingRequestCount` (global) with `readPendingQueueSnapshot` via a **shared** `services/` module (avoid `src/hooks` importing from `pages/`).
+
+---
+
+## 8. Contract refactor (2026-03)
+
+- **Folder contract:** `types/`, `constants/`, `utils/`, `adapters/`, `services/`, `state/`, `hooks/`, `features/`, `__tests__/`, `index.tsx` route entry.
+- **Offline queue:** `readPendingQueueSnapshot` + `useEmployeeHomeSyncQueue` (page hook); IndexedDB only inside service.
+- **UI:** `EmployeeHomeShell` is presentational; `EmployeeHomePage.tsx` is composition-only.
